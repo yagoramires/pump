@@ -1,0 +1,4 @@
+{
+  "muscles": { "abdominals": "abdominais", "abductors": "abdutores", "adductors": "adutores", "biceps": "bíceps", "calves": "panturrilhas", "chest": "peito", "forearms": "antebraços", "glutes": "glúteos", "hamstrings": "posteriores de coxa", "lats": "dorsais", "lower back": "lombar", "middle back": "meio das costas", "neck": "pescoço", "quadriceps": "quadríceps", "shoulders": "ombros", "traps": "trapézio", "triceps": "tríceps" },
+  "equipment": { "bands": "elástico", "barbell": "barra", "body only": "peso do corpo", "cable": "polia", "dumbbell": "halter", "e-z curl bar": "barra W", "exercise ball": "bola suíça", "foam roll": "rolo de liberação", "kettlebells": "kettlebell", "machine": "máquina", "medicine ball": "medicine ball", "other": "outro", "null": "nenhum" }
+}
