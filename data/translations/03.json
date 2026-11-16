@@ -1,0 +1,482 @@
+{
+  "Box_Skip": {
+    "name": "Skip na caixa",
+    "instructions": [
+      "Você vai precisar de várias caixas alinhadas, com cerca de 2,5 m de distância entre elas.",
+      "Comece de frente para a primeira caixa, com uma perna um pouco atrás da outra.",
+      "Impulsione com a perna de trás, tentando ganhar o máximo de altura com o quadril.",
+      "Assim que aterrissar na caixa, projete a outra perna para a frente e para cima para ganhar altura e distância, saltando da caixa. Aterrisse entre as duas primeiras caixas com a mesma perna que aterrissou na primeira caixa.",
+      "Em seguida, passe para a próxima caixa e repita."
+    ]
+  },
+  "Box_Squat": {
+    "name": "Agachamento no caixote",
+    "instructions": [
+      "O agachamento no caixote permite agachar até a profundidade desejada e desenvolver força explosiva no movimento do agachamento. Comece em um power rack, com um caixote na altura adequada atrás de você. Normalmente, escolhe-se uma altura de caixote que leve a um agachamento paralelo, mas você pode treinar mais alto ou mais baixo se quiser.",
+      "Comece entrando sob a barra e apoiando-a na parte de trás dos ombros. Junte as escápulas e gire os cotovelos para a frente, tentando envergar a barra sobre os ombros. Retire a barra do rack, criando um arco firme na lombar, e dê um passo para trás até a posição. Afaste mais os pés para dar mais ênfase às costas, aos glúteos, aos adutores e aos posteriores de coxa, ou deixe-os mais próximos para desenvolver mais o quadríceps. Mantenha a cabeça voltada para a frente.",
+      "Com as costas, os ombros e o abdômen firmes, empurre os joelhos e o bumbum para fora e comece a descer. Leve o quadril para trás até se sentar no caixote. O ideal é que as canelas fiquem perpendiculares ao chão. Faça uma pausa ao chegar no caixote e relaxe os flexores do quadril. Nunca quique no caixote.",
+      "Mantendo o peso nos calcanhares e empurrando os pés e os joelhos para fora, suba impulsionando o corpo para fora do caixote, conduzindo o movimento com a cabeça. Continue subindo, mantendo o corpo firme da cabeça aos pés."
+    ]
+  },
+  "Box_Squat_with_Bands": {
+    "name": "Agachamento no caixote com elásticos",
+    "instructions": [
+      "Comece em um power rack, com um caixote na altura adequada atrás de você. Prenda os elásticos nas pontas da barra, fixando-os nos pinos de elástico, no rack ou em halteres, de modo a obter a tensão adequada. Se usar halteres, fixe-os para que não se mexam. Certifique-se também de que os halteres sejam pesados o bastante para os elásticos usados. Anilhas extras podem ser usadas para segurar os halteres no chão. Se precisar de mais tensão, você pode alargar a base no chão ou encurtar os elásticos. Normalmente, escolhe-se uma altura de caixote que leve a um agachamento paralelo, mas você pode treinar mais alto ou mais baixo se quiser.",
+      "Comece entrando sob a barra e apoiando-a na parte de trás dos ombros. Junte as escápulas e gire os cotovelos para a frente, tentando envergar a barra sobre os ombros. Retire a barra do rack, criando um arco firme na lombar, e dê um passo para trás até a posição. Afaste mais os pés para dar mais ênfase às costas, aos glúteos, aos adutores e aos posteriores de coxa, ou deixe-os mais próximos para desenvolver mais o quadríceps. Mantenha a cabeça voltada para a frente.",
+      "Com as costas, os ombros e o abdômen firmes, empurre os joelhos e o bumbum para fora e comece a descer. Leve o quadril para trás até se sentar no caixote. O ideal é que as canelas fiquem perpendiculares ao chão. Faça uma pausa ao chegar no caixote e relaxe os flexores do quadril. Nunca quique no caixote.",
+      "Mantendo o peso nos calcanhares e empurrando os pés e os joelhos para fora, suba impulsionando o corpo para fora do caixote, conduzindo o movimento com a cabeça. Continue subindo, mantendo o corpo firme da cabeça aos pés. Tenha cuidado ao devolver a barra ao rack."
+    ]
+  },
+  "Box_Squat_with_Chains": {
+    "name": "Agachamento no caixote com correntes",
+    "instructions": [
+      "Comece em um power rack, com um caixote na altura adequada atrás de você. Normalmente, escolhe-se uma altura de caixote que leve a um agachamento paralelo, mas você pode treinar mais alto ou mais baixo se quiser.",
+      "Para montar as correntes, comece passando a corrente-guia sobre as pontas da barra. A corrente pesada deve ser presa com um mosquetão. Ajuste o comprimento da corrente-guia de modo que alguns elos ainda fiquem no chão no topo do movimento.",
+      "Comece entrando sob a barra e apoiando-a na parte de trás dos ombros. Junte as escápulas e gire os cotovelos para a frente, tentando envergar a barra sobre os ombros. Retire a barra do rack, criando um arco firme na lombar, e dê um passo para trás até a posição. Afaste mais os pés para dar mais ênfase às costas, aos glúteos, aos adutores e aos posteriores de coxa, ou deixe-os mais próximos para desenvolver mais o quadríceps. Mantenha a cabeça voltada para a frente.",
+      "Com as costas, os ombros e o abdômen firmes, empurre os joelhos e o bumbum para fora e comece a descer. Leve o quadril para trás até se sentar no caixote. O ideal é que as canelas fiquem perpendiculares ao chão. Faça uma pausa ao chegar no caixote e relaxe os flexores do quadril. Nunca quique no caixote.",
+      "Mantendo o peso nos calcanhares e empurrando os pés e os joelhos para fora, suba impulsionando o corpo para fora do caixote, conduzindo o movimento com a cabeça. Continue subindo, mantendo o corpo firme da cabeça aos pés."
+    ]
+  },
+  "Brachialis-SMR": {
+    "name": "Liberação miofascial do braquial no rolo",
+    "instructions": [
+      "Deite-se de lado, com a parte superior do braço apoiada no rolo de liberação. O braço deve ficar mais ou menos alinhado com o corpo, com a parte externa do bíceps pressionada contra o rolo.",
+      "Eleve o quadril do chão, apoiando o peso no braço e nos pés. Segure por 10 a 30 segundos e depois troque de lado."
+    ]
+  },
+  "Bradford_Rocky_Presses": {
+    "name": "Desenvolvimento Bradford/Rocky",
+    "instructions": [
+      "Sente-se em um banco de desenvolvimento militar com a barra na altura dos ombros e pegada pronada (palmas voltadas para a frente). Dica: a pegada deve ser mais larga que os ombros e formar um ângulo de 90 graus entre o antebraço e o braço quando a barra desce. Essa é a posição inicial.",
+      "Depois de pegar a barra com a pegada correta, levante-a acima da cabeça travando os braços.",
+      "Agora abaixe a barra devagar até a parte de trás da cabeça enquanto inspira.",
+      "Levante a barra de volta à posição inicial enquanto solta o ar.",
+      "Abaixe a barra devagar até a posição inicial enquanto inspira. Isso é uma repetição.",
+      "Alterne dessa forma até completar o número de repetições recomendado."
+    ]
+  },
+  "Butt-Ups": {
+    "name": "Elevação de quadril em prancha",
+    "instructions": [
+      "Comece na posição de flexão, mas com os cotovelos no chão, apoiado nos antebraços. Os braços devem ficar dobrados a 90 graus.",
+      "Arqueie levemente as costas para fora, em vez de mantê-las completamente retas.",
+      "Eleve os glúteos em direção ao teto, contraindo bem o abdômen para diminuir a distância entre a caixa torácica e o quadril. No fim, você ficará em uma posição de ponte alta. Solte o ar durante esta parte do movimento.",
+      "Volte devagar à posição inicial enquanto inspira. Dica: não deixe as costas cederem para baixo.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Butt_Lift_Bridge": {
+    "name": "Elevação pélvica (ponte)",
+    "instructions": [
+      "Deite-se de costas no chão, com as mãos ao lado do corpo e os joelhos dobrados. Os pés ficam afastados mais ou menos na largura dos ombros. Essa é a posição inicial.",
+      "Empurrando principalmente com os calcanhares, levante o quadril do chão mantendo as costas retas. Solte o ar durante esta parte do movimento e segure no topo por um segundo.",
+      "Volte devagar à posição inicial enquanto inspira."
+    ]
+  },
+  "Butterfly": {
+    "name": "Peck deck (voador)",
+    "instructions": [
+      "Sente-se na máquina com as costas totalmente apoiadas no encosto.",
+      "Segure as alças. Dica: os braços devem ficar paralelos ao chão; ajuste a máquina de acordo. Essa é a posição inicial.",
+      "Empurre as alças uma em direção à outra devagar, contraindo o peito no meio. Solte o ar durante esta parte do movimento e segure a contração por um segundo.",
+      "Volte devagar à posição inicial enquanto inspira, até os músculos do peito ficarem totalmente alongados.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Cable_Chest_Press": {
+    "name": "Supino na polia",
+    "instructions": [
+      "Ajuste a carga para um valor adequado e sente-se, segurando as alças. Os braços devem ficar a cerca de 45 graus do corpo, com a cabeça e o peito erguidos. Os cotovelos ficam dobrados a cerca de 90 graus. Essa é a posição inicial.",
+      "Comece estendendo os cotovelos, empurrando as alças uma em direção à outra, à sua frente. Mantenha as escápulas retraídas durante o movimento.",
+      "Após uma pausa na extensão completa, volte à posição inicial, mantendo a tensão nos cabos.",
+      "Você também pode fazer este movimento com as costas fora do encosto, em inclinação ou declínio, ou alternando as mãos."
+    ]
+  },
+  "Cable_Crossover": {
+    "name": "Crossover na polia",
+    "instructions": [
+      "Para chegar à posição inicial, coloque as polias em uma posição alta (acima da cabeça), escolha a resistência e segure uma alça em cada mão.",
+      "Dê um passo à frente de uma linha reta imaginária entre as duas polias, juntando os braços à sua frente. O tronco deve ter uma pequena inclinação à frente, a partir da cintura. Essa é a posição inicial.",
+      "Com uma leve flexão nos cotovelos para evitar sobrecarga no tendão do bíceps, estenda os braços para os lados (totalmente abertos) em um arco amplo, até sentir o alongamento no peito. Inspire durante esta parte do movimento. Dica: lembre-se de que, durante todo o movimento, os braços e o tronco devem ficar parados; o movimento deve ocorrer apenas na articulação do ombro.",
+      "Leve os braços de volta à posição inicial enquanto solta o ar. Use o mesmo arco de movimento da descida dos pesos.",
+      "Segure por um segundo na posição inicial e repita o movimento pelo número de repetições prescrito."
+    ]
+  },
+  "Cable_Crunch": {
+    "name": "Abdominal na polia",
+    "instructions": [
+      "Ajoelhe-se sob uma polia alta com um acessório de corda.",
+      "Segure a corda e abaixe-a até as mãos ficarem ao lado do rosto.",
+      "Flexione levemente o quadril e deixe o peso estender a lombar além do normal. Essa é a posição inicial.",
+      "Com o quadril parado, flexione a cintura contraindo o abdômen, de modo que os cotovelos se movam em direção ao meio das coxas. Solte o ar durante esta parte do movimento e segure a contração por um segundo.",
+      "Volte devagar à posição inicial enquanto inspira. Dica: mantenha tensão constante no abdômen durante todo o movimento. Além disso, não escolha uma carga tão pesada que a lombar faça a maior parte do trabalho.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Cable_Deadlifts": {
+    "name": "Levantamento terra na polia",
+    "instructions": [
+      "Leve as polias para a parte inferior das torres e escolha uma carga adequada. Fique bem no meio, entre as colunas.",
+      "Para começar, agache flexionando quadril e joelhos até alcançar as alças.",
+      "Depois de segurá-las, comece a subir. Empurrando com os calcanhares, estenda quadril e joelhos, mantendo as mãos penduradas ao lado do corpo. Mantenha a cabeça e o peito erguidos durante todo o movimento.",
+      "Depois de chegar à posição totalmente em pé, volte à posição inicial e repita."
+    ]
+  },
+  "Cable_Hammer_Curls_-_Rope_Attachment": {
+    "name": "Rosca martelo na polia com corda",
+    "instructions": [
+      "Prenda uma corda em uma polia baixa e fique de frente para a máquina, a cerca de 30 cm dela.",
+      "Segure a corda com pegada neutra (palmas voltadas uma para a outra) e fique em pé, mantendo a curvatura natural das costas e o tronco parado.",
+      "Coloque os cotovelos junto às laterais do corpo e mantenha-os parados durante todo o movimento. Dica: só os antebraços devem se mover, não os braços. Essa é a posição inicial.",
+      "Usando os bíceps, puxe os braços para cima enquanto solta o ar, até os bíceps encostarem nos antebraços. Dica: lembre-se de manter os cotovelos junto ao corpo e os braços parados.",
+      "Após uma contração de 1 segundo, apertando os bíceps, comece a levar o peso de volta devagar à posição original.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Cable_Hip_Adduction": {
+    "name": "Adução de quadril na polia",
+    "instructions": [
+      "Fique em pé de frente para uma polia baixa, olhando para a frente, com uma perna ao lado da polia e a outra afastada.",
+      "Prenda a tornozeleira ao cabo e também ao tornozelo da perna que está ao lado da polia.",
+      "Agora dê um passo para fora e para longe da torre, com as pernas bem afastadas, e segure a barra do sistema de polia.",
+      "Apoie-se no pé sem a tornozeleira (o pé mais distante) e deixe a perna com a tornozeleira ser puxada em direção à polia baixa. Essa é a posição inicial.",
+      "Agora execute o movimento levando a perna com a tornozeleira à frente da perna de apoio, usando a parte interna das coxas para aduzir o quadril. Solte o ar durante esta parte do movimento.",
+      "Volte devagar à posição inicial enquanto inspira.",
+      "Repita pelo número de repetições recomendado e depois faça o mesmo movimento com a outra perna."
+    ]
+  },
+  "Cable_Incline_Pushdown": {
+    "name": "Pulldown inclinado na polia",
+    "instructions": [
+      "Deite-se em um banco inclinado, de costas para uma polia alta com uma barra reta presa.",
+      "Segure a barra reta acima da cabeça com pegada pronada (por cima; palmas para baixo) na largura dos ombros e estenda os braços à sua frente. A barra deve ficar a cerca de 5 cm das coxas. Essa é a posição inicial.",
+      "Mantendo os braços parados, leve-os para trás em um semicírculo até a barra ficar bem acima da cabeça. Inspire durante esta parte do movimento.",
+      "Volte devagar à posição inicial usando os dorsais e segure a contração ao chegar na posição inicial. Solte o ar durante a execução deste movimento.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Cable_Incline_Triceps_Extension": {
+    "name": "Extensão de tríceps inclinada na polia",
+    "instructions": [
+      "Deite-se em um banco inclinado, de costas para uma polia alta com uma barra reta presa.",
+      "Segure a barra reta acima da cabeça com pegada pronada (por cima; palmas para baixo) estreita (menor que a largura dos ombros) e mantenha os cotovelos junto ao corpo. Os braços devem formar cerca de 25 graus em relação ao chão.",
+      "Mantendo os braços parados, estenda os braços contraindo os tríceps. Solte o ar durante esta parte do movimento e segure a contração por um segundo.",
+      "Volte devagar à posição inicial.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Cable_Internal_Rotation": {
+    "name": "Rotação interna na polia",
+    "instructions": [
+      "Sente-se de lado ao lado de uma polia baixa (com as pernas esticadas à frente ou cruzadas) e segure o acessório de mão única com o braço mais próximo do cabo. Dica: se der para ajustar a altura da polia, você pode sentar em um banco reto.",
+      "Posicione o cotovelo junto ao corpo, dobrado a 90°, com o antebraço apontando para a polia. Essa é a posição inicial.",
+      "Puxe o acessório em direção ao corpo, girando o ombro internamente até o antebraço ficar à frente do abdômen. Você vai desenhar um semicírculo imaginário. Dica: o antebraço deve ficar perpendicular ao tronco o tempo todo.",
+      "Volte devagar à posição inicial.",
+      "Repita pelo número de repetições recomendado e depois repita o movimento com o outro braço."
+    ]
+  },
+  "Cable_Iron_Cross": {
+    "name": "Cruz de ferro na polia",
+    "instructions": [
+      "Comece levando as polias para a posição alta, escolha a resistência e segure uma alça em cada mão.",
+      "Fique bem no meio das duas polias, com os braços estendidos para os lados. A cabeça e o peito devem ficar erguidos, enquanto os braços formam um \"T\". Essa é a posição inicial.",
+      "Mantendo os cotovelos estendidos, puxe os braços retos para os lados.",
+      "Volte os braços à posição inicial após uma pausa no pico da contração.",
+      "Continue o movimento pelo número de repetições prescrito."
+    ]
+  },
+  "Cable_Judo_Flip": {
+    "name": "Judo flip na polia",
+    "instructions": [
+      "Prenda uma corda em uma torre e leve o cabo para a posição de polia mais baixa. Fique de lado para o cabo, com as pernas bem afastadas, e segure a corda com as duas mãos.",
+      "Gire o corpo para longe da polia enquanto leva a corda por cima do ombro, como se estivesse fazendo um arremesso de judô.",
+      "Transfira o peso entre os pés enquanto gira e contrai o abdômen para a frente, puxando o cabo para baixo.",
+      "Volte à posição inicial e repita até a falha.",
+      "Depois, reposicione-se e repita a mesma sequência de movimentos do lado oposto."
+    ]
+  },
+  "Cable_Lying_Triceps_Extension": {
+    "name": "Tríceps testa na polia",
+    "instructions": [
+      "Deite-se em um banco reto e segure a barra reta de uma polia baixa com pegada pronada estreita. Dica: a maneira mais fácil é pedir que alguém lhe entregue a barra enquanto você se deita.",
+      "Com os braços estendidos, posicione a barra sobre o tronco. Os braços e o tronco devem formar um ângulo de 90 graus. Essa é a posição inicial.",
+      "Abaixe a barra dobrando os cotovelos, mantendo os braços parados e os cotovelos junto ao corpo. Desça até a barra tocar de leve a testa. Inspire durante esta parte do movimento.",
+      "Contraia os tríceps ao levantar a barra de volta à posição inicial. Solte o ar durante esta parte do movimento.",
+      "Segure por um segundo na posição contraída e repita pelo número de repetições recomendado."
+    ]
+  },
+  "Cable_One_Arm_Tricep_Extension": {
+    "name": "Extensão de tríceps unilateral na polia",
+    "instructions": [
+      "Com a mão direita, segure uma alça simples presa à polia alta com pegada supinada (por baixo; palmas voltadas para cima). Você deve ficar em pé bem de frente para a pilha de pesos.",
+      "Agora puxe a alça para baixo, de modo que o braço e o cotovelo fiquem presos ao lado do corpo. O braço e o antebraço devem formar um ângulo agudo (menor que 90 graus). Você pode manter o outro braço na cintura e colocar uma perna à frente e a outra atrás para ter mais equilíbrio. Essa é a posição inicial.",
+      "Ao contrair os tríceps, leve a alça para baixo, ao lado do corpo, até o braço ficar esticado. Solte o ar durante este movimento. Dica: só os antebraços devem se mover. Os braços devem ficar parados o tempo todo.",
+      "Contraia os tríceps e segure por um segundo nessa posição contraída.",
+      "Volte devagar a alça à posição inicial.",
+      "Repita pelo número de repetições recomendado e depois faça o mesmo movimento com o outro braço."
+    ]
+  },
+  "Cable_Preacher_Curl": {
+    "name": "Rosca Scott na polia",
+    "instructions": [
+      "Posicione um banco Scott a cerca de 60 cm à frente de uma polia.",
+      "Prenda uma barra reta na polia baixa.",
+      "Sente-se no banco Scott com o cotovelo e o braço bem apoiados no estofado e peça para alguém lhe entregar a barra da polia baixa.",
+      "Segure a barra e estenda totalmente os braços sobre o estofado do banco Scott. Essa é a posição inicial.",
+      "Agora comece a puxar o peso em direção aos ombros e contraia forte os bíceps no topo do movimento. Solte o ar durante esse movimento. Segure também por um segundo no topo.",
+      "Agora abaixe devagar o peso até a posição inicial.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Cable_Rear_Delt_Fly": {
+    "name": "Crucifixo inverso na polia",
+    "instructions": [
+      "Ajuste as polias na altura adequada e escolha a carga. As polias devem ficar acima da cabeça.",
+      "Segure a polia esquerda com a mão direita e a polia direita com a mão esquerda, cruzando-as à sua frente. Essa é a posição inicial.",
+      "Inicie o movimento levando os braços para trás e para fora, mantendo os braços esticados durante a execução.",
+      "Faça uma pausa no fim do movimento antes de levar as alças de volta à posição inicial."
+    ]
+  },
+  "Cable_Reverse_Crunch": {
+    "name": "Abdominal infra na polia",
+    "instructions": [
+      "Prenda uma tornozeleira a um cabo de polia baixa e posicione um colchonete no chão à frente dela.",
+      "Sente-se com os pés voltados para a polia e prenda o cabo aos tornozelos.",
+      "Deite-se, eleve as pernas e dobre os joelhos a 90 graus. As pernas e o cabo devem ficar alinhados. Se não estiverem, ajuste a polia para cima ou para baixo até ficarem.",
+      "Com as mãos atrás da cabeça, leve os joelhos em direção ao tronco e eleve o quadril do chão.",
+      "Faça uma pausa por um momento e, de forma lenta e controlada, abaixe o quadril e leve as pernas de volta ao ângulo inicial de 90 graus. Ainda deve haver tensão no abdômen na posição de descanso.",
+      "Repita o mesmo movimento até a falha."
+    ]
+  },
+  "Cable_Rope_Overhead_Triceps_Extension": {
+    "name": "Tríceps francês na polia com corda",
+    "instructions": [
+      "Prenda uma corda na polia inferior da máquina.",
+      "Segurando a corda com as duas mãos, estenda os braços com as mãos diretamente acima da cabeça, em pegada neutra (palmas voltadas uma para a outra). Os cotovelos devem ficar próximos da cabeça e os braços perpendiculares ao chão, com os nós dos dedos apontando para o teto. Essa é a posição inicial.",
+      "Abaixe devagar a corda atrás da cabeça, mantendo os braços parados. Inspire durante este movimento e faça uma pausa quando os tríceps estiverem totalmente alongados.",
+      "Volte à posição inicial contraindo os tríceps enquanto solta o ar.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Cable_Rope_Rear-Delt_Rows": {
+    "name": "Remada para deltoide posterior na polia com corda",
+    "instructions": [
+      "Sente-se na mesma posição de uma estação de remada na polia baixa, como se fosse fazer a remada sentada para as costas.",
+      "Prenda uma corda na polia e segure-a com pegada pronada. Os braços devem ficar estendidos e paralelos ao chão, com os cotovelos abertos para fora.",
+      "Mantenha a lombar ereta e leve o quadril para trás de modo que os joelhos fiquem levemente dobrados. Essa é a posição inicial.",
+      "Puxe o acessório do cabo em direção à parte superior do peito, logo abaixo do pescoço, mantendo os cotovelos elevados e abertos para os lados. Continue esse movimento enquanto solta o ar, até os cotovelos passarem um pouco por trás das costas. Dica: mantenha os braços na horizontal, perpendiculares ao tronco e paralelos ao chão durante todo o movimento.",
+      "Volte à posição inicial, em que os braços ficam estendidos e os ombros alongados para a frente. Inspire durante esta parte do movimento.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Cable_Russian_Twists": {
+    "name": "Rotação russa na polia",
+    "instructions": [
+      "Prenda uma alça padrão e posicione o cabo na altura média da polia.",
+      "Deite-se em uma bola suíça, perpendicular ao cabo, e segure a alça com uma mão. Você deve ficar a aproximadamente um braço de distância da polia, com a tensão do peso no cabo.",
+      "Segure a alça com as duas mãos e estenda totalmente os braços acima do peito. As mãos devem ficar alinhadas com a polia. Se não estiverem, ajuste a polia para cima ou para baixo até ficarem.",
+      "Mantenha o quadril elevado e o abdômen contraído. Gire o tronco para longe da polia em um quarto de volta completo. O corpo deve ficar reto da cabeça aos joelhos.",
+      "Faça uma pausa por um momento e, de forma lenta e controlada, volte à posição inicial. Ainda deve haver tensão lateral no cabo na posição de descanso.",
+      "Repita o mesmo movimento até a falha.",
+      "Depois, reposicione-se e repita a mesma sequência de movimentos do lado oposto."
+    ]
+  },
+  "Cable_Seated_Crunch": {
+    "name": "Abdominal sentado na polia",
+    "instructions": [
+      "Sente-se em um banco reto, de costas para uma polia alta.",
+      "Segure a corda com as duas mãos (com as palmas voltadas uma para a outra) e apoie as mãos com firmeza sobre os dois ombros. Dica: deixe o peso estender levemente a lombar. Essa é a posição inicial.",
+      "Com o quadril parado, flexione a cintura de modo que os cotovelos se movam em direção ao quadril. Solte o ar durante esta etapa.",
+      "Ao inspirar, volte devagar à posição inicial.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Cable_Seated_Lateral_Raise": {
+    "name": "Elevação lateral sentado na polia",
+    "instructions": [
+      "Fique em pé entre duas polias baixas opostas e coloque um banco reto logo atrás de você (em posição perpendicular; a lateral estreita do banco deve ficar atrás de você). Escolha a carga de cada polia.",
+      "Agora sente-se na ponta do banco reto atrás de você, com os pés posicionados à frente dos joelhos.",
+      "Incline-se à frente mantendo as costas retas e apoie o tronco nas coxas.",
+      "Peça para alguém lhe entregar as alças simples presas às polias. Segure a polia esquerda com a mão direita e a polia direita com a mão esquerda, depois de escolher a carga. Os cabos devem passar por baixo dos joelhos e os braços ficam estendidos, com as palmas voltadas uma para a outra e uma leve flexão nos cotovelos. Essa é a posição inicial.",
+      "Mantendo os antebraços parados, eleve os braços para os lados até ficarem paralelos ao chão, na altura dos ombros. Solte o ar durante a execução deste movimento e segure a contração por um segundo.",
+      "Abaixe devagar os braços até a posição inicial enquanto inspira.",
+      "Repita pelo número de repetições recomendado. Dica: mantenha os braços perpendiculares ao tronco e o cotovelo em posição fixa (ângulo de 10 a 30 graus) durante todo o exercício."
+    ]
+  },
+  "Cable_Shoulder_Press": {
+    "name": "Desenvolvimento na polia",
+    "instructions": [
+      "Leve os cabos para a parte inferior das torres e escolha uma carga adequada.",
+      "Fique bem no meio, entre as colunas. Segure os cabos e mantenha-os na altura dos ombros, com as palmas voltadas para a frente. Essa é a posição inicial.",
+      "Mantendo a cabeça e o peito erguidos, estenda os cotovelos para empurrar as alças diretamente acima da cabeça.",
+      "Após uma pausa no topo, volte à posição inicial e repita."
+    ]
+  },
+  "Cable_Shrugs": {
+    "name": "Encolhimento na polia",
+    "instructions": [
+      "Segure uma barra presa a uma polia baixa com pegada pronada (palmas voltadas para baixo) na largura dos ombros ou um pouco mais larga.",
+      "Fique em pé, ereto, perto da polia, com os braços estendidos à frente segurando a barra. Essa é a posição inicial.",
+      "Levante a barra elevando os ombros o mais alto possível enquanto solta o ar. Segure a contração no topo por um segundo. Dica: os braços devem ficar estendidos o tempo todo. Evite usar os bíceps para ajudar a levantar a barra. Apenas os ombros devem subir e descer.",
+      "Abaixe a barra de volta à posição original.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Cable_Wrist_Curl": {
+    "name": "Rosca de punho na polia",
+    "instructions": [
+      "Comece posicionando um banco reto à frente de uma polia baixa com uma barra reta presa.",
+      "Segure a barra do cabo com pegada supinada (palmas para cima), de estreita a na largura dos ombros, e leve os braços para cima, de modo que os antebraços fiquem apoiados sobre as coxas. Os punhos devem ficar pendurados logo além dos joelhos.",
+      "Comece flexionando os punhos para cima enquanto solta o ar. Mantenha a contração por um segundo.",
+      "Abaixe devagar os punhos de volta à posição inicial enquanto inspira.",
+      "Os antebraços devem ficar parados, pois o punho é o único movimento necessário para este exercício.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Calf-Machine_Shoulder_Shrug": {
+    "name": "Encolhimento na máquina de panturrilha",
+    "instructions": [
+      "Posicione-se na máquina de panturrilha de modo que as almofadas fiquem sobre os ombros. O tronco deve ficar reto, com os braços estendidos naturalmente ao lado do corpo. Essa é a posição inicial.",
+      "Eleve os ombros em direção às orelhas enquanto solta o ar e segure a contração por um segundo inteiro.",
+      "Volte devagar à posição inicial enquanto inspira.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Calf_Press": {
+    "name": "Panturrilha sentado na máquina",
+    "instructions": [
+      "Ajuste o assento para que as pernas fiquem apenas levemente dobradas na posição inicial. A ponta dos pés deve ficar firme na plataforma.",
+      "Escolha uma carga adequada e segure as alças. Essa é a posição inicial.",
+      "Estique as pernas estendendo os joelhos, apenas tirando o peso da pilha. O tornozelo deve ficar totalmente flexionado, com os dedos apontando para cima. Execute o movimento empurrando a plataforma para baixo com a ponta dos pés o máximo possível.",
+      "Após uma breve pausa, inverta o movimento e repita."
+    ]
+  },
+  "Calf_Press_On_The_Leg_Press_Machine": {
+    "name": "Panturrilha no leg press",
+    "instructions": [
+      "Em um leg press, sente-se na máquina e apoie as pernas na plataforma diretamente à sua frente, com uma base média (na largura dos ombros).",
+      "Abaixe as barras de segurança que seguram a plataforma carregada e empurre a plataforma até o topo, até as pernas ficarem totalmente estendidas à sua frente, sem travar os joelhos. (Observação: em alguns leg presses você pode deixar as barras de segurança travadas para mais segurança. Se o seu aparelho permitir, esse é o método preferido.) O tronco e as pernas devem formar um ângulo perfeito de 90 graus. Agora, com cuidado, apoie os dedos e a ponta dos pés na parte inferior da plataforma, com os calcanhares para fora. Os dedos devem apontar para a frente, para fora ou para dentro, conforme descrito no início do capítulo. Essa é a posição inicial.",
+      "Empurre a plataforma elevando os calcanhares enquanto solta o ar, estendendo os tornozelos o mais alto possível e contraindo a panturrilha. Garanta que o joelho fique parado o tempo todo. Não deve haver nenhuma flexão. Segure a posição contraída por um segundo antes de começar a descer.",
+      "Volte devagar à posição inicial enquanto inspira, abaixando os calcanhares e flexionando os tornozelos até as panturrilhas ficarem alongadas.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Calf_Raise_On_A_Dumbbell": {
+    "name": "Panturrilha em pé sobre halter",
+    "instructions": [
+      "Segure-se em um objeto firme para manter o equilíbrio e suba na barra de um halter, de preferência um com anilhas redondas, para que ele role; assim você precisa trabalhar mais para se estabilizar, o que aumenta a eficácia do exercício.",
+      "Agora role o pé levemente para a frente para obter um bom alongamento da panturrilha. Essa é a posição inicial.",
+      "Eleve a panturrilha enquanto rola o pé sobre a barra para obter a extensão completa. Solte o ar durante a execução deste movimento. Contraia forte a panturrilha no topo e segure por um segundo. Dica: ao subir, role o halter levemente para trás.",
+      "Agora inspire enquanto rola o halter levemente para a frente ao descer, para alongar melhor.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Calf_Raises_-_With_Bands": {
+    "name": "Panturrilha em pé com elástico",
+    "instructions": [
+      "Pegue um elástico e pise nele com a ponta dos pés, garantindo que o comprimento do elástico entre o pé e os braços seja igual dos dois lados.",
+      "Segurando as alças do elástico, leve os braços para a lateral da cabeça, como se fosse começar um desenvolvimento. As palmas devem ficar voltadas para a frente, com os cotovelos dobrados e para os lados. Esse movimento cria tensão no elástico. Essa é a posição inicial.",
+      "Mantendo as mãos junto aos ombros, suba nas pontas dos pés enquanto solta o ar e contraia forte as panturrilhas no topo do movimento.",
+      "Após uma contração de um segundo, volte devagar à posição inicial.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Calf_Stretch_Elbows_Against_Wall": {
+    "name": "Alongamento de panturrilha com cotovelos na parede",
+    "instructions": [
+      "Fique de frente para uma parede, a cerca de 60 cm de distância.",
+      "Incline-se contra a parede, apoiando o peso nos antebraços.",
+      "Tente manter os calcanhares no chão. Segure por 10 a 20 segundos. Você pode se afastar ou se aproximar da parede, tornando o alongamento mais ou menos difícil, respectivamente."
+    ]
+  },
+  "Calf_Stretch_Hands_Against_Wall": {
+    "name": "Alongamento de panturrilha com mãos na parede",
+    "instructions": [
+      "Fique de frente para uma parede, a cerca de 1 a 1,5 m de distância. Afaste as pernas, colocando um pé à frente.",
+      "Incline-se à frente e apoie as mãos na parede, mantendo calcanhar, quadril e cabeça em linha reta.",
+      "Tente manter o calcanhar no chão. Segure por 10 a 20 segundos e depois troque de lado."
+    ]
+  },
+  "Calves-SMR": {
+    "name": "Liberação miofascial de panturrilhas no rolo",
+    "instructions": [
+      "Comece sentado no chão. Coloque um rolo de liberação sob a parte inferior da perna. A outra perna pode ficar cruzada sobre a primeira ou apoiada no chão, sustentando parte do peso. Essa é a posição inicial.",
+      "Coloque as mãos ao lado do corpo ou logo atrás e empurre o chão para tirar o quadril do chão, apoiando boa parte do peso contra a panturrilha. Role de baixo do joelho até acima do tornozelo, fazendo pausas de 10 a 30 segundos nos pontos de tensão. Repita com a outra perna."
+    ]
+  },
+  "Car_Deadlift": {
+    "name": "Levantamento terra de carro",
+    "instructions": [
+      "Este aparelho de competição normalmente tem alças de pegada neutra, mas alguns têm uma barra reta que você pode abordar como um levantamento terra comum. O aparelho pode ser carregado com um veículo ou outros objetos pesados, como pneus de trator ou barris.",
+      "Centralize-se entre as alças se você for forte no agachamento, ou recue alguns centímetros se for forte no levantamento terra. Os pés devem ficar afastados na largura do quadril. Incline-se pelo quadril para segurar as alças. Com os pés e a pegada posicionados, respire fundo e então abaixe o quadril e flexione os joelhos.",
+      "Olhe para a frente, mantenha o peito erguido e as costas arqueadas e comece a empurrar com os calcanhares para levar o peso para cima. Conforme o peso sobe, junte as escápulas enquanto projeta o quadril à frente.",
+      "Abaixe o peso flexionando o quadril e guiando-o até o chão."
+    ]
+  },
+  "Car_Drivers": {
+    "name": "Car drivers",
+    "instructions": [
+      "Em pé, na posição ereta, segure uma anilha com as duas mãos nas posições de 3 e 9 horas. As palmas devem ficar voltadas uma para a outra e os braços estendidos retos à sua frente. Essa é a posição inicial.",
+      "Inicie o movimento girando a anilha o máximo possível para um lado. Use o mesmo tipo de movimento que usaria para virar um volante para um lado.",
+      "Inverta o movimento, girando-a até o lado oposto.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Carioca_Quick_Step": {
+    "name": "Carioca com passos rápidos",
+    "instructions": [
+      "Comece com os pés afastados alguns centímetros e o braço esquerdo erguido em uma posição relaxada e atlética.",
+      "Com o pé direito, dê um passo rápido para trás e puxe o joelho para cima.",
+      "Lance os braços para cima quando puxar o joelho direito, garantindo que o joelho suba e desça em linha reta. Evite girar os pés enquanto se move e continue olhando para a frente ao se deslocar para o lado."
+    ]
+  },
+  "Cat_Stretch": {
+    "name": "Alongamento do gato",
+    "instructions": [
+      "Posicione-se no chão, de quatro apoios (mãos e joelhos).",
+      "Encolha a barriga e arredonde a coluna, a lombar, os ombros e o pescoço, deixando a cabeça cair.",
+      "Segure por 15 segundos."
+    ]
+  },
+  "Catch_and_Overhead_Throw": {
+    "name": "Arremesso de bola por cima da cabeça",
+    "instructions": [
+      "Comece em pé, de frente para uma parede ou um parceiro.",
+      "Com as duas mãos, posicione a bola atrás da cabeça, alongando o máximo possível, e arremesse a bola para a frente com força.",
+      "Acompanhe o arremesso até o fim, preparado para receber o rebote. Se estiver arremessando contra a parede, fique perto o bastante para receber o rebote e mire um pouco mais alto do que faria com um parceiro."
+    ]
+  },
+  "Chain_Handle_Extension": {
+    "name": "Extensão de tríceps com correntes nas alças",
+    "instructions": [
+      "Você vai precisar de duas alças de polia, um banco reto e correntes para este exercício. Prenda o meio das correntes nas alças e posicione-se no banco reto. Os cotovelos devem apontar para cima.",
+      "Comece estendendo os cotovelos, mantendo os braços parados e os punhos em pronação.",
+      "Faça uma pausa na extensão completa e inverta o movimento para voltar à posição inicial."
+    ]
+  },
+  "Chain_Press": {
+    "name": "Supino com correntes nas alças",
+    "instructions": [
+      "Comece prendendo as correntes nas alças de polia. Posicione-se no banco reto na mesma posição do supino com halteres. Os punhos devem ficar em pronação e os braços perpendiculares ao chão. Essa é a posição inicial.",
+      "Abaixe as correntes flexionando os cotovelos, deixando parte da corrente se apoiar no chão.",
+      "Continue até o cotovelo formar um ângulo de 90 graus e depois inverta o movimento estendendo os cotovelos até o travamento."
+    ]
+  },
+  "Chair_Leg_Extended_Stretch": {
+    "name": "Alongamento de perna estendida na cadeira",
+    "instructions": [
+      "Sente-se ereto em uma cadeira e segure as laterais do assento.",
+      "Levante uma perna, estendendo o joelho e flexionando o tornozelo ao mesmo tempo.",
+      "Leve devagar essa perna para fora o máximo que puder, depois de volta ao centro e para baixo.",
+      "Repita com a outra perna."
+    ]
+  },
+  "Chair_Lower_Back_Stretch": {
+    "name": "Alongamento de lombar na cadeira",
+    "instructions": [
+      "Sente-se ereto em uma cadeira.",
+      "Incline-se para um lado com o braço acima da cabeça. Você pode segurar na cadeira com a mão livre.",
+      "Segure por 10 segundos e repita para o outro lado."
+    ]
+  }
+}

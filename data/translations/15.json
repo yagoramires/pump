@@ -1,0 +1,489 @@
+{
+  "Smith_Machine_Behind_the_Back_Shrug": {
+    "name": "Encolhimento atrás das costas no Smith",
+    "instructions": [
+      "Com a barra na altura das coxas, carregue um peso adequado.",
+      "Fique em pé com a barra atrás de você, segurando-a com pegada pronada na largura dos ombros, e destrave o peso. Você deve estar ereto, com a cabeça e o peito erguidos e os braços estendidos. Essa será a posição inicial.",
+      "Inicie o movimento encolhendo os ombros diretamente para cima. Não flexione os braços nem os punhos durante o movimento.",
+      "Após uma breve pausa, volte o peso à posição inicial.",
+      "Repita pelo número de repetições desejado antes de acionar os ganchos para recolocar o peso no suporte."
+    ]
+  },
+  "Smith_Machine_Bench_Press": {
+    "name": "Supino reto no Smith",
+    "instructions": [
+      "Coloque um banco reto sob o Smith. Posicione a barra em uma altura que você alcance deitado, com os braços quase totalmente estendidos. Depois de selecionar a carga necessária, deite-se no banco reto. Com pegada pronada mais larga que os ombros, destrave a barra do suporte e segure-a reta sobre você, com os braços travados. Essa será a posição inicial.",
+      "Ao inspirar, desça devagar até sentir a barra no meio do peito.",
+      "Após uma pausa de um segundo, traga a barra de volta à posição inicial, soltando o ar e empurrando a barra com os músculos do peito. Trave os braços na posição contraída, segure por um segundo e comece a descer devagar de novo. Dica: a descida deve levar pelo menos o dobro do tempo da subida.",
+      "Repita o movimento pelo número de repetições prescrito.",
+      "Ao terminar, trave a barra de volta no suporte."
+    ]
+  },
+  "Smith_Machine_Bent_Over_Row": {
+    "name": "Remada curvada no Smith",
+    "instructions": [
+      "Ajuste a barra do Smith a uma altura cerca de 5 cm abaixo dos joelhos.",
+      "Flexione levemente os joelhos e incline o tronco à frente, dobrando na cintura e mantendo as costas retas até ficarem quase paralelas ao chão. Dica: mantenha a cabeça erguida.",
+      "Agora segure a barra com pegada pronada (por cima) e destrave-a do suporte do Smith. Deixe-a pendurada diretamente à sua frente, com os braços estendidos perpendiculares ao chão e ao tronco. Essa é a posição inicial.",
+      "Mantendo o tronco parado, levante a barra enquanto solta o ar, mantendo os cotovelos próximos ao corpo e sem fazer força com os antebraços além de segurar o peso. Na posição de contração máxima, no topo, contraia as costas e segure por um segundo.",
+      "Desça o peso devagar até a posição inicial, inspirando.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Smith_Machine_Calf_Raise": {
+    "name": "Panturrilha em pé no Smith",
+    "instructions": [
+      "Coloque um bloco ou anilha sob a barra do Smith. Ajuste a barra a uma posição que corresponda à sua altura. Depois de escolher a altura correta e carregar a barra, suba nas anilhas com a parte da frente dos pés e apoie a barra na parte de trás dos ombros.",
+      "Segure a barra com as duas mãos voltadas para frente. Gire a barra para destravá-la. Essa será a posição inicial.",
+      "Levante os calcanhares o mais alto possível, empurrando com a parte da frente dos pés e contraindo as panturrilhas no topo. Os joelhos devem permanecer estendidos. Segure a posição contraída por um segundo antes de começar a descer.",
+      "Volte devagar à posição inicial, inspirando enquanto abaixa os calcanhares.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Smith_Machine_Close-Grip_Bench_Press": {
+    "name": "Supino fechado no Smith",
+    "instructions": [
+      "Coloque um banco reto sob o Smith. Posicione a barra em uma altura que você alcance deitado, com os braços quase totalmente estendidos. Depois de selecionar a carga necessária, deite-se no banco reto. Com pegada fechada e pronada (palmas para frente), mais ou menos na largura dos ombros, destrave a barra do suporte e segure-a reta sobre você, com os braços travados. Essa será a posição inicial.",
+      "Ao inspirar, desça devagar até sentir a barra no meio do peito. Dica: ao contrário do supino comum, mantenha os cotovelos próximos ao tronco o tempo todo para maximizar o trabalho do tríceps.",
+      "Após uma pausa de um segundo, traga a barra de volta à posição inicial, soltando o ar e empurrando a barra com os músculos do tríceps. Trave os braços na posição contraída, segure por um segundo e comece a descer devagar de novo. Dica: a descida deve levar pelo menos o dobro do tempo da subida.",
+      "Repita o movimento pelo número de repetições prescrito.",
+      "Ao terminar, trave a barra de volta no suporte."
+    ]
+  },
+  "Smith_Machine_Decline_Press": {
+    "name": "Supino declinado no Smith",
+    "instructions": [
+      "Posicione um banco declinado no rack de modo que a barra fique acima do peito. Carregue um peso adequado e deite-se no banco.",
+      "Gire a barra para destravá-la do suporte e estenda totalmente os braços. As costas ficam levemente arqueadas e as escápulas retraídas. Essa será a posição inicial.",
+      "Comece o movimento flexionando os braços e descendo a barra até o peito.",
+      "Faça uma breve pausa e depois estenda os braços para empurrar o peso de volta à posição inicial.",
+      "Após completar o número desejado de repetições, gire a barra para travar o peso no suporte."
+    ]
+  },
+  "Smith_Machine_Hang_Power_Clean": {
+    "name": "Hang power clean no Smith",
+    "instructions": [
+      "Posicione a barra na altura dos joelhos e carregue-a com um peso adequado.",
+      "Segure a barra com pegada pronada, mais larga que os ombros, e destrave-a da máquina. Os braços ficam totalmente estendidos, com a cabeça e o peito erguidos. Os cotovelos apontam para fora, com os ombros para trás e para baixo. O quadril fica para trás, transferindo a tensão para os posteriores de coxa. Essa será a posição inicial.",
+      "Inicie o movimento estendendo com força quadril e joelhos, acelerando em direção à barra. Mantenha os braços retos durante essa parte do movimento.",
+      "Na extensão completa, flexione novamente quadril e joelhos para baixar a posição de recepção.",
+      "Nesse ponto, deixe os braços flexionarem, girando os cotovelos em torno da barra para recebê-la sobre os ombros.",
+      "Estenda quadril e joelhos até ficar em pé, com a barra apoiada sobre os ombros, para concluir o movimento."
+    ]
+  },
+  "Smith_Machine_Hip_Raise": {
+    "name": "Elevação de quadril no Smith",
+    "instructions": [
+      "Posicione um banco no rack e carregue a barra com um peso adequado. Deite-se no banco, apoiando a sola dos pés contra a barra. Destrave a barra e estenda as pernas. Pode ser necessário usar as mãos para ajudar. Para mais estabilidade, segure as laterais do Smith. Essa será a posição inicial.",
+      "Inicie o movimento rotacionando a pelve e flexionando a coluna para tirar o quadril do banco. Mantenha uma leve flexão nos joelhos durante todo o movimento.",
+      "Após uma breve pausa, volte o quadril ao banco.",
+      "Repita pelo número de repetições desejado."
+    ]
+  },
+  "Smith_Machine_Incline_Bench_Press": {
+    "name": "Supino inclinado no Smith",
+    "instructions": [
+      "Coloque um banco inclinado sob o Smith. Posicione a barra em uma altura que você alcance deitado, com os braços quase totalmente estendidos. Depois de selecionar a carga necessária, deite-se no banco inclinado e certifique-se de que a parte superior do peito esteja alinhada com a barra. Com pegada pronada (palmas para frente) mais larga que os ombros, destrave a barra do suporte e segure-a reta sobre você, com os braços travados. Essa será a posição inicial.",
+      "Ao inspirar, desça devagar até sentir a barra na parte superior do peito.",
+      "Após uma pausa de um segundo, traga a barra de volta à posição inicial, soltando o ar e empurrando a barra com os músculos do peito. Trave os braços na posição contraída, segure por um segundo e comece a descer devagar de novo. Dica: a descida deve levar pelo menos o dobro do tempo da subida.",
+      "Repita o movimento pelo número de repetições prescrito.",
+      "Ao terminar, coloque a barra de volta no suporte."
+    ]
+  },
+  "Smith_Machine_Leg_Press": {
+    "name": "Leg press deitado no Smith",
+    "instructions": [
+      "Posicione a barra do Smith a cerca de 60 cm do chão. Certifique-se de que ela esteja apoiada nos limitadores de segurança. Depois de carregar a barra com um peso adequado, deite-se sob ela. Apoie o meio dos pés na barra, trazendo os joelhos em direção ao peito. Essa será a posição inicial.",
+      "Comece o movimento empurrando pelos pés para mover a barra para cima, estendendo quadril e joelhos. Não trave os joelhos.",
+      "No topo do movimento, faça uma breve pausa antes de voltar à posição inicial."
+    ]
+  },
+  "Smith_Machine_One-Arm_Upright_Row": {
+    "name": "Remada alta unilateral no Smith",
+    "instructions": [
+      "Com a barra na altura das coxas, carregue um peso adequado.",
+      "Segure a barra com pegada aberta e destrave o peso, tirando a outra mão da barra. O braço fica estendido enquanto você se mantém ereto, com a cabeça e o peito erguidos. Essa será a posição inicial.",
+      "Comece o movimento flexionando o cotovelo, levantando o braço com o cotovelo apontado para fora. Continue até o braço ficar paralelo ao chão.",
+      "Após uma breve pausa, volte o peso à posição inicial.",
+      "Repita pelo número de repetições desejado antes de acionar os ganchos para recolocar o peso no suporte."
+    ]
+  },
+  "Smith_Machine_Overhead_Shoulder_Press": {
+    "name": "Desenvolvimento de ombros no Smith",
+    "instructions": [
+      "Para começar, coloque um banco reto (de preferência com apoio para as costas) sob o Smith. Posicione a barra em uma altura tal que, sentado no banco, os braços precisem estar quase totalmente estendidos para alcançá-la.",
+      "Depois de acertar a altura, sente-se um pouco para trás da barra, de modo que haja uma linha reta imaginária da ponta do nariz até a barra. Os pés ficam parados. Segure a barra com as palmas voltadas para frente, destrave-a e levante-a até os braços ficarem totalmente estendidos. Essa é a posição inicial.",
+      "Comece a baixar a barra devagar até a altura do queixo, inspirando.",
+      "Em seguida, levante a barra de volta à posição inicial usando os ombros, soltando o ar.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Smith_Machine_Pistol_Squat": {
+    "name": "Agachamento pistol no Smith",
+    "instructions": [
+      "Para começar, ajuste a barra a uma posição que corresponda à sua altura. Entre sob ela e posicione a barra na parte de trás dos ombros.",
+      "Segure a barra com as mãos voltadas para frente, destrave-a e retire-a do suporte estendendo as pernas.",
+      "Leve um pé à frente, a cerca de 30 cm da barra. Estenda a outra perna à sua frente, mantendo-a no ar. Olhe sempre para frente e mantenha a coluna neutra ou levemente arqueada. Essa será a posição inicial.",
+      "Mantendo boa postura, desça flexionando joelho e quadril, indo até onde a flexibilidade permitir.",
+      "Faça uma breve pausa embaixo e depois volte à posição inicial empurrando pelo calcanhar, estendendo joelho e quadril."
+    ]
+  },
+  "Smith_Machine_Reverse_Calf_Raises": {
+    "name": "Panturrilha em pé invertida no Smith",
+    "instructions": [
+      "Ajuste a barra do Smith à sua altura e alinhe uma plataforma elevada logo abaixo da barra.",
+      "Fique em pé na plataforma, com os calcanhares apoiados nela e a parte da frente dos pés para fora. Mantenha os dedos voltados para frente e os pés afastados na largura dos ombros.",
+      "Agora, posicione os ombros sob a barra, mantendo a posição dos pés descrita, e empurre a barra para cima estendendo quadril e joelhos até o tronco ficar ereto. Os joelhos devem ficar levemente flexionados, nunca travados. Essa será a posição inicial. Dica: a barra nas costas serve apenas para equilíbrio.",
+      "Levante a parte da frente dos pés enquanto solta o ar, estendendo os dedos o mais alto possível e contraindo as panturrilhas. Garanta que o joelho permaneça parado o tempo todo, sem nenhuma flexão. Segure a posição contraída por um segundo antes de começar a descer.",
+      "Volte devagar à posição inicial, inspirando, abaixando a parte da frente dos pés e os dedos.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Smith_Machine_Squat": {
+    "name": "Agachamento no Smith",
+    "instructions": [
+      "Para começar, ajuste a barra na altura que corresponda à sua. Depois de escolher a altura correta e carregar a barra, entre sob ela e apoie-a na parte de trás dos ombros (um pouco abaixo do pescoço).",
+      "Segure a barra com os dois braços, um de cada lado (palmas para frente), destrave-a e retire-a do suporte empurrando com as pernas e, ao mesmo tempo, endireitando o tronco.",
+      "Posicione as pernas em base média, na largura dos ombros, com as pontas dos pés levemente para fora. Mantenha a cabeça erguida o tempo todo e as costas retas. Essa será a posição inicial. (Observação: nesta explicação usamos a base média, que trabalha o desenvolvimento geral; porém, você pode escolher qualquer uma das três bases descritas na seção de posições dos pés.)",
+      "Comece a baixar a barra devagar flexionando os joelhos, mantendo a postura reta e a cabeça erguida. Continue descendo até o ângulo entre a coxa e a panturrilha ficar um pouco menor que 90 graus (ponto em que as coxas ficam abaixo do paralelo com o chão). Inspire durante essa parte do movimento. Dica: se fizer o exercício corretamente, a frente dos joelhos deve formar com as pontas dos pés uma linha reta imaginária perpendicular à frente. Se os joelhos passarem dessa linha imaginária (ultrapassarem a ponta dos pés), você está sobrecarregando o joelho e o exercício foi feito de forma incorreta.",
+      "Comece a subir a barra soltando o ar, empurrando o chão com o calcanhar enquanto estende as pernas novamente, até voltar à posição inicial.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Smith_Machine_Stiff-Legged_Deadlift": {
+    "name": "Stiff no Smith",
+    "instructions": [
+      "Para começar, ajuste a barra do Smith a uma altura próxima ao meio das coxas. Depois de escolher a altura correta e carregar a barra, segure-a com pegada pronada (palmas para frente) na largura dos ombros. Se usar bastante carga, pode ser necessário usar munhequeiras.",
+      "Levante a barra estendendo totalmente os braços, mantendo as costas retas. Fique com o tronco ereto e as pernas afastadas na largura dos ombros ou menos. Os joelhos ficam levemente flexionados. Essa é a posição inicial.",
+      "Mantendo os joelhos parados, desça a barra até passar sobre a ponta dos pés, dobrando na cintura e mantendo as costas retas. Continue indo à frente como se fosse pegar algo no chão, até sentir o alongamento nos posteriores de coxa. Solte o ar durante o movimento.",
+      "Assim que sentir o alongamento dos posteriores, comece a levantar o tronco novamente, estendendo quadril e cintura, até voltar à posição inicial. Inspire durante o movimento.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Smith_Machine_Upright_Row": {
+    "name": "Remada alta no Smith",
+    "instructions": [
+      "Para começar, ajuste a barra do Smith a uma altura próxima ao meio das coxas. Depois de escolher a altura correta e carregar a barra, segure-a com pegada pronada (palmas para frente) na largura dos ombros. Se usar bastante carga, pode ser necessário usar munhequeiras.",
+      "Levante a barra e estenda totalmente os braços, com as costas retas. Deve haver uma leve flexão nos cotovelos. Essa é a posição inicial.",
+      "Use a lateral dos ombros para levantar a barra enquanto solta o ar. A barra deve ficar próxima ao corpo durante a subida. Continue levantando até quase tocar o queixo. Dica: os cotovelos devem conduzir o movimento. Ao levantar a barra, os cotovelos devem estar sempre mais altos que os antebraços. Mantenha também o tronco parado e faça uma pausa de um segundo no topo do movimento.",
+      "Desça a barra devagar até a posição inicial. Inspire durante essa parte do movimento.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Smith_Single-Leg_Split_Squat": {
+    "name": "Agachamento búlgaro no Smith",
+    "instructions": [
+      "Para começar, coloque um banco reto de 60 a 90 cm atrás do Smith. Depois, ajuste a barra na altura que corresponda à sua. Depois de escolher a altura correta e carregar a barra, entre sob ela e apoie-a na parte de trás dos ombros (um pouco abaixo do pescoço).",
+      "Segure a barra com os dois braços, um de cada lado (palmas para frente), destrave-a e retire-a do suporte empurrando com as pernas e, ao mesmo tempo, endireitando o tronco.",
+      "Posicione as pernas colocando um pé um pouco à frente, sob a barra, e estendendo a outra perna para trás, apoiando o peito do pé no banco. Essa será a posição inicial.",
+      "Comece a baixar a barra devagar flexionando o joelho, mantendo a postura reta e a cabeça erguida. Continue descendo até o ângulo entre a coxa e a panturrilha ficar um pouco menor que 90 graus (ponto em que a coxa fica abaixo do paralelo com o chão). Inspire durante essa parte do movimento. Dica: se fizer o exercício corretamente, a frente do joelho deve formar com a ponta do pé uma linha reta imaginária perpendicular à frente. Se o joelho passar dessa linha imaginária (ultrapassar a ponta do pé), você está sobrecarregando o joelho e o exercício foi feito de forma incorreta.",
+      "Comece a subir a barra soltando o ar, empurrando o chão principalmente com o calcanhar enquanto estende a perna novamente, até voltar à posição inicial.",
+      "Repita pelo número de repetições recomendado.",
+      "Troque de perna e repita o movimento."
+    ]
+  },
+  "Snatch": {
+    "name": "Snatch",
+    "instructions": [
+      "Posicione os pés na largura dos ombros, com a barra logo acima da articulação entre os dedos e o resto do pé.",
+      "Com pegada com as palmas para baixo, flexione os joelhos e, mantendo as costas retas, segure a barra com pegada mais larga que os ombros. Abaixe o quadril e garanta que o corpo desça como se fosse sentar em uma cadeira. Essa será a posição inicial.",
+      "Comece a empurrar o chão com os pés, como se fosse uma plataforma em movimento, e ao mesmo tempo comece a levantar a barra, mantendo-a próxima às pernas.",
+      "Quando a barra chegar ao meio das coxas, empurre o chão com as pernas e leve o corpo à extensão completa em um movimento explosivo.",
+      "Eleve os ombros para trás em um movimento de encolhimento enquanto leva a barra para cima, abrindo os cotovelos para os lados e mantendo-os acima da barra pelo maior tempo possível.",
+      "Agora, em um movimento muito rápido, porém potente, coloque o corpo sob a barra quando ela tiver atingido uma altura em que possa ser controlada e desça, travando os braços e segurando a barra acima da cabeça, assumindo a posição de agachamento.",
+      "Finalize o movimento levantando da posição de agachamento para concluir o levantamento. Ao final, os dois pés devem estar alinhados e os braços totalmente estendidos, segurando a barra acima da cabeça."
+    ]
+  },
+  "Snatch_Balance": {
+    "name": "Snatch balance",
+    "instructions": [
+      "Comece com os pés na posição de puxada, a barra apoiada na parte de trás dos ombros e as mãos em pegada larga de snatch.",
+      "Impulsione a barra com uma flexão e extensão bruscas dos joelhos e mergulhe agressivamente sob a barra, passando os pés para a posição de recepção.",
+      "Receba a barra com os braços travados acima da cabeça, perto do fundo do agachamento. O tronco deve permanecer vertical, abaixando o quadril entre as pernas.",
+      "Continue descendo até a profundidade total e volte à posição em pé. Baixe o peso com cuidado."
+    ]
+  },
+  "Snatch_Deadlift": {
+    "name": "Levantamento terra de snatch",
+    "instructions": [
+      "O levantamento terra de snatch fortalece a primeira puxada do snatch. Comece com pegada larga de snatch, com a barra posicionada na plataforma. Os pés ficam diretamente sob o quadril, com as pontas voltadas para fora. Agache até a barra, mantendo as costas em extensão total e a cabeça voltada para frente.",
+      "Inicie o movimento empurrando pelos calcanhares, elevando o quadril. O ângulo das costas deve permanecer o mesmo até a barra passar dos joelhos.",
+      "Nesse ponto, leve o quadril contra a barra enquanto se inclina para trás. Devolva a barra à plataforma invertendo o movimento."
+    ]
+  },
+  "Snatch_Pull": {
+    "name": "Puxada de snatch",
+    "instructions": [
+      "Com a barra no chão, próxima às canelas, segure-a com pegada larga de snatch. Abaixe o quadril com o peso concentrado nos calcanhares, costas retas, cabeça voltada para frente, peito erguido e ombros logo à frente da barra. Essa será a posição inicial.",
+      "Comece a primeira puxada empurrando pelos calcanhares, estendendo os joelhos. O ângulo das costas deve permanecer o mesmo e os braços devem ficar retos. Mova o peso com controle até acima dos joelhos.",
+      "Em seguida vem a segunda puxada, principal fonte de aceleração. Quando a barra se aproximar da altura do meio da coxa, comece a estender o quadril. Em um movimento de salto, acelere estendendo quadril, joelhos e tornozelos, usando a velocidade para levar a barra para cima.",
+      "Não deve ser necessário puxar ativamente com os braços para acelerar o peso; ao final da segunda puxada, o corpo deve estar totalmente estendido, inclinado levemente para trás. A extensão total deve ser violenta e abrupta, e você não deve prolongá-la mais que o necessário."
+    ]
+  },
+  "Snatch_Shrug": {
+    "name": "Encolhimento de snatch",
+    "instructions": [
+      "Comece com pegada larga, com a barra pendurada na altura do meio das coxas. Você pode usar pegada em gancho ou pronada. As costas ficam retas e levemente inclinadas para frente.",
+      "Encolha os ombros em direção às orelhas. Embora esse exercício geralmente permita mais carga que um snatch, evite sobrecarregar a ponto de a execução ficar lenta."
+    ]
+  },
+  "Snatch_from_Blocks": {
+    "name": "Snatch a partir de blocos",
+    "instructions": [
+      "Comece com uma barra carregada sobre caixas ou suportes da altura desejada. Segure a barra com pegada larga. Os pés ficam diretamente abaixo do quadril, com as pontas voltadas para fora conforme necessário. Abaixe o quadril, com o peito erguido e a cabeça olhando para frente. Os ombros ficam logo à frente da barra, com os cotovelos apontando para fora. Essa será a posição inicial.",
+      "Comece a primeira puxada empurrando pela parte da frente dos calcanhares, tirando a barra das caixas.",
+      "Passe para a segunda puxada estendendo quadril, joelhos e tornozelos, levando a barra para cima o mais rápido possível. A barra deve ficar próxima ao corpo. No pico da extensão, encolha os ombros e deixe os cotovelos flexionarem para o lado.",
+      "Ao levar os pés para a posição de recepção, puxe-se com força para baixo da barra enquanto a eleva acima da cabeça. Os pés devem ir para logo fora da linha do quadril, com as pontas para fora conforme necessário. Receba a barra com o corpo o mais baixo possível e os braços totalmente estendidos acima da cabeça.",
+      "Mantendo a barra alinhada sobre a frente dos calcanhares, com a cabeça e o peito erguidos, empurre pelos calcanhares para ficar em pé. Devolva o peso às caixas com cuidado."
+    ]
+  },
+  "Speed_Band_Overhead_Triceps": {
+    "name": "Tríceps francês com elástico (velocidade)",
+    "instructions": [
+      "Para este exercício, prenda um elástico ao chão. Usamos um banco inclinado e prendemos o elástico na base, ficando em pé sobre o banco. Como alternativa, o exercício pode ser feito em pé sobre o elástico.",
+      "Para começar, puxe o elástico para trás da cabeça, segurando-o com pegada pronada e os cotovelos para cima. Essa será a posição inicial.",
+      "Para fazer o movimento, estenda o cotovelo para esticar os braços, garantindo que a parte superior do braço permaneça no lugar.",
+      "Faça uma pausa e depois volte à posição inicial."
+    ]
+  },
+  "Speed_Box_Squat": {
+    "name": "Agachamento no caixote com velocidade",
+    "instructions": [
+      "Prenda elásticos à barra, ancorados com firmeza perto do chão. Pode ser necessário encurtar os elásticos para obter a tensão adequada.",
+      "Use uma caixa de altura apropriada para este exercício. Carregue a barra com um peso que ainda exija esforço, mas não tão pesado a ponto de comprometer a velocidade. Em geral, entre 50% e 70% da sua carga máxima de uma repetição.",
+      "Posicione a barra na parte superior das costas, com as escápulas retraídas, as costas arqueadas e tudo firme da cabeça aos pés. Essa será a posição inicial.",
+      "Retire a barra do suporte e posicione-se à frente da caixa. Jogue o quadril para trás até se sentar na caixa, garantindo que a descida seja controlada e que você não despenque sobre a superfície.",
+      "Faça uma breve pausa e exploda para cima, estendendo quadril e joelhos."
+    ]
+  },
+  "Speed_Squats": {
+    "name": "Agachamento com velocidade",
+    "instructions": [
+      "Este exercício é mais seguro dentro de um rack de agachamento. Para começar, ajuste a barra no rack em uma altura que corresponda à sua. Depois de escolher a altura correta e carregar a barra, entre sob ela e apoie-a na parte de trás dos ombros (um pouco abaixo do pescoço).",
+      "Segure a barra com os dois braços, um de cada lado, e retire-a do suporte empurrando com as pernas e, ao mesmo tempo, endireitando o tronco.",
+      "Afaste-se do rack e posicione as pernas em base média, na largura dos ombros, com as pontas dos pés levemente para fora. Mantenha a cabeça erguida o tempo todo, pois olhar para baixo faz perder o equilíbrio, e mantenha as costas retas. Essa será a posição inicial. (Observação: nesta explicação usamos a base média, que trabalha o desenvolvimento geral; porém, você pode escolher qualquer uma das três bases descritas na seção de posições dos pés.)",
+      "Comece a baixar a barra flexionando os joelhos, mantendo a postura reta e a cabeça erguida. Continue descendo até o ângulo entre a coxa e a panturrilha ficar um pouco menor que 90 graus (ponto em que as coxas ficam abaixo do paralelo com o chão). Inspire durante essa parte do movimento. Dica: se fizer o exercício corretamente, a frente dos joelhos deve formar com as pontas dos pés uma linha reta imaginária perpendicular à frente. Se os joelhos passarem dessa linha imaginária (ultrapassarem a ponta dos pés), você está sobrecarregando o joelho e o exercício foi feito de forma incorreta.",
+      "Comece a subir a barra o mais rápido possível, sem usar impulso, soltando o ar e empurrando o chão principalmente com o calcanhar enquanto estende as pernas novamente, até voltar à posição inicial. Observação: você deve fazer esses exercícios o mais rápido possível, mas sem perder a forma perfeita e sem usar impulso.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Spell_Caster": {
+    "name": "Spell caster com halteres",
+    "instructions": [
+      "Segure um halter em cada mão com pegada pronada. Os pés ficam afastados, com quadril e joelhos estendidos. Essa será a posição inicial.",
+      "Comece o movimento puxando os dois halteres para um lado, junto ao quadril, rotacionando o tronco.",
+      "Mantendo os braços retos e os halteres paralelos ao chão, gire o tronco para balançar os pesos para o lado oposto.",
+      "Continue alternando, girando de um lado para o outro até completar a série."
+    ]
+  },
+  "Spider_Crawl": {
+    "name": "Rastejar do homem-aranha",
+    "instructions": [
+      "Comece em posição de bruços no chão. Apoie o peso nas mãos e nas pontas dos pés, com os pés juntos e o corpo reto. Os braços ficam flexionados a 90 graus. Essa será a posição inicial.",
+      "Inicie o movimento tirando um pé do chão. Gire a perna para fora e leve o joelho em direção ao cotovelo, o mais à frente possível.",
+      "Volte essa perna à posição inicial e repita do lado oposto."
+    ]
+  },
+  "Spider_Curl": {
+    "name": "Rosca aranha com barra",
+    "instructions": [
+      "Comece colocando a barra na parte do banco Scott onde você normalmente se senta. Certifique-se de alinhar bem a barra para que fique equilibrada e não caia.",
+      "Vá para o lado da frente do banco Scott (a parte onde os braços normalmente ficam apoiados) e posicione-se deitado em uma inclinação de 45 graus, com o tronco e o abdômen pressionados contra a frente do banco.",
+      "Certifique-se de que os pés (especialmente os dedos) estejam bem posicionados no chão e apoie a parte superior dos braços sobre o apoio na parte interna do banco Scott.",
+      "Use os braços para segurar a barra com pegada supinada (palmas para cima), com as mãos na largura dos ombros ou um pouco mais próximas.",
+      "Comece a levantar a barra devagar, soltando o ar. Segure a posição contraída por um segundo, apertando os bíceps.",
+      "Comece a trazer a barra de volta à posição inicial devagar, inspirando.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Spinal_Stretch": {
+    "name": "Alongamento de coluna sentado",
+    "instructions": [
+      "Sente-se em uma cadeira com as costas retas e os pés apoiados no chão.",
+      "Entrelace os dedos atrás da cabeça, com os cotovelos para fora e o queixo para baixo.",
+      "Gire a parte superior do corpo para um lado cerca de 3 vezes, o máximo que conseguir. Depois incline-se à frente e gire o tronco para levar o cotovelo ao chão, por dentro do joelho.",
+      "Volte à posição ereta e repita para o outro lado."
+    ]
+  },
+  "Split_Clean": {
+    "name": "Split clean",
+    "instructions": [
+      "Com a barra no chão, próxima às canelas, segure-a com pegada pronada logo por fora das pernas. Abaixe o quadril com o peso concentrado nos calcanhares, costas retas, cabeça voltada para frente, peito erguido e ombros logo à frente da barra. Essa será a posição inicial.",
+      "Comece a primeira puxada empurrando pelos calcanhares, estendendo os joelhos. O ângulo das costas deve permanecer o mesmo e os braços devem ficar retos. Mova o peso com controle até acima dos joelhos.",
+      "Em seguida vem a segunda puxada, principal fonte de aceleração do clean. Quando a barra se aproximar da altura do meio da coxa, comece a estender o quadril. Em um movimento de salto, acelere estendendo quadril, joelhos e tornozelos, usando a velocidade para levar a barra para cima. Não deve ser necessário puxar ativamente com os braços para acelerar o peso; ao final da segunda puxada, o corpo deve estar totalmente estendido, inclinado levemente para trás, com os braços ainda estendidos.",
+      "Quando a extensão total for atingida, passe para a terceira puxada encolhendo os ombros e flexionando os braços com agressividade, com os cotovelos para cima e para fora. No pico da extensão, puxe-se para baixo com força, girando os cotovelos para baixo da barra.",
+      "Receba a barra com os pés em passada, levando agressivamente um pé à frente e outro para trás. A barra deve ficar apoiada nos ombros projetados à frente, tocando de leve a garganta, com as mãos relaxadas. Continue descendo até a posição mais baixa, o que ajudará na recuperação.",
+      "Recupere-se imediatamente empurrando pelos calcanhares, mantendo o tronco ereto e os cotovelos para cima. Junte os pés ao ficar em pé."
+    ]
+  },
+  "Split_Jerk": {
+    "name": "Split jerk",
+    "instructions": [
+      "Em pé, com o peso apoiado na frente dos ombros, comece com a flexão (dip). Com os pés diretamente sob o quadril, flexione os joelhos sem levar o quadril para trás.",
+      "Desça só um pouco e inverta a direção com a máxima potência possível. Empurre pelos calcanhares para gerar o máximo de velocidade e força e tire a cabeça do caminho quando a barra sair dos ombros. Nesse momento, quando os pés saem do chão, eles devem ir para a posição de recepção o mais rápido possível.",
+      "No breve momento em que os pés não estão empurrando ativamente a plataforma, o esforço do atleta para empurrar a barra para cima os leva para baixo. Os pés devem ir para uma base em passada, um à frente e outro atrás, com os joelhos parcialmente flexionados. Receba a barra com os braços travados acima da cabeça.",
+      "Volte à posição em pé, juntando os pés."
+    ]
+  },
+  "Split_Jump": {
+    "name": "Salto em afundo",
+    "instructions": [
+      "Assuma a posição de afundo, com um pé à frente e o joelho flexionado, e o joelho de trás quase tocando o chão.",
+      "Garanta que o joelho da frente esteja alinhado com o centro do pé.",
+      "Estendendo as duas pernas, salte o mais alto possível, balançando os braços para ganhar impulso.",
+      "Durante o salto, junte os pés e leve-os de volta às posições iniciais ao aterrissar.",
+      "Absorva o impacto voltando à posição inicial."
+    ]
+  },
+  "Split_Snatch": {
+    "name": "Split snatch",
+    "instructions": [
+      "Comece com uma barra carregada no chão. A barra deve ficar próxima ou encostada nas canelas, e a pegada deve ser larga. Os pés ficam diretamente abaixo do quadril, com as pontas voltadas para fora conforme necessário. Abaixe o quadril, com o peito erguido e a cabeça olhando para frente. Os ombros ficam logo à frente da barra. Essa será a posição inicial.",
+      "Comece a primeira puxada empurrando pela parte da frente dos calcanhares, tirando a barra do chão. O ângulo das costas deve permanecer o mesmo até a barra passar dos joelhos.",
+      "Passe para a segunda puxada estendendo quadril, joelhos e tornozelos, levando a barra para cima o mais rápido possível. A barra deve ficar próxima ao corpo. No pico da extensão, encolha os ombros e deixe os cotovelos flexionarem para o lado.",
+      "Ao levar os pés para a posição de recepção, puxe-se com força para baixo da barra enquanto a eleva acima da cabeça. Os pés devem ir com força para a posição em passada, um à frente e outro atrás. Receba a barra com o corpo o mais baixo possível e os braços totalmente estendidos acima da cabeça.",
+      "Mantendo a barra alinhada sobre a frente dos calcanhares, com a cabeça e o peito erguidos, empurre pelos calcanhares para ficar em pé, juntando os pés.",
+      "Devolva o peso ao chão com cuidado."
+    ]
+  },
+  "Split_Squat_with_Dumbbells": {
+    "name": "Afundo estático com halteres",
+    "instructions": [
+      "Posicione-se em passada, com o pé de trás elevado e o da frente à frente.",
+      "Segure um halter em cada mão, deixando-os pendurados ao lado do corpo. Essa será a posição inicial.",
+      "Comece descendo, flexionando joelho e quadril para baixar o corpo. Mantenha boa postura durante todo o movimento. Mantenha o joelho da frente alinhado com o pé durante o exercício.",
+      "No ponto mais baixo do movimento, empurre pelo calcanhar para estender joelho e quadril e voltar à posição inicial."
+    ]
+  },
+  "Split_Squats": {
+    "name": "Afundo com salto alternado",
+    "instructions": [
+      "Comece em pé. Salte para uma posição de passada, com uma perna à frente e outra atrás, flexionando os joelhos e abaixando levemente o quadril.",
+      "Ao descer, inverta imediatamente a direção, levantando e saltando, trocando a posição das pernas. Repita de 5 a 10 vezes em cada perna."
+    ]
+  },
+  "Squat_Jerk": {
+    "name": "Squat jerk",
+    "instructions": [
+      "Em pé, com o peso apoiado na frente dos ombros, comece com a flexão (dip). Com os pés diretamente sob o quadril, flexione os joelhos sem levar o quadril para trás. Desça só um pouco e inverta a direção com a máxima potência possível. Empurre pelos calcanhares para gerar o máximo de velocidade e força e tire a cabeça do caminho quando a barra sair dos ombros.",
+      "Nesse momento, quando os pés saem do chão, eles devem ir para a posição de recepção o mais rápido possível. No breve momento em que os pés não estão empurrando ativamente a plataforma, o esforço do atleta para empurrar a barra para cima os leva para baixo. Os pés devem ir com força para logo fora da linha do quadril, com as pontas voltadas para fora conforme necessário. Receba a barra com o corpo em agachamento completo e os braços totalmente estendidos acima da cabeça.",
+      "Mantendo a barra alinhada sobre a frente dos calcanhares, com a cabeça e o peito erguidos, empurre pelos calcanhares para ficar em pé. Devolva o peso ao chão com cuidado."
+    ]
+  },
+  "Squat_with_Bands": {
+    "name": "Agachamento livre com elásticos",
+    "instructions": [
+      "Prepare os elásticos nas extremidades da barra, presos aos pinos de elástico, ao rack ou a halteres, de modo a obter a tensão adequada.",
+      "Comece entrando sob a barra e apoiando-a na parte de trás dos ombros. Aperte as escápulas uma contra a outra e gire os cotovelos para frente, tentando envergar a barra sobre os ombros. Retire a barra do suporte, criando um arco firme na lombar, e dê um passo para trás até a posição. Afaste mais os pés para dar mais ênfase às costas, glúteos, adutores e posteriores de coxa. Mantenha a cabeça voltada para frente.",
+      "Com costas, ombros e abdômen firmes, empurre os joelhos e o bumbum para fora e comece a descida. Jogue o quadril para trás o máximo possível. O ideal é que as canelas fiquem perpendiculares ao chão. Uma posição mais baixa da barra exige maior inclinação do tronco para manter a barra sobre os calcanhares. Continue até passar do paralelo, que é definido como a dobra do quadril alinhada com o topo do joelho.",
+      "Mantendo o peso nos calcanhares e empurrando pés e joelhos para fora, suba conduzindo o movimento com a cabeça. Continue subindo, mantendo a firmeza da cabeça aos pés, até voltar à posição inicial."
+    ]
+  },
+  "Squat_with_Chains": {
+    "name": "Agachamento livre com correntes",
+    "instructions": [
+      "Para montar as correntes, comece passando a corrente-guia sobre as extremidades da barra. A corrente pesada deve ser presa com um mosquetão. Ajuste o comprimento da corrente-guia para que alguns elos ainda fiquem no chão no topo do movimento.",
+      "Comece entrando sob a barra e apoiando-a na parte de trás dos ombros. Aperte as escápulas uma contra a outra e gire os cotovelos para frente, tentando envergar a barra sobre os ombros. Retire a barra do suporte, criando um arco firme na lombar, e dê um passo para trás até a posição. Afaste mais os pés para dar mais ênfase às costas, glúteos, adutores e posteriores de coxa. Mantenha a cabeça voltada para frente.",
+      "Com costas, ombros e abdômen firmes, empurre os joelhos e o bumbum para fora e comece a descida. Jogue o quadril para trás o máximo possível. O ideal é que as canelas fiquem perpendiculares ao chão. Uma posição mais baixa da barra exige maior inclinação do tronco para manter a barra sobre os calcanhares. Continue até passar do paralelo, que é definido como a dobra do quadril alinhada com o topo do joelho.",
+      "Mantendo o peso nos calcanhares e empurrando pés e joelhos para fora, suba conduzindo o movimento com a cabeça. Continue subindo, mantendo a firmeza da cabeça aos pés, até voltar à posição inicial."
+    ]
+  },
+  "Squat_with_Plate_Movers": {
+    "name": "Agachamento com deslocamento de anilha",
+    "instructions": [
+      "Para começar, ajuste a barra no rack um pouco abaixo da altura dos ombros. Posicione uma anilha no chão, a cerca de 60 cm do rack. Depois de carregar a barra, entre sob ela e apoie-a na parte de trás dos ombros.",
+      "Segure a barra com as duas mãos e retire-a do suporte empurrando com as pernas e, ao mesmo tempo, endireitando o tronco.",
+      "Afaste-se do rack e adote uma base larga, com as pontas dos pés levemente para fora e um pé sobre a anilha. Mantenha a cabeça erguida o tempo todo. Essa será a posição inicial.",
+      "Comece a baixar a barra devagar flexionando joelhos e quadril. Continue descendo até o ângulo entre a coxa e a panturrilha ficar um pouco menor que 90 graus.",
+      "Suba a barra soltando o ar, empurrando o chão com os calcanhares enquanto estende quadril e joelhos.",
+      "No topo do movimento, dê um passo lateral, juntando os pés do lado oposto da anilha.",
+      "Usando o pé de dentro, empurre a anilha, deslizando-a pelo chão até o lugar onde você estava.",
+      "Apoie o pé de dentro na anilha, adotando uma base larga para a próxima repetição."
+    ]
+  },
+  "Squats_-_With_Bands": {
+    "name": "Agachamento com elástico",
+    "instructions": [
+      "Para começar, certifique-se de que o elástico esteja dividido igualmente entre os lados esquerdo e direito do corpo. Para isso, use as mãos para segurar os dois lados do elástico e coloque os dois pés no meio dele. Os pés ficam afastados na largura dos ombros.",
+      "Ao segurar os elásticos, eles devem estar na mesma altura dos dois lados. Use pegada pronada (palmas para frente) e mantenha as alças do elástico junto ao rosto neste exercício. Essa é a posição inicial.",
+      "Comece devagar a flexionar os joelhos e abaixar o corpo até as coxas ficarem paralelas ao chão, soltando o ar.",
+      "Use o calcanhar para empurrar o corpo de volta à posição inicial, soltando o ar.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Stairmaster": {
+    "name": "Simulador de escada (Stairmaster)",
+    "instructions": [
+      "Para começar, suba no simulador de escada e selecione a opção desejada no menu. Você pode escolher o modo manual ou um programa pronto. Geralmente é possível informar idade e peso para estimar as calorias queimadas durante o exercício.",
+      "Movimente as pernas para cima e para baixo em um ritmo constante, empurrando os pedais para baixo, mas sem ir até o chão. Recomenda-se manter as mãos nas alças para não cair. As alças podem ser usadas para monitorar a frequência cardíaca e ajudar a manter a intensidade adequada.",
+      "O simulador de escada oferece praticidade, benefícios cardiovasculares e geralmente tem menos impacto que correr ao ar livre. Costuma ser bem mais difícil que outros equipamentos de cardio. Uma pessoa de 68 kg costuma queimar mais de 300 calorias em 30 minutos, contra cerca de 175 calorias caminhando."
+    ]
+  },
+  "Standing_Alternating_Dumbbell_Press": {
+    "name": "Desenvolvimento alternado com halteres em pé",
+    "instructions": [
+      "Fique em pé com um halter em cada mão. Levante os halteres até os ombros, com as palmas voltadas para frente e os cotovelos apontados para fora. Essa será a posição inicial.",
+      "Estenda um braço para empurrar o halter diretamente para cima, mantendo a outra mão no lugar. Não incline o corpo nem use impulso durante o movimento.",
+      "Após uma breve pausa, volte o peso à posição inicial.",
+      "Repita do lado oposto, continuando a alternar entre os braços."
+    ]
+  },
+  "Standing_Barbell_Calf_Raise": {
+    "name": "Panturrilha em pé com barra",
+    "instructions": [
+      "Este exercício é mais seguro dentro de um rack de agachamento. Para começar, ajuste a barra no rack em uma altura que corresponda à sua. Depois de escolher a altura correta e carregar a barra, entre sob ela e apoie-a na parte de trás dos ombros (um pouco abaixo do pescoço).",
+      "Segure a barra com os dois braços, um de cada lado, e retire-a do suporte empurrando com as pernas e, ao mesmo tempo, endireitando o tronco.",
+      "Afaste-se do rack e posicione as pernas em base média, na largura dos ombros, com as pontas dos pés levemente para fora. Mantenha a cabeça erguida o tempo todo, pois olhar para baixo faz perder o equilíbrio, e mantenha as costas retas. Os joelhos devem ficar levemente flexionados, nunca travados. Essa será a posição inicial. Dica: para maior amplitude de movimento, você também pode apoiar a parte da frente dos pés em um bloco de madeira, mas tome cuidado, pois essa opção exige mais equilíbrio e um bloco firme.",
+      "Levante os calcanhares enquanto solta o ar, estendendo os tornozelos o mais alto possível e contraindo as panturrilhas. Garanta que o joelho permaneça parado o tempo todo, sem nenhuma flexão. Segure a posição contraída por um segundo antes de começar a descer.",
+      "Volte devagar à posição inicial, inspirando, abaixando os calcanhares e flexionando os tornozelos até as panturrilhas ficarem alongadas.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Standing_Barbell_Press_Behind_Neck": {
+    "name": "Desenvolvimento atrás da nuca com barra em pé",
+    "instructions": [
+      "Este exercício é mais fácil de começar dentro de um rack de agachamento, para pegar a barra. Para começar, ajuste a barra no rack em uma altura que corresponda à sua. Depois de escolher a altura correta e carregar a barra, entre sob ela e apoie-a na parte de trás dos ombros (um pouco abaixo do pescoço).",
+      "Segure a barra com os dois braços, um de cada lado, e retire-a do suporte empurrando com as pernas e, ao mesmo tempo, endireitando o tronco.",
+      "Afaste-se do rack e posicione as pernas em base média, na largura dos ombros, com as pontas dos pés levemente para fora. Mantenha as costas retas durante o exercício. Essa será a posição inicial.",
+      "Eleve a barra acima da cabeça, estendendo totalmente os braços, soltando o ar.",
+      "Segure a contração por um segundo e baixe a barra de volta à posição inicial, inspirando.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Standing_Bent-Over_One-Arm_Dumbbell_Triceps_Extension": {
+    "name": "Tríceps coice unilateral com halter",
+    "instructions": [
+      "Com um halter em uma das mãos e a palma voltada para o tronco, flexione levemente os joelhos e incline o tronco à frente, dobrando na cintura e mantendo as costas retas até ficarem quase paralelas ao chão. Mantenha a cabeça erguida.",
+      "A parte superior do braço fica junto ao tronco e paralela ao chão, enquanto o antebraço aponta para o chão, com a mão segurando o peso. Dica: deve haver um ângulo de 90 graus entre o antebraço e a parte superior do braço. Essa é a sua posição inicial.",
+      "Mantendo a parte superior do braço parada, use o tríceps para levantar o peso, soltando o ar, até o antebraço ficar paralelo ao chão e o braço todo estendido. Como em muitos outros exercícios de braço, só o antebraço se move.",
+      "Após uma contração de um segundo no topo, baixe devagar o halter de volta à posição inicial, inspirando.",
+      "Repita o movimento pelo número de repetições prescrito.",
+      "Troque de braço e repita o exercício."
+    ]
+  },
+  "Standing_Bent-Over_Two-Arm_Dumbbell_Triceps_Extension": {
+    "name": "Tríceps coice com halteres",
+    "instructions": [
+      "Com um halter em cada mão e as palmas voltadas para o tronco, flexione levemente os joelhos e incline o tronco à frente, dobrando na cintura e mantendo as costas retas até ficarem quase paralelas ao chão. Mantenha a cabeça erguida. A parte superior dos braços fica junto ao tronco e paralela ao chão, enquanto os antebraços apontam para o chão, com as mãos segurando os pesos. Dica: deve haver um ângulo de 90 graus entre os antebraços e a parte superior dos braços. Essa é a sua posição inicial.",
+      "Mantendo a parte superior dos braços parada, use o tríceps para levantar os pesos, soltando o ar, até os antebraços ficarem paralelos ao chão e os braços totalmente estendidos. Como em muitos outros exercícios de braço, só o antebraço se move.",
+      "Após uma contração de um segundo no topo, baixe devagar os halteres de volta à posição inicial, inspirando.",
+      "Repita o movimento pelo número de repetições prescrito."
+    ]
+  },
+  "Standing_Biceps_Cable_Curl": {
+    "name": "Rosca direta na polia baixa em pé",
+    "instructions": [
+      "Fique em pé, com o tronco ereto, segurando uma barra de rosca presa a uma polia baixa. Segure a barra na largura dos ombros e mantenha os cotovelos próximos ao tronco. As palmas das mãos ficam voltadas para cima (pegada supinada). Essa será a posição inicial.",
+      "Mantendo a parte superior dos braços parada, flexione os braços contraindo os bíceps enquanto solta o ar. Só os antebraços devem se mover. Continue o movimento até os bíceps estarem totalmente contraídos e a barra estar na altura dos ombros. Segure a posição contraída por um segundo, apertando o músculo.",
+      "Comece a trazer a barra de volta à posição inicial devagar, inspirando.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Standing_Biceps_Stretch": {
+    "name": "Alongamento de bíceps em pé",
+    "instructions": [
+      "Entrelace as mãos atrás das costas, com as palmas unidas, estique os braços e depois gire-os para que as palmas fiquem voltadas para baixo.",
+      "Levante os braços e segure até sentir o alongamento nos bíceps."
+    ]
+  }
+}

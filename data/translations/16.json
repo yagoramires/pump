@@ -1,0 +1,478 @@
+{
+  "Standing_Bradford_Press": {
+    "name": "Desenvolvimento Bradford em pé",
+    "instructions": [
+      "Coloque uma barra carregada na altura dos ombros em um rack. Com pegada pronada na largura dos ombros, comece com a barra apoiada na frente dos ombros. Essa é a sua posição inicial.",
+      "Inicie o movimento estendendo os cotovelos para empurrar a barra acima da cabeça. Evite travar os cotovelos ao levar o peso para trás da cabeça.",
+      "Baixe a barra até a parte de trás da cabeça, até o cotovelo formar um ângulo reto.",
+      "Levante a barra de volta por cima da cabeça estendendo os cotovelos.",
+      "Baixe a barra até a posição inicial.",
+      "Alterne dessa forma até completar o número de repetições recomendado."
+    ]
+  },
+  "Standing_Cable_Chest_Press": {
+    "name": "Supino na polia em pé",
+    "instructions": [
+      "Posicione as duas polias na altura do peito e selecione um peso adequado. Fique de 30 a 60 cm à frente dos cabos, segurando um em cada mão. Você pode colocar um pé à frente do outro para maior estabilidade.",
+      "Posicione a parte superior do braço em um ângulo de 90 graus, com as escápulas unidas. Essa será a posição inicial.",
+      "Mantendo o resto do corpo parado, estenda os cotovelos para empurrar os pegadores para frente, juntando-os à sua frente.",
+      "Faça uma pausa no topo do movimento e volte à posição inicial."
+    ]
+  },
+  "Standing_Cable_Lift": {
+    "name": "Lift na polia em pé (elevação diagonal)",
+    "instructions": [
+      "Prenda um pegador comum em uma torre e leve o cabo para a posição mais baixa da polia.",
+      "De lado para o cabo, segure o pegador com uma mão e afaste-se da torre. Você deve ficar aproximadamente a um braço de distância da polia, com a tensão do peso no cabo. O braço estendido deve estar alinhado com o cabo.",
+      "Com os pés afastados na largura dos ombros, agache e segure o pegador com as duas mãos. Os braços ainda devem estar totalmente estendidos.",
+      "Em um único movimento, puxe o pegador para cima e atravessando o corpo até os braços ficarem totalmente estendidos acima da cabeça.",
+      "Mantenha as costas retas e os braços próximos ao corpo enquanto gira o pé de trás e estende as pernas para obter a amplitude total de movimento.",
+      "Recolha os braços e depois o corpo. Volte à posição neutra de forma lenta e controlada.",
+      "Repita até a falha.",
+      "Em seguida, reposicione-se e repita a mesma série de movimentos do lado oposto."
+    ]
+  },
+  "Standing_Cable_Wood_Chop": {
+    "name": "Wood chop na polia em pé",
+    "instructions": [
+      "Prenda um pegador comum em uma torre e leve o cabo para a posição mais alta da polia.",
+      "De lado para o cabo, segure o pegador com uma mão e afaste-se da torre. Você deve ficar aproximadamente a um braço de distância da polia, com a tensão do peso no cabo. O braço estendido deve estar alinhado com o cabo.",
+      "Com os pés afastados na largura dos ombros, estenda a outra mão para cima e segure o pegador com as duas mãos. Os braços ainda devem estar totalmente estendidos.",
+      "Em um único movimento, puxe o pegador para baixo e atravessando o corpo até o joelho da frente, girando o tronco.",
+      "Mantenha as costas e os braços retos e o abdômen firme enquanto gira o pé de trás e flexiona os joelhos para obter a amplitude total de movimento.",
+      "Mantenha a base e os braços retos. Volte à posição neutra de forma lenta e controlada.",
+      "Repita até a falha.",
+      "Em seguida, reposicione-se e repita a mesma série de movimentos do lado oposto."
+    ]
+  },
+  "Standing_Calf_Raises": {
+    "name": "Panturrilha em pé na máquina",
+    "instructions": [
+      "Ajuste a alavanca acolchoada da máquina de panturrilha à sua altura.",
+      "Posicione os ombros sob os apoios e os dedos dos pés voltados para frente (ou use qualquer uma das outras duas posições descritas no início do capítulo). A parte da frente dos pés fica apoiada sobre o bloco, com os calcanhares para fora dele. Empurre a alavanca para cima estendendo quadril e joelhos até o tronco ficar ereto. Os joelhos devem ficar levemente flexionados, nunca travados. Os dedos dos pés ficam voltados para frente, para fora ou para dentro, conforme descrito no início do capítulo. Essa será a posição inicial.",
+      "Levante os calcanhares enquanto solta o ar, estendendo os tornozelos o mais alto possível e contraindo as panturrilhas. Garanta que o joelho permaneça parado o tempo todo, sem nenhuma flexão. Segure a posição contraída por um segundo antes de começar a descer.",
+      "Volte devagar à posição inicial, inspirando, abaixando os calcanhares e flexionando os tornozelos até as panturrilhas ficarem alongadas.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Standing_Concentration_Curl": {
+    "name": "Rosca concentrada em pé",
+    "instructions": [
+      "Segurando um halter na mão de trabalho, incline-se à frente. Deixe o braço de trabalho pendurado perpendicular ao chão, com o cotovelo apontado para fora. Essa será a posição inicial.",
+      "Flexione o cotovelo para subir o peso, mantendo a parte superior do braço parada. No topo da repetição, contraia o bíceps e faça uma pausa.",
+      "Baixe o halter de volta à posição inicial.",
+      "Repita o movimento pelo número de repetições prescrito."
+    ]
+  },
+  "Standing_Dumbbell_Calf_Raise": {
+    "name": "Panturrilha em pé com halteres",
+    "instructions": [
+      "Fique em pé com o tronco ereto, segurando dois halteres ao lado do corpo. Apoie a parte da frente do pé em uma tábua de madeira firme e estável (com cerca de 5 a 7 cm de altura), com os calcanhares para fora, tocando o chão. Essa será a posição inicial.",
+      "Com os dedos dos pés apontando para frente (para trabalhar todas as partes igualmente), para dentro (para dar ênfase à cabeça lateral) ou para fora (para dar ênfase à cabeça medial), levante os calcanhares do chão enquanto solta o ar, contraindo as panturrilhas. Segure a contração no topo por um segundo.",
+      "Ao inspirar, volte à posição inicial abaixando os calcanhares devagar.",
+      "Repita o número de vezes recomendado."
+    ]
+  },
+  "Standing_Dumbbell_Press": {
+    "name": "Desenvolvimento com halteres em pé",
+    "instructions": [
+      "Em pé, com os pés afastados na largura dos ombros, pegue um halter em cada mão. Levante os halteres até a altura da cabeça, com os cotovelos para fora, a cerca de 90 graus. Essa será a posição inicial.",
+      "Mantendo a técnica rigorosa, sem impulso das pernas nem inclinar o corpo para trás, estenda os cotovelos para levantar os pesos juntos diretamente acima da cabeça.",
+      "Faça uma pausa e volte devagar o peso à posição inicial."
+    ]
+  },
+  "Standing_Dumbbell_Reverse_Curl": {
+    "name": "Rosca inversa com halteres em pé",
+    "instructions": [
+      "Para começar, fique em pé, com o corpo reto, com um halter em cada mão, em pegada pronada (palmas para baixo). Os braços ficam totalmente estendidos e os pés afastados na largura dos ombros. Essa é a posição inicial.",
+      "Mantendo a parte superior dos braços parada, flexione os braços contraindo os bíceps enquanto solta o ar. Só os antebraços devem se mover. Continue o movimento até os bíceps estarem totalmente contraídos e os halteres estarem na altura dos ombros. Segure a posição contraída por um segundo, apertando o músculo.",
+      "Comece a trazer os halteres de volta à posição inicial devagar, inspirando.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Standing_Dumbbell_Straight-Arm_Front_Delt_Raise_Above_Head": {
+    "name": "Elevação frontal com halteres acima da cabeça",
+    "instructions": [
+      "Segure os halteres à frente das coxas, com as palmas voltadas para elas.",
+      "Mantenha os braços retos, com leve flexão nos cotovelos, mas mantendo-os travados. Essa será a posição inicial.",
+      "Levante os halteres em um movimento semicircular até os braços ficarem estendidos acima da cabeça, soltando o ar.",
+      "Volte devagar à posição inicial pelo mesmo caminho, inspirando.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Standing_Dumbbell_Triceps_Extension": {
+    "name": "Tríceps francês em pé com halter",
+    "instructions": [
+      "Para começar, fique em pé segurando um halter com as duas mãos. Os pés ficam afastados cerca da largura dos ombros. Segure devagar o halter com as duas mãos e levante-o acima da cabeça até os dois braços ficarem totalmente estendidos.",
+      "O peso deve ficar apoiado nas palmas das mãos, com os polegares envolvendo o halter. As palmas das mãos ficam voltadas para o teto. Essa será a posição inicial.",
+      "Mantendo a parte superior dos braços próxima à cabeça, com os cotovelos fechados e perpendiculares ao chão, desça o peso em um movimento semicircular atrás da cabeça até os antebraços tocarem os bíceps. Dica: a parte superior dos braços deve ficar parada e só os antebraços se movem. Inspire durante essa etapa.",
+      "Volte à posição inicial usando o tríceps para levantar o halter. Solte o ar durante essa etapa.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Standing_Dumbbell_Upright_Row": {
+    "name": "Remada alta com halteres em pé",
+    "instructions": [
+      "Segure um halter em cada mão com pegada pronada (palmas para frente) um pouco mais fechada que a largura dos ombros. Os halteres devem ficar apoiados sobre as coxas. Os braços ficam estendidos, com leve flexão nos cotovelos, e as costas retas. Essa será a posição inicial.",
+      "Use a lateral dos ombros para levantar os halteres enquanto solta o ar. Os halteres devem ficar próximos ao corpo durante a subida e os cotovelos devem conduzir o movimento. Continue levantando até quase tocarem o queixo. Dica: os cotovelos devem conduzir o movimento. Ao levantar os halteres, os cotovelos devem estar sempre mais altos que os antebraços. Mantenha também o tronco parado e faça uma pausa de um segundo no topo do movimento.",
+      "Baixe os halteres devagar até a posição inicial. Inspire durante essa parte do movimento.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Standing_Elevated_Quad_Stretch": {
+    "name": "Alongamento de quadríceps em pé com apoio elevado",
+    "instructions": [
+      "Comece em pé, de costas, a cerca de 60 a 90 cm de um banco ou step.",
+      "Levante uma perna para trás e apoie o pé no step, no peito do pé ou na ponta dos dedos, o que for mais confortável.",
+      "Mantenha o joelho de apoio levemente flexionado e evite que ele passe da linha dos dedos dos pés. Troque de lado."
+    ]
+  },
+  "Standing_Front_Barbell_Raise_Over_Head": {
+    "name": "Elevação frontal com barra acima da cabeça",
+    "instructions": [
+      "Para começar, fique em pé, com o corpo reto, segurando uma barra. Segure a barra com as palmas voltadas para baixo e as mãos mais próximas que a largura dos ombros.",
+      "Os pés ficam afastados na largura dos ombros. Os cotovelos ficam levemente flexionados. Essa é a posição inicial.",
+      "Levante a barra até ficar diretamente acima da cabeça, soltando o ar. Mantenha os cotovelos levemente flexionados em cada repetição.",
+      "Ao sentir a contração, comece a baixar a barra de volta à posição inicial, inspirando.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Standing_Gastrocnemius_Calf_Stretch": {
+    "name": "Alongamento de panturrilha (gastrocnêmio) em pé",
+    "instructions": [
+      "Apoie o calcanhar direito em um step, com o joelho estendido, e incline-se à frente para segurar a ponta do pé direito com a mão direita. O joelho esquerdo fica levemente flexionado e as costas retas.",
+      "Apoie o peso na perna esquerda e coloque a mão esquerda na coxa esquerda.",
+      "Puxe os dedos do pé direito em direção ao joelho até sentir o alongamento na panturrilha."
+    ]
+  },
+  "Standing_Hamstring_and_Calf_Stretch": {
+    "name": "Alongamento de posterior de coxa e panturrilha em pé",
+    "instructions": [
+      "Comece passando um cinto, elástico ou corda ao redor de um dos pés. Em pé, coloque esse pé à frente.",
+      "Flexione a perna de trás, mantendo a da frente esticada. Agora levante os dedos do pé da frente do chão e incline-se à frente.",
+      "Usando o cinto, puxe o peito do pé para aumentar o alongamento na panturrilha. Segure por 10 a 20 segundos e repita com o outro pé."
+    ]
+  },
+  "Standing_Hip_Circles": {
+    "name": "Círculos de quadril em pé",
+    "instructions": [
+      "Comece em pé sobre uma perna, apoiando-se em um suporte vertical.",
+      "Levante o joelho da perna sem apoio a 90 graus. Essa será a posição inicial.",
+      "Abra o quadril o máximo possível, tentando fazer um grande círculo com o joelho.",
+      "Faça esse movimento devagar por algumas repetições e repita do outro lado."
+    ]
+  },
+  "Standing_Hip_Flexors": {
+    "name": "Alongamento de flexores do quadril em pé",
+    "instructions": [
+      "Fique em pé com a coluna vertical e o pé esquerdo um pouco à frente do direito.",
+      "Flexione os dois joelhos e levante o calcanhar de trás do chão enquanto empurra o quadril direito para frente. Nessa posição, porém, não é possível obter um alongamento profundo e completo, pois é difícil relaxar o flexor do quadril e se apoiar nele ao mesmo tempo. Troque de lado."
+    ]
+  },
+  "Standing_Inner-Biceps_Curl": {
+    "name": "Rosca alternada com halteres em pé (pegada neutra)",
+    "instructions": [
+      "Fique em pé com um halter em cada mão, com os braços estendidos. Os cotovelos ficam próximos ao tronco. As pernas ficam afastadas cerca da largura dos ombros.",
+      "Gire as palmas das mãos para que fiquem voltadas para dentro, em posição neutra. Essa será a posição inicial.",
+      "Mantendo a parte superior dos braços parada, flexione os braços levando os pesos para fora, contraindo os bíceps enquanto solta o ar. Os punhos devem girar de modo que, com os pesos totalmente elevados, a pegada fique supinada (palmas para cima).",
+      "Só os antebraços devem se mover. Continue o movimento até os bíceps estarem totalmente contraídos e os halteres estarem na altura dos ombros. Dica: mantenha os antebraços alinhados com os deltoides laterais.",
+      "Segure a posição contraída por um segundo, apertando os bíceps.",
+      "Comece a trazer os halteres de volta à posição inicial devagar, inspirando. Lembre-se de girar os punhos ao baixar o peso para voltar à pegada neutra.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Standing_Lateral_Stretch": {
+    "name": "Alongamento lateral em pé",
+    "instructions": [
+      "Fique com os pés um pouco mais afastados que a largura do quadril e os joelhos levemente flexionados.",
+      "Coloque a mão direita no quadril direito para apoiar a coluna.",
+      "Levante o braço esquerdo na vertical e coloque a mão esquerda atrás da cabeça. Mantenha-a ali enquanto inclina o tronco para a direita.",
+      "Mantenha o peso distribuído igualmente entre as duas pernas (não se apoie no quadril esquerdo). Troque de lado."
+    ]
+  },
+  "Standing_Leg_Curl": {
+    "name": "Flexora em pé",
+    "instructions": [
+      "Ajuste a alavanca da máquina à sua altura e posicione-se com o tronco inclinado à frente na cintura, de 30 a 45 graus (pois uma posição inclinada favorece o recrutamento dos posteriores de coxa), com o apoio da alavanca na parte de trás da perna direita (poucos centímetros abaixo das panturrilhas) e a frente da perna direita sobre o apoio da máquina.",
+      "Mantendo o tronco inclinado à frente, certifique-se de que a perna esteja totalmente esticada e segure as alças laterais da máquina. Mantenha os dedos dos pés retos. Essa será a posição inicial.",
+      "Ao soltar o ar, flexione a perna direita para cima o máximo possível, sem tirar a coxa do apoio. Ao atingir a posição de contração máxima, segure por um segundo.",
+      "Ao inspirar, traga as pernas de volta à posição inicial. Repita pelo número de repetições recomendado.",
+      "Faça agora o mesmo exercício com a perna esquerda."
+    ]
+  },
+  "Standing_Long_Jump": {
+    "name": "Salto horizontal em distância",
+    "instructions": [
+      "Este exercício é melhor feito na areia ou em outra superfície macia para a aterrissagem. Garanta que seja possível medir a distância. Fique em um agachamento parcial, com os pés afastados na largura dos ombros.",
+      "Usando um grande balanço dos braços e um contramovimento das pernas, salte para frente o mais longe que conseguir.",
+      "Tente aterrissar com os pés à sua frente, estendendo as pernas o máximo possível.",
+      "Meça a distância do ponto de aterrissagem até o ponto de partida e acompanhe os resultados."
+    ]
+  },
+  "Standing_Low-Pulley_Deltoid_Raise": {
+    "name": "Elevação lateral na polia baixa em pé",
+    "instructions": [
+      "Comece ficando em pé do lado direito de uma polia baixa. Use a mão esquerda, cruzando o corpo, para segurar um pegador simples preso à polia baixa com pegada pronada (palmas para baixo). Deixe o braço à sua frente. A mão direita deve segurar a máquina para maior apoio e equilíbrio.",
+      "Certifique-se de que as costas estejam eretas e os pés afastados na largura dos ombros. Essa é a posição inicial.",
+      "Comece a usar a mão esquerda, cruzando o corpo e para fora, até elevá-la à altura do ombro, soltando o ar.",
+      "Sinta a contração no topo por um segundo e comece a baixar devagar o pegador de volta à posição inicial, inspirando.",
+      "Repita pelo número de repetições recomendado.",
+      "Troque de braço e repita o exercício."
+    ]
+  },
+  "Standing_Low-Pulley_One-Arm_Triceps_Extension": {
+    "name": "Tríceps francês unilateral na polia baixa em pé",
+    "instructions": [
+      "Segure um pegador simples com o braço esquerdo ao lado da polia baixa. Vire-se de costas para a máquina, mantendo o pegador ao lado do corpo com o braço totalmente estendido. Agora use as duas mãos para levar o pegador diretamente acima da cabeça, com a palma voltada para frente. Mantenha a parte superior do braço completamente vertical (perpendicular ao chão) e coloque a mão direita no cotovelo esquerdo para ajudar a mantê-lo firme. Essa é a posição inicial.",
+      "Mantendo a parte superior dos braços próxima à cabeça (cotovelos fechados) e perpendicular ao chão, desça a resistência em um movimento semicircular atrás da cabeça até os antebraços tocarem os bíceps. Dica: a parte superior dos braços deve ficar parada e só os antebraços se movem. Inspire durante essa etapa.",
+      "Volte à posição inicial usando o tríceps para levantar o pegador. Solte o ar durante essa etapa.",
+      "Repita pelo número de repetições recomendado.",
+      "Troque de braço e repita o exercício."
+    ]
+  },
+  "Standing_Military_Press": {
+    "name": "Desenvolvimento militar com barra em pé",
+    "instructions": [
+      "Comece colocando uma barra na altura aproximada do peito em um rack de agachamento. Depois de selecionar os pesos, segure a barra com pegada pronada (palmas para frente). Certifique-se de segurar a barra mais aberta que a largura dos ombros.",
+      "Flexione levemente os joelhos e apoie a barra na clavícula. Levante a barra mantendo-a apoiada no peito. Dê um passo para trás e posicione os pés afastados na largura dos ombros.",
+      "Depois de pegar a barra com a largura de pegada correta, levante-a acima da cabeça travando os braços. Mantenha-a mais ou menos na altura dos ombros e um pouco à frente da cabeça. Essa é a sua posição inicial.",
+      "Baixe a barra devagar até a clavícula, inspirando.",
+      "Levante a barra de volta à posição inicial, soltando o ar.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Standing_Olympic_Plate_Hand_Squeeze": {
+    "name": "Pinça com anilha em pé",
+    "instructions": [
+      "Para começar, fique em pé, com o corpo reto, segurando uma anilha pela borda, com o braço estendido, em cada mão, com pegada neutra (palmas voltadas para dentro). Os pés ficam afastados na largura dos ombros. Essa será a posição inicial.",
+      "Desça as anilhas até os dedos ficarem quase estendidos, mas ainda conseguindo segurar os pesos. Inspire ao descer as anilhas.",
+      "Agora suba as anilhas de volta à posição inicial, soltando o ar e fechando as mãos.",
+      "Repita pelo número de repetições prescrito no seu programa."
+    ]
+  },
+  "Standing_One-Arm_Cable_Curl": {
+    "name": "Rosca direta unilateral na polia baixa em pé",
+    "instructions": [
+      "Comece segurando um pegador simples ao lado da polia baixa. Certifique-se de estar longe o suficiente da máquina para que o braço sustente o peso.",
+      "Certifique-se de que a parte superior do braço esteja parada, perpendicular ao chão, com o cotovelo junto ao corpo e a palma voltada para frente. O braço que não está trabalhando deve segurar a cintura. Isso ajuda a manter o equilíbrio.",
+      "Comece a flexionar devagar o pegador para cima, mantendo a parte superior do braço parada, até o antebraço tocar o bíceps, soltando o ar. Dica: só o antebraço deve se mover.",
+      "Mantenha a posição de contração, apertando o bíceps, e depois baixe o pegador de volta à posição inicial, inspirando.",
+      "Repita pelo número de repetições recomendado.",
+      "Troque de braço ao fazer este exercício."
+    ]
+  },
+  "Standing_One-Arm_Dumbbell_Curl_Over_Incline_Bench": {
+    "name": "Rosca unilateral com halter sobre banco inclinado",
+    "instructions": [
+      "Fique atrás do banco inclinado, como se fosse ser o auxiliar de alguém. Com um halter em uma das mãos, apoie-o sobre o banco inclinado com pegada supinada (palma para cima).",
+      "Posicione a mão que não está levantando no canto ou na lateral do banco inclinado. O peito fica pressionado contra a parte superior do encosto e os pés firmes no chão, em base larga. Essa é a posição inicial.",
+      "Mantendo a parte superior do braço parada, flexione o halter para cima, contraindo os bíceps enquanto solta o ar. Só os antebraços devem se mover. Continue o movimento até os bíceps estarem totalmente contraídos e o halter estar na altura do ombro. Segure a posição contraída por um segundo.",
+      "Comece a trazer o halter de volta à posição inicial devagar, inspirando.",
+      "Repita pelo número de repetições recomendado.",
+      "Troque de braço ao fazer este exercício."
+    ]
+  },
+  "Standing_One-Arm_Dumbbell_Triceps_Extension": {
+    "name": "Tríceps francês unilateral com halter em pé",
+    "instructions": [
+      "Para começar, fique em pé segurando um halter em uma das mãos. Os pés ficam afastados cerca da largura dos ombros. Agora estenda totalmente o braço com o halter acima da cabeça. Dica: o dedo mínimo da mão deve ficar voltado para o teto e a palma da mão voltada para frente. O halter deve ficar acima da cabeça.",
+      "Essa será a sua posição inicial.",
+      "Mantendo a parte superior do braço próxima à cabeça (cotovelo fechado) e perpendicular ao chão, desça a resistência em um movimento semicircular atrás da cabeça até o antebraço tocar o bíceps. Dica: a parte superior do braço deve ficar parada e só o antebraço se move. Inspire durante essa etapa.",
+      "Volte à posição inicial usando o tríceps para levantar o halter. Solte o ar durante essa etapa.",
+      "Repita pelo número de repetições recomendado.",
+      "Troque de braço e repita o exercício."
+    ]
+  },
+  "Standing_Overhead_Barbell_Triceps_Extension": {
+    "name": "Tríceps francês em pé com barra",
+    "instructions": [
+      "Para começar, fique em pé segurando uma barra reta ou barra W com pegada pronada (palmas para frente), com as mãos mais próximas que a largura dos ombros. Os pés ficam afastados cerca da largura dos ombros.",
+      "Agora eleve a barra acima da cabeça até os braços ficarem totalmente estendidos. Mantenha os cotovelos fechados. Essa será a sua posição inicial.",
+      "Mantendo a parte superior dos braços próxima à cabeça e os cotovelos fechados, perpendiculares ao chão, desça a resistência em um movimento semicircular atrás da cabeça até os antebraços tocarem os bíceps. Dica: a parte superior dos braços deve ficar parada e só os antebraços se movem. Inspire durante essa etapa.",
+      "Volte à posição inicial usando o tríceps para levantar a barra. Solte o ar durante essa etapa.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Standing_Palm-In_One-Arm_Dumbbell_Press": {
+    "name": "Desenvolvimento unilateral com halter em pé (pegada neutra)",
+    "instructions": [
+      "Comece com um halter em uma das mãos, com o braço totalmente estendido para o lado, em pegada neutra. Use o outro braço para se segurar em um banco inclinado e manter o equilíbrio.",
+      "Os pés ficam afastados na largura dos ombros. Agora levante devagar o halter até formar um ângulo de 90 graus com o braço. Observação: o antebraço deve ficar perpendicular ao chão. Mantenha a pegada neutra durante todo o exercício.",
+      "Levante devagar o halter até o braço ficar totalmente estendido. Essa é a posição inicial.",
+      "Ao inspirar, baixe o peso até o braço ficar em um ângulo de 90 graus novamente.",
+      "Sinta a contração por um segundo e depois levante o peso de volta em direção à posição inicial, soltando o ar. Lembre-se de se segurar no banco inclinado e posicionar os pés de modo a manter o equilíbrio durante o exercício.",
+      "Repita pelo número de repetições recomendado.",
+      "Troque de braço e repita o exercício."
+    ]
+  },
+  "Standing_Palms-In_Dumbbell_Press": {
+    "name": "Desenvolvimento com halteres em pé (pegada neutra)",
+    "instructions": [
+      "Comece com um halter em cada mão, com os braços totalmente estendidos para os lados, em pegada neutra. Os pés ficam afastados na largura dos ombros. Agora levante devagar os halteres até formar um ângulo de 90 graus com os braços. Observação: os antebraços devem ficar perpendiculares ao chão. Essa é a posição inicial.",
+      "Mantenha a pegada neutra durante todo o exercício. Levante devagar os halteres até os braços ficarem totalmente estendidos.",
+      "Ao inspirar, baixe os pesos até o braço ficar em um ângulo de 90 graus novamente.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Standing_Palms-Up_Barbell_Behind_The_Back_Wrist_Curl": {
+    "name": "Rosca de punho atrás das costas com barra em pé",
+    "instructions": [
+      "Comece em pé, com o corpo reto, segurando uma barra atrás dos glúteos, com os braços estendidos, em pegada pronada (as palmas ficam voltadas para trás, para longe dos glúteos) e as mãos afastadas na largura dos ombros.",
+      "Você deve olhar diretamente para frente, com os pés afastados na largura dos ombros. Essa é a posição inicial.",
+      "Ao soltar o ar, eleve devagar a barra flexionando os punhos em um movimento semicircular em direção ao teto. Observação: os punhos devem ser a única parte do corpo em movimento neste exercício.",
+      "Segure a contração por um segundo e baixe a barra de volta à posição inicial, inspirando.",
+      "Repita pelo número de repetições recomendado.",
+      "Ao terminar, baixe a barra até o rack de agachamento ou o chão, flexionando os joelhos. Dica: o mais fácil é pegá-la de um rack de agachamento ou pedir que um parceiro a entregue a você."
+    ]
+  },
+  "Standing_Pelvic_Tilt": {
+    "name": "Inclinação pélvica em pé",
+    "instructions": [
+      "Comece com os pés afastados na largura do quadril.",
+      "Flexione levemente os joelhos para mantê-los macios e elásticos.",
+      "Você pode mover a pelve para frente e para trás algumas vezes antes de manter o cóccix projetado para frente neste alongamento."
+    ]
+  },
+  "Standing_Rope_Crunch": {
+    "name": "Abdominal na polia com corda em pé",
+    "instructions": [
+      "Prenda uma corda a uma polia alta e selecione um peso adequado.",
+      "Fique em pé de costas para a torre de cabos. Segure a corda com as duas mãos por cima dos ombros, junto à parte superior do peito. Essa será a posição inicial.",
+      "Faça o movimento flexionando a coluna, levando o peso para baixo o máximo que conseguir.",
+      "Segure a contração máxima por um instante antes de voltar à posição inicial."
+    ]
+  },
+  "Standing_Soleus_And_Achilles_Stretch": {
+    "name": "Alongamento de sóleo e tendão de Aquiles em pé",
+    "instructions": [
+      "Fique em pé com os pés afastados na largura do quadril, um pé um pouco à frente do outro.",
+      "Flexione os dois joelhos, mantendo o calcanhar de trás no chão. Troque de lado."
+    ]
+  },
+  "Standing_Toe_Touches": {
+    "name": "Alongamento tocando a ponta dos pés em pé",
+    "instructions": [
+      "Fique em pé com algum espaço à frente e atrás de você.",
+      "Dobre na cintura, mantendo as pernas esticadas, até conseguir relaxar e deixar a parte superior do corpo pendurada à sua frente. Deixe os braços e as mãos caírem naturalmente. Segure por 10 a 20 segundos."
+    ]
+  },
+  "Standing_Towel_Triceps_Extension": {
+    "name": "Tríceps francês com toalha em pé",
+    "instructions": [
+      "Para começar, fique em pé com os dois braços totalmente estendidos acima da cabeça, segurando uma ponta da toalha com as duas mãos. Os cotovelos ficam fechados e os braços perpendiculares ao chão, com as palmas voltadas uma para a outra, e os pés afastados na largura dos ombros. Essa é a posição inicial.",
+      "Agora combine com seu parceiro para que ele segure a outra ponta da toalha e aplique resistência. Mantendo a parte superior dos braços próxima à cabeça (cotovelos fechados) e perpendicular ao chão, desça a resistência em um movimento semicircular atrás da cabeça até os antebraços tocarem os bíceps. Dica: a parte superior dos braços deve ficar parada e só os antebraços se movem. Inspire durante essa etapa.",
+      "Volte à posição inicial usando o tríceps para levantar a toalha. Solte o ar durante essa etapa.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Standing_Two-Arm_Overhead_Throw": {
+    "name": "Arremesso com as duas mãos acima da cabeça em pé",
+    "instructions": [
+      "Fique em pé com os pés afastados na largura dos ombros, segurando uma medicine ball com as duas mãos. Para começar, leve a medicine ball bem para trás da cabeça, flexionando levemente os joelhos e inclinando-se para trás.",
+      "Arremesse a bola para frente com violência, flexionando o quadril e usando o corpo todo para completar o movimento.",
+      "A medicine ball pode ser arremessada para um parceiro ou contra uma parede, recebendo-a quando ela quicar de volta."
+    ]
+  },
+  "Star_Jump": {
+    "name": "Salto estrela",
+    "instructions": [
+      "Comece em posição relaxada, com os pés afastados na largura dos ombros e os braços junto ao corpo.",
+      "Para iniciar o movimento, agache até a metade e exploda para cima o mais alto possível. Estenda todo o corpo, abrindo pernas e braços para longe do corpo.",
+      "Ao aterrissar, recolha os membros e absorva o impacto com as pernas."
+    ]
+  },
+  "Step-up_with_Knee_Raise": {
+    "name": "Subida no banco com elevação de joelho",
+    "instructions": [
+      "Fique de frente para uma caixa ou banco de altura adequada, com os pés juntos. Essa será a posição inicial.",
+      "Comece o movimento subindo, colocando o pé esquerdo sobre o banco. Estenda quadril e joelho da perna da frente para ficar em pé sobre a caixa. Enquanto estiver sobre a caixa com a perna esquerda, flexione o joelho e o quadril direitos, levando o joelho o mais alto que conseguir.",
+      "Inverta esse movimento para descer da caixa e repita a sequência com a perna oposta."
+    ]
+  },
+  "Step_Mill": {
+    "name": "Simulador de escada rolante (Step Mill)",
+    "instructions": [
+      "Para começar, suba no simulador de escada rolante e selecione a opção desejada no menu. Você pode escolher o modo manual ou um programa pronto. Geralmente é possível informar idade e peso para estimar as calorias queimadas durante o exercício. Tome cuidado para não tropeçar ao subir os degraus. Recomenda-se manter as mãos nas alças para não cair.",
+      "O simulador de escada rolante oferece praticidade, benefícios cardiovasculares e geralmente tem menos impacto que correr ao ar livre, com um gasto calórico semelhante. Costuma ser bem mais difícil que outros equipamentos de cardio. Uma pessoa de 68 kg costuma queimar mais de 300 calorias em 30 minutos, contra cerca de 175 calorias caminhando."
+    ]
+  },
+  "Stiff-Legged_Barbell_Deadlift": {
+    "name": "Stiff com barra",
+    "instructions": [
+      "Segure uma barra com pegada pronada (palmas para baixo). Se usar bastante carga, pode ser necessário usar munhequeiras.",
+      "Fique com o tronco ereto e as pernas afastadas na largura dos ombros ou menos. Os joelhos ficam levemente flexionados. Essa é a sua posição inicial.",
+      "Mantendo os joelhos parados, desça a barra até passar sobre a ponta dos pés, dobrando no quadril e mantendo as costas retas. Continue indo à frente como se fosse pegar algo no chão, até sentir o alongamento nos posteriores de coxa. Inspire durante o movimento.",
+      "Comece a levantar o tronco novamente, estendendo o quadril, até voltar à posição inicial. Solte o ar durante o movimento.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Stiff-Legged_Dumbbell_Deadlift": {
+    "name": "Stiff com halteres",
+    "instructions": [
+      "Pegue dois halteres e segure-os ao lado do corpo, com os braços estendidos.",
+      "Fique com o tronco ereto e as pernas afastadas na largura dos ombros ou menos. Os joelhos ficam levemente flexionados. Essa é a sua posição inicial.",
+      "Mantendo os joelhos parados, desça os halteres até passarem sobre a ponta dos pés, dobrando na cintura e mantendo as costas retas. Continue indo à frente como se fosse pegar algo no chão, até sentir o alongamento nos posteriores de coxa. Solte o ar durante o movimento.",
+      "Comece a levantar o tronco novamente, estendendo quadril e cintura, até voltar à posição inicial. Inspire durante o movimento.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Stiff_Leg_Barbell_Good_Morning": {
+    "name": "Good morning com barra e pernas estendidas",
+    "instructions": [
+      "Este exercício é mais seguro dentro de um rack de agachamento. Para começar, ajuste a barra no rack em uma altura que corresponda à sua. Depois de escolher a altura correta e carregar a barra, entre sob ela e apoie-a na parte de trás dos ombros (um pouco abaixo do pescoço).",
+      "Segure a barra com os dois braços, um de cada lado, e retire-a do suporte empurrando com as pernas e, ao mesmo tempo, endireitando o tronco.",
+      "Afaste-se do rack e posicione as pernas em base média, na largura dos ombros. Mantenha a cabeça erguida o tempo todo, pois olhar para baixo faz perder o equilíbrio, e mantenha as costas retas. Essa será a sua posição inicial.",
+      "Mantendo as pernas paradas, incline o tronco à frente dobrando no quadril, inspirando. Baixe o tronco até ficar paralelo ao chão.",
+      "Comece a subir a barra soltando o ar, elevando o tronco de volta à posição inicial.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Stomach_Vacuum": {
+    "name": "Vácuo abdominal",
+    "instructions": [
+      "Para começar, fique em pé com os pés afastados na largura dos ombros. Coloque as mãos no quadril. Essa é a posição inicial.",
+      "Agora inspire devagar o máximo de ar possível e depois comece a soltar o máximo de ar possível, encolhendo a barriga ao máximo e mantendo essa posição. Tente visualizar o umbigo encostando na coluna.",
+      "Uma contração isométrica dura cerca de 20 segundos. Durante os 20 segundos, tente respirar normalmente. Depois inspire e leve a barriga de volta à posição inicial.",
+      "Depois de praticar esse exercício, tente fazê-lo por mais de 20 segundos. Dica: você pode evoluir até 40 a 60 segundos.",
+      "Repita pelo número de séries recomendado."
+    ]
+  },
+  "Straight-Arm_Dumbbell_Pullover": {
+    "name": "Pullover com halter e braços estendidos",
+    "instructions": [
+      "Coloque um halter em pé sobre um banco reto.",
+      "Garantindo que o halter fique bem apoiado na ponta do banco, deite-se perpendicular ao banco (com o tronco atravessado, formando uma cruz), com apenas os ombros apoiados na superfície. O quadril fica abaixo do banco e as pernas dobradas, com os pés firmes no chão. A cabeça também fica fora do banco.",
+      "Segure o halter com as duas mãos e mantenha-o reto sobre o peito, com os braços estendidos. As duas palmas devem pressionar a parte de baixo de um dos lados do halter. Essa será a sua posição inicial.\nAtenção: sempre garanta que o halter usado neste exercício esteja firme. Usar um halter com anilhas soltas pode fazê-lo se desmontar e cair no seu rosto.",
+      "Mantendo os braços retos, baixe o peso devagar em arco atrás da cabeça, inspirando, até sentir um alongamento no peito.",
+      "Nesse ponto, traga o halter de volta à posição inicial pelo mesmo arco em que o peso foi baixado e solte o ar durante o movimento.",
+      "Segure o peso na posição inicial por um segundo e repita o movimento pelo número de repetições prescrito."
+    ]
+  },
+  "Straight-Arm_Pulldown": {
+    "name": "Pulldown com braços estendidos na polia",
+    "instructions": [
+      "Comece segurando a barra larga da polia alta de uma máquina de puxada, com pegada pronada (palmas para baixo) mais larga que os ombros. Dê um passo para trás, cerca de 60 cm.",
+      "Incline o tronco à frente na cintura cerca de 30 graus, com os braços totalmente estendidos à frente e leve flexão nos cotovelos. Se os braços não estiverem totalmente estendidos, você precisa dar mais um passo para trás até que estejam. Quando os braços estiverem totalmente estendidos e o tronco levemente inclinado na cintura, contraia os dorsais e estará pronto para começar.",
+      "Mantendo os braços retos, puxe a barra para baixo contraindo os dorsais até as mãos ficarem ao lado das coxas. Solte o ar durante essa etapa.",
+      "Mantendo os braços retos, volte à posição inicial, inspirando.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Straight_Bar_Bench_Mid_Rows": {
+    "name": "Remada com barra apoiada no banco",
+    "instructions": [
+      "Coloque uma barra carregada na ponta de um banco. Em pé sobre o banco, atrás da barra, segure-a com pegada pronada média. Fique com o quadril para trás e o peito erguido, mantendo a coluna neutra. Essa será a sua posição inicial.",
+      "Reme a barra até o tronco retraindo as escápulas e flexionando os cotovelos. Use um movimento controlado, sem puxões bruscos.",
+      "Após uma breve pausa, volte devagar a barra à posição inicial, garantindo que desça até o fim."
+    ]
+  },
+  "Straight_Raises_on_Incline_Bench": {
+    "name": "Elevação frontal com barra no banco inclinado (de bruços)",
+    "instructions": [
+      "Coloque uma barra no chão, atrás da cabeceira de um banco inclinado.",
+      "Deite-se de bruços no banco. Com pegada pronada, pegue a barra do chão, mantendo os braços retos. Deixe a barra pendurada na vertical. Essa será a sua posição inicial.",
+      "Para começar, levante a barra para frente da cabeça, mantendo os braços estendidos.",
+      "Volte à posição inicial."
+    ]
+  }
+}

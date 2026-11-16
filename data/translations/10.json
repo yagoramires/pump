@@ -1,0 +1,470 @@
+{
+  "Lying_Leg_Curls": {
+    "name": "Mesa flexora",
+    "instructions": [
+      "Ajuste a alavanca da máquina à sua altura e deite de bruços na mesa flexora, com o apoio da alavanca na parte de trás das pernas (poucos centímetros abaixo das panturrilhas). Dica: de preferência use uma mesa flexora inclinada em vez de reta, pois a posição inclinada favorece mais o recrutamento dos posteriores de coxa.",
+      "Mantendo o tronco apoiado no banco, garanta que as pernas estejam totalmente esticadas e segure as alças laterais da máquina. Posicione os dedos dos pés retos (ou use qualquer uma das outras duas posições descritas na seção de posicionamento dos pés). Essa é a posição inicial.",
+      "Ao expirar, flexione as pernas para cima o máximo possível sem tirar as coxas do apoio. Ao chegar na posição de contração total, segure por um segundo.",
+      "Ao inspirar, volte as pernas à posição inicial. Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Lying_Machine_Squat": {
+    "name": "Agachamento deitado na máquina",
+    "instructions": [
+      "Ajuste a máquina a uma altura que permita entrar nela com os joelhos dobrados e as coxas um pouco abaixo da linha paralela.",
+      "Depois de escolher a carga, posicione-se dentro da máquina de barriga para cima, com os joelhos dobrados e as coxas um pouco abaixo da paralela à plataforma. Garanta que os joelhos não passem da ponta dos pés. O ângulo entre os posteriores de coxa e as panturrilhas deve ser um pouco menor que 90 graus (já que a posição inicial exige começar um pouco abaixo da paralela). As costas e a cabeça ficam apoiadas na máquina e os ombros pressionados sob as ombreiras.",
+      "Coloque as mãos nas alças e posicione os pés levemente virados para fora, na largura dos ombros. Essa é a posição inicial.",
+      "Empurrando com a parte da frente dos pés enquanto solta o ar, estenda o corpo todo contraindo o quadríceps. Segure a posição contraída por um segundo. Dica: como você começa abaixo da paralela, pode usar as mãos para ajudar a subir, empurrando as coxas, apenas na primeira repetição.",
+      "Agache devagar enquanto inspira, mas em vez de descer até a posição inicial, pare quando as coxas estiverem paralelas à plataforma. O ângulo entre os posteriores de coxa e as panturrilhas deve ser de 90 graus.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Lying_One-Arm_Lateral_Raise": {
+    "name": "Elevação lateral unilateral deitado",
+    "instructions": [
+      "Segurando um halter em uma das mãos, deite com o peito apoiado em um banco reto. A outra mão pode segurar a perna do banco para dar estabilidade.",
+      "Posicione a palma da mão que segura o halter em posição neutra (palma voltada para o tronco), mantendo o braço estendido com o cotovelo levemente flexionado. Essa é a posição inicial.",
+      "Agora levante o braço com o halter para o lado até o cotovelo ficar na altura do ombro e o braço ficar mais ou menos paralelo ao chão, expirando. Dica: mantenha o braço perpendicular ao tronco e estendido durante todo o movimento. Mantenha também a contração no topo por um segundo.",
+      "Abaixe o halter devagar até a posição inicial enquanto inspira.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Lying_Prone_Quadriceps": {
+    "name": "Alongamento de quadríceps de bruços com parceiro",
+    "instructions": [
+      "Deite de bruços no chão com o parceiro ajoelhado ao seu lado. Flexione um joelho e levante essa perna do chão, tentando encostar o pé nos glúteos. O parceiro segura o joelho e o tornozelo. Essa é a posição inicial.",
+      "Tente estender o joelho enquanto o parceiro impede qualquer movimento real.",
+      "Após 10 a 20 segundos, relaxe os músculos enquanto o parceiro empurra o pé com cuidado em direção aos glúteos, alongando ainda mais o quadríceps e os flexores do quadril.",
+      "Após 10 a 20 segundos, troque de lado."
+    ]
+  },
+  "Lying_Rear_Delt_Raise": {
+    "name": "Elevação posterior deitado",
+    "instructions": [
+      "Segurando um halter em cada mão, deite com o peito apoiado em um banco reto.",
+      "Posicione as palmas das mãos em posição neutra (palmas voltadas para o tronco), mantendo os braços estendidos com os cotovelos levemente flexionados. Essa é a posição inicial.",
+      "Agora levante os braços para os lados até os cotovelos ficarem na altura dos ombros e os braços ficarem mais ou menos paralelos ao chão, expirando. Dica: mantenha os braços perpendiculares ao tronco e estendidos durante todo o movimento. Mantenha também a contração no topo por um segundo.",
+      "Abaixe os halteres devagar até a posição inicial enquanto inspira.",
+      "Repita pelo número de repetições recomendado e depois troque de braço."
+    ]
+  },
+  "Lying_Supine_Dumbbell_Curl": {
+    "name": "Rosca com halteres deitado de costas",
+    "instructions": [
+      "Deite de barriga para cima em um banco reto, segurando um halter em cada mão sobre as coxas.",
+      "Leve os halteres para os lados com os braços estendidos e as palmas voltadas para as coxas (pegada neutra).",
+      "Mantendo os braços junto ao tronco e os cotovelos para dentro, abaixe os braços devagar (mantendo-os estendidos com uma leve flexão nos cotovelos) o mais perto do chão que conseguir. Quando não conseguir descer mais, trave os braços nessa posição e essa será a posição inicial.",
+      "Ao soltar o ar, comece a subir os pesos devagar, girando os punhos ao mesmo tempo para que as palmas fiquem voltadas para cima. Continue subindo até o bíceps ficar totalmente contraído e aperte com força na posição de cima por um segundo. Dica: só os antebraços devem se mover. Os braços ficam parados e os cotovelos para dentro durante todo o movimento.",
+      "Volte à posição inicial bem devagar."
+    ]
+  },
+  "Lying_T-Bar_Row": {
+    "name": "Remada cavalinho deitado",
+    "instructions": [
+      "Coloque a carga desejada na máquina de remada cavalinho e ajuste a altura das pernas de modo que a parte alta do peito fique no topo do apoio. Dica: em algumas máquinas, tudo o que dá para fazer é subir no degrau adequado, que deixa você na altura em que a parte alta do peito fica no topo do apoio.",
+      "Deite de bruços no apoio e segure as manoplas. Você pode usar as palmas para baixo, para cima ou voltadas uma para a outra, dependendo da parte das costas que quiser enfatizar.",
+      "Retire a barra do suporte e estenda os braços à sua frente. Essa é a posição inicial.",
+      "Ao expirar, puxe a carga para cima devagar e contraia as costas no topo do movimento. Dica: mantenha os braços o mais próximo possível do tronco durante todo o movimento para ativar melhor os músculos das costas. Além disso, não tire o corpo do apoio em nenhum momento e evite usar os bíceps para levantar a carga.",
+      "Após uma contração de um segundo no topo do movimento, ao inspirar, volte devagar à posição inicial.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Lying_Triceps_Press": {
+    "name": "Tríceps testa",
+    "instructions": [
+      "Deite em um banco reto com uma barra W ou uma barra reta apoiada no chão atrás da cabeça e os pés no chão.",
+      "Segure a barra atrás de você com pegada pronada média e levante-a à sua frente com os braços esticados. Dica: os braços ficam perpendiculares ao tronco e ao chão. Os cotovelos ficam para dentro. Essa é a posição inicial.",
+      "Ao inspirar, abaixe a carga devagar até a barra encostar de leve na testa, mantendo os braços e os cotovelos parados.",
+      "Nesse ponto, use o tríceps para voltar a carga à posição inicial enquanto expira.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Machine_Bench_Press": {
+    "name": "Supino na máquina",
+    "instructions": [
+      "Sente na máquina de supino e escolha a carga.",
+      "Pise na alavanca da máquina, que ajuda a levar as manoplas para a frente para que você consiga segurá-las e estender totalmente os braços.",
+      "Segure as manoplas com as palmas para baixo e levante os cotovelos de modo que os braços fiquem paralelos ao chão, ao lado do tronco. Dica: os antebraços ficam apontando para a frente, pois você está segurando as manoplas. Depois de levar as manoplas para a frente e estender os braços, você estará na posição inicial.",
+      "Agora traga as manoplas de volta em sua direção enquanto inspira.",
+      "Empurre as manoplas para longe de você contraindo o peito e expirando. Segure a contração por um segundo antes de voltar à posição inicial.",
+      "Repita pelo número de repetições recomendado.",
+      "Ao terminar, pise na alavanca de novo e devolva as manoplas devagar ao lugar de origem."
+    ]
+  },
+  "Machine_Bicep_Curl": {
+    "name": "Rosca na máquina",
+    "instructions": [
+      "Ajuste o banco à altura adequada e escolha a carga. Apoie os braços nos apoios e segure as manoplas. Essa é a posição inicial.",
+      "Faça o movimento flexionando o cotovelo, levando o antebraço em direção ao braço.",
+      "Faça uma pausa no topo do movimento e depois volte a carga devagar à posição inicial.",
+      "Evite devolver a carga totalmente aos batentes até terminar a série, para manter a tensão nos músculos trabalhados."
+    ]
+  },
+  "Machine_Preacher_Curls": {
+    "name": "Rosca Scott na máquina",
+    "instructions": [
+      "Sente na máquina de rosca Scott e escolha a carga.",
+      "Apoie a parte de trás dos braços (os tríceps) no apoio da rosca Scott e segure as manoplas com pegada supinada (palmas para cima). Dica: ao apoiar os braços, mantenha os cotovelos para dentro. Essa é a posição inicial.",
+      "Agora levante as manoplas enquanto expira e contrai o bíceps. No topo, segure a contração por um segundo. Dica: só os antebraços devem se mover. Os braços ficam parados e apoiados no apoio o tempo todo.",
+      "Abaixe as manoplas devagar de volta à posição inicial enquanto inspira.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Machine_Shoulder_Military_Press": {
+    "name": "Desenvolvimento na máquina",
+    "instructions": [
+      "Sente na máquina de desenvolvimento e escolha a carga.",
+      "Segure as manoplas ao lado do corpo, mantendo os cotovelos dobrados e alinhados com o tronco. Essa é a posição inicial.",
+      "Agora levante as manoplas enquanto expira e estenda totalmente os braços. No topo, segure a contração por um segundo.",
+      "Abaixe as manoplas devagar de volta à posição inicial enquanto inspira.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Machine_Triceps_Extension": {
+    "name": "Tríceps na máquina",
+    "instructions": [
+      "Ajuste o banco à altura adequada e escolha a carga. Apoie os braços nos apoios e segure as manoplas. Essa é a posição inicial.",
+      "Faça o movimento estendendo o cotovelo, afastando o antebraço do braço.",
+      "Faça uma pausa ao completar o movimento e depois volte a carga devagar à posição inicial.",
+      "Evite devolver a carga totalmente aos batentes até terminar a série, para manter a tensão nos músculos trabalhados."
+    ]
+  },
+  "Medicine_Ball_Chest_Pass": {
+    "name": "Passe de peito com medicine ball",
+    "instructions": [
+      "Você vai precisar de um parceiro para este exercício. Na falta de um, o movimento pode ser feito contra uma parede.",
+      "Comece de frente para o parceiro, segurando a medicine ball junto ao tronco com as duas mãos.",
+      "Puxe a bola até o peito e inverta o movimento estendendo os cotovelos. Em aplicações esportivas, você pode dar um passo ao arremessar.",
+      "O parceiro deve pegar a bola e arremessá-la de volta para você.",
+      "Receba o arremesso com as duas mãos na altura do peito."
+    ]
+  },
+  "Medicine_Ball_Full_Twist": {
+    "name": "Rotação completa com medicine ball",
+    "instructions": [
+      "Para este exercício você precisa de uma medicine ball e de um parceiro. Fique de costas para o parceiro, separados por 60 a 90 cm. Essa é a posição inicial.",
+      "Segure a bola à frente do tronco. Abra o quadril e gire os ombros ao mesmo tempo que o parceiro.",
+      "Para a rotação completa, você e o parceiro devem girar no mesmo sentido, por exemplo, anti-horário.",
+      "Passe a bola para o parceiro, e agora vocês dois podem girar no sentido oposto para repetir o procedimento."
+    ]
+  },
+  "Medicine_Ball_Scoop_Throw": {
+    "name": "Arremesso por baixo com medicine ball",
+    "instructions": [
+      "Assuma uma posição de meio agachamento com a medicine ball nas mãos. Os braços ficam pendurados de modo que a bola fique perto dos pés.",
+      "Comece projetando o quadril para a frente enquanto estende as pernas, saltando para cima.",
+      "Ao fazer isso, balance os braços para cima e por cima da cabeça, mantendo-os estendidos, soltando a bola no ponto mais alto do movimento. O objetivo é arremessar a bola o mais longe possível atrás de você."
+    ]
+  },
+  "Middle_Back_Shrug": {
+    "name": "Encolhimento de escápulas",
+    "instructions": [
+      "Deite de bruços em um banco inclinado segurando um halter em cada mão. Os braços ficam totalmente estendidos, pendurados e apontando para o chão. As palmas das mãos ficam voltadas uma para a outra. Essa é a posição inicial.",
+      "Ao expirar, junte as escápulas e segure a contração por um segundo inteiro. Dica: esse movimento é como o inverso de um abraço, ou como fazer uma elevação posterior como se você não tivesse braços.",
+      "Ao inspirar, volte à posição inicial.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Middle_Back_Stretch": {
+    "name": "Alongamento do meio das costas",
+    "instructions": [
+      "Fique em pé com os pés afastados na largura dos ombros e as mãos na cintura.",
+      "Gire o tronco na cintura até sentir o alongamento. Mantenha por 10 a 15 segundos e depois gire para o outro lado."
+    ]
+  },
+  "Mixed_Grip_Chin": {
+    "name": "Barra fixa com pegada mista",
+    "instructions": [
+      "Com uma abertura cerca de 2,5 cm maior que a largura dos ombros, segure uma barra fixa com a palma de uma das mãos voltada para a frente e a palma da outra voltada para você. Essa é a posição inicial.",
+      "Agora comece a se puxar para cima enquanto expira. Dica: com o braço de palma voltada para cima, concentre-se em usar os músculos das costas para fazer o movimento. O cotovelo desse braço deve ficar próximo ao tronco. Com o outro braço, de palma voltada para a frente, o cotovelo fica afastado, mas alinhado com o tronco. Você vai se concentrar em usar os dorsais para puxar o corpo para cima.",
+      "Após uma contração de um segundo no topo, comece a descer devagar enquanto inspira.",
+      "Repita pelo número de repetições recomendado.",
+      "Na série seguinte, troque as pegadas; se na anterior a mão direita estava com a palma voltada para você e a esquerda para a frente, na próxima a palma direita ficará voltada para a frente e a esquerda para você."
+    ]
+  },
+  "Monster_Walk": {
+    "name": "Caminhada monstro",
+    "instructions": [
+      "Coloque um elástico em volta dos dois tornozelos e outro em volta dos dois joelhos. Deve haver tensão suficiente para que fiquem esticados quando os pés estiverem afastados na largura dos ombros.",
+      "Para começar, dê passos curtos para a frente, alternando o pé esquerdo e o direito.",
+      "Depois de vários passos, faça o oposto e ande para trás até o ponto de partida."
+    ]
+  },
+  "Mountain_Climbers": {
+    "name": "Mountain climber",
+    "instructions": [
+      "Comece na posição de flexão, com o peso apoiado nas mãos e na ponta dos pés. Flexionando o joelho e o quadril, traga uma perna até o joelho ficar aproximadamente sob o quadril. Essa é a posição inicial.",
+      "Inverta de forma explosiva a posição das pernas, estendendo a perna dobrada até ficar reta e apoiada na ponta do pé, e trazendo o outro pé para cima com o quadril e o joelho flexionados. Repita de forma alternada por 20 a 30 segundos."
+    ]
+  },
+  "Moving_Claw_Series": {
+    "name": "Série garra em movimento",
+    "instructions": [
+      "Este exercício prepara a sua técnica de corrida para ajudar você a se destacar nos sprints. Ao correr, flexione o joelho, tentando chutar os glúteos enquanto o quadril se estende.",
+      "Recarregue o quadríceps enquanto a perna volta para a frente, atacando o chão no próximo passo.",
+      "Garanta que, ao correr, você trave os braços, socando para a frente em um movimento rápido de 1-2."
+    ]
+  },
+  "Muscle_Snatch": {
+    "name": "Muscle snatch",
+    "instructions": [
+      "Comece com uma barra carregada na altura do meio das coxas, com pegada aberta. Os pés ficam diretamente abaixo do quadril, virados para fora conforme necessário. Abaixe o quadril, com o peito erguido e a cabeça olhando para a frente. Os ombros ficam um pouco à frente da barra. Essa é a posição inicial.",
+      "Comece a puxada empurrando o chão pela parte da frente dos calcanhares, levantando a barra. Passe para a segunda puxada estendendo quadril, joelhos e tornozelos, levando a barra para cima o mais rápido possível. A barra deve ficar próxima ao corpo.",
+      "Continue levantando a barra até a posição acima da cabeça, sem dobrar os joelhos de novo."
+    ]
+  },
+  "Muscle_Up": {
+    "name": "Muscle-up",
+    "instructions": [
+      "Segure as argolas com a pegada falsa (false grip), com a base das palmas sobre as argolas. Inicie uma barra fixa puxando os cotovelos para baixo, junto ao corpo, flexionando-os.",
+      "Ao chegar no topo da barra fixa, puxe as argolas até as axilas enquanto gira os ombros para a frente, deixando os cotovelos irem direto para trás. Isso coloca você na posição certa para seguir para a fase de paralelas do movimento.",
+      "Mantendo controle e estabilidade, estenda os cotovelos para completar o movimento.",
+      "Tenha cuidado ao descer até o chão."
+    ]
+  },
+  "Narrow_Stance_Hack_Squats": {
+    "name": "Agachamento hack com base fechada",
+    "instructions": [
+      "Apoie as costas no encosto da máquina e encaixe os ombros sob as ombreiras.",
+      "Posicione as pernas na plataforma com uma base fechada, menor que a largura dos ombros, com as pontas dos pés levemente viradas para fora. Os pés devem ficar a cerca de 7 cm ou menos um do outro. Dica: mantenha a cabeça erguida e as costas sempre apoiadas no encosto.",
+      "Apoie os braços nas alças laterais da máquina e destrave as travas de segurança (na maioria dos modelos, isso é feito movendo as alças laterais da posição voltada para a frente para uma posição diagonal).",
+      "Agora estique as pernas sem travar os joelhos. Essa é a posição inicial.",
+      "Comece a descer devagar o equipamento dobrando os joelhos, mantendo uma postura reta com a cabeça erguida (costas sempre no encosto). Continue descendo até o ângulo entre a coxa e a parte de baixo da perna ficar um pouco menor que 90 graus (ponto em que as coxas ficam abaixo da paralela ao chão). Inspire durante essa parte do movimento.",
+      "Comece a subir o equipamento enquanto expira, empurrando o chão principalmente com os calcanhares, esticando as pernas de novo e voltando à posição inicial.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Narrow_Stance_Leg_Press": {
+    "name": "Leg press com base fechada",
+    "instructions": [
+      "Sente no leg press e apoie as pernas na plataforma à sua frente, com uma base fechada, menor que a largura dos ombros, e as pontas dos pés levemente viradas para fora. Os pés devem ficar a cerca de 7 cm ou menos um do outro. Dica: mantenha a cabeça erguida e as costas sempre apoiadas no encosto.",
+      "Abaixe as travas de segurança que seguram a plataforma com carga e empurre a plataforma até o fim, até as pernas ficarem totalmente estendidas à sua frente. Dica: não trave os joelhos. O tronco e as pernas devem formar um ângulo perfeito de 90 graus. Essa é a posição inicial.",
+      "Ao inspirar, abaixe a plataforma devagar até a coxa e a parte de baixo da perna formarem um ângulo de 90 graus.",
+      "Empurrando principalmente com os calcanhares e usando o quadríceps, volte à posição inicial enquanto expira.",
+      "Repita pelo número de repetições recomendado e lembre-se de travar bem os pinos de segurança ao terminar. Você não quer a plataforma carregada caindo em cima de você."
+    ]
+  },
+  "Narrow_Stance_Squats": {
+    "name": "Agachamento com base fechada",
+    "instructions": [
+      "Este exercício é melhor feito dentro de um rack de agachamento, por segurança. Para começar, ajuste a barra em um suporte que combine com a sua altura. Depois de escolher a altura correta e carregar a barra, passe por baixo dela e apoie-a na parte de trás dos ombros (um pouco abaixo do pescoço).",
+      "Segure a barra com os dois braços, um de cada lado, e retire-a do suporte empurrando com as pernas e, ao mesmo tempo, endireitando o tronco.",
+      "Afaste-se do rack e posicione as pernas com uma base fechada, menor que a largura dos ombros, com as pontas dos pés levemente viradas para fora. Os pés devem ficar a cerca de 7 a 15 cm um do outro. Mantenha a cabeça erguida o tempo todo (olhar para baixo faz você perder o equilíbrio) e as costas retas. Essa é a posição inicial. (Observação: nesta explicação usamos a posição média descrita acima, que trabalha o desenvolvimento geral; porém você pode escolher qualquer uma das três posições discutidas na seção de posição dos pés).",
+      "Comece a descer a barra devagar dobrando os joelhos, mantendo uma postura reta com a cabeça erguida. Continue descendo até o ângulo entre a coxa e a parte de baixo da perna ficar um pouco menor que 90 graus (ponto em que as coxas ficam abaixo da paralela ao chão). Inspire durante essa parte do movimento. Dica: se você fez o exercício corretamente, a frente dos joelhos deve formar uma linha reta imaginária com os dedos dos pés, perpendicular à frente do corpo. Se os joelhos passarem dessa linha imaginária (se passarem dos pés), você está gerando estresse excessivo no joelho e o exercício foi feito de forma incorreta.",
+      "Comece a subir a barra enquanto expira, empurrando o chão principalmente com o calcanhar, esticando as pernas de novo e voltando à posição inicial.",
+      "Repita pelo número de repetições recomendado."
+    ]
+  },
+  "Natural_Glute_Ham_Raise": {
+    "name": "Elevação glúteo-posterior natural",
+    "instructions": [
+      "Usando o apoio de pernas de uma máquina de puxada ou de um banco Scott, posicione-se com os tornozelos sob os apoios, os joelhos no assento e de costas para a máquina. Você deve estar ereto e mantendo uma boa postura.",
+      "Essa é a posição inicial. Desça de forma controlada até os joelhos ficarem quase totalmente esticados.",
+      "Mantendo o controle, suba de volta à posição inicial.",
+      "Se não conseguir completar uma repetição, use um elástico, um parceiro ou se impulsione com a ajuda de uma caixa para completá-la."
+    ]
+  },
+  "Neck-SMR": {
+    "name": "Liberação miofascial do pescoço",
+    "instructions": [
+      "Usando um rolo de massagem ou um rolo de macarrão, apoie o rolo atrás da cabeça, contra o pescoço. Garanta que o rolo não fique diretamente contra a coluna, mas levemente girado para que pressione os músculos de um dos lados da coluna. Essa é a posição inicial.",
+      "Começando pela parte de cima do pescoço, role devagar pelos músculos do pescoço, pausando nos pontos de tensão por 10 a 30 segundos."
+    ]
+  },
+  "Neck_Press": {
+    "name": "Supino na altura do pescoço",
+    "instructions": [
+      "Deite em um banco reto. Com uma pegada média (uma pegada que forma um ângulo de 90 graus entre antebraços e braços no meio do movimento), retire a barra do suporte e segure-a bem acima do pescoço, com os braços travados. Essa é a posição inicial.",
+      "Ao inspirar, desça devagar até sentir a barra no pescoço.",
+      "Após uma pausa de um segundo, volte a barra à posição inicial enquanto expira e empurra a barra usando o peito. Trave os braços e contraia o peito na posição contraída, segure por um segundo e depois comece a descer devagar de novo. Dica: a descida deve levar pelo menos o dobro do tempo da subida.",
+      "Repita o movimento pelo número de repetições prescrito.",
+      "Ao terminar, coloque a barra de volta no suporte."
+    ]
+  },
+  "Oblique_Crunches": {
+    "name": "Abdominal oblíquo",
+    "instructions": [
+      "Deite no chão com a lombar pressionada contra o solo. Neste exercício, apoie uma das mãos ao lado da cabeça e a outra ao lado do corpo, contra o chão.",
+      "Garanta que os pés estejam elevados e apoiados em uma superfície plana.",
+      "Agora levante o ombro do lado da mão que está na cabeça.",
+      "Simplesmente eleve o ombro e o corpo para cima até tocar o joelho. Por exemplo, se a mão direita está ao lado da cabeça, você deve elevar o corpo até o cotovelo direito tocar o joelho esquerdo. A mesma variação pode ser feita ao contrário, usando o cotovelo esquerdo para tocar o joelho direito.",
+      "Depois que o joelho tocar o cotovelo, abaixe o corpo até voltar à posição inicial.",
+      "Lembre-se de inspirar durante a parte excêntrica (de descida) do exercício e de expirar durante a parte concêntrica (de subida).",
+      "Continue alternando dessa forma até completar todas as repetições recomendadas para cada lado."
+    ]
+  },
+  "Oblique_Crunches_-_On_The_Floor": {
+    "name": "Abdominal oblíquo deitado de lado no chão",
+    "instructions": [
+      "Comece deitado sobre o lado direito, com as pernas uma sobre a outra. Garanta que os joelhos estejam um pouco dobrados.",
+      "Coloque a mão esquerda atrás da cabeça.",
+      "Nessa posição, comece levando o cotovelo esquerdo para cima como em um abdominal normal, só que desta vez a ênfase principal está nos oblíquos.",
+      "Suba o máximo que conseguir, segure a contração por um segundo e depois desça devagar de volta à posição inicial.",
+      "Lembre-se de inspirar durante a parte excêntrica (de descida) do exercício e de expirar durante a parte concêntrica (de subida)."
+    ]
+  },
+  "Olympic_Squat": {
+    "name": "Agachamento olímpico",
+    "instructions": [
+      "Comece com uma barra apoiada no topo do trapézio. O peito fica erguido e a cabeça voltada para a frente. Adote uma base na largura do quadril, com os pés virados para fora conforme necessário.",
+      "Desça flexionando os joelhos, evitando ao máximo levar o quadril para trás. Isso exige que os joelhos avancem; garanta que fiquem alinhados com os pés. O objetivo é manter o tronco o mais ereto possível. Desça até o fim, mantendo o peso na parte da frente do calcanhar.",
+      "No momento em que as coxas encostarem nas panturrilhas, inverta o movimento, empurrando o peso para cima."
+    ]
+  },
+  "On-Your-Back_Quad_Stretch": {
+    "name": "Alongamento de quadríceps deitado de costas",
+    "instructions": [
+      "Deite em um banco reto ou step e deixe uma perna e um braço pendurados para o lado.",
+      "Dobre o joelho e segure o peito do pé. Ao fazer isso, tome cuidado para não arquear a lombar.",
+      "Puxe o umbigo em direção à coluna para se manter na posição neutra. Pressione o pé para baixo, contra a mão. Para acrescentar o alongamento do quadril, levante em direção ao teto o quadril da perna que você está segurando.",
+      "Troque de lado."
+    ]
+  },
+  "On_Your_Side_Quad_Stretch": {
+    "name": "Alongamento de quadríceps deitado de lado",
+    "instructions": [
+      "Comece deitado sobre o lado direito, com o joelho direito dobrado a 90 graus, apoiado no chão à sua frente (isso estabiliza o tronco).",
+      "Dobre o joelho esquerdo para trás e segure o pé esquerdo com a mão esquerda. Para alongar o flexor do quadril, empurre o quadril esquerdo para a frente enquanto empurra o pé esquerdo para trás, contra a mão. Troque de lado."
+    ]
+  },
+  "One-Arm_Dumbbell_Row": {
+    "name": "Remada unilateral com halter",
+    "instructions": [
+      "Escolha um banco reto e coloque um halter de cada lado dele.",
+      "Apoie a perna direita sobre a ponta do banco, incline o tronco para a frente a partir da cintura até a parte superior do corpo ficar paralela ao chão, e apoie a mão direita na outra ponta do banco para se firmar.",
+      "Use a mão esquerda para pegar o halter no chão e segure o peso mantendo a lombar reta. A palma da mão fica voltada para o tronco. Essa é a posição inicial.",
+      "Puxe a carga direto para cima, até a lateral do peito, mantendo o braço junto ao corpo e o tronco parado. Solte o ar durante essa etapa. Dica: concentre-se em contrair os músculos das costas ao chegar na posição de contração total. Além disso, garanta que a força venha dos músculos das costas e não dos braços. Por fim, a parte superior do tronco deve ficar parada e só os braços devem se mover. Os antebraços não devem fazer nenhum trabalho além de segurar o halter; portanto, não tente puxar o halter para cima usando os antebraços.",
+      "Abaixe a carga em linha reta até a posição inicial. Inspire durante essa etapa.",
+      "Repita o movimento pelo número de repetições especificado.",
+      "Troque de lado e repita com o outro braço."
+    ]
+  },
+  "One-Arm_Flat_Bench_Dumbbell_Flye": {
+    "name": "Crucifixo unilateral com halter no banco reto",
+    "instructions": [
+      "Deite em um banco reto com um halter em uma das mãos, apoiado sobre a coxa. A palma da mão que segura o halter fica em pegada neutra.",
+      "Usando as coxas para ajudar a levantar o halter, leve-o até a frente do corpo, de modo que o braço que levanta fique totalmente estendido. Lembre-se de manter a pegada neutra neste exercício. A mão que não levanta fica ao lado, segurando o banco reto para dar mais apoio. Essa é a posição inicial.",
+      "O braço com o peso deve ter uma leve flexão no cotovelo para evitar estresse no tendão do bíceps. Comece abaixando o braço com o peso em um arco amplo para o lado até sentir o alongamento no peito. Inspire durante essa parte do movimento. Dica: lembre-se de que, durante todo o movimento, o braço que levanta deve ficar parado; o movimento deve ocorrer apenas na articulação do ombro.",
+      "Volte o braço que levanta à posição inicial enquanto contrai o peito e expira. Dica: use o mesmo arco de movimento usado para abaixar os pesos.",
+      "Segure por um segundo na posição contraída e repita o movimento pelo número de repetições prescrito.",
+      "Troque de braço e repita o exercício."
+    ]
+  },
+  "One-Arm_High-Pulley_Cable_Side_Bends": {
+    "name": "Flexão lateral unilateral na polia alta",
+    "instructions": [
+      "Prenda uma manopla simples em uma torre. Coloque o cabo na posição mais alta da polia.",
+      "Fique de lado para o cabo. Com uma das mãos, alcance para cima e segure a manopla com pegada supinada.",
+      "Puxe o cabo para baixo até o cotovelo tocar o seu lado e a manopla ficar perto do ombro.",
+      "Posicione os pés afastados na largura do quadril. Apoie a mão livre no quadril para ajudar a marcar o ponto de giro.",
+      "Mantenha o braço em posição estática. Contraia o oblíquo para baixar o peso em uma flexão lateral.",
+      "Ao chegar na contração máxima, solte o peso devagar até a posição inicial. A pilha de pesos nunca deve ser totalmente descarregada em repouso. O objetivo é manter tensão constante durante a série.",
+      "Repita até a falha.",
+      "Depois, reposicione-se e repita a mesma sequência de movimentos do lado oposto."
+    ]
+  },
+  "One-Arm_Incline_Lateral_Raise": {
+    "name": "Elevação lateral unilateral no banco inclinado",
+    "instructions": [
+      "Deite de lado em um banco inclinado, com um halter na mão. Garanta que o ombro esteja apoiado contra o banco inclinado e que o braço esteja cruzado sobre o corpo, com a palma na altura do umbigo.",
+      "Segure um halter com o braço de cima, mantendo-o estendido à sua frente, paralelo ao chão. Essa é a posição inicial.",
+      "Mantendo o halter paralelo ao chão o tempo todo, faça uma elevação lateral. O braço deve subir em linha reta até apontar para o teto. Dica: expire durante esse movimento. Segure o halter nessa posição e sinta a contração nos ombros por um segundo.",
+      "Ao inspirar, abaixe o peso cruzando o corpo de volta à posição inicial.",
+      "Repita o movimento pelo número de repetições prescrito.",
+      "Troque de braço e repita o movimento."
+    ]
+  },
+  "One-Arm_Kettlebell_Clean": {
+    "name": "Clean unilateral com kettlebell",
+    "instructions": [
+      "Coloque um kettlebell entre os pés. Ao se abaixar para pegar o kettlebell, jogue o quadril para trás e mantenha os olhos voltados para a frente.",
+      "Faça o clean do kettlebell até os ombros, estendendo pernas e quadril enquanto leva o kettlebell em direção ao ombro. O punho deve girar durante o movimento.",
+      "Volte o peso à posição inicial."
+    ]
+  },
+  "One-Arm_Kettlebell_Clean_and_Jerk": {
+    "name": "Clean and jerk unilateral com kettlebell",
+    "instructions": [
+      "Segure um kettlebell pela alça.",
+      "Faça o clean do kettlebell até o ombro, estendendo pernas e quadril enquanto puxa o kettlebell em direção ao ombro. Gire o punho durante o movimento, de modo que a palma fique voltada para a frente.",
+      "Desça o corpo dobrando os joelhos, mantendo o tronco ereto.",
+      "Inverta imediatamente a direção, empurrando o chão pelos calcanhares, basicamente saltando para criar impulso. Ao fazer isso, empurre o kettlebell acima da cabeça até travar, estendendo os braços e usando o impulso do corpo para mover o peso.",
+      "Receba o peso acima da cabeça voltando a uma posição de agachamento sob o peso.",
+      "Mantendo o peso acima da cabeça, volte à posição em pé. Abaixe o peso até o chão para fazer a próxima repetição."
+    ]
+  },
+  "One-Arm_Kettlebell_Floor_Press": {
+    "name": "Supino no chão unilateral com kettlebell",
+    "instructions": [
+      "Deite no chão segurando um kettlebell com uma das mãos, com o braço apoiado no chão. A palma fica voltada para dentro.",
+      "Empurre o kettlebell em linha reta para o teto, girando o punho.",
+      "Abaixe o kettlebell de volta à posição inicial e repita."
+    ]
+  },
+  "One-Arm_Kettlebell_Jerk": {
+    "name": "Jerk unilateral com kettlebell",
+    "instructions": [
+      "Segure um kettlebell pela alça. Faça o clean do kettlebell até o ombro, estendendo pernas e quadril enquanto puxa o kettlebell em direção ao ombro. Gire o punho durante o movimento, de modo que a palma fique voltada para a frente. Essa é a posição inicial.",
+      "Desça o corpo dobrando os joelhos, mantendo o tronco ereto.",
+      "Inverta imediatamente a direção, empurrando o chão pelos calcanhares, basicamente saltando para criar impulso. Ao fazer isso, empurre o kettlebell acima da cabeça até travar, estendendo os braços e usando o impulso do corpo para mover o peso. Receba o peso acima da cabeça voltando a uma posição de agachamento sob o peso. Mantendo o peso acima da cabeça, volte à posição em pé.",
+      "Abaixe o peso para fazer a próxima repetição."
+    ]
+  },
+  "One-Arm_Kettlebell_Military_Press_To_The_Side": {
+    "name": "Desenvolvimento unilateral com kettlebell para o lado",
+    "instructions": [
+      "Faça o clean de um kettlebell até o ombro, estendendo pernas e quadril enquanto puxa o kettlebell em direção ao ombro. Gire o punho durante o movimento, de modo que a palma fique voltada para dentro. Essa é a posição inicial.",
+      "Olhe para o kettlebell e empurre-o para cima e para fora até travar acima da cabeça.",
+      "Abaixe o kettlebell de volta ao ombro com controle e repita. Contraia com força o dorsal, o glúteo e o abdômen para ganhar estabilidade e força."
+    ]
+  },
+  "One-Arm_Kettlebell_Para_Press": {
+    "name": "Para press unilateral com kettlebell",
+    "instructions": [
+      "Faça o clean de um kettlebell até o ombro, estendendo pernas e quadril enquanto puxa o kettlebell em direção ao ombro. Gire o punho durante o movimento, de modo que a palma fique voltada para a frente. Essa é a posição inicial.",
+      "Segure o kettlebell com o cotovelo aberto para o lado e empurre-o para cima e para fora até travar acima da cabeça.",
+      "Abaixe o kettlebell de volta ao ombro com controle e repita. Contraia com força o dorsal, o glúteo e o abdômen para ganhar estabilidade e força."
+    ]
+  },
+  "One-Arm_Kettlebell_Push_Press": {
+    "name": "Push press unilateral com kettlebell",
+    "instructions": [
+      "Segure um kettlebell pela alça. Faça o clean do kettlebell até o ombro, estendendo pernas e quadril enquanto puxa o kettlebell em direção ao ombro. Gire o punho durante o movimento, de modo que a palma fique voltada para a frente. Essa é a posição inicial.",
+      "Desça o corpo dobrando os joelhos, mantendo o tronco ereto.",
+      "Inverta imediatamente a direção, empurrando o chão pelos calcanhares, basicamente saltando para criar impulso. Ao fazer isso, empurre o kettlebell acima da cabeça até travar, estendendo os braços e usando o impulso do corpo para mover o peso. Abaixe o peso para fazer a próxima repetição."
+    ]
+  },
+  "One-Arm_Kettlebell_Row": {
+    "name": "Remada unilateral com kettlebell",
+    "instructions": [
+      "Coloque um kettlebell à frente dos pés. Dobre levemente os joelhos e depois jogue o quadril para trás o máximo possível ao inclinar o tronco para assumir a posição inicial. Pegue o kettlebell e puxe-o até o abdômen, retraindo a escápula e flexionando o cotovelo. Mantenha as costas retas. Abaixe e repita."
+    ]
+  },
+  "One-Arm_Kettlebell_Snatch": {
+    "name": "Snatch unilateral com kettlebell",
+    "instructions": [
+      "Coloque um kettlebell entre os pés. Dobre os joelhos e jogue o quadril para trás para assumir a posição inicial correta.",
+      "Olhe para a frente e balance o kettlebell para trás, entre as pernas.",
+      "Inverta imediatamente a direção e empurre com o quadril e os joelhos, acelerando o kettlebell para cima. Quando o kettlebell chegar à altura do ombro, gire a mão e empurre em linha reta para cima, usando o impulso para receber o peso travado acima da cabeça."
+    ]
+  },
+  "One-Arm_Kettlebell_Split_Jerk": {
+    "name": "Split jerk unilateral com kettlebell",
+    "instructions": [
+      "Segure um kettlebell pela alça. Faça o clean do kettlebell até o ombro, estendendo pernas e quadril enquanto puxa o kettlebell em direção ao ombro. Gire o punho durante o movimento, de modo que a palma fique voltada para a frente. Essa é a posição inicial.",
+      "Desça o corpo dobrando os joelhos, mantendo o tronco ereto.",
+      "Inverta imediatamente a direção, empurrando o chão pelos calcanhares, basicamente saltando para criar impulso. Ao fazer isso, empurre o kettlebell acima da cabeça até travar, estendendo os braços e usando o impulso do corpo para mover o peso.",
+      "Receba o peso acima da cabeça voltando a uma posição de agachamento sob o peso, posicionando uma perna à frente e outra atrás.",
+      "Mantendo o peso acima da cabeça, volte à posição em pé e junte os pés. Abaixe o peso para fazer a próxima repetição."
+    ]
+  },
+  "One-Arm_Kettlebell_Split_Snatch": {
+    "name": "Split snatch unilateral com kettlebell",
+    "instructions": [
+      "Segure um kettlebell em uma das mãos, pela alça.",
+      "Agache em direção ao chão e depois inverta o movimento, estendendo quadril, joelhos e por fim tornozelos, para levantar o kettlebell acima da cabeça.",
+      "Depois de estender totalmente o corpo, desça para uma posição de avanço para receber o peso acima da cabeça, com uma perna à frente e outra atrás. Garanta que você empurre com o quadril e trave o kettlebell acima da cabeça em um único movimento ininterrupto.",
+      "Volte à posição em pé, mantendo o peso acima da cabeça, e junte os pés. Abaixe o peso para voltar à posição inicial."
+    ]
+  }
+}
