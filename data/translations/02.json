@@ -312,7 +312,7 @@
       "Incline-se à frente até o tronco ficar o mais próximo possível do paralelo ao chão, mantendo os joelhos levemente dobrados.",
       "Agora segure a barra com um braço, logo atrás das anilhas, no lado em que o peso foi colocado, e apoie a outra mão no joelho. Essa é a posição inicial.",
       "Puxe a barra para cima, com o cotovelo junto ao corpo (para maximizar o estímulo nas costas), até as anilhas tocarem a parte inferior do peito. Contraia os músculos das costas ao levantar o peso e segure por um segundo no topo do movimento. Solte o ar ao levantar o peso. Dica: não deixe o tronco balançar. Só o braço deve se mover.",
-      "Abaixe a barra devagar até a posição inicial, sentindo um bom alongamento nos dorsais. Dica: não deixe as anilhas tocarem o chão. Para garantir a melhor amplitude de movimento, recomendo usar anilhas pequenas (de 11 kg) em vez de anilhas maiores (de 16 a 20 kg).",
+      "Abaixe a barra devagar até a posição inicial, sentindo um bom alongamento nos dorsais. Dica: não deixe as anilhas tocarem o chão. Para garantir a melhor amplitude de movimento, use anilhas pequenas (de 11 kg) em vez de anilhas maiores (de 16 a 20 kg).",
       "Repita pelo número de repetições recomendado e troque de braço."
     ]
   },
@@ -323,7 +323,7 @@
       "Incline-se à frente até o tronco ficar o mais próximo possível do paralelo ao chão, mantendo os joelhos levemente dobrados.",
       "Agora segure a barra com os dois braços, logo atrás das anilhas, no lado em que o peso foi colocado, e apoie a outra mão no joelho. Essa é a posição inicial.",
       "Puxe a barra para cima, com os cotovelos junto ao corpo (para maximizar o estímulo nas costas), até as anilhas tocarem a parte inferior do peito. Contraia os músculos das costas ao levantar o peso e segure por um segundo no topo do movimento. Solte o ar ao levantar o peso. Dica: use um estribo ou um acessório de polia com alça dupla, prendendo-o sob a ponta da barra.",
-      "Abaixe a barra devagar até a posição inicial, sentindo um bom alongamento nos dorsais. Dica: não deixe as anilhas tocarem o chão. Para garantir a melhor amplitude de movimento, recomendo usar anilhas pequenas (de 11 kg) em vez de anilhas maiores (de 16 a 20 kg).",
+      "Abaixe a barra devagar até a posição inicial, sentindo um bom alongamento nos dorsais. Dica: não deixe as anilhas tocarem o chão. Para garantir a melhor amplitude de movimento, use anilhas pequenas (de 11 kg) em vez de anilhas maiores (de 16 a 20 kg).",
       "Repita pelo número de repetições recomendado."
     ]
   },
@@ -376,7 +376,7 @@
     ]
   },
   "Body-Up": {
-    "name": "Body-up",
+    "name": "Body-up (extensão de cotovelos na prancha)",
     "instructions": [
       "Assuma a posição de prancha no chão. Você deve apoiar o peso do corpo nas pontas dos pés e nos antebraços, mantendo o tronco reto. Os antebraços ficam afastados na largura dos ombros. Essa é a posição inicial.",
       "Pressionando firmemente as palmas das mãos contra o chão, estenda os cotovelos para levantar o corpo do chão. Mantenha o tronco rígido durante o movimento.",
@@ -452,7 +452,7 @@
     ]
   },
   "Bottoms_Up": {
-    "name": "Bottoms up",
+    "name": "Bottoms up (abdominal com elevação da pelve)",
     "instructions": [
       "Comece deitado de costas no chão. As pernas ficam esticadas e os braços ao lado do corpo. Essa é a posição inicial.",
       "Para executar o movimento, leve os joelhos em direção ao peito flexionando quadril e joelhos. Em seguida, estenda as pernas diretamente acima de você, de modo que fiquem perpendiculares ao chão. Gire e eleve a pelve para tirar os glúteos do chão.",

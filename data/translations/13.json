@@ -56,7 +56,7 @@
     ]
   },
   "Romanian_Deadlift": {
-    "name": "Stiff com barra",
+    "name": "Levantamento terra romeno",
     "instructions": [
       "Coloque uma barra no chão à sua frente e segure-a com pegada pronada (palmas para baixo), um pouco mais larga que os ombros. Dica: dependendo da carga usada, pode ser necessário usar munhequeira e também uma plataforma elevada para permitir maior amplitude de movimento.",
       "Flexione levemente os joelhos e mantenha as canelas verticais, o quadril para trás e as costas retas. Essa é a posição inicial.",
@@ -66,7 +66,7 @@
     ]
   },
   "Romanian_Deadlift_from_Deficit": {
-    "name": "Stiff com barra em déficit",
+    "name": "Levantamento terra romeno em déficit",
     "instructions": [
       "Comece em pé segurando uma barra com os braços estendidos à sua frente. Você pode ficar sobre uma plataforma elevada para aumentar a amplitude de movimento.",
       "Comece flexionando levemente os joelhos e depois flexione o quadril, levando o bumbum para trás o máximo possível e descendo o tronco até onde a flexibilidade permitir. As costas devem permanecer em extensão total o tempo todo e a barra deve se manter em contato com as pernas. Se feito corretamente, você deve sentir uma forte tensão nos posteriores de coxa.",
@@ -110,7 +110,7 @@
     ]
   },
   "Round_The_World_Shoulder_Stretch": {
-    "name": "Alongamento de ombros around the world",
+    "name": "Alongamento de ombros em círculo com bastão",
     "instructions": [
       "Fique em pé, reto, com as pernas juntas, segurando um bastão ou cabo de vassoura.",
       "Segure o bastão atrás do quadril com uma pegada mais larga que a largura dos ombros. As palmas devem ficar voltadas para baixo e os polegares para fora.",
