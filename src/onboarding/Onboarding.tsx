@@ -9,13 +9,13 @@ import { PlanImport } from '../workout/PlanImport'
 
 const EMPTY_PROFILE: Profile = { sex: 'M', heightCm: 0, weightKg: 0 }
 
-export function ProfileForm({ submitLabel, onDone, onSkip }: { submitLabel: string; onDone: () => void; onSkip?: () => void }) {
+export function ProfileForm({ submitLabel, onDone }: { submitLabel: string; onDone: () => void }) {
   const [saved, setProfile, loaded] = usePersisted('profile', EMPTY_PROFILE)
   if (!loaded) return <p className="muted-note">Carregando…</p>
-  return <ProfileFields start={saved} setProfile={setProfile} submitLabel={submitLabel} onDone={onDone} onSkip={onSkip} />
+  return <ProfileFields start={saved} setProfile={setProfile} submitLabel={submitLabel} onDone={onDone} />
 }
 
-function ProfileFields({ start, setProfile, submitLabel, onDone, onSkip }: { start: Profile; setProfile: (p: Profile) => void; submitLabel: string; onDone: () => void; onSkip?: () => void }) {
+function ProfileFields({ start, setProfile, submitLabel, onDone }: { start: Profile; setProfile: (p: Profile) => void; submitLabel: string; onDone: () => void }) {
   const [sex, setSex] = useState(start.sex)
   const [h, setH] = useState(start.heightCm ? String(start.heightCm) : '')
   const [w, setW] = useState(start.weightKg ? String(start.weightKg) : '')
@@ -30,7 +30,6 @@ function ProfileFields({ start, setProfile, submitLabel, onDone, onSkip }: { sta
       <label>Altura (cm)<input className="field" type="number" inputMode="decimal" value={h} onChange={(e) => setH(e.target.value)} /></label>
       <label>Peso (kg)<input className="field" type="number" inputMode="decimal" value={w} onChange={(e) => setW(e.target.value)} /></label>
       <button type="button" className="btn" disabled={!ok} onClick={() => { setProfile({ sex, heightCm: Number(h), weightKg: Number(w) }); onDone() }}>{submitLabel}</button>
-      {onSkip && <button type="button" className="btn ghost" onClick={onSkip}>Pular</button>}
     </div>
   )
 }
@@ -62,7 +61,9 @@ export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => 
     return (
       <>
         <h1>Perfil</h1>
-        <ProfileForm submitLabel="Continuar" onDone={() => setStep('treino')} onSkip={() => setStep('treino')} />
+        <ProfileForm submitLabel="Continuar" onDone={() => setStep('treino')} />
+        {/* fora do form: aparece mesmo enquanto o perfil salvo carrega */}
+        <button type="button" className="btn ghost" onClick={() => setStep('treino')}>Pular</button>
       </>
     )
   }
