@@ -1,6 +1,8 @@
 import { ex } from '../../test/helpers'
 import type { WorkoutPlan } from '../types'
-import { exportPlanFormat, parsePlanFormat, planFromFormat, type PlanFormatError } from './planFormat'
+import { readFileSync } from 'node:fs'
+import { LLM_PROMPT, exportPlanFormat, parsePlanFormat, planFromFormat, type PlanFormatError } from './planFormat'
+import { normalize } from '../catalog/search'
 
 const ok = { formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'Peito', dias: ['seg', 'qui'], exercicios: [{ nome: 'supino reto com barra', series: 4, reps: 10, cargaKg: 40 }, { nome: 'Remada na máquina do Zé', series: 3, reps: '12', obs: 'banco 3' }] }] }
 const catalog = [ex('Supino reto com barra', { id: 'Barbell_Bench_Press_-_Medium_Grip' })]
@@ -34,6 +36,19 @@ test('aceita sáb e valida carga e descanso', () => {
     'Treino A, exercício 1: "descansoSeg" precisa ser um número inteiro maior ou igual a 0',
   ]) }
   expect(parsePlanFormat(JSON.stringify({ ...ok, treinos: [{ ...t, exercicios: [{ nome: 'a', series: 3, reps: '8' }] }] })).treinos[0].dias).toEqual(['sab'])
+})
+test('recusa carga infinita (1e999 no JSON)', () => {
+  const t = { letra: 'A', nome: 'X', dias: ['seg'], exercicios: [{ nome: 'a', series: 3, reps: '8', cargaKg: 0 }] }
+  const text = JSON.stringify({ ...ok, treinos: [t] }).replace('"cargaKg":0', '"cargaKg":1e999')
+  try { parsePlanFormat(text); throw new Error('não lançou') }
+  catch (e) { expect((e as PlanFormatError).problems).toEqual(['Treino A, exercício 1: "cargaKg" precisa ser um número maior ou igual a 0']) }
+})
+test('os nomes de exemplo do prompt existem no catálogo', () => {
+  const names = new Set((JSON.parse(readFileSync('public/catalog/exercises.json', 'utf8')) as { name: string }[]).map((e) => normalize(e.name)))
+  const examples = [...LLM_PROMPT.matchAll(/"nome": "([^"]+)"|\(ex\.: ([^)]+)\)/g)].flatMap((m) => m[1] ? [m[1]] : [...m[2].matchAll(/"([^"]+)"/g)].map((q) => q[1]))
+  const exercises = examples.filter((n) => n !== 'Peito e tríceps')
+  expect(exercises.length).toBeGreaterThan(4)
+  expect(exercises.filter((n) => !names.has(normalize(n)))).toEqual([])
 })
 test('casa com o catálogo ignorando acento/caixa; o resto vira exercício seu', () => {
   const r = planFromFormat(parsePlanFormat(JSON.stringify(ok)), catalog, [])

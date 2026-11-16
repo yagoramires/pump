@@ -69,7 +69,7 @@ export function parsePlanFormat(text: string): PumpPlanoFile {
       const reps = typeof x.reps === 'number' ? String(x.reps) : str(x.reps)
       if (!reps) problems.push(`${at}: "reps" vazio`)
       const carga = x.cargaKg as number | undefined
-      if (carga != null && !(typeof carga === 'number' && carga >= 0)) problems.push(`${at}: "cargaKg" precisa ser um número maior ou igual a 0`)
+      if (carga != null && !(Number.isFinite(carga) && carga >= 0)) problems.push(`${at}: "cargaKg" precisa ser um número maior ou igual a 0`)
       const desc = x.descansoSeg as number | undefined
       if (desc != null && !(Number.isInteger(desc) && desc >= 0)) problems.push(`${at}: "descansoSeg" precisa ser um número inteiro maior ou igual a 0`)
       const obs = str(x.obs)
@@ -160,7 +160,7 @@ Formato:
     - "descansoSeg": descanso entre séries em segundos, número inteiro maior ou igual a 0 (opcional).
     - "obs": observação curta (opcional).
 
-Use os nomes dos exercícios como se fala em academia no Brasil (ex.: "supino reto com barra", "puxada na frente", "rosca direta", "agachamento livre", "leg press 45").
+Use os nomes dos exercícios como se fala em academia no Brasil (ex.: "supino reto com barra", "puxada frontal com pegada aberta", "rosca direta com barra", "agachamento livre", "leg press").
 
 Exemplo:
 \`\`\`json
