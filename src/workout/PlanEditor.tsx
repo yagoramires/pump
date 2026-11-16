@@ -22,9 +22,18 @@ function Stepper({ label, value, text, step, min, max, onChange }: { label: stri
   )
 }
 
-export function PlanEditor({ initial, onDone, onCancel }: { initial?: WorkoutPlan; onDone: () => void; onCancel?: () => void }) {
-  const [saved, savePlan] = usePersisted('workoutPlan', EMPTY)
-  const [plan, setPlan] = useState<WorkoutPlan>(() => structuredClone(initial ?? saved))
+type Props = { initial?: WorkoutPlan; onDone: () => void; onCancel?: () => void }
+
+// sem `initial`, espera o plano salvo carregar: senão a cópia local nasceria vazia e o Salvar apagaria o plano
+export function PlanEditor(props: Props) {
+  const [saved, , loaded] = usePersisted('workoutPlan', EMPTY)
+  if (!props.initial && !loaded) return <p className="muted-note">Carregando…</p>
+  return <PlanForm {...props} start={props.initial ?? saved} />
+}
+
+function PlanForm({ start, onDone, onCancel }: Props & { start: WorkoutPlan }) {
+  const [, savePlan] = usePersisted('workoutPlan', EMPTY)
+  const [plan, setPlan] = useState<WorkoutPlan>(() => structuredClone(start))
   const [picking, setPicking] = useState<string>() // id do treino que recebe o exercício
 
   const patchWorkout = (id: string, f: (w: Workout) => Workout) =>
