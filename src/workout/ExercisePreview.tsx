@@ -12,9 +12,15 @@ export function ExercisePreview({ exercise, onClose }: { exercise: SessionExerci
     return () => clearInterval(id)
   }, [images.length])
 
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    window.addEventListener('keydown', k)
+    return () => window.removeEventListener('keydown', k)
+  }, [onClose])
+
   return (
     <div className="overlay" onClick={onClose}>
-      <div className="sheet" role="dialog" aria-label={exercise.name} onClick={(e) => e.stopPropagation()}>
+      <div className="sheet" role="dialog" aria-modal="true" aria-label={exercise.name} onClick={(e) => e.stopPropagation()}>
         <div className="row-actions">
           <h2 className="grow">{exercise.name}</h2>
           <button type="button" className="icon-btn" aria-label="Fechar" onClick={onClose}><X size={20} aria-hidden="true" /></button>

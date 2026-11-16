@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from '../storage/db'
@@ -62,4 +62,16 @@ test('exercício sem foto: ícone na miniatura e preview só com texto', async (
   const dialog = screen.getByRole('dialog')
   expect(within(dialog).getByText('banco 3')).toBeInTheDocument()
   expect(within(dialog).queryByRole('img')).not.toBeInTheDocument()
+})
+test('editar carga duas vezes seguidas acumula (+5 kg)', async () => {
+  const user = userEvent.setup()
+  render(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await user.click(screen.getByRole('button', { name: 'Editar séries de Supino reto' }))
+  const plus = screen.getByRole('button', { name: 'Aumentar carga da série 1' })
+  act(() => {
+    fireEvent.click(plus) // dois toques antes de re-renderizar
+    fireEvent.click(plus)
+  })
+  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]).toEqual({ reps: '10', weightKg: 45 }))
 })

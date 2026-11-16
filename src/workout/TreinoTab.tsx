@@ -46,6 +46,9 @@ export function TreinoTab() {
   )
   const finishRest = useCallback(() => patch((s) => (s.restEndsAt === undefined ? s : setRestEnd(s, undefined))), [patch])
 
+  const closePreview = useCallback(() => setPreview(undefined), [])
+  const closeEditing = useCallback(() => setEditing(undefined), [])
+
   if (!planLoaded || !logLoaded) return <p className="muted-note">Carregando…</p>
 
   if (editingPlan || plan.workouts.length === 0) {
@@ -85,14 +88,18 @@ export function TreinoTab() {
       return { ...prev, [today]: setRestEnd(marked, Date.now() + e.restSec * 1000) }
     })
   }
-  const edit = (exIdx: number, setIdx: number, v: SetDone) => patch((s) => setDone(s, exIdx, setIdx, v))
+  const edit = (exIdx: number, setIdx: number, f: (cur: SetDone) => SetDone) =>
+    patch((s) => {
+      const cur = s.exercises[exIdx].sets[setIdx]
+      return cur ? setDone(s, exIdx, setIdx, f(cur)) : s // desmarcada no meio: não remarca
+    })
   const conclude = () => {
     patch((s) => completeSession(s, new Date()))
     setToast('Treino concluído')
   }
 
   return (
-    <div className="stack">
+    <div className={`stack${session?.restEndsAt !== undefined ? ' resting' : ''}`}>
       <div>
         <div className="day-label">{`${formatDayLabel(today)} · TREINO ${view.workoutLabel}`}</div>
         <h1>{view.workoutName}</h1>
@@ -113,8 +120,8 @@ export function TreinoTab() {
           onFinish={finishRest}
         />
       )}
-      {preview !== undefined && <ExercisePreview exercise={view.exercises[preview]} onClose={() => setPreview(undefined)} />}
-      {editing !== undefined && <SetEditor exercise={view.exercises[editing]} onChange={(j, v) => edit(editing, j, v)} onClose={() => setEditing(undefined)} />}
+      {preview !== undefined && <ExercisePreview exercise={view.exercises[preview]} onClose={closePreview} />}
+      {editing !== undefined && <SetEditor exercise={view.exercises[editing]} onChange={(j, f) => edit(editing, j, f)} onClose={closeEditing} />}
       {toast && <Toast message={toast} />}
     </div>
   )
