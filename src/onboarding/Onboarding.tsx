@@ -6,6 +6,7 @@ import { todayKey } from '../lib/date'
 import { TEMPLATES, instantiateTemplate } from '../workout/templates'
 import { PlanEditor } from '../workout/PlanEditor'
 import { PlanImport } from '../workout/PlanImport'
+import { ImportBackupButton } from '../shell/ImportBackupButton'
 
 const EMPTY_PROFILE: Profile = { sex: 'M', heightCm: 0, weightKg: 0 }
 
@@ -63,7 +64,11 @@ export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => 
         <h1>Perfil</h1>
         <ProfileForm submitLabel="Continuar" onDone={() => setStep('treino')} />
         {/* fora do form: aparece mesmo enquanto o perfil salvo carrega */}
-        <button type="button" className="btn ghost" onClick={() => setStep('treino')}>Pular</button>
+        <div className="stack" style={{ marginTop: 10 }}>
+          <button type="button" className="btn ghost" onClick={() => setStep('treino')}>Pular</button>
+          {/* quem instalou o app no iPhone traz aqui os dados que usava no Safari */}
+          <ImportBackupButton label="Restaurar backup" />
+        </div>
       </>
     )
   }

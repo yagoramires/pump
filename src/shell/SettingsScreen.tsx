@@ -1,7 +1,8 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import type { Settings } from '../types'
-import { exportBackup, importBackupFile } from '../storage/backup'
+import { exportBackup } from '../storage/backup'
+import { ImportBackupButton } from './ImportBackupButton'
 import { PlanEditor } from '../workout/PlanEditor'
 import { PlanImport } from '../workout/PlanImport'
 import { ProfileForm } from '../onboarding/Onboarding'
@@ -11,18 +12,7 @@ type View = 'menu' | 'plan' | 'import' | 'profile'
 export function SettingsScreen({ onClose, setSettings }: { onClose: () => void; setSettings: (f: (s: Settings) => Settings) => void }) {
   const [view, setView] = useState<View>('menu')
   const [error, setError] = useState<string>()
-  const fileRef = useRef<HTMLInputElement>(null)
   const back = () => setView('menu')
-
-  const onFile = async (file?: File) => {
-    if (!file || !confirm('Isso substitui todos os seus dados. Continuar?')) return
-    try {
-      await importBackupFile(file)
-      location.reload()
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Falha ao importar')
-    }
-  }
 
   if (view === 'plan') return <PlanEditor onDone={back} onCancel={back} />
   if (view === 'import') return <><button type="button" className="btn ghost" onClick={back}>Voltar</button><PlanImport onDone={back} /></>
@@ -37,8 +27,7 @@ export function SettingsScreen({ onClose, setSettings }: { onClose: () => void; 
         <button type="button" className="btn ghost" onClick={() => setView('import')}>Importar/exportar plano (IA)</button>
         <button type="button" className="btn ghost" onClick={() => setView('profile')}>Editar perfil</button>
         <button type="button" className="btn ghost" onClick={() => exportBackup().catch((e) => setError(e instanceof Error ? e.message : 'Falha ao exportar'))}>Exportar backup</button>
-        <button type="button" className="btn ghost" onClick={() => fileRef.current?.click()}>Importar backup</button>
-        <input ref={fileRef} type="file" accept=".json,application/json" hidden aria-label="Arquivo de backup" onChange={(e) => { void onFile(e.target.files?.[0]); e.target.value = '' }} />
+        <ImportBackupButton label="Importar backup" />
         <button type="button" className="btn ghost" onClick={() => { setSettings((s) => ({ ...s, onboardingDone: false })); onClose() }}>Refazer montagem</button>
       </div>
       {error && <p role="alert">{error}</p>}
