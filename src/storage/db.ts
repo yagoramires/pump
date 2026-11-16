@@ -23,6 +23,8 @@ async function guarded<T>(fn: () => Promise<T>): Promise<T> {
 export async function load<K extends keyof UserData>(k: K): Promise<UserData[K] | undefined> {
   if (cache.has(k)) return cache.get(k) as UserData[K]
   const v = await get<UserData[K]>(k)
+  // um save/replaceAll pode ter terminado enquanto o get rodava: o cache é mais novo
+  if (cache.has(k)) return cache.get(k) as UserData[K]
   if (v !== undefined) cache.set(k, v)
   return v
 }
@@ -57,7 +59,7 @@ export async function requestPersist(): Promise<boolean> {
 export function usePersisted<K extends keyof UserData>(
   k: K,
   initial: UserData[K],
-): [value: UserData[K], set: (v: UserData[K]) => void, loaded: boolean] {
+): [value: UserData[K], set: (v: UserData[K] | ((prev: UserData[K]) => UserData[K])) => void, loaded: boolean] {
   const initialRef = useRef(initial)
   const [value, setValue] = useState(initial)
   const [loaded, setLoaded] = useState(false)
@@ -67,11 +69,10 @@ export function usePersisted<K extends keyof UserData>(
     if (!listeners.has(k)) listeners.set(k, new Set())
     listeners.get(k)!.add(fn)
     let alive = true
-    load(k).then((v) => {
-      if (!alive) return
-      if (v !== undefined) setValue(v)
-      setLoaded(true)
-    })
+    load(k)
+      .then((v) => alive && v !== undefined && setValue(v))
+      .catch(() => {}) // sem dado legível, segue com initial
+      .finally(() => alive && setLoaded(true))
     return () => {
       alive = false
       listeners.get(k)!.delete(fn)
@@ -79,6 +80,14 @@ export function usePersisted<K extends keyof UserData>(
   }, [k])
 
   // o erro já virou o evento pump:storage-error dentro de save
-  const update = useCallback((v: UserData[K]) => void save(k, v).catch(() => {}), [k])
+  const update = useCallback(
+    (v: UserData[K] | ((prev: UserData[K]) => UserData[K])) => {
+      // prev vem do cache (não do render), então dois updaters seguidos se acumulam
+      const next = typeof v === 'function' ? v(cache.has(k) ? (cache.get(k) as UserData[K]) : initialRef.current) : v
+      cache.set(k, next) // síncrono pro próximo updater enxergar; save regrava e avisa
+      void save(k, next).catch(() => {})
+    },
+    [k],
+  )
   return [value, update, loaded]
 }
