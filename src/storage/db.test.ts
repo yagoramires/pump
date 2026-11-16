@@ -6,7 +6,7 @@ import { allData, load, replaceAll, resetStoreForTests, save, usePersisted } fro
 
 vi.mock('idb-keyval', async (orig) => {
   const m = await orig<typeof import('idb-keyval')>()
-  return { ...m, get: vi.fn(m.get) }
+  return { ...m, get: vi.fn(m.get), set: vi.fn(m.set) }
 })
 
 beforeEach(async () => {
@@ -61,9 +61,42 @@ test('dois updaters no mesmo act se acumulam', async () => {
   })
   await waitFor(() => expect(Object.keys(h.result.current[0]).sort()).toEqual(['2026-11-01', '2026-11-02']))
 })
-test('falha no load ainda marca loaded', async () => {
+test('falha no load: marca loaded, avisa e não deixa gravar por cima do que está salvo', async () => {
+  const s = (d: string) => ({ date: d, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [] })
+  await save('workoutLog', { '2026-11-01': s('2026-11-01'), '2026-11-02': s('2026-11-02') })
+  resetStoreForTests()
+  const errors: unknown[] = []
+  const onError = (e: Event) => errors.push((e as CustomEvent).detail)
+  window.addEventListener('pump:storage-error', onError)
   vi.mocked(idb.get).mockRejectedValueOnce(new Error('boom'))
-  const h = renderHook(() => usePersisted('settings', DEFAULT_SETTINGS))
+  const h = renderHook(() => usePersisted('workoutLog', {}))
   await waitFor(() => expect(h.result.current[2]).toBe(true))
-  expect(h.result.current[0]).toEqual(DEFAULT_SETTINGS)
+  act(() => h.result.current[1]((p) => ({ ...p, '2026-11-16': s('2026-11-16') })))
+  await new Promise((r) => setTimeout(r, 20))
+  window.removeEventListener('pump:storage-error', onError)
+  resetStoreForTests()
+  expect(Object.keys((await load('workoutLog'))!).sort()).toEqual(['2026-11-01', '2026-11-02'])
+  expect(errors[0]).toEqual({ message: 'boom', read: true })
+  expect(errors).toHaveLength(2) // a tentativa de gravar também avisa
+})
+test('saves sobrepostos: um save que termina depois não desfaz o update seguinte', async () => {
+  const h = renderHook(() => usePersisted('workoutLog', {}))
+  await waitFor(() => expect(h.result.current[2]).toBe(true))
+  const real = vi.mocked(idb.set).getMockImplementation()!
+  vi.mocked(idb.set)
+    .mockImplementationOnce(real)
+    .mockImplementationOnce(async (k, v) => {
+      await real(k, v)
+      await new Promise((r) => setTimeout(r, 40)) // o segundo save demora pra terminar
+    })
+  const s = (d: string) => ({ date: d, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [] })
+  const add = (d: string) => act(() => h.result.current[1]((p) => ({ ...p, [d]: s(d) })))
+  add('a')
+  add('b')
+  await new Promise((r) => setTimeout(r, 15)) // o save de a já terminou, o de b ainda não
+  add('c')
+  await new Promise((r) => setTimeout(r, 60))
+  expect(Object.keys(h.result.current[0]).sort()).toEqual(['a', 'b', 'c'])
+  resetStoreForTests()
+  expect(Object.keys((await load('workoutLog'))!).sort()).toEqual(['a', 'b', 'c'])
 })

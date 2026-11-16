@@ -5,34 +5,47 @@ import type { UserData } from '../types'
 type Listener = (v: unknown) => void
 const cache = new Map<string, unknown>()
 const listeners = new Map<string, Set<Listener>>()
+// chaves lidas (ou gravadas) com sucesso: só nelas um update pode gravar sem apagar o que está no banco
+const known = new Set<string>()
 
-export const resetStoreForTests = () => cache.clear()
+export const resetStoreForTests = () => {
+  cache.clear()
+  known.clear()
+}
+
+const storageError = (message: string, read = false) =>
+  window.dispatchEvent(new CustomEvent('pump:storage-error', { detail: read ? { message, read } : { message } }))
 
 const notify = (k: string) => listeners.get(k)?.forEach((fn) => fn(cache.get(k)))
 
-async function guarded<T>(fn: () => Promise<T>): Promise<T> {
+async function guarded<T>(fn: () => Promise<T>, read = false): Promise<T> {
   try {
     return await fn()
   } catch (e) {
-    const message = e instanceof Error ? e.message : String(e)
-    window.dispatchEvent(new CustomEvent('pump:storage-error', { detail: { message } }))
+    storageError(e instanceof Error ? e.message : String(e), read)
     throw e
   }
 }
 
 export async function load<K extends keyof UserData>(k: K): Promise<UserData[K] | undefined> {
   if (cache.has(k)) return cache.get(k) as UserData[K]
-  const v = await get<UserData[K]>(k)
+  const v = await guarded(() => get<UserData[K]>(k), true)
+  known.add(k)
   // um save/replaceAll pode ter terminado enquanto o get rodava: o cache é mais novo
   if (cache.has(k)) return cache.get(k) as UserData[K]
   if (v !== undefined) cache.set(k, v)
   return v
 }
 
+// cache antes do await: um save antigo que termina depois nunca volta o cache pra um valor velho
 export async function save<K extends keyof UserData>(k: K, v: UserData[K]): Promise<void> {
-  await guarded(() => set(k, v))
   cache.set(k, v)
-  notify(k)
+  try {
+    await guarded(() => set(k, v))
+    known.add(k)
+  } finally {
+    notify(k) // manda o valor mais novo do cache, não necessariamente v
+  }
 }
 
 export async function allData(): Promise<Record<string, unknown>> {
@@ -49,6 +62,7 @@ export async function replaceAll(data: Record<string, unknown>): Promise<void> {
   const touched = new Set([...Object.keys(data), ...old, ...cache.keys()])
   cache.clear()
   Object.entries(data).forEach(([k, v]) => cache.set(k, v))
+  touched.forEach((k) => known.add(k))
   touched.forEach(notify)
 }
 
@@ -71,7 +85,7 @@ export function usePersisted<K extends keyof UserData>(
     let alive = true
     load(k)
       .then((v) => alive && v !== undefined && setValue(v))
-      .catch(() => {}) // sem dado legível, segue com initial
+      .catch(() => {}) // o erro já virou pump:storage-error (read); update fica bloqueado
       .finally(() => alive && setLoaded(true))
     return () => {
       alive = false
@@ -82,6 +96,8 @@ export function usePersisted<K extends keyof UserData>(
   // o erro já virou o evento pump:storage-error dentro de save
   const update = useCallback(
     (v: UserData[K] | ((prev: UserData[K]) => UserData[K])) => {
+      // sem ter lido a chave, gravar a partir de initial apagaria o que está no banco
+      if (!known.has(k)) return storageError('seus dados ainda não foram lidos')
       // prev vem do cache (não do render), então dois updaters seguidos se acumulam
       const next = typeof v === 'function' ? v(cache.has(k) ? (cache.get(k) as UserData[K]) : initialRef.current) : v
       cache.set(k, next) // síncrono pro próximo updater enxergar; save regrava e avisa
