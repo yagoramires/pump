@@ -19,6 +19,11 @@ test.each([
   ['chave estranha', JSON.stringify({ app: 'pump', version: 1, data: { hack: 1 } }), 'Backup com conteúdo desconhecido'],
   ['plano corrompido', JSON.stringify({ app: 'pump', version: 1, data: { workoutPlan: { workouts: 'x' } } }), 'Backup corrompido'],
   ['log corrompido', JSON.stringify({ app: 'pump', version: 1, data: { workoutLog: 'x' } }), 'Backup corrompido'],
+  ['settings que não é objeto', JSON.stringify({ app: 'pump', version: 1, data: { settings: [] } }), 'Backup corrompido'],
+  ['perfil que não é objeto', JSON.stringify({ app: 'pump', version: 1, data: { profile: 'x' } }), 'Backup corrompido'],
+  ['exercícios próprios que não são lista', JSON.stringify({ app: 'pump', version: 1, data: { customExercises: {} } }), 'Backup corrompido'],
+  ['dia do log que não é objeto', JSON.stringify({ app: 'pump', version: 1, data: { workoutLog: { '2026-11-10': null } } }), 'Backup corrompido'],
+  ['dia do log sem lista de exercícios', JSON.stringify({ app: 'pump', version: 1, data: { workoutLog: { '2026-11-10': { date: '2026-11-10' } } } }), 'Backup corrompido'],
 ])('recusa %s', (_, txt, msg) => expect(() => parseBackup(txt)).toThrow(msg))
 test('importar arquivo inválido não apaga nada', async () => {
   await save('profile', { sex: 'M', heightCm: 178, weightKg: 80 })

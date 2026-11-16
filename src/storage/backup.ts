@@ -27,10 +27,14 @@ export function parseBackup(text: string): BackupFile {
   if (!isObj(data) || Object.keys(data).some((k) => !(USER_KEYS as readonly string[]).includes(k))) {
     throw new Error('Backup com conteúdo desconhecido')
   }
-  const plan = data.workoutPlan
-  if ((plan !== undefined && !(isObj(plan) && Array.isArray(plan.workouts))) || (data.workoutLog !== undefined && !isObj(data.workoutLog))) {
-    throw new Error('Backup corrompido')
-  }
+  const { workoutPlan: plan, workoutLog: log, settings, profile, customExercises } = data
+  const ok =
+    (plan === undefined || (isObj(plan) && Array.isArray(plan.workouts))) &&
+    (log === undefined || (isObj(log) && Object.values(log).every((d) => isObj(d) && Array.isArray(d.exercises)))) &&
+    (settings === undefined || isObj(settings)) &&
+    (profile === undefined || isObj(profile)) &&
+    (customExercises === undefined || Array.isArray(customExercises))
+  if (!ok) throw new Error('Backup corrompido')
   return b as unknown as BackupFile
 }
 

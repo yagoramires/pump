@@ -3,6 +3,7 @@ import { Settings as SettingsIcon } from 'lucide-react'
 import { BottomNav } from './shell/BottomNav'
 import { ComingSoon } from './shell/ComingSoon'
 import { InstallGate } from './shell/InstallGate'
+import { FatalScreen } from './shell/ErrorBoundary'
 import { SettingsScreen } from './shell/SettingsScreen'
 import { isIOS, isStandalone } from './shell/platform'
 import { Onboarding } from './onboarding/Onboarding'
@@ -19,11 +20,16 @@ export default function App() {
   const [settings, setSettings, loaded] = usePersisted('settings', DEFAULT_SETTINGS)
   const [workoutPlan, , planLoaded] = usePersisted('workoutPlan', { workouts: [] })
   const [storageError, setStorageError] = useState<string>()
+  const [readFailed, setReadFailed] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
 
   useEffect(() => {
     void requestPersist()
-    const onError = (e: Event) => setStorageError((e as CustomEvent<{ message: string }>).detail.message)
+    const onError = (e: Event) => {
+      const { message, read } = (e as CustomEvent<{ message: string; read?: boolean }>).detail
+      if (read) setReadFailed(true)
+      else setStorageError(message)
+    }
     window.addEventListener('pump:storage-error', onError)
     return () => window.removeEventListener('pump:storage-error', onError)
   }, [])
@@ -33,6 +39,14 @@ export default function App() {
     if (planLoaded) void syncPreviewCache(workoutPlan).catch(() => {})
   }, [workoutPlan, planLoaded])
 
+  // qualquer chave ilegível bloqueia o app: seguir com dados vazios levaria a montagem a gravar por cima
+  if (readFailed) {
+    return (
+      <FatalScreen title="Não consegui ler seus dados" text="Eles continuam guardados neste aparelho. Feche e abra o app ou tente de novo.">
+        <button type="button" className="btn" onClick={() => location.reload()}>Tentar de novo</button>
+      </FatalScreen>
+    )
+  }
   if (!loaded) return null
   const banner = storageError && (
     <div role="alert" style={{ position: 'sticky', top: 0, zIndex: 10, padding: '10px 16px', background: 'var(--danger)', color: 'var(--on-accent)' }}>
