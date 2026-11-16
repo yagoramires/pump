@@ -98,3 +98,22 @@ h1 {
 .ex-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 0; border: 0; border-bottom: 1px solid var(--divider); background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .thumb { width: 40px; height: 40px; flex: none; border-radius: 8px; background: var(--selected); display: flex; align-items: center; justify-content: center; color: var(--muted); overflow: hidden; }
 .thumb img { width: 100%; height: 100%; object-fit: cover; }
+/* aba treino */
+.day-label { color: var(--label); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.ex-card { display: flex; flex-direction: column; gap: 4px; }
+.ex-card .name { display: block; }
+button.thumb { border: 0; padding: 0; min-width: 44px; min-height: 44px; width: 44px; height: 44px; cursor: pointer; }
+.dashes { display: flex; flex-wrap: wrap; }
+.dash-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 0; background: transparent; cursor: pointer; padding: 0; }
+.dash { width: 16px; height: 5px; border-radius: 3px; background: var(--ghost-border); }
+.dash-btn[aria-pressed='true'] .dash { background: var(--accent); }
+.rest-banner { position: fixed; left: 16px; right: 16px; bottom: calc(80px + env(safe-area-inset-bottom)); z-index: 5; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--soft-bg); border: 1px solid var(--soft-border); border-radius: var(--radius); }
+.rest-label { color: var(--label); font-size: 13px; flex: 1; }
+.rest-time { color: var(--accent); font-size: 22px; font-variant-numeric: tabular-nums; }
+.overlay { position: fixed; inset: 0; z-index: 30; background: rgba(0, 0, 0, 0.7); display: flex; align-items: flex-end; }
+.sheet { width: 100%; max-height: 85vh; overflow-y: auto; box-sizing: border-box; padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); background: var(--card); border-top: 1px solid var(--card-border); border-radius: 16px 16px 0 0; display: flex; flex-direction: column; gap: 10px; }
+.sheet h2 { margin: 0; font-size: 17px; color: var(--strong); }
+.preview-img { width: 100%; max-height: 40vh; object-fit: contain; border-radius: var(--radius); background: var(--selected); }
+.instructions { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.set-edit { flex-wrap: wrap; }
+.toast { position: fixed; top: calc(12px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); z-index: 40; padding: 10px 16px; background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); color: var(--strong); }

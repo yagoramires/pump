@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BottomNav } from './shell/BottomNav'
 import { ComingSoon } from './shell/ComingSoon'
+import { TreinoTab } from './workout/TreinoTab'
 import { requestPersist, usePersisted } from './storage/db'
 import { DEFAULT_SETTINGS, type Tab } from './types'
 
@@ -26,7 +27,7 @@ export default function App() {
         </div>
       )}
       <main>
-        <ComingSoon title={TITLES[tab]} />
+        {tab === 'treino' ? <TreinoTab /> : <ComingSoon title={TITLES[tab]} />}
       </main>
       <BottomNav tab={tab} onChange={(lastTab) => setSettings({ ...settings, lastTab })} />
     </>
