@@ -1,0 +1,41 @@
+import { clear } from 'idb-keyval'
+import type { Settings } from '../types'
+import { backupDue, buildBackup, importBackupFile, parseBackup } from './backup'
+import { load, resetStoreForTests, save } from './db'
+
+beforeEach(async () => {
+  await clear()
+  resetStoreForTests()
+})
+
+test('ida e volta', () => {
+  const b = buildBackup({ profile: { sex: 'F', heightCm: 165, weightKg: 60 } }, new Date(2026, 10, 16))
+  expect(parseBackup(JSON.stringify(b))).toEqual(b)
+})
+test.each([
+  ['não é JSON', 'oi', 'Arquivo não é um backup válido'],
+  ['outro app', JSON.stringify({ app: 'outro', version: 1, data: {} }), 'Esse arquivo não é um backup do Pump'],
+  ['versão mais nova', JSON.stringify({ app: 'pump', version: 2, data: {} }), 'Backup de uma versão mais nova do app'],
+  ['chave estranha', JSON.stringify({ app: 'pump', version: 1, data: { hack: 1 } }), 'Backup com conteúdo desconhecido'],
+  ['plano corrompido', JSON.stringify({ app: 'pump', version: 1, data: { workoutPlan: { workouts: 'x' } } }), 'Backup corrompido'],
+  ['log corrompido', JSON.stringify({ app: 'pump', version: 1, data: { workoutLog: 'x' } }), 'Backup corrompido'],
+])('recusa %s', (_, txt, msg) => expect(() => parseBackup(txt)).toThrow(msg))
+test('importar arquivo inválido não apaga nada', async () => {
+  await save('profile', { sex: 'M', heightCm: 178, weightKg: 80 })
+  await expect(importBackupFile(new File(['{lixo'], 'x.json'))).rejects.toThrow('Arquivo não é um backup válido')
+  expect(await load('profile')).toBeDefined()
+})
+test('importar arquivo válido substitui os dados', async () => {
+  await save('profile', { sex: 'M', heightCm: 178, weightKg: 80 })
+  const b = buildBackup({ settings: { lastTab: 'dieta', onboardingDone: true } }, new Date(2026, 10, 16))
+  await importBackupFile(new File([JSON.stringify(b)], 'x.json'))
+  expect(await load('profile')).toBeUndefined()
+  expect((await load('settings'))?.lastTab).toBe('dieta')
+})
+test('backupDue com 14 dias de calendário', () => {
+  const s: Settings = { lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01' }
+  expect(backupDue(s, '2026-11-14')).toBe(false)
+  expect(backupDue(s, '2026-11-15')).toBe(true)
+  expect(backupDue({ ...s, lastBackupAt: '2026-11-10' }, '2026-11-15')).toBe(false)
+  expect(backupDue({ lastTab: 'treino', onboardingDone: false }, '2026-11-15')).toBe(false)
+})
