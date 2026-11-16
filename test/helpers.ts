@@ -17,3 +17,20 @@ export const planWith = (exs: Partial<PlanExercise>[]): WorkoutPlan => ({ workou
 export const ex = (name: string, over: Partial<Exercise> = {}): Exercise => ({
   id: name, name, muscles: [], equipment: 'barra', instructions: [], images: [], ...over,
 })
+
+export const fakeCacheStorage = (initial: Record<string, string>, opts: { failOn?: string } = {}): CacheStorage => {
+  const store = new Map(Object.entries(initial))
+  const cache = {
+    keys: async () => [...store.keys()].map((url) => ({ url })),
+    add: async (url: string) => {
+      if (url === opts.failOn) throw new Error('falhou')
+      store.set(url, 'ok')
+    },
+    delete: async (req: string | { url: string }) => store.delete(typeof req === 'string' ? req : req.url),
+    match: async (url: string) => (store.has(url) ? { url } : undefined),
+  }
+  return { open: async () => cache } as unknown as CacheStorage
+}
+
+export const cachedUrls = async (cs: CacheStorage): Promise<string[]> =>
+  (await (await cs.open('pump-previews-v1')).keys()).map((r) => r.url).sort()
