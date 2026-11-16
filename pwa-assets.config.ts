@@ -1,3 +1,13 @@
-import { defineConfig, minimal2023Preset } from '@vite-pwa/assets-generator/config'
+import { defineConfig, minimal2023Preset as base } from '@vite-pwa/assets-generator/config'
 
-export default defineConfig({ preset: minimal2023Preset, images: ['public/icon.svg'] })
+// o padding do apple/maskable sai branco por padrão: pinta com o fundo do ícone
+const bg = { background: '#121315' }
+
+export default defineConfig({
+  preset: {
+    ...base,
+    maskable: { ...base.maskable, resizeOptions: bg },
+    apple: { ...base.apple, resizeOptions: bg },
+  },
+  images: ['public/icon.svg'],
+})
