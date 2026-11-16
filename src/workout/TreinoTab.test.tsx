@@ -75,3 +75,20 @@ test('editar carga duas vezes seguidas acumula (+5 kg)', async () => {
   })
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]).toEqual({ reps: '10', weightKg: 45 }))
 })
+test('voltar do segundo plano num novo dia mostra o treino do novo dia', async () => {
+  render(<TreinoTab />)
+  expect(await screen.findByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
+  vi.setSystemTime(new Date(2026, 10, 17, 7, 0)) // terça, sem treino
+  act(() => { document.dispatchEvent(new Event('visibilitychange')) })
+  expect(await screen.findByText('Dia de descanso')).toBeInTheDocument()
+})
+test('treino em andamento passa da meia-noite e segue no mesmo dia ao voltar', async () => {
+  const user = userEvent.setup()
+  render(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16']).toBeDefined())
+  vi.setSystemTime(new Date(2026, 10, 17, 0, 30))
+  act(() => { document.dispatchEvent(new Event('visibilitychange')) })
+  expect(screen.getByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
+  expect(screen.queryByText('Dia de descanso')).not.toBeInTheDocument()
+})

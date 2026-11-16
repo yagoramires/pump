@@ -17,7 +17,7 @@ const EMPTY_PLAN: WorkoutPlan = { workouts: [] }
 const EMPTY_LOG: WorkoutLog = {}
 
 export function TreinoTab() {
-  const [today] = useState(() => todayKey()) // fixo: treino que passa da meia-noite segue no mesmo dia
+  const [today, setToday] = useState(() => todayKey()) // treino que passa da meia-noite segue no mesmo dia
   const [plan, , planLoaded] = usePersisted('workoutPlan', EMPTY_PLAN)
   const [log, setLog, logLoaded] = usePersisted('workoutLog', EMPTY_LOG)
   const [chosenId, setChosenId] = useState<string>()
@@ -33,6 +33,18 @@ export function TreinoTab() {
   }, [toast])
 
   const session = log[today]
+
+  // o PWA volta do segundo plano sem remontar: troca de dia, menos com treino em andamento
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible' || todayKey() === today) return
+      if (session && !session.completedAt) return
+      setToday(todayKey())
+      setChosenId(undefined)
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [today, session])
   const workout = plan.workouts.find((w) => w.id === chosenId) ?? workoutForDate(plan, today)
 
   // mesma gravação sempre via updater: toques rápidos não perdem atualização
