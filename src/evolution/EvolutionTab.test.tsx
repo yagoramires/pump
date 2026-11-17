@@ -2,11 +2,15 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from '../storage/db'
+import { todayKey } from '../lib/date'
+import { toast } from 'sonner'
+import { Toaster } from '@/components/ui/sonner'
 import { EvolutionTab } from './EvolutionTab'
 
 beforeEach(async () => {
   await clear()
   resetStoreForTests()
+  toast.dismiss() // a fila do sonner é global: toasts de testes anteriores apareceriam no Toaster
 })
 
 test('sem dados: estado vazio com Registrar', async () => {
@@ -39,4 +43,45 @@ test('diferença de peso verde quando o objetivo é emagrecer e o peso caiu', as
   await save('measurements', [{ id: 'a', date: '2026-11-01', weightKg: 80 }, { id: 'b', date: '2026-11-17', weightKg: 78.4 }])
   render(<EvolutionTab />)
   expect(await screen.findByText('−1,6 kg')).toHaveClass('text-accent')
+})
+
+const openMeasures = async (user: ReturnType<typeof userEvent.setup>) => {
+  await user.click(await screen.findByRole('button', { name: 'Registrar' }))
+  await user.click(await screen.findByRole('button', { name: 'Medidas' }))
+}
+test('mesmo dia: reabre preenchida e limpar um campo tira ele do registro', async () => {
+  const user = userEvent.setup()
+  await save('profile', { sex: 'M', heightCm: 178, weightKg: 80 })
+  await save('measurements', [{ id: 'a', date: todayKey(), weightKg: 80, neckCm: 38, waistCm: 85 }])
+  render(<EvolutionTab />)
+  await openMeasures(user)
+  expect(await screen.findByLabelText('Peso')).toHaveValue('80')
+  expect(screen.getByLabelText('Cintura')).toHaveValue('85')
+  await user.clear(screen.getByLabelText('Cintura'))
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  await waitFor(async () => expect((await load('measurements'))?.[0].waistCm).toBeUndefined())
+  expect((await load('measurements'))?.[0]).toMatchObject({ id: 'a', weightKg: 80, neckCm: 38 })
+})
+test('0 apaga o campo em vez de virar medida', async () => {
+  const user = userEvent.setup()
+  await save('profile', { sex: 'M', heightCm: 178, weightKg: 80 })
+  await save('measurements', [{ id: 'a', date: todayKey(), weightKg: 80, waistCm: 85 }])
+  render(<EvolutionTab />)
+  await openMeasures(user)
+  await user.clear(await screen.findByLabelText('Peso'))
+  await user.type(screen.getByLabelText('Peso'), '0')
+  expect(screen.getByRole('button', { name: 'Salvar' })).toBeEnabled()
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  await waitFor(async () => expect((await load('measurements'))?.[0].weightKg).toBeUndefined())
+  expect((await load('measurements'))?.[0]).toMatchObject({ waistCm: 85 })
+  expect((await load('profile'))?.weightKg).toBe(80)
+})
+test('salvar sem mudar nada não grava nem diz que salvou', async () => {
+  const user = userEvent.setup()
+  render(<><EvolutionTab /><Toaster /></>)
+  await openMeasures(user)
+  await user.click(await screen.findByRole('button', { name: 'Salvar' }))
+  expect(await screen.findByText('Nada mudou')).toBeInTheDocument()
+  expect(screen.queryByText('Medidas salvas')).not.toBeInTheDocument()
+  expect(await load('measurements')).toBeUndefined()
 })

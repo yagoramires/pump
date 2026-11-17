@@ -41,11 +41,13 @@ export function MeasureDrawer({ open, onClose, date }: { open: boolean; onClose:
               profile={profile}
               initial={list.find((m) => m.date === date)}
               onSave={(fields) => {
+                onClose()
+                const cur = list.find((m) => m.date === date)
+                if (!Object.entries(fields).some(([k, v]) => (v ?? undefined) !== cur?.[k as Key])) return void toast('Nada mudou')
                 setList((prev) => upsertMeasurement(prev, date, fields))
                 const w = fields.weightKg
                 if (w) setProfile((p) => ({ ...p, weightKg: w }))
-                onClose()
-                toast('Medidas salvas')
+                toast(upsertMeasurement(list, date, fields).some((m) => m.date === date) ? 'Medidas salvas' : 'Medidas apagadas')
               }}
             />
           ) : (
@@ -62,9 +64,10 @@ function Form({ profile, initial, onSave }: { profile: Profile; initial?: Measur
   const [text, setText] = useState(() =>
     Object.fromEntries(FIELDS.map(({ key }) => [key, initial?.[key] === undefined ? '' : String(initial[key]).replace('.', ',')])) as Record<Key, string>,
   )
-  // vazio vira null (apaga o campo); texto inválido trava o Salvar em vez de apagar o valor salvo
-  const parsed = Object.fromEntries(fields.map(({ key }) => [key, text[key].trim() ? parseDecimal(text[key]) : null])) as { [K in Key]?: number | null }
-  const invalid = fields.filter(({ key }) => text[key].trim() && parsed[key] === null).map((f) => f.key)
+  // vazio ou 0 vira null (apaga o campo); texto inválido trava o Salvar em vez de apagar o valor salvo
+  const num = (k: Key) => (text[k].trim() ? parseDecimal(text[k]) : null)
+  const parsed = Object.fromEntries(fields.map(({ key }) => { const n = num(key); return [key, n !== null && n > 0 ? n : null] })) as { [K in Key]?: number | null }
+  const invalid = fields.filter(({ key }) => text[key].trim() && num(key) === null).map((f) => f.key)
   const fat = bodyFat(profile.sex, profile.heightCm, Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== null)))
 
   return (
