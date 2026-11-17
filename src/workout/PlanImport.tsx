@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Check, ChevronLeft, Copy, FileUp } from 'lucide-react'
-import type { CustomExercise, Profile, WorkoutPlan } from '../types'
+import { NO_PROFILE, type CustomExercise, type WorkoutPlan } from '../types'
 import { usePersisted } from '../storage/db'
 import { fetchCatalog } from '../catalog/catalog'
 import { PlanFormatError, buildPrompt, exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button'
 
 const NO_PLAN: WorkoutPlan = { workouts: [] }
 const NO_CUSTOMS: CustomExercise[] = []
-const NO_PROFILE: Profile = { sex: 'M', heightCm: 0, weightKg: 0 }
 type Review = { plan: WorkoutPlan; newCustoms: CustomExercise[]; unmatched: string[]; ignoredDiet: boolean }
 
 function Step({ n, title, sub, children }: { n: number; title: string; sub: string; children?: ReactNode }) {

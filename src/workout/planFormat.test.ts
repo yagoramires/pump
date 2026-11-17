@@ -73,7 +73,7 @@ test('dieta presente é ignorada com aviso nesta fase', () =>
   expect(planFromFormat({ ...parsePlanFormat(JSON.stringify(ok)), dieta: {} }, catalog, []).ignoredDiet).toBe(true))
 test('prompt leva perfil e anamnese; sem dados manda a IA perguntar', () => {
   const p = buildPrompt({ sex: 'F', heightCm: 165, weightKg: 62.5, anamnesis: { goal: 'emagrecer', level: 'iniciante', place: 'casa', daysPerWeek: 3, age: 34, minutes: 45, notes: ' joelho ' } })
-  for (const l of ['- Sexo: feminino', '- Idade: 34 anos', '- Altura: 165 cm', '- Peso: 62.5 kg', '- Objetivo: emagrecer', '- Nível: iniciante', '- Onde treino: em casa, com pouco equipamento', '- Dias por semana: 3', '- Tempo por treino: até 45 min', '- Lesões, limitações ou preferências: joelho'])
+  for (const l of ['- Sexo: feminino', '- Idade: 34 anos', '- Altura: 165 cm', '- Peso: 62,5 kg', '- Objetivo: emagrecer', '- Nível: iniciante', '- Onde treino: em casa, com pouco equipamento', '- Dias por semana: 3', '- Tempo por treino: até 45 min', '- Lesões, limitações ou preferências: joelho'])
     expect(p).toContain(l)
   // perfil pulado: o sexo 'M' é só o padrão e não pode ir pro prompt
   const empty = buildPrompt({ sex: 'M', heightCm: 0, weightKg: 0 })

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Plus, Sparkles } from 'lucide-react'
-import type { Exercise, Profile, Settings, WorkoutPlan } from '../types'
+import { NO_PROFILE, type Exercise, type Profile, type Settings, type WorkoutPlan } from '../types'
 import { usePersisted } from '../storage/db'
 import { fetchCatalog } from '../catalog/catalog'
 import { todayKey } from '../lib/date'
@@ -16,11 +16,10 @@ import { Input } from '@/components/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 const LABEL = 'text-[10px] font-semibold tracking-[0.08em] text-faint uppercase'
-const EMPTY_PROFILE: Profile = { sex: 'M', heightCm: 0, weightKg: 0 }
 const WEEK = [1, 2, 3, 4, 5, 6, 0] // seg..dom
 
 export function ProfileForm({ submitLabel, onDone }: { submitLabel: string; onDone: () => void }) {
-  const [saved, setProfile, loaded] = usePersisted('profile', EMPTY_PROFILE)
+  const [saved, setProfile, loaded] = usePersisted('profile', NO_PROFILE)
   if (!loaded) return <p className="text-sm text-text-2">Carregando…</p>
   return <ProfileFields start={saved} setProfile={setProfile} submitLabel={submitLabel} onDone={onDone} />
 }

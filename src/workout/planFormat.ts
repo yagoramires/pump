@@ -1,5 +1,6 @@
 import type { CustomExercise, Exercise, Goal, Level, PlanExercise, Place, Profile, WorkoutPlan } from '../types'
 import { normalize } from '../catalog/search'
+import { formatKg } from '../lib/number'
 import { PLAN_DEFAULTS, toPlanExercise } from './templates'
 
 export type Dia = 'dom' | 'seg' | 'ter' | 'qua' | 'qui' | 'sex' | 'sab'
@@ -152,10 +153,11 @@ function aboutMe(p?: Profile): string[] {
     p?.heightCm ? `Sexo: ${p.sex === 'F' ? 'feminino' : 'masculino'}` : '',
     a.age ? `Idade: ${a.age} anos` : '',
     p?.heightCm ? `Altura: ${p.heightCm} cm` : '',
-    p?.weightKg ? `Peso: ${p.weightKg} kg` : '',
-    a.goal ? `Objetivo: ${GOALS[a.goal]}` : '',
-    a.level ? `Nível: ${LEVELS[a.level]}` : '',
-    a.place ? `Onde treino: ${PLACES[a.place]}` : '',
+    p?.weightKg ? `Peso: ${formatKg(p.weightKg)} kg` : '',
+    // backup importado não valida a anamnese: valor desconhecido viraria "undefined" no prompt
+    a.goal && GOALS[a.goal] ? `Objetivo: ${GOALS[a.goal]}` : '',
+    a.level && LEVELS[a.level] ? `Nível: ${LEVELS[a.level]}` : '',
+    a.place && PLACES[a.place] ? `Onde treino: ${PLACES[a.place]}` : '',
     a.daysPerWeek ? `Dias por semana: ${a.daysPerWeek}` : '',
     a.minutes ? `Tempo por treino: até ${a.minutes} min` : '',
     a.notes?.trim() ? `Lesões, limitações ou preferências: ${a.notes.trim()}` : '',

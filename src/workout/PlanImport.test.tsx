@@ -32,7 +32,7 @@ test('colar texto inválido mostra problemas e mantém Importar desabilitado', a
 
 test('anamnese fica salva no perfil e vai no prompt copiado', async () => {
   const user = userEvent.setup()
-  const writeText = vi.fn(async (_: string) => {})
+  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
   Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
   render(<PlanImport onDone={vi.fn()} />)
   await user.click(await screen.findByRole('radio', { name: 'Ganhar massa' }))

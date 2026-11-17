@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { ChevronLeft, ChevronRight, Download, List, RotateCcw, Sparkles, User } from 'lucide-react'
 import { toast } from 'sonner'
-import type { Profile, Settings } from '../types'
+import { NO_PROFILE, type Settings } from '../types'
 import { exportBackup } from '../storage/backup'
 import { usePersisted } from '../storage/db'
 import { daysBetween, todayKey } from '../lib/date'
@@ -15,7 +15,6 @@ import { ProfileForm } from '../onboarding/Onboarding'
 
 type View = 'menu' | 'plan' | 'import' | 'profile'
 
-const NO_PROFILE: Profile = { sex: 'M', heightCm: 0, weightKg: 0 }
 const LABEL = 'px-1 pt-4 pb-1.5 text-[10px] font-semibold uppercase tracking-[.08em] text-faint'
 
 function Row({ icon, color, title, sub, onClick }: { icon: ReactNode; color: string; title: string; sub?: string; onClick: () => void }) {
