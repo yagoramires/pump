@@ -1,9 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Dumbbell, Plus, X } from 'lucide-react'
+import { ChevronLeft, Dumbbell, Plus, Search } from 'lucide-react'
 import type { CustomExercise, Exercise } from '../types'
 import { usePersisted } from '../storage/db'
 import { fetchCatalog, imageUrl } from './catalog'
 import { searchCatalog } from './search'
+import { IconDot } from '@/components/IconDot'
+import { muscleColor } from '@/components/muscleColor'
+import { Button } from '@/components/ui/button'
+import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 
 // valores de `muscles` do glossário pt-BR (data/glossary.pt.json)
 const MUSCLES = [
@@ -15,15 +21,31 @@ const uniq = (xs: string[]) => [...new Set(xs)].sort((a, b) => a.localeCompare(b
 
 function Chips({ values, value, onChange, label }: { values: string[]; value?: string; onChange: (v?: string) => void; label: string }) {
   return (
-    <div className="chips" role="group" aria-label={label}>
+    <div className="flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label={label}>
       {values.map((v) => (
-        <button key={v} type="button" className="chip" aria-pressed={value === v} onClick={() => onChange(value === v ? undefined : v)}>
+        <button key={v} type="button" className={cn('h-11 shrink-0 rounded-[10px] border px-3 text-[13px] whitespace-nowrap', value === v ? 'border-accent bg-accent-bg text-accent' : 'border-border text-text')} aria-pressed={value === v} onClick={() => onChange(value === v ? undefined : v)}>
           {v}
         </button>
       ))}
     </div>
   )
 }
+
+function Row({ e, mine, onPick }: { e: Exercise | CustomExercise; mine?: boolean; onPick: () => void }) {
+  const img = 'images' in e ? e.images[0] : undefined
+  return (
+    <li className="flex items-center gap-3 border-t border-line py-2">
+      {img ? <img src={imageUrl(img)} alt="" loading="lazy" className="size-10 shrink-0 rounded-[10px] bg-surface object-cover" /> : <IconDot color={muscleColor(e.muscles)} size={36}><Dumbbell size={16} /></IconDot>}
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[15px] font-medium text-strong">{e.name}</span>
+        <span className="block truncate text-[12.5px] text-text-2">{e.muscles.join(', ')}{mine ? ' · seu exercício' : ''}</span>
+      </span>
+      <button type="button" className="flex size-11 shrink-0 items-center justify-center rounded-xl text-accent" aria-label={`Adicionar ${e.name}`} onClick={onPick}><Plus size={20} /></button>
+    </li>
+  )
+}
+
+const LABEL = 'px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
 
 export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | CustomExercise) => void; onClose: () => void }) {
   const [catalog, setCatalog] = useState<Exercise[]>([])
@@ -55,53 +77,54 @@ export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | Cust
   }
 
   return (
-    <div className="picker" role="dialog" aria-label="Escolher exercício">
-      <header className="picker-head">
-        <input autoFocus type="search" className="field" placeholder="Buscar exercício" aria-label="Buscar exercício" value={q} onChange={(e) => setQ(e.target.value)} />
-        <button type="button" className="icon-btn" aria-label="Fechar" onClick={onClose}>
-          <X size={20} />
-        </button>
+    <div className="fixed inset-0 z-50 flex flex-col bg-bg" role="dialog" aria-label="Escolher exercício">
+      <header className="flex items-center gap-1 px-2 py-2">
+        <button type="button" className="flex size-11 items-center justify-center text-text-2" aria-label="Voltar" onClick={onClose}><ChevronLeft size={22} /></button>
+        <h1 className="text-[19px] font-semibold text-strong">Exercícios</h1>
       </header>
-      {offline && <p className="muted-note">Sem internet: só seus exercícios aparecem</p>}
-      <Chips label="Músculo" values={muscles} value={muscle} onChange={setMuscle} />
-      <Chips label="Aparelho" values={equipments} value={equipment} onChange={setEquipment} />
-      {creating ? (
-        <form className="card stack" onSubmit={(e) => { e.preventDefault(); create() }}>
-          <input className="field" aria-label="Nome do exercício" placeholder="Nome" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
-          <select className="field" aria-label="Grupo muscular" value={draft.muscle} onChange={(e) => setDraft({ ...draft, muscle: e.target.value })}>
-            {MUSCLES.map((m) => <option key={m}>{m}</option>)}
-          </select>
-          <input className="field" aria-label="Observação" placeholder="Observação (opcional)" value={draft.note} onChange={(e) => setDraft({ ...draft, note: e.target.value })} />
-          <div className="row-actions">
-            <button type="button" className="btn ghost" onClick={() => setCreating(false)}>Cancelar</button>
-            <button type="submit" className="btn" disabled={!draft.name.trim()}>Criar e adicionar</button>
-          </div>
-        </form>
-      ) : (
-        <button type="button" className="btn ghost" onClick={() => setCreating(true)}>
-          <Plus size={18} /> Criar exercício
-        </button>
-      )}
-      <ul className="ex-list">
-        {shownMine.map((e) => (
-          <li key={e.id}>
-            <button type="button" className="ex-row" onClick={() => onPick(e)}>
-              <span className="thumb"><Dumbbell size={18} /></span>
-              <span className="grow"><span className="name">{e.name}</span><span className="muted">{e.muscles.join(', ')} · seu exercício</span></span>
-            </button>
-          </li>
-        ))}
-        {list.map((e) => (
-          <li key={e.id}>
-            <button type="button" className="ex-row" onClick={() => onPick(e)}>
-              <span className="thumb">
-                {e.images[0] ? <img src={imageUrl(e.images[0])} alt="" loading="lazy" /> : <Dumbbell size={18} />}
-              </span>
-              <span className="grow"><span className="name">{e.name}</span><span className="muted">{e.muscles.join(', ')}</span></span>
-            </button>
-          </li>
-        ))}
-      </ul>
+      <div className="relative mx-4 mb-2">
+        <Search size={16} className="absolute top-3.5 left-3 text-faint" />
+        <Input type="search" className="pl-9" placeholder={`Buscar entre ${catalog.length + custom.length}…`} aria-label="Buscar exercício" autoComplete="off" enterKeyHint="search" value={q} onChange={(e) => setQ(e.target.value)} />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <Chips label="Músculo" values={muscles} value={muscle} onChange={setMuscle} />
+        <Chips label="Aparelho" values={equipments} value={equipment} onChange={setEquipment} />
+      </div>
+      {offline && <p className="px-4 pt-2 text-[13px] text-text-2">Sem internet: só seus exercícios aparecem</p>}
+      <div className="flex-1 overflow-y-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {shownMine.length > 0 && (
+          <>
+            <h2 className={LABEL}>Seus exercícios</h2>
+            <ul className="px-4">{shownMine.map((e) => <Row key={e.id} e={e} mine onPick={() => onPick(e)} />)}</ul>
+          </>
+        )}
+        {list.length > 0 && (
+          <>
+            <h2 className={LABEL}>Catálogo</h2>
+            <ul className="px-4">{list.map((e) => <Row key={e.id} e={e} onPick={() => onPick(e)} />)}</ul>
+          </>
+        )}
+      </div>
+      <div className="border-t border-line bg-bg px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
+        <Button variant="outline" className="w-full" onClick={() => setCreating(true)}><Plus /> Criar exercício próprio</Button>
+      </div>
+      <Drawer open={creating} onOpenChange={setCreating}>
+        <DrawerContent>
+          <form className="flex flex-col gap-3 px-4 pb-5" onSubmit={(e) => { e.preventDefault(); create() }}>
+            <DrawerTitle className="text-[19px] font-semibold text-strong">Exercício próprio</DrawerTitle>
+            <DrawerDescription className="sr-only">Crie um exercício e adicione ao treino</DrawerDescription>
+            <Input aria-label="Nome do exercício" placeholder="Nome" autoComplete="off" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
+            <select className="h-11 rounded-xl border border-border bg-surface px-3 text-base text-strong" aria-label="Grupo muscular" value={draft.muscle} onChange={(e) => setDraft({ ...draft, muscle: e.target.value })}>
+              {MUSCLES.map((m) => <option key={m}>{m}</option>)}
+            </select>
+            <Input aria-label="Observação" placeholder="Observação (opcional)" autoComplete="off" value={draft.note} onChange={(e) => setDraft({ ...draft, note: e.target.value })} />
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setCreating(false)}>Cancelar</Button>
+              <Button type="submit" className="flex-1" disabled={!draft.name.trim()}>Criar e adicionar</Button>
+            </div>
+          </form>
+        </DrawerContent>
+      </Drawer>
     </div>
   )
 }
