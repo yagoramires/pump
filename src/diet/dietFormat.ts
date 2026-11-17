@@ -13,7 +13,7 @@ type Obj = Record<string, unknown>
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v)
 const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
 const num = (v: unknown, min: number, max: number) => typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max
-const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/
+export const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/
 const VALUES = ['kcal', 'proteinaG', 'carboG', 'gorduraG'] as const
 
 function parseFoods(v: unknown, tag: string, problems: string[]): PumpAlimento[] {

@@ -1,0 +1,115 @@
+import type { DietItem, DietPlan } from '../types'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { clear } from 'idb-keyval'
+import { load, resetStoreForTests, save } from '../storage/db'
+import { todayKey } from '../lib/date'
+import { EMPTY_DIET } from '../types'
+import { DietEditor } from './DietEditor'
+
+const shake: DietItem = { id: 'f1', name: 'Meu shake', grams: 100, per100: { kcal: 120, p: 20, c: 5, f: 2 }, source: 'custom' }
+const pao: DietItem = { id: 'i1', name: 'Pão francês', grams: 50, portion: '1 un', per100: { kcal: 300, p: 8, c: 58, f: 3 }, source: 'taco', tacoId: 9 }
+const plan = (time = '07:00'): DietPlan => ({
+  menus: [
+    { id: 'A', name: 'Dia de treino', goalKcal: 2000, meals: [{ id: 'm1', name: 'Café', time, options: [{ id: 'o1', items: [pao] }] }] },
+    { id: 'B', name: 'Descanso', meals: [{ id: 'm2', name: 'Almoço', time: '12:00', options: [{ id: 'o2', items: [] }] }] },
+  ],
+  lastMenuId: 'B',
+})
+
+beforeEach(async () => {
+  await clear()
+  resetStoreForTests()
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
+})
+afterEach(() => vi.unstubAllGlobals())
+
+test('DietEditor salva refeição com horário e item; Apagar cardápio volta a vazio', async () => {
+  await save('foods', [shake])
+  resetStoreForTests()
+  const onDone = vi.fn()
+  const user = userEvent.setup()
+  const { unmount } = render(<DietEditor onDone={onDone} onCancel={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: 'Refeição' }))
+  const name = screen.getByRole('textbox', { name: 'Nome da refeição 1' })
+  await user.clear(name)
+  await user.type(name, 'Café da manhã')
+  fireEvent.change(screen.getByLabelText('Horário da refeição 1'), { target: { value: '07:00' } })
+  await user.click(screen.getByRole('button', { name: 'Alimento' }))
+  await user.click(await screen.findByRole('button', { name: /Meu shake/ }))
+  await user.click(screen.getByRole('button', { name: 'Usar' }))
+  expect(await screen.findByText('Meu shake')).toBeInTheDocument()
+  expect(screen.getAllByText('120 kcal')).toHaveLength(2) // item e total da opção
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  await waitFor(() => expect(onDone).toHaveBeenCalled())
+
+  const saved = await load('dietPlan')
+  expect(saved?.menus).toHaveLength(1)
+  expect(saved?.lastMenuId).toBe(saved?.menus[0].id)
+  const meal = saved!.menus[0].meals[0]
+  expect(meal).toMatchObject({ name: 'Café da manhã', time: '07:00' })
+  expect(meal.options[0].items).toEqual([expect.objectContaining({ name: 'Meu shake', grams: 100, source: 'custom' })])
+  await waitFor(async () => expect((await load('dietLog'))?.[todayKey()]?.meals.map((m) => m.name)).toEqual(['Café da manhã']))
+
+  unmount()
+  render(<DietEditor onDone={onDone} onCancel={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: 'Apagar todos os cardápios' }))
+  await user.click(await screen.findByRole('button', { name: 'Apagar' }))
+  await waitFor(async () => expect(await load('dietPlan')).toEqual(EMPTY_DIET))
+  expect((await load('dietLog'))?.[todayKey()]).toBeDefined()
+})
+
+test('DietEditor exige horário HH:MM pra salvar', async () => {
+  const onDone = vi.fn()
+  const user = userEvent.setup()
+  render(<DietEditor initial={plan('')} onDone={onDone} onCancel={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: 'Salvar' }))
+  expect(screen.getByRole('alert')).toHaveTextContent('Dia de treino: preencha nome e horário (HH:MM) de cada refeição')
+  expect(onDone).not.toHaveBeenCalled()
+  expect(await load('dietPlan')).toBeUndefined()
+  // abriu no Descanso (lastMenuId) e pulou pro cardápio com o problema
+  expect(screen.getByRole('textbox', { name: 'Nome do cardápio' })).toHaveValue('Dia de treino')
+  fireEvent.change(screen.getByLabelText('Horário da refeição 1'), { target: { value: '07:30' } })
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  await waitFor(() => expect(onDone).toHaveBeenCalled())
+})
+
+test('DietEditor duplica e apaga cardápios, edita opções e mantém lastMenuId válido', async () => {
+  const user = userEvent.setup()
+  render(<DietEditor initial={plan()} onDone={vi.fn()} onCancel={vi.fn()} />)
+  // abre no último cardápio usado
+  expect(await screen.findByRole('textbox', { name: 'Nome do cardápio' })).toHaveValue('Descanso')
+  await user.click(screen.getByRole('button', { name: 'Dia de treino' }))
+  await user.click(screen.getByRole('button', { name: 'Duplicar cardápio' }))
+  expect(screen.getByRole('textbox', { name: 'Nome do cardápio' })).toHaveValue('Dia de treino (cópia)')
+  expect(screen.getByText('Pão francês')).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Adicionar opção' }))
+  expect(screen.getByRole('button', { name: 'Opção B' })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.queryByText('Pão francês')).not.toBeInTheDocument()
+  await user.type(screen.getByRole('textbox', { name: 'Nome da opção' }), 'Iogurte')
+  await user.click(screen.getByRole('button', { name: 'Opção A' }))
+  expect(screen.getByText('Pão francês')).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Descanso' }))
+  await user.click(screen.getByRole('button', { name: 'Apagar cardápio' }))
+  await user.click(await screen.findByRole('button', { name: 'Apagar' }))
+  await waitFor(() => expect(screen.queryByRole('button', { name: 'Descanso' })).not.toBeInTheDocument())
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+
+  await waitFor(async () => expect((await load('dietPlan'))?.menus.map((m) => m.name)).toEqual(['Dia de treino', 'Dia de treino (cópia)']))
+  const saved = (await load('dietPlan'))!
+  expect(saved.lastMenuId).toBe('A')
+  const copy = saved.menus[1]
+  expect(copy.id).not.toBe('A')
+  expect(copy.meals[0].id).not.toBe('m1')
+  expect(copy.meals[0].options.map((o) => o.name)).toEqual([undefined, 'Iogurte'])
+  expect(copy.meals[0].options[0].items[0]).toMatchObject({ name: 'Pão francês', grams: 50 })
+  expect(copy.meals[0].options[0].items[0].id).not.toBe('i1')
+  expect(saved.menus[0].meals[0].options).toHaveLength(1)
+})
+
+test('DietEditor não apaga o último cardápio', async () => {
+  render(<DietEditor initial={{ menus: [plan().menus[0]] }} onDone={vi.fn()} onCancel={vi.fn()} />)
+  expect(await screen.findByRole('button', { name: 'Apagar cardápio' })).toBeDisabled()
+})
