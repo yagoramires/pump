@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, Dumbbell, MoreHorizontal, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Dumbbell, HeartPulse, MoreHorizontal, Plus } from 'lucide-react'
 import type { PlanExercise, Workout, WorkoutPlan } from '../types'
 import { usePersisted } from '../storage/db'
 import { CatalogPicker } from '../catalog/CatalogPicker'
 import { toPlanExercise } from './templates'
 import { ExerciseDrawer } from './ExerciseDrawer'
+import { isCardio } from './cardio'
 import { IconDot } from '@/components/IconDot'
 import { muscleColor } from '@/components/muscleColor'
 import { Button } from '@/components/ui/button'
@@ -90,16 +91,24 @@ function PlanForm({ start, onDone, onCancel }: Props & { start: WorkoutPlan }) {
               </button>
             ))}
           </div>
-          {w.exercises.map((e, i) => (
-            <button key={`${e.exerciseId}-${i}`} type="button" className="flex min-h-14 items-center gap-3 border-t border-line pt-2 text-left" onClick={() => setEditing({ wid: w.id, i })}>
-              <IconDot color={muscleColor(e.muscles)} size={36}><Dumbbell size={16} /></IconDot>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-[15px] font-semibold text-strong">{e.name}</span>
-                <span className="block text-[12.5px] tabular-nums text-text-2">{`${e.sets} × ${e.reps} · ${formatKg(e.weightKg)} kg · ${e.restSec} s`}</span>
-              </span>
-              <ChevronRight size={16} className="text-faint" />
-            </button>
-          ))}
+          {[false, true].map((cardio) => {
+            const items = w.exercises.map((e, i) => ({ e, i })).filter(({ e }) => isCardio(e) === cardio)
+            return items.length > 0 && (
+              <div key={String(cardio)} className="flex flex-col gap-2">
+                {cardio && <div className="border-t border-line pt-2 text-[10px] font-semibold tracking-[.05em] text-faint uppercase">Cardio</div>}
+                {items.map(({ e, i }) => (
+                  <button key={`${e.exerciseId}-${i}`} type="button" className={cn('flex min-h-14 items-center gap-3 text-left', !cardio && 'border-t border-line pt-2')} onClick={() => setEditing({ wid: w.id, i })}>
+                    <IconDot color={cardio ? 'var(--c1)' : muscleColor(e.muscles)} size={36}>{cardio ? <HeartPulse size={16} /> : <Dumbbell size={16} />}</IconDot>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[15px] font-semibold text-strong">{e.name}</span>
+                      <span className="block text-[12.5px] tabular-nums text-text-2">{cardio ? e.reps : `${e.sets} × ${e.reps} · ${formatKg(e.weightKg)} kg · ${e.restSec} s`}</span>
+                    </span>
+                    <ChevronRight size={16} className="text-faint" />
+                  </button>
+                ))}
+              </div>
+            )
+          })}
           <button type="button" className={cn(dash, 'justify-start text-accent')} onClick={() => setPicking(w.id)}><Plus size={18} /> Adicionar exercício</button>
         </section>
       ))}

@@ -189,3 +189,16 @@ test('carga acima de 500 kg numa série feita é rejeitada e mantém a anterior'
   await user.tab()
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]?.weightKg).toBe(40))
 })
+test('cardio fica num bloco à parte, só com a duração, e marca feito sem descanso', async () => {
+  const user = userEvent.setup()
+  await save('workoutPlan', { workouts: [{ ...plano.workouts[0], exercises: [pe({ exerciseId: 'esteira', name: 'Esteira', sets: 1, reps: '15 min', restSec: 90 }), ...plano.workouts[0].exercises] }] })
+  render(<TreinoTab />)
+  expect(await screen.findByText('Cardio')).toBeInTheDocument()
+  expect(screen.getByText('15 min')).toBeInTheDocument()
+  expect(screen.queryByText(/1 × 15 min/)).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Série 1 de Supino reto' })).toBeInTheDocument() // abre a força, não o cardio
+  await user.click(screen.getByRole('button', { name: 'Esteira feito' }))
+  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]).toEqual({ reps: '15 min', weightKg: 0 }))
+  expect(screen.queryByText('01:30')).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Esteira feito' })).toHaveAttribute('aria-pressed', 'true')
+})

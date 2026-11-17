@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Check, ChevronRight, Dumbbell, Moon } from 'lucide-react'
+import { Check, ChevronRight, Dumbbell, HeartPulse, Moon } from 'lucide-react'
 import { toast } from 'sonner'
 import type { SetDone, WorkoutLog, WorkoutPlan } from '../types'
 import { load, usePersisted } from '../storage/db'
@@ -7,6 +7,8 @@ import { formatDayLabel, todayKey } from '../lib/date'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/EmptyState'
 import { formatKg } from '@/lib/number'
+import { IconDot } from '@/components/IconDot'
+import { cn } from '@/lib/utils'
 import { PlanEditor } from './PlanEditor'
 import { Overlay } from '../shell/SettingsScreen'
 import { ExerciseCard } from './ExerciseCard'
@@ -17,6 +19,7 @@ import { workoutForDate } from './schedule'
 import { completeSession, setDone, setRestEnd, startSession } from './session'
 import { firstIncomplete, previousSets, sessionStats } from './stats'
 import { unlockAudio } from './restTimer'
+import { isCardio } from './cardio'
 
 const EMPTY_PLAN: WorkoutPlan = { workouts: [] }
 const EMPTY_LOG: WorkoutLog = {}
@@ -124,6 +127,13 @@ export function TreinoTab() {
     setRestTotal(restSec)
     if (view.exercises[exIdx].sets.every((d, j) => j === setIdx || d)) setOpenIdx(undefined) // completou: vai pro próximo incompleto
   }
+  // cardio não tem carga nem descanso: só marca feito
+  const toggleCardio = (exIdx: number) =>
+    setLog((prev) => {
+      const s = prev[today] ?? startSession(workout!, today)
+      const e = s.exercises[exIdx]
+      return { ...prev, [today]: setDone(s, exIdx, 0, e.sets[0] ? null : { reps: e.reps, weightKg: 0 }) }
+    })
   const edit = (exIdx: number, setIdx: number, p: Partial<SetDone>) =>
     patch((s) => {
       const cur = s.exercises[exIdx].sets[setIdx]
@@ -158,10 +168,25 @@ export function TreinoTab() {
         </div>
       </div>
 
-      {view.exercises.map((e, i) => (
+      {view.exercises.map((e, i) => !isCardio(e) && (
         <ExerciseCard key={i} ex={e} open={open === i} onToggle={() => setOpenIdx(open === i ? -1 : i)} onPreview={() => setPreview(i)}>
           <SetTable ex={e} prev={previousSets(log, today, e.exerciseId)} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} />
         </ExerciseCard>
+      ))}
+      {view.exercises.some(isCardio) && <div className={cn(LABEL, 'mt-4 mb-2')}>Cardio</div>}
+      {view.exercises.map((e, i) => isCardio(e) && (
+        <div key={i} className="mb-2.5 flex items-center gap-1.5 rounded-[14px] border border-border bg-panel py-1.5 pr-2 pl-1.5">
+          <button type="button" aria-label={`Ver ${e.name}`} onClick={() => setPreview(i)} className="flex size-11 shrink-0 items-center justify-center">
+            <IconDot color="var(--c1)" size={32}><HeartPulse size={16} aria-hidden="true" /></IconDot>
+          </button>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[15px] font-semibold break-words text-strong">{e.name}</span>
+            <span className="block text-[13px] text-text-2">{e.reps}</span>
+          </span>
+          <button type="button" aria-pressed={!!e.sets[0]} aria-label={`${e.name} feito`} onClick={() => toggleCardio(i)} className={cn('flex size-11 shrink-0 items-center justify-center rounded-xl border', e.sets[0] ? 'border-accent bg-accent text-on-accent' : 'border-border text-faint')}>
+            <Check size={18} aria-hidden="true" />
+          </button>
+        </div>
       ))}
 
       <div className="pointer-events-none fixed bottom-[calc(68px+env(safe-area-inset-bottom))] left-1/2 h-24 w-full max-w-md -translate-x-1/2 bg-linear-to-b from-transparent to-bg to-60%" />
