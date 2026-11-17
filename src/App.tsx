@@ -14,10 +14,17 @@ import { syncPreviewCache } from './workout/previews'
 import { exportBackup, backupDue } from './storage/backup'
 import { requestPersist, usePersisted } from './storage/db'
 import { todayKey } from './lib/date'
+import { useAchievementToasts } from './evolution/useAchievementToasts'
 import { DEFAULT_SETTINGS } from './types'
 
 const MAIN = 'mx-auto max-w-md px-4 pt-4 pb-[calc(96px+env(safe-area-inset-bottom))]'
 const TITLES = { evolucao: 'Evolução', dieta: 'Dieta' } as const
+
+// componente à parte: o hook só pode rodar no layout principal, depois dos retornos antecipados
+function AchievementToasts() {
+  useAchievementToasts()
+  return null
+}
 
 export default function App() {
   const [settings, setSettings, loaded] = usePersisted('settings', DEFAULT_SETTINGS)
@@ -85,6 +92,7 @@ export default function App() {
       </main>
       <BottomNav tab={tab} onChange={(lastTab) => { setShowSettings(false); setSettings((s) => ({ ...s, lastTab })) }} />
       <Toaster />
+      <AchievementToasts />
     </>
   )
 }
