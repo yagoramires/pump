@@ -29,23 +29,19 @@ export function MealCard({ meal, plan, menuId, dayFree, open, onOpen, act }: Pro
     count(meal.items.filter((i) => i.extra).length, 'extra', 'extras'),
   ].filter(Boolean).join(' · ')
 
-  // shortcut: o original da troca é achado pelo nome nos cardápios; se o cardápio mudou e o nome sumiu, não há "Desfazer"
-  const original = (i: DayItem) =>
-    plan.menus.flatMap((m) => m.meals.flatMap((ml) => ml.options.flatMap((o) => o.items))).find((o) => o.name === i.swappedFrom)
-
   const options = plan.menus.find((m) => m.id === menuId)?.meals.find((m) => m.id === meal.id)?.options ?? []
   const optName = (name: string | undefined, i: number) => name || `Opção ${'ABCD'[i]}`
   const current = meal.swappedMeal ?? optName(options[0]?.name, 0)
   const groups = [
-    { label: 'Opções desta refeição', rows: options.map((o, i) => ({ id: o.id, title: optName(o.name, i), name: optName(o.name, i), items: o.items })).filter((r) => r.name !== current) },
+    { id: 'options', label: 'Opções desta refeição', rows: options.map((o, i) => ({ id: o.id, title: optName(o.name, i), name: optName(o.name, i), items: o.items })).filter((r) => r.name !== current) },
     ...plan.menus.filter((m) => m.id !== menuId).map((m) => ({
+      id: m.id,
       label: m.name,
       rows: m.meals.map((ml) => ({ id: ml.id, title: ml.name, name: `${m.name} · ${ml.name}`, items: ml.options[0]?.items ?? [] })).filter((r) => r.name !== current),
     })),
   ].filter((g) => g.rows.length)
 
   const itemRow = (i: DayItem) => {
-    const orig = i.swappedFrom ? original(i) : undefined
     const body: ReactNode = (
       <>
         {i.swappedFrom && <ArrowLeftRight size={12} className="shrink-0 text-accent" aria-hidden="true" />}
@@ -67,7 +63,7 @@ export function MealCard({ meal, plan, menuId, dayFree, open, onOpen, act }: Pro
         )}
         {i.skipped && undo('Desfazer', `Desfazer pular ${i.name}`, (d) => skipItem(d, meal.id, i.id, false))}
         {i.extra && undo('Remover', `Remover ${i.name}`, (d) => removeItem(d, meal.id, i.id))}
-        {orig && !i.skipped && undo('Desfazer', `Desfazer troca de ${i.name}`, (d) => undoSwap(d, meal.id, i.id, orig))}
+        {i.original && !i.skipped && undo('Desfazer', `Desfazer troca de ${i.name}`, (d) => undoSwap(d, meal.id, i.id))}
       </li>
     )
   }
@@ -124,7 +120,7 @@ export function MealCard({ meal, plan, menuId, dayFree, open, onOpen, act }: Pro
               <DrawerDescription className="text-[13px] text-text-2">Só hoje. O cardápio não muda.</DrawerDescription>
               {!groups.length && <p className="pt-3 text-[13px] text-text-2">Sem outras opções. Crie opções no editor do cardápio.</p>}
               {groups.map((g) => (
-                <div key={g.label}>
+                <div key={g.id}>
                   <h3 className={LABEL}>{g.label}</h3>
                   <ul aria-label={g.label} className="overflow-hidden rounded-[14px] border border-border bg-surface">
                     {g.rows.map((r) => (

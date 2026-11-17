@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { addCup, cupsShown, removeCup, waterDefaults, waterMet } from './water'
+import { addCup, cupsShown, removeCup, turnWaterOn, waterDefaults, waterMet } from './water'
 
 const s = { enabled: true, goalMl: 2500, cupMl: 250 }
 
@@ -27,4 +27,9 @@ test('waterMet: ml ≥ goalMl > 0', () => {
   expect(waterMet({ ml: 100, goalMl: 2500 })).toBe(false)
   expect(waterMet({ ml: 0, goalMl: 0 })).toBe(false)
   expect(waterMet(undefined)).toBe(false)
+})
+
+test('turnWaterOn: religa o que estava salvo; na primeira vez usa a meta do peso', () => {
+  expect(turnWaterOn(undefined, 80)).toEqual({ enabled: true, goalMl: 2750, cupMl: 250 })
+  expect(turnWaterOn({ enabled: false, goalMl: 3000, cupMl: 300 }, 80)).toEqual({ enabled: true, goalMl: 3000, cupMl: 300 })
 })

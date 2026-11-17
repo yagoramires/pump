@@ -15,7 +15,7 @@ import { PlanImport } from '../workout/PlanImport'
 import { ProfileForm } from '../onboarding/Onboarding'
 import { DietEditor } from '../diet/DietEditor'
 import { DietImport } from '../diet/DietImport'
-import { waterDefaults } from '../diet/water'
+import { turnWaterOn } from '../diet/water'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
@@ -54,8 +54,7 @@ function WaterForm({ water, ready, weightKg, setSettings }: { water?: WaterSetti
   const [draft, setDraft] = useState(() => ({ goalMl: String(water?.goalMl ?? ''), cupMl: String(water?.cupMl ?? '') }))
   const toggle = () =>
     setSettings((s) => {
-      const w = s.water ?? waterDefaults(weightKg)
-      const next = { ...w, enabled: !s.water?.enabled }
+      const next = s.water?.enabled ? { ...s.water, enabled: false } : turnWaterOn(s.water, weightKg)
       setDraft({ goalMl: String(next.goalMl), cupMl: String(next.cupMl) })
       return { ...s, water: next }
     })
@@ -82,15 +81,12 @@ function WaterForm({ water, ready, weightKg, setSettings }: { water?: WaterSetti
   return (
     <div className="mt-3 flex flex-col gap-4">
       <Group>
-        <div className="flex min-h-14 items-center gap-3 px-3.5 py-2">
-          <span id="water-switch" className="flex-1 text-[15px] font-semibold text-strong">Contador de água</span>
-          <button
-            type="button" role="switch" aria-checked={on} aria-labelledby="water-switch" disabled={!ready} onClick={toggle}
-            className={cn('relative h-8 w-13 shrink-0 rounded-full border transition-colors disabled:opacity-40', on ? 'border-accent bg-accent' : 'border-border bg-surface')}
-          >
+        <button type="button" role="switch" aria-checked={on} disabled={!ready} onClick={toggle} className="flex min-h-14 w-full items-center gap-3 px-3.5 py-2 text-left disabled:opacity-40">
+          <span className="flex-1 text-[15px] font-semibold text-strong">Contador de água</span>
+          <span aria-hidden="true" className={cn('relative h-8 w-13 shrink-0 rounded-full border transition-colors', on ? 'border-accent bg-accent' : 'border-border bg-surface')}>
             <span className={cn('absolute top-0.5 left-0.5 size-6 rounded-full transition-transform', on ? 'translate-x-5 bg-on-accent' : 'bg-text-2')} />
-          </button>
-        </div>
+          </span>
+        </button>
       </Group>
       {on && (
         <div className="grid grid-cols-2 gap-3">
@@ -98,7 +94,7 @@ function WaterForm({ water, ready, weightKg, setSettings }: { water?: WaterSetti
           {field('cupMl', 'Copo (ml)')}
         </div>
       )}
-      <p className="text-[13px] text-text-2">Ao ligar, a meta é 35 ml por kg do seu peso. Os copos aparecem na aba Dieta.</p>
+      <p className="text-[13px] text-text-2">Na primeira vez, a meta é 35 ml por kg do seu peso. Os copos aparecem na aba Dieta.</p>
     </div>
   )
 }

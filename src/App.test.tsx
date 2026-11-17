@@ -60,6 +60,8 @@ test('Configurações: grupo DIETA abre cardápio, IA e a tela da água', async 
   await waitFor(async () => expect((await load('settings'))?.water?.cupMl).toBe(300))
   await user.click(screen.getByRole('switch', { name: 'Contador de água' }))
   await waitFor(async () => expect((await load('settings'))?.water).toEqual({ enabled: false, goalMl: 3000, cupMl: 300 }))
+  await user.click(screen.getByRole('switch', { name: 'Contador de água' })) // religar mantém o que a pessoa ajustou
+  await waitFor(async () => expect((await load('settings'))?.water).toEqual({ enabled: true, goalMl: 3000, cupMl: 300 }))
   vi.unstubAllGlobals()
 })
 test('dados ilegíveis: tela de erro em vez da montagem, sem gravar nada', async () => {

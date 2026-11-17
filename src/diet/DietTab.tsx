@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { formatDec } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { currentMenu, dayFromMenu, daySummary, ensureDay, setDayFree, setDayMenu, sortedMeals, touched } from './day'
-import { addCup, removeCup, waterDefaults } from './water'
+import { addCup, removeCup, turnWaterOn } from './water'
 import { DietEditor } from './DietEditor'
 import { DietImport } from './DietImport'
 import { MealCard } from './MealCard'
@@ -93,6 +93,11 @@ export function DietTab() {
     </div>
   )
   const waterOn = settings.water?.enabled ? settings.water : undefined
+  const waterAct = (f: typeof addCup) => {
+    const date = todayKey()
+    setToday(date)
+    setWater((w) => f(w, date, waterOn!))
+  }
 
   return (
     <div className="pb-6">
@@ -137,13 +142,13 @@ export function DietTab() {
       {waterOn ? (
         <WaterCard
           ml={water[today]?.ml ?? 0} settings={waterOn}
-          onAdd={() => setWater((w) => addCup(w, todayKey(), waterOn))}
-          onRemove={() => setWater((w) => removeCup(w, todayKey(), waterOn))}
+          onAdd={() => waterAct(addCup)}
+          onRemove={() => waterAct(removeCup)}
         />
       ) : (
         <Button
           variant="ghost" className="mb-2.5 h-11 w-full text-accent" disabled={!profileLoaded}
-          onClick={() => setSettings((st) => ({ ...st, water: waterDefaults(profile.weightKg) }))}
+          onClick={() => setSettings((st) => ({ ...st, water: turnWaterOn(st.water, profile.weightKg) }))}
         >
           Ligar contador de água
         </Button>

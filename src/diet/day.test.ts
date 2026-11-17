@@ -101,8 +101,23 @@ describe('day', () => {
     expect(d.meals[0].items).toHaveLength(2)
     expect(d.meals[0].items[0]).toMatchObject({ id: 's2', swappedFrom: 'Pão' })
     expect(daySummary(d).swaps).toBe(1)
-    d = undoSwap(d, 'm1', 's2', original)
+    expect(d.meals[0].items[0].original).toEqual(original)
+    d = undoSwap(d, 'm1', 's2')
     expect(d.meals[0].items[0]).toEqual(original)
+  })
+
+  test('desfazer troca volta o item exato, mesmo com nome repetido em outra quantidade', () => {
+    const menu: Menu = { id: 'R', name: 'R', meals: [
+      meal('a', 'Almoço', '12:00', [it('r1', 'Arroz', 130, 150)]),
+      meal('j', 'Jantar', '19:00', [it('r2', 'Arroz', 130, 100)]),
+    ] }
+    let d = skipItem(dayFromMenu(menu), 'j', 'r2', true)
+    d = swapItem(d, 'j', 'r2', it('s1', 'Batata', 80, 200))
+    expect(d.meals[1].items[0].original).toEqual(menu.meals[1].options[0].items[0]) // sem skipped
+    d = swapItem(d, 'j', 's1', it('s2', 'Cuscuz', 110, 120))
+    d = undoSwap(d, 'j', 's2')
+    expect(d.meals[1].items[0]).toEqual({ id: 'r2', name: 'Arroz', grams: 100, per100: { kcal: 130, p: 10, c: 20, f: 5 }, source: 'custom' })
+    expect(undoSwap(d, 'j', 'r2')).toEqual(d) // sem original: nada muda
   })
 
   test('removeItem desfaz extra; id desconhecido devolve igual', () => {

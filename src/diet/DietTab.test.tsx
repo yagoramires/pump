@@ -144,6 +144,20 @@ test('virada da meia-noite: ação depois da meia-noite vai pro dia novo', async
   expect((await load('dietLog'))?.[TODAY]).toEqual(yesterday)
 })
 
+test('virada da meia-noite sem visibilitychange: o toque já grava no dia novo', async () => {
+  vi.setSystemTime(new Date(2026, 10, 18, 23, 59))
+  await save('dietPlan', plan)
+  resetStoreForTests()
+  const user = userEvent.setup()
+  render(<DietTab />)
+  const almoco = await screen.findByRole('button', { name: 'Marcar Almoço' })
+  vi.setSystemTime(new Date(2026, 10, 19, 0, 1))
+  await user.click(almoco)
+  await waitFor(async () => expect((await load('dietLog'))?.['2026-11-19'].meals.find((m) => m.id === 'm2')?.done).toBe(true))
+  expect((await load('dietLog'))?.[TODAY]).toBeUndefined()
+  expect(await screen.findByText('QUI, 19 NOV', { exact: false })).toBeInTheDocument()
+})
+
 test('trocar refeição pela opção B', async () => {
   await save('dietPlan', plan)
   resetStoreForTests()

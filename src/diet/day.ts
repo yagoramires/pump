@@ -31,16 +31,17 @@ const mapItem = (d: DietDay, mealId: string, itemId: string, f: (i: DayItem) => 
   mapMeal(d, mealId, (m) => (m.items.some((i) => i.id === itemId) ? { ...m, items: m.items.map((i) => (i.id === itemId ? f(i) : i)) } : m))
 
 export const toggleMeal = (d: DietDay, mealId: string): DietDay => mapMeal(d, mealId, (m) => ({ ...m, done: !m.done }))
+const stripDayFields = ({ skipped: _s, swappedFrom: _w, extra: _e, original: _o, ...item }: DayItem): DietItem => item
 export const swapItem = (d: DietDay, mealId: string, itemId: string, next: DietItem): DietDay =>
-  mapItem(d, mealId, itemId, (i) => ({ ...next, swappedFrom: i.swappedFrom ?? i.name }))
+  mapItem(d, mealId, itemId, (i) => ({ ...next, swappedFrom: i.swappedFrom ?? i.name, original: i.original ?? stripDayFields(i) }))
 export const skipItem = (d: DietDay, mealId: string, itemId: string, skipped: boolean): DietDay =>
   mapItem(d, mealId, itemId, (i) => ({ ...i, skipped }))
 export const addExtra = (d: DietDay, mealId: string, item: DietItem): DietDay =>
   mapMeal(d, mealId, (m) => ({ ...m, items: [...m.items, { ...item, extra: true }] }))
 export const removeItem = (d: DietDay, mealId: string, itemId: string): DietDay =>
   mapMeal(d, mealId, (m) => (m.items.some((i) => i.id === itemId) ? { ...m, items: m.items.filter((i) => i.id !== itemId) } : m))
-export const undoSwap = (d: DietDay, mealId: string, itemId: string, original: DietItem): DietDay =>
-  mapItem(d, mealId, itemId, () => ({ ...original }))
+export const undoSwap = (d: DietDay, mealId: string, itemId: string): DietDay =>
+  mapItem(d, mealId, itemId, (i) => (i.original ? { ...i.original } : i))
 // extras ficam: já foram comidos e contam na hora em que entram
 export const swapMeal = (d: DietDay, mealId: string, source: { name: string; items: DietItem[] }): DietDay =>
   mapMeal(d, mealId, (m) => ({ ...m, swappedMeal: source.name, items: [...structuredClone(source.items), ...m.items.filter((i) => i.extra)] }))

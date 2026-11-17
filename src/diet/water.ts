@@ -6,6 +6,9 @@ export const waterDefaults = (weightKg: number): WaterSettings => ({
   cupMl: 250,
 })
 
+/** ligar: volta a configuração salva; na primeira vez, a meta do peso */
+export const turnWaterOn = (w: WaterSettings | undefined, weightKg: number): WaterSettings => (w ? { ...w, enabled: true } : waterDefaults(weightKg))
+
 const bump = (log: WaterLog, date: string, s: WaterSettings, delta: number): WaterLog => ({
   ...log,
   [date]: { ml: Math.max(0, (log[date]?.ml ?? 0) + delta), goalMl: s.goalMl },
