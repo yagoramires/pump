@@ -1,0 +1,33 @@
+import type { DietItem, TacoFood } from '../types'
+
+/** Diferente do `normalize` do catálogo de exercícios: aqui pontuação vira espaço e a comparação é por palavras. */
+export const foodKey = (s: string): string =>
+  s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+
+// só conectivos; "com", "sem", "cru", "cozido" mudam o alimento
+const IGNORED = new Set(['de', 'da', 'do', 'e'])
+
+export function matchFood(
+  name: string,
+  grams: number,
+  aiKcal: number | undefined,
+  taco: TacoFood[],
+  customs: DietItem[],
+): { kind: 'custom'; item: DietItem } | { kind: 'exact' | 'words'; food: TacoFood } | null {
+  const key = foodKey(name)
+  const item = customs.find((c) => c.source === 'custom' && foodKey(c.name) === key)
+  if (item) return { kind: 'custom', item }
+  const exact = taco.find((f) => foodKey(f.name) === key)
+  if (exact) return { kind: 'exact', food: exact }
+
+  const words = key.split(' ').filter((w) => w && !IGNORED.has(w))
+  if (!words.length) return null
+  const food = taco
+    .filter((f) => {
+      const has = new Set(foodKey(f.name).split(' '))
+      return words.every((w) => has.has(w))
+    })
+    .sort((a, b) => a.name.length - b.name.length || a.name.localeCompare(b.name, 'pt-BR'))
+    .find((f) => aiKcal === undefined || Math.abs((f.kcal * grams) / 100 - aiKcal) <= aiKcal * 0.35)
+  return food ? { kind: 'words', food } : null
+}

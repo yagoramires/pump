@@ -69,7 +69,9 @@ test('exportar e reimportar devolve o mesmo plano (fora os ids)', () => {
   expect(noId(again.plan)).toEqual(noId(r.plan))
   expect(again.unmatched).toEqual([])
 })
-test('dieta presente é ignorada com aviso nesta fase', () =>
+test('arquivo só com dieta no import de treino dá a mensagem da aba Dieta', () =>
+  expect(() => parsePlanFormat('{"formato":"pump-plano","versao":1,"dieta":{"refeicoes":[]}}')).toThrow('Este arquivo só tem dieta. Importe na aba Dieta.'))
+test('dieta junto com treinos gera o aviso da aba Dieta', () =>
   expect(planFromFormat({ ...parsePlanFormat(JSON.stringify(ok)), dieta: {} }, catalog, []).ignoredDiet).toBe(true))
 test('prompt leva perfil e anamnese; sem dados manda a IA perguntar', () => {
   const p = buildPrompt({ sex: 'F', heightCm: 165, weightKg: 62.5, anamnesis: { goal: 'emagrecer', level: 'iniciante', place: 'casa', daysPerWeek: 3, split: 'ppl', extras: ['cardio', 'abdomen'], weak: ['peito', 'panturrilha'], age: 34, minutes: 45, notes: ' joelho ' } })

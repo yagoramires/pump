@@ -134,7 +134,7 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
           </div>
         </div>
       )}
-      {review?.ignoredDiet && <p className="text-[13px] text-text-2">A parte de dieta foi ignorada (chega na próxima versão)</p>}
+      {review?.ignoredDiet && <p className="text-[13px] text-text-2">A dieta deste arquivo pode ser importada na aba Dieta</p>}
       <p className="text-[13px] text-text-2">Ou ajuste seu plano atual: <button type="button" className="min-h-11 font-semibold text-accent disabled:opacity-50" disabled={!ready} onClick={() => copy(JSON.stringify(exportPlanFormat(plan), null, 2), 'Plano copiado.')}>copiar meu plano</button></p>
       <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <Button type="button" className="w-full" disabled={!review} onClick={() => setEditing(true)}>Revisar plano</Button>

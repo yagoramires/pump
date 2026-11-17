@@ -22,7 +22,7 @@ type Obj = Record<string, unknown>
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v)
 const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
 
-function extractJson(text: string): unknown {
+export function extractJson(text: string): unknown {
   const fence = text.match(/```[^\n`]*\n?([\s\S]*?)```/)
   const body = fence ? fence[1] : text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1)
   try {
@@ -35,6 +35,7 @@ function extractJson(text: string): unknown {
 export function parsePlanFormat(text: string): PumpPlanoFile {
   const raw = extractJson(text)
   if (!isObj(raw)) throw new PlanFormatError(['Não encontrei um plano em JSON no texto'])
+  if (raw.dieta !== undefined && raw.treinos === undefined) throw new PlanFormatError(['Este arquivo só tem dieta. Importe na aba Dieta.'])
   const problems: string[] = []
   if (raw.formato !== 'pump-plano') problems.push('"formato" precisa ser "pump-plano"')
   if (raw.versao !== 1) problems.push(`Versão ${String(raw.versao)} não suportada (este app lê a versão 1)`)
@@ -142,7 +143,7 @@ export function exportPlanFormat(plan: WorkoutPlan): PumpPlanoFile {
   }
 }
 
-const GOALS: Record<Goal, string> = { hipertrofia: 'ganhar massa muscular', emagrecer: 'emagrecer', forca: 'ganhar força', saude: 'saúde e condicionamento' }
+export const GOALS: Record<Goal, string> = { hipertrofia: 'ganhar massa muscular', emagrecer: 'emagrecer', forca: 'ganhar força', saude: 'saúde e condicionamento' }
 const LEVELS: Record<Level, string> = { iniciante: 'iniciante', intermediario: 'intermediário', avancado: 'avançado' }
 const PLACES: Record<Place, string> = { academia: 'academia completa', casa: 'em casa, com pouco equipamento' }
 const SPLITS: Record<Split, string> = { fullbody: 'full body (corpo todo em cada treino)', ab: 'AB (superiores e inferiores)', abc: 'ABC', abcd: 'ABCD', abcde: 'ABCDE', ppl: 'push/pull/legs (empurrar, puxar, pernas)' }
@@ -150,28 +151,36 @@ const MUSCLES: Record<Muscle, string> = { peito: 'peito', costas: 'costas', ombr
 const EXTRAS: Record<Extra, string> = { cardio: 'cardio', abdomen: 'abdômen', mobilidade: 'mobilidade/alongamento' }
 
 // backup importado não valida a anamnese: aceita só lista e só valores conhecidos
-const names = <T extends string>(v: unknown, labels: Record<T, string>) =>
+export const names = <T extends string>(v: unknown, labels: Record<T, string>) =>
   Array.isArray(v) ? v.map((x) => labels[x as T]).filter(Boolean).join(', ') : ''
+
+export function profileLines(p?: Profile): string[] {
+  return [
+    // heightCm > 0 = perfil preenchido; sem ele o sexo é só o valor padrão
+    p?.heightCm ? `Sexo: ${p.sex === 'F' ? 'feminino' : 'masculino'}` : '',
+    p?.anamnesis?.age ? `Idade: ${p.anamnesis.age} anos` : '',
+    p?.heightCm ? `Altura: ${p.heightCm} cm` : '',
+    p?.weightKg ? `Peso: ${formatKg(p.weightKg)} kg` : '',
+  ].filter(Boolean).map((l) => `- ${l}`)
+}
 
 function aboutMe(p?: Profile): string[] {
   const a = p?.anamnesis ?? {}
   return [
-    // heightCm > 0 = perfil preenchido; sem ele o sexo é só o valor padrão
-    p?.heightCm ? `Sexo: ${p.sex === 'F' ? 'feminino' : 'masculino'}` : '',
-    a.age ? `Idade: ${a.age} anos` : '',
-    p?.heightCm ? `Altura: ${p.heightCm} cm` : '',
-    p?.weightKg ? `Peso: ${formatKg(p.weightKg)} kg` : '',
-    // backup importado não valida a anamnese: valor desconhecido viraria "undefined" no prompt
-    a.goal && GOALS[a.goal] ? `Objetivo: ${GOALS[a.goal]}` : '',
-    a.level && LEVELS[a.level] ? `Nível: ${LEVELS[a.level]}` : '',
-    a.place && PLACES[a.place] ? `Onde treino: ${PLACES[a.place]}` : '',
-    a.daysPerWeek ? `Dias por semana: ${a.daysPerWeek}` : '',
-    a.split && SPLITS[a.split] ? `Divisão preferida: ${SPLITS[a.split]}` : '',
-    names(a.extras, EXTRAS) && `Incluir também: ${names(a.extras, EXTRAS)}`,
-    names(a.weak, MUSCLES) && `Pontos fracos (quero priorizar): ${names(a.weak, MUSCLES)}`,
-    a.minutes ? `Tempo por treino: até ${a.minutes} min${a.extras?.includes('cardio') ? ', contando o cardio' : ''}` : '',
-    typeof a.notes === 'string' && a.notes.trim() ? `Lesões, limitações ou preferências: ${a.notes.trim()}` : '',
-  ].filter(Boolean).map((l) => `- ${l}`)
+    ...profileLines(p),
+    ...[
+      // backup importado não valida a anamnese: valor desconhecido viraria "undefined" no prompt
+      a.goal && GOALS[a.goal] ? `Objetivo: ${GOALS[a.goal]}` : '',
+      a.level && LEVELS[a.level] ? `Nível: ${LEVELS[a.level]}` : '',
+      a.place && PLACES[a.place] ? `Onde treino: ${PLACES[a.place]}` : '',
+      a.daysPerWeek ? `Dias por semana: ${a.daysPerWeek}` : '',
+      a.split && SPLITS[a.split] ? `Divisão preferida: ${SPLITS[a.split]}` : '',
+      names(a.extras, EXTRAS) && `Incluir também: ${names(a.extras, EXTRAS)}`,
+      names(a.weak, MUSCLES) && `Pontos fracos (quero priorizar): ${names(a.weak, MUSCLES)}`,
+      a.minutes ? `Tempo por treino: até ${a.minutes} min${a.extras?.includes('cardio') ? ', contando o cardio' : ''}` : '',
+      typeof a.notes === 'string' && a.notes.trim() ? `Lesões, limitações ou preferências: ${a.notes.trim()}` : '',
+    ].filter(Boolean).map((l) => `- ${l}`),
+  ]
 }
 
 export const buildPrompt = (profile?: Profile): string => {
