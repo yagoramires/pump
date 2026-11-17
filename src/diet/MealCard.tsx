@@ -6,7 +6,7 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/compone
 import { formatDec } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { FoodPicker } from './FoodPicker'
-import { addExtra, itemKcal, removeItem, setMealFree, skipItem, swapItem, swapMeal, toggleMeal, undoSwap } from './day'
+import { addExtra, iaLabel, itemKcal, removeItem, setMealFree, skipItem, swapItem, swapMeal, toggleMeal, undoSwap } from './day'
 
 export type Act = (f: (d: DietDay) => DietDay) => void
 type Props = { meal: DayMeal; plan: DietPlan; menuId: string; dayFree: boolean; open: boolean; onOpen: () => void; act: Act }
@@ -49,6 +49,7 @@ export function MealCard({ meal, plan, menuId, dayFree, open, onOpen, act }: Pro
         <span className="min-w-0 flex-1 py-1.5">
           <span className={cn('block truncate text-sm', i.skipped ? 'text-faint line-through' : i.swappedFrom ? 'text-accent' : 'text-text')}>{i.name}</span>
           <span className="block truncate text-[12.5px] text-faint">{i.portion ?? `${formatDec(i.grams)} g`}</span>
+          {iaLabel(i) && <span className="block text-[12px] text-c7">{iaLabel(i)}</span>}
         </span>
         <span className="w-10 shrink-0 text-right text-[12.5px] tabular-nums text-text-2">{Math.round(itemKcal(i))}</span>
       </>

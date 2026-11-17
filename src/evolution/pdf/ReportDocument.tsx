@@ -225,7 +225,7 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
           <View style={[s.grid, { marginTop: 9 }]}>
             <Big label="Média de kcal" value={dt.avgKcal ? formatDec(dt.avgKcal) : '—'} unit={dt.avgKcal && dt.avgGoal ? `/ ${formatDec(dt.avgGoal)}` : undefined} size={44} />
             <Big label="Dias no plano" value={String(dt.fullDays)} unit={`de ${dt.days}`} size={44} />
-            {dt.waterDays > 0 && <Big label="Água na meta" value={String(dt.waterDays)} unit={`de ${dt.days}`} size={44} />}
+            {dt.waterDays !== undefined && <Big label="Água na meta" value={String(dt.waterDays)} unit={`de ${dt.days}`} size={44} />}
             <Big label="Livres" value={String(dt.freeUses)} size={44} />
           </View>
           <Badges list={dt.achievements} />

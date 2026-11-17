@@ -62,3 +62,9 @@ test('report.diet: média, dias no plano e período começando no 1º dia de die
   expect(r.diet).toEqual({ avgKcal: 300, avgGoal: 1900, fullDays: 1, waterDays: 1, freeUses: 1, days: 13, achievements: [{ title: 'Dia no plano', earnedAt: '2026-12-01' }] })
   expect(r.training.achievements.map((a) => a.title)).not.toContain('Dia no plano')
 })
+
+test('report.diet.waterDays: 0 com registro de água no período, undefined sem registro', () => {
+  const base = { workoutLog: {}, workoutPlan: { workouts: [] }, measurements: [], photoSets: [], dietLog: { '2026-12-01': dietDay([true, true]) } }
+  expect(buildReport({ ...base, waterLog: { '2026-12-01': { ml: 500, goalMl: 2000 } } }, '2026-12-12').diet?.waterDays).toBe(0)
+  expect(buildReport(base, '2026-12-12').diet?.waterDays).toBeUndefined()
+})

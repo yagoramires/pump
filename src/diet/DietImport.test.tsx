@@ -123,3 +123,14 @@ test('substituir cardápio pede confirmação e preserva o que foi marcado hoje'
   expect(plan.lastMenuId).toBe(plan.menus[0].id)
   expect(await get('dietLog')).toEqual(log)
 })
+
+test('enquanto a TACO carrega mostra "Conferindo na TACO…"', async () => {
+  let resolve!: (t: TacoFood[]) => void
+  vi.mocked(fetchTaco).mockReturnValue(new Promise((r) => { resolve = r }))
+  render(<DietImport mode="import" onDone={vi.fn()} onBack={vi.fn()} />)
+  await paste(json([PAO]))
+  expect(await screen.findByRole('status')).toHaveTextContent('Conferindo na TACO…')
+  resolve(TACO)
+  expect(await screen.findByRole('heading', { name: 'Revisar cardápio' })).toBeInTheDocument()
+  expect(screen.queryByText('Conferindo na TACO…')).not.toBeInTheDocument()
+})

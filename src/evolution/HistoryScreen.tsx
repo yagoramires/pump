@@ -116,7 +116,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
             {Array.from({ length: month.getDay() }, (_, i) => <span key={`x${i}`} />)}
             {keys.map((k, i) => {
               const trained = !!log[k]?.completedAt
-              const dot = measures.some((x) => x.date === k) || sets.some((x) => x.date === k) || (!!diet[k] && touched(diet[k])) || (water[k]?.ml ?? 0) > 0
+              const dot = !!log[k]?.rest || measures.some((x) => x.date === k) || sets.some((x) => x.date === k) || (!!diet[k] && touched(diet[k])) || (water[k]?.ml ?? 0) > 0
               return (
                 <button
                   key={k}

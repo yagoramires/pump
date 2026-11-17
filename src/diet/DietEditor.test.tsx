@@ -156,3 +156,38 @@ test('DietEditor trava novos cardápios no limite do formato', async () => {
   expect(await screen.findByRole('button', { name: 'Novo cardápio' })).toBeDisabled()
   expect(screen.getByRole('button', { name: 'Duplicar cardápio' })).toBeDisabled()
 })
+
+test('DietEditor recusa meta de macro acima de 600 g', async () => {
+  const onDone = vi.fn()
+  const user = userEvent.setup()
+  render(<DietEditor initial={plan()} onDone={onDone} onCancel={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: 'Dia de treino' }))
+  await user.type(screen.getByRole('textbox', { name: 'Meta de proteína em g' }), '700')
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  expect(screen.getByRole('alert')).toHaveTextContent('Dia de treino: macros fora da faixa (0 a 600 g)')
+  expect(onDone).not.toHaveBeenCalled()
+})
+
+test('DietEditor com confirmReplace pede confirmação antes de substituir o cardápio salvo', async () => {
+  await save('dietPlan', { menus: [{ id: 'X', name: 'Antigo', meals: [] }], lastMenuId: 'X' })
+  resetStoreForTests()
+  const onDone = vi.fn()
+  const user = userEvent.setup()
+  render(<DietEditor initial={plan()} confirmReplace onDone={onDone} onCancel={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: 'Salvar' }))
+  expect(await screen.findByRole('alertdialog')).toHaveTextContent('O cardápio atual será substituído. O que você já marcou hoje continua.')
+  expect((await load('dietPlan'))?.menus[0].id).toBe('X')
+  expect(onDone).not.toHaveBeenCalled()
+  await user.click(screen.getByRole('button', { name: 'Substituir' }))
+  await waitFor(() => expect(onDone).toHaveBeenCalled())
+  expect((await load('dietPlan'))?.menus.map((m) => m.id)).toEqual(['A', 'B'])
+})
+
+test('DietEditor com confirmReplace e nada salvo salva direto', async () => {
+  const onDone = vi.fn()
+  const user = userEvent.setup()
+  render(<DietEditor initial={plan()} confirmReplace onDone={onDone} onCancel={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: 'Salvar' }))
+  await waitFor(() => expect(onDone).toHaveBeenCalled())
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+})

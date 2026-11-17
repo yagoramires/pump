@@ -3,7 +3,7 @@ import { ArrowDown, ArrowUp, ChevronLeft, Copy, Plus, Share2, Trash2 } from 'luc
 import type { DietItem, DietLog, DietPlan, Macros, Meal, MealOption, Menu } from '../types'
 import { EMPTY_DIET } from '../types'
 import { usePersisted } from '../storage/db'
-import { currentMenu, ensureDay, itemKcal, sortedMeals } from './day'
+import { currentMenu, ensureDay, iaLabel, itemKcal, sortedMeals } from './day'
 import { exportDietFormat, HHMM } from './dietFormat'
 import { FoodPicker } from './FoodPicker'
 import { Button } from '@/components/ui/button'
@@ -15,7 +15,8 @@ import { todayKey } from '@/lib/date'
 import { parseDecimal } from '@/lib/number'
 import { cn } from '@/lib/utils'
 
-type Props = { initial?: DietPlan; onDone: () => void; onCancel: () => void }
+/** `confirmReplace`: pede confirmação antes de salvar por cima de cardápios já salvos (vindo da importação) */
+type Props = { initial?: DietPlan; confirmReplace?: boolean; onDone: () => void; onCancel: () => void }
 type Setter<T> = (v: T | ((prev: T) => T)) => void
 
 const NO_LOG: DietLog = {}
@@ -24,6 +25,7 @@ const LABEL = 'text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
 const CONFIRM = {
   menu: { title: 'Apagar este cardápio?', text: 'As refeições dele saem do editor. O histórico fica.' },
   all: { title: 'Apagar todos os cardápios?', text: 'A aba Dieta volta ao convite. O histórico fica.' },
+  replace: { title: 'Substituir cardápio?', text: 'O cardápio atual será substituído. O que você já marcou hoje continua.' },
 }
 
 const uuid = () => crypto.randomUUID()
@@ -45,6 +47,7 @@ const problemOf = (plan: DietPlan): { menuId: string; text: string } | undefined
       : m.meals.some((ml) => !ml.name.trim() || !HHMM.test(ml.time)) ? `${n}: preencha nome e horário (HH:MM) de cada refeição`
       : m.meals.some((ml) => ml.options.some((o) => !o.items.length)) ? `${n}: cada opção precisa de ao menos 1 alimento`
       : m.goalKcal !== undefined && (m.goalKcal < 800 || m.goalKcal > 6000) ? `${n}: meta fora da faixa (800 a 6000 kcal)`
+      : m.goalMacros && Object.values(m.goalMacros).some((g) => g < 0 || g > 600) ? `${n}: macros fora da faixa (0 a 600 g)`
       : ''
     if (text) return { menuId: m.id, text }
   }
@@ -93,10 +96,10 @@ export function DietEditor(props: Props) {
   const [saved, savePlan, loaded] = usePersisted('dietPlan', EMPTY_DIET)
   const [, setLog, logLoaded] = usePersisted('dietLog', NO_LOG)
   if (!loaded || !logLoaded) return <p className="p-4 text-sm text-text-2">Carregando…</p>
-  return <DietForm {...props} start={props.initial ?? saved} savePlan={savePlan} setLog={setLog} />
+  return <DietForm {...props} start={props.initial ?? saved} replacing={!!props.confirmReplace && saved.menus.length > 0} savePlan={savePlan} setLog={setLog} />
 }
 
-function DietForm({ start, onDone, onCancel, savePlan, setLog }: Props & { start: DietPlan; savePlan: Setter<DietPlan>; setLog: Setter<DietLog> }) {
+function DietForm({ start, replacing, onDone, onCancel, savePlan, setLog }: Props & { start: DietPlan; replacing: boolean; savePlan: Setter<DietPlan>; setLog: Setter<DietLog> }) {
   const [plan, setPlan] = useState<DietPlan>(() => (start.menus.length ? structuredClone(start) : { menus: [newMenu(1)] }))
   const [menuId, setMenuId] = useState(() => currentMenu(plan)!.id)
   const [optOf, setOptOf] = useState<Record<string, number>>({}) // aba de opção aberta em cada refeição
@@ -132,12 +135,13 @@ function DietForm({ start, onDone, onCancel, savePlan, setLog }: Props & { start
     setOptOf((o) => ({ ...o, [meal.id]: Math.max(0, oi - 1) }))
   }
 
-  const save = () => {
+  const save = (sure = false) => {
     const problem = problemOf(plan)
     if (problem) {
       setError(problem.text)
       return setMenuId(problem.menuId) // mostra o cardápio com o problema
     }
+    if (replacing && !sure) return setConfirm('replace')
     const lastMenuId = plan.menus.some((m) => m.id === plan.lastMenuId) ? plan.lastMenuId : plan.menus[0].id
     const next: DietPlan = { ...tidyPlan(plan), lastMenuId }
     savePlan(() => next)
@@ -154,6 +158,7 @@ function DietForm({ start, onDone, onCancel, savePlan, setLog }: Props & { start
   }
   const confirmed = () => {
     if (confirm === 'menu') return removeMenu()
+    if (confirm === 'replace') return save(true)
     savePlan(() => EMPTY_DIET)
     onDone()
   }
@@ -165,7 +170,7 @@ function DietForm({ start, onDone, onCancel, savePlan, setLog }: Props & { start
       <header className="flex items-center gap-3 py-2">
         <button type="button" className="icon-btn" aria-label="Cancelar" onClick={onCancel}><ChevronLeft size={18} /></button>
         <h1 className="flex-1 text-[19px] font-semibold text-strong">Cardápio</h1>
-        <Button size="sm" onClick={save}>Salvar</Button>
+        <Button size="sm" onClick={() => save()}>Salvar</Button>
       </header>
       {error && <p role="alert" className="rounded-xl border border-negative/30 px-3 py-2 text-[13px] text-negative">{error}</p>}
 
@@ -229,6 +234,7 @@ function DietForm({ start, onDone, onCancel, savePlan, setLog }: Props & { start
                     <span className="min-w-0 flex-1 truncate text-[14px] text-strong">{it.name}</span>
                     <span className="text-[12.5px] tabular-nums text-text-2">{Math.round(itemKcal(it))} kcal</span>
                   </div>
+                  {iaLabel(it) && <span className="text-[12px] text-c7">{iaLabel(it)}</span>}
                   <div className="flex items-center gap-1.5">
                     <Input className="min-w-0 flex-1" aria-label={`Porção de ${it.name}`} placeholder="Porção" autoComplete="off" value={it.portion ?? ''} onChange={(e) => patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, portion: e.target.value || undefined } : x)))} />
                     <NumField className="w-16 text-center" label={`Gramas de ${it.name}`} value={it.grams} onChange={(n) => n && patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, grams: clampGrams(n) } : x)))} />
@@ -269,7 +275,7 @@ function DietForm({ start, onDone, onCancel, savePlan, setLog }: Props & { start
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={confirmed}>Apagar</AlertDialogAction>
+            <AlertDialogAction variant={confirm === 'replace' ? 'default' : 'destructive'} onClick={confirmed}>{confirm === 'replace' ? 'Substituir' : 'Apagar'}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

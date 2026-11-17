@@ -110,6 +110,7 @@ export function DietTab() {
             aria-label="Cardápio de hoje" value={day.menuId} onChange={(e) => pickMenu(e.target.value)}
             className="h-11 min-w-0 flex-1 rounded-xl border border-border bg-panel px-3 text-base text-strong"
           >
+            {!plan.menus.some((m) => m.id === day.menuId) && <option value={day.menuId} disabled>{day.menuName}</option>}
             {plan.menus.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
         ) : (

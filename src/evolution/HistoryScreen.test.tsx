@@ -108,7 +108,7 @@ test('Histórico mostra Descanso no dia', async () => {
   const user = userEvent.setup()
   render(<HistoryScreen onClose={vi.fn()} />)
   const d16 = await screen.findByRole('button', { name: '16' })
-  expect(d16).not.toHaveAccessibleDescription() // sem ponto de treino
+  expect(d16).toHaveAccessibleDescription('com registro') // descanso: ponto de registro, não de treino
   expect(d16).not.toHaveClass('bg-accent-bg')
   await user.click(d16)
   expect(screen.getByText('Descanso')).toBeInTheDocument()

@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { daysBetween, todayKey } from '@/lib/date'
 import { formatDec, parseDecimal } from '@/lib/number'
 import { cn } from '@/lib/utils'
+import { iaLabel } from './day'
 
 type Props = {
   title: string
@@ -42,6 +43,7 @@ function Rows({ label, foods, selected, onSelect }: { label: string; foods: Food
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[15px] font-semibold text-strong">{f.name}</span>
                 <span className="block text-[12.5px] tabular-nums text-text-2">{Math.round(f.per100.kcal)} kcal · P {formatDec(f.per100.p)} g por 100 g</span>
+                {iaLabel(f) && <span className="block text-[12px] text-c7">{iaLabel(f)}</span>}
               </span>
               <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-full', on ? 'bg-accent text-on-accent' : 'text-accent')}>{on ? <Check size={16} /> : <Plus size={18} />}</span>
             </button>

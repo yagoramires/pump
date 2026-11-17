@@ -49,6 +49,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   const [picking, setPicking] = useState<DietItem>()
   const [confirming, setConfirming] = useState(false)
   const [editing, setEditing] = useState(false)
+  const [checking, setChecking] = useState(false)
   const instant = useRef(false) // arquivo escolhido revisa na hora; digitar espera 400 ms
   // até a pessoa mexer, a anamnese é a do perfil (só aparece depois do perfil carregar)
   const anamnesis = edited ?? profile.dietAnamnesis ?? {}
@@ -68,6 +69,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
     setText(v)
     setReview(undefined)
     setProblems([])
+    setChecking(false)
   }
 
   useEffect(() => {
@@ -82,8 +84,10 @@ export function DietImport({ mode, onDone, onBack }: Props) {
         if (!stale) setProblems(e instanceof PlanFormatError ? e.problems : ['Não encontrei um cardápio em JSON no texto'])
         return
       }
+      setChecking(true)
       const taco = await fetchTaco().catch(() => null)
       if (stale) return
+      setChecking(false)
       const r = dietFromFormat(file, taco, foods)
       const ids = allItems(r.plan)
       const info = Object.fromEntries(r.items.map((x, n) => [ids[n].id, x]))
@@ -103,7 +107,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
     onDone()
   }
 
-  if (editing && review) return <DietEditor initial={review.plan} onDone={onDone} onCancel={() => setEditing(false)} />
+  if (editing && review) return <DietEditor initial={review.plan} confirmReplace onDone={onDone} onCancel={() => setEditing(false)} />
 
   if (review) {
     const menu = review.plan.menus[tab] ?? review.plan.menus[0]
@@ -236,6 +240,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
           e.target.value = ''
         }} />
       </label>
+      {checking && <p role="status" className="text-[13px] text-text-2">Conferindo na TACO…</p>}
       {problems.length > 0 && (
         <ul role="alert" className="flex flex-col gap-1 rounded-[14px] border border-border bg-panel p-3.5 text-[13px] text-negative">
           {problems.map((p) => <li key={p}>{p}</li>)}

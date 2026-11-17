@@ -220,3 +220,28 @@ test('trocar cardápio com algo marcado pede confirmação', async () => {
   expect((await load('dietPlan'))?.lastMenuId).toBe('A')
   expect((await load('dietLog'))?.[TODAY].meals.every((m) => !m.done)).toBe(true)
 })
+
+test('item da IA mostra "estimativa da IA"; sem kcal mostra "sem valores"', async () => {
+  const ia = (id: string, name: string, kcal: number): DietItem => ({ ...it_(id, name, kcal), source: 'ia' })
+  await save('dietPlan', { menus: [{ id: 'A', name: 'Único', meals: [meal('m1', 'Café', '07:00', [ia('i1', 'Tapioca', 240), ia('i2', 'Chá de ervas', 0), it_('i3', 'Pão', 300)])] }], lastMenuId: 'A' })
+  resetStoreForTests()
+  const user = userEvent.setup()
+  render(<DietTab />)
+  await openCafe(user)
+  expect(screen.getByText('Tapioca').parentElement).toHaveTextContent('estimativa da IA')
+  expect(screen.getByText('Chá de ervas').parentElement).toHaveTextContent('sem valores')
+  expect(screen.getByText('Pão').parentElement).not.toHaveTextContent(/estimativa da IA|sem valores/)
+})
+
+test('cópia de hoje com cardápio que saiu do plano: o select mostra o nome e trocar funciona', async () => {
+  await save('dietPlan', plan)
+  await save('dietLog', { [TODAY]: dayFromMenu({ ...menuB, id: 'old', name: 'Antigo' }) })
+  resetStoreForTests()
+  const user = userEvent.setup()
+  render(<DietTab />)
+  const select = await screen.findByRole('combobox', { name: 'Cardápio de hoje' })
+  expect(select).toHaveDisplayValue('Antigo')
+  expect(screen.getByRole('option', { name: 'Antigo' })).toBeDisabled()
+  await user.selectOptions(select, 'A')
+  await waitFor(async () => expect((await load('dietLog'))?.[TODAY].menuId).toBe('A'))
+})

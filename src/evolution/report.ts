@@ -13,7 +13,7 @@ export interface Report {
   photoPairs: { angle: Angle; before: { date: string; id: string }; after: { date: string; id: string } }[]
   body: { weight: Pt[]; rows: { label: string; unit: string; first: number; last: number; delta: number; good: boolean }[] } | null
   training: { workouts: number; perWeek: number; topLifts: { name: string; first: number; max: number }[]; achievements: { title: string; earnedAt: string }[] }
-  diet: { avgKcal: number; avgGoal?: number; fullDays: number; waterDays: number; freeUses: number; days: number; achievements: { title: string; earnedAt: string }[] } | null
+  diet: { avgKcal: number; avgGoal?: number; fullDays: number; waterDays?: number; freeUses: number; days: number; achievements: { title: string; earnedAt: string }[] } | null
 }
 interface Input { workoutLog: WorkoutLog; workoutPlan: WorkoutPlan; measurements: Measurement[]; photoSets: PhotoSet[]; profile?: Profile; dietLog?: DietLog; waterLog?: WaterLog; dietPlan?: DietPlan }
 
@@ -86,6 +86,7 @@ export function buildReport(d: Input, today: string): Report {
     photoPairs,
     body,
     training: { workouts: sessions.length, perWeek: r1(sessions.length / weeks), topLifts, achievements: titles(false) },
-    diet: dietDays.length ? { ...dietStats(dietLog, waterLog, start, today), achievements: titles(true) } : null,
+    // waterDays some só sem registro de água no período; 0 com registro também aparece
+    diet: dietDays.length ? { ...dietStats(dietLog, waterLog, start, today), ...(!Object.keys(waterLog).some((k) => k >= start && k <= today) && { waterDays: undefined }), achievements: titles(true) } : null,
   }
 }

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import type { DietItem, DietLog, DietPlan, Meal, Menu } from '../types'
 import {
-  addExtra, currentMenu, dayFromMenu, dayStatus, daySummary, ensureDay, freeUses, isFullDay, itemKcal, itemMacros, removeItem,
+  addExtra, currentMenu, dayFromMenu, dayStatus, daySummary, ensureDay, freeUses, itemKcal, itemMacros, removeItem,
   setDayFree, setDayMenu, setMealFree, skipItem, sortedMeals, swapItem, swapMeal, toggleMeal, undoSwap,
 } from './day'
 
@@ -174,17 +174,6 @@ describe('day', () => {
     expect(out['2026-11-16']).toBe(log['2026-11-16'])
     expect(setDayMenu({}, both, 'd', 'A').d.menuName).toBe('Dia de treino')
     expect(setDayMenu(log, both, '2026-11-17', 'sumiu')).toBe(log)
-  })
-
-  test('isFullDay exige ≥ 1 refeição, todas feitas, nenhum extra e nada livre (troca e pulo valem)', () => {
-    expect(isFullDay({ menuId: 'A', menuName: 'A', meals: [] })).toBe(false)
-    expect(isFullDay(undefined)).toBe(false)
-    const d = allDone(menuA)
-    expect(isFullDay(d)).toBe(true)
-    expect(isFullDay(skipItem(swapItem(d, 'm1', 'i1', it('s', 's', 1)), 'm1', 'i2', true))).toBe(true)
-    expect(isFullDay(addExtra(d, 'm1', it('e', 'e', 1)))).toBe(false)
-    expect(isFullDay(setMealFree(d, 'm1', true))).toBe(false)
-    expect(isFullDay(setDayFree(d, true))).toBe(false)
   })
 
   test('freeUses conta os livres da semana antes da data (domingo a sábado)', () => {

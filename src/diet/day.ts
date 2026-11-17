@@ -50,6 +50,8 @@ export const setMealFree = (d: DietDay, mealId: string, free: boolean): DietDay 
 export const setDayFree = (d: DietDay, free: boolean): DietDay => ({ ...d, free })
 
 export const itemKcal = (i: DietItem) => (i.per100.kcal * i.grams) / 100
+/** aviso de origem: número da IA nunca aparece sem rótulo */
+export const iaLabel = (i: Pick<DietItem, 'source' | 'per100'>) => (i.source === 'ia' ? (i.per100.kcal ? 'estimativa da IA' : 'sem valores') : undefined)
 export const itemMacros = (i: DietItem) => ({ p: (i.per100.p * i.grams) / 100, c: (i.per100.c * i.grams) / 100, f: (i.per100.f * i.grams) / 100 })
 
 const r1 = (n: number) => Math.round(n * 10) / 10
@@ -70,13 +72,6 @@ export const daySummary = (day: DietDay) => {
     mealsDone: day.meals.filter((m) => m.done).length, mealsTotal: day.meals.length,
     swaps, extras, skipped, free: day.meals.filter((m) => m.free).length, dayFree: !!day.free,
   }
-}
-
-/** dia 100% sem contar a folga semanal (ver dayStatus) */
-export const isFullDay = (day?: DietDay): boolean => {
-  if (!day || !day.meals.length || day.free) return false
-  const s = daySummary(day)
-  return s.mealsDone === s.mealsTotal && s.extras === 0 && s.free === 0
 }
 
 /** usos de "livre" na semana (domingo a sábado) de `date`, antes dele; dia livre vale 1, senão cada refeição livre vale 1 */
@@ -105,11 +100,11 @@ export function dietStats(log: DietLog, water: WaterLog, from: string, to: strin
   const inRange = (k: string) => k >= start && k <= to
   const kcal: number[] = []
   const goals: number[] = []
-  let fullDays = 0, freeUses = 0
+  let fullDays = 0, frees = 0
   for (const [k, day] of Object.entries(log)) {
     if (!inRange(k)) continue
     if (dayStatus(log, k) === 'full') fullDays++
-    freeUses += day.free ? 1 : day.meals.filter((m) => m.free).length
+    frees += day.free ? 1 : day.meals.filter((m) => m.free).length
     // média ignora dia livre e dia sem refeição comida
     if (day.free || !day.meals.some((m) => m.done && !m.free)) continue
     kcal.push(daySummary(day).kcal)
@@ -121,7 +116,7 @@ export function dietStats(log: DietLog, water: WaterLog, from: string, to: strin
     avgGoal: avg(goals),
     fullDays,
     waterDays: Object.entries(water).filter(([k, w]) => inRange(k) && waterMet(w)).length,
-    freeUses,
+    freeUses: frees,
     days: first ? Math.max(0, daysBetween(start, to) + 1) : 0,
   }
 }
