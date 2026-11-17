@@ -1,5 +1,6 @@
 import { Dumbbell, TrendingUp, Utensils } from 'lucide-react'
 import type { Tab } from '../types'
+import { cn } from '@/lib/utils'
 
 const TABS = [
   { id: 'treino', label: 'Treino', Icon: Dumbbell },
@@ -9,7 +10,7 @@ const TABS = [
 
 export function BottomNav({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
   return (
-    <nav className="bottom-nav">
+    <nav className="fixed inset-x-0 bottom-0 z-20 flex h-[calc(68px+env(safe-area-inset-bottom))] border-t border-border bg-panel pb-[env(safe-area-inset-bottom)]">
       {TABS.map(({ id, label, Icon }) => (
         <button
           key={id}
@@ -17,9 +18,10 @@ export function BottomNav({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => v
           aria-label={label}
           aria-current={tab === id ? 'page' : undefined}
           onClick={() => onChange(id)}
+          className={cn('flex min-h-11 flex-1 flex-col items-center justify-center gap-1 text-[10px] font-medium', tab === id ? 'text-accent' : 'text-faint')}
         >
           <Icon size={20} aria-hidden="true" />
-          {tab === id && <span>{label}</span>}
+          <span aria-hidden="true">{label}</span>
         </button>
       ))}
     </nav>

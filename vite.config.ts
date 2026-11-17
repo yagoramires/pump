@@ -1,4 +1,6 @@
+import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
+import path from 'node:path'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
 
@@ -6,6 +8,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   plugins: [
     react(),
+    tailwindcss(),
     // sem registerType: fica 'prompt' sem UI, a versão nova entra quando o app é fechado de vez
     VitePWA({
       strategies: 'injectManifest',
@@ -32,5 +35,6 @@ export default defineConfig({
     }),
   ],
   base: '/pump/',
+  resolve: { alias: { '@': path.resolve(import.meta.dirname, 'src') } },
   test: { environment: 'jsdom', globals: true, setupFiles: ['test/setup.ts'] },
 })

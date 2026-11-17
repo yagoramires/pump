@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Settings as SettingsIcon } from 'lucide-react'
+import { Toaster } from '@/components/ui/sonner'
 import { BottomNav } from './shell/BottomNav'
 import { ComingSoon } from './shell/ComingSoon'
 import { InstallGate } from './shell/InstallGate'
@@ -80,6 +81,7 @@ export default function App() {
         )}
       </main>
       <BottomNav tab={tab} onChange={(lastTab) => { setShowSettings(false); setSettings((s) => ({ ...s, lastTab })) }} />
+      <Toaster />
     </>
   )
 }

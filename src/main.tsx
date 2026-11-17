@@ -1,6 +1,7 @@
 /// <reference types="vite-plugin-pwa/client" />
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import './index.css'
 import './theme.css'
 import App from './App.tsx'
 import { ErrorBoundary } from './shell/ErrorBoundary'
