@@ -31,10 +31,10 @@ test('anamnese da dieta inválida vinda de backup não gera linha', () => {
   expect(p).not.toContain('Observações:')
 })
 
-test('todos os TACO_EXAMPLES existem no taco.json', () => {
-  const names = new Set((JSON.parse(readFileSync('public/catalog/taco.json', 'utf8')) as TacoFood[]).map((f) => f.name))
+test('todos os TACO_EXAMPLES existem no taco.json com kcal > 0', () => {
+  const kcal = new Map((JSON.parse(readFileSync('public/catalog/taco.json', 'utf8')) as TacoFood[]).map((f) => [f.name, f.kcal]))
   expect(TACO_EXAMPLES.length).toBeGreaterThanOrEqual(12)
-  expect(TACO_EXAMPLES.filter((n) => !names.has(n))).toEqual([])
+  expect(TACO_EXAMPLES.filter((n) => !((kcal.get(n) ?? 0) > 0))).toEqual([])
   const prompt = buildDietPrompt()
   for (const n of TACO_EXAMPLES) expect(prompt).toContain(`"${n}"`)
 })

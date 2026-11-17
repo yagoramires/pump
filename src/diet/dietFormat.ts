@@ -32,7 +32,7 @@ export function parseDietFormat(text: string): PumpDieta {
     const tag = `Refeição ${n + 1}`
     const nome = str(o.nome)
     if (!nome) problems.push(`${tag}: falta o nome`)
-    const horario = str(o.horario)
+    const horario = str(o.horario).padStart(5, '0') // "7:00" → "07:00"
     if (!HHMM.test(horario)) problems.push(`${tag}: horário inválido (use HH:MM)`)
     const foods = Array.isArray(o.alimentos) ? o.alimentos : []
     if (foods.length === 0) problems.push(`${tag}: sem alimentos`)
@@ -119,14 +119,18 @@ export function exportDietFormat(plan: DietPlan): string {
         horario: m.time,
         alimentos: m.items.map((i) => {
           const q = i.grams / 100
+          // "sem valores" sai sem números pra voltar como "sem valores", não como estimativa de 0 kcal
+          const noValues = i.source === 'ia' && i.per100.kcal === 0
           return {
             nome: i.name,
             gramas: i.grams,
             ...(i.portion && { porcao: i.portion }),
-            kcal: Math.round(i.per100.kcal * q),
-            proteinaG: r1(i.per100.p * q),
-            carboG: r1(i.per100.c * q),
-            gorduraG: r1(i.per100.f * q),
+            ...(!noValues && {
+              kcal: Math.round(i.per100.kcal * q),
+              proteinaG: r1(i.per100.p * q),
+              carboG: r1(i.per100.c * q),
+              gorduraG: r1(i.per100.f * q),
+            }),
           }
         }),
       })),

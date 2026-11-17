@@ -41,6 +41,19 @@ test('cada regra de validação tem sua mensagem', () => {
   ])
 })
 
+test('horário H:MM vira 0H:MM; outros formatos continuam recusados', () => {
+  expect(parseDietFormat(file({ refeicoes: [meal([pao], { horario: '7:00' })] })).refeicoes[0].horario).toBe('07:00')
+  for (const horario of ['7h', '7:0', '24:00', '007:00', '12:60'])
+    expect(problems(file({ refeicoes: [meal([pao], { horario })] }))).toEqual(['Refeição 1: horário inválido (use HH:MM)'])
+})
+
+test('item "sem valores" exportado volta como "none", não como estimativa de 0 kcal', () => {
+  const plan: DietPlan = { meals: [{ id: 'm1', name: 'Lanche', time: '16:00', items: [{ id: 'i1', name: 'Coisa estranha', grams: 50, per100: { kcal: 0, p: 0, c: 0, f: 0 }, source: 'ia' }] }] }
+  const text = exportDietFormat(plan)
+  expect(JSON.parse(text).dieta.refeicoes[0].alimentos).toEqual([{ nome: 'Coisa estranha', gramas: 50 }])
+  expect(dietFromFormat(parseDietFormat(text), T, []).items[0].match).toBe('none')
+})
+
 test('kcal por 100 g acima de 900 é tratada como ausente', () => {
   const d = parseDietFormat(file({ refeicoes: [meal([{ nome: 'Azeite', gramas: 10, kcal: 95, gorduraG: 10 }, { nome: 'Manteiga', gramas: 10, kcal: 88 }, { nome: 'X', gramas: 10, kcal: -1, proteinaG: 'muito' }])] }))
   expect(d.refeicoes[0].alimentos).toEqual([{ nome: 'Azeite', gramas: 10, gorduraG: 10 }, { nome: 'Manteiga', gramas: 10, kcal: 88 }, { nome: 'X', gramas: 10 }])

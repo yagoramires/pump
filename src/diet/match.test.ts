@@ -8,6 +8,9 @@ const T: TacoFood[] = [
   { id: 3, name: 'Frango, peito, sem pele, grelhado', kcal: 159, p: 32, c: 0, f: 2.5 },
   { id: 4, name: 'Frango, peito, com pele, assado', kcal: 212, p: 33.4, c: 0, f: 7.6 },
   { id: 5, name: 'Ovo, de galinha, inteiro, cozido/10minutos', kcal: 146, p: 13.3, c: 0.6, f: 9.5 },
+  { id: 7, name: 'Aveia, flocos, crua', kcal: 394, p: 13.9, c: 66.6, f: 8.5 },
+  { id: 456, name: 'Leite, de vaca, desnatado, pó', kcal: 362, p: 34.7, c: 53, f: 0.9 },
+  { id: 457, name: 'Leite, de vaca, desnatado, UHT', kcal: 35, p: 3.4, c: 4.9, f: 0.1 },
 ]
 
 test('foodKey: minúsculas, sem acento, pontuação vira espaço', () =>
@@ -18,8 +21,13 @@ test('"cru" vs "cozido" decidido pela kcal da IA', () =>
   expect(matchFood('Arroz integral', 100, 130, T, [])).toMatchObject({ kind: 'words', food: { id: 1 } }))
 test('candidato fora de 35% da kcal da IA cai pra estimativa', () =>
   expect(matchFood('Arroz integral', 100, 60, T, [])).toBeNull())
-test('sem kcal da IA aceita o candidato de nome mais curto', () =>
-  expect(matchFood('Arroz integral', 100, undefined, T, [])).toMatchObject({ kind: 'words', food: { id: 2 } }))
+test('sem kcal da IA e mais de um candidato: não casa (vira "sem valores")', () => {
+  expect(matchFood('Arroz integral', 100, undefined, T, [])).toBeNull()
+  expect(matchFood('Leite desnatado', 200, undefined, T, [])).toBeNull()
+  expect(matchFood('Leite desnatado', 200, 70, T, [])).toMatchObject({ kind: 'words', food: { id: 457 } })
+})
+test('"em" é ignorado: "Aveia em flocos" casa com o nome da TACO', () =>
+  expect(matchFood('Aveia em flocos', 30, undefined, T, [])).toMatchObject({ kind: 'words', food: { id: 7 } }))
 test('"com pele" não casa com "sem pele"', () =>
   expect(matchFood('Frango peito com pele', 100, undefined, T, [])).toMatchObject({ food: { id: 4 } }))
 test('"de" é ignorado, mas o nome sem palavras úteis não casa nada', () => {

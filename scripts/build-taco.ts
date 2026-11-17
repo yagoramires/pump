@@ -8,7 +8,7 @@ function parseCsv(text: string): Record<string, string>[] {
   return body.map((r) => Object.fromEntries(head.map((h, i) => [h, r[i] ?? ''])))
 }
 
-// vazio, NA e Tr (traço) viram 0; 1 casa decimal no máximo
+// nos macros, vazio, NA e Tr (traço) viram 0; 1 casa decimal no máximo
 const num = (v: string | undefined): number => {
   const n = Number(v)
   return Number.isFinite(n) && v?.trim() ? Math.round(n * 10) / 10 : 0
@@ -16,9 +16,12 @@ const num = (v: string | undefined): number => {
 
 export function buildTaco(foodCsv: string, nutrientsCsv: string): TacoFood[] {
   const nut = new Map(parseCsv(nutrientsCsv).map((r) => [Number(r.foodId), r]))
-  return parseCsv(foodCsv).map((f) => {
-    const n = nut.get(Number(f.id)) ?? {}
-    return { id: Number(f.id), name: f.name, kcal: num(n.kcal), p: num(n.protein), c: num(n.carbohydrates), f: num(n.lipids) }
+  return parseCsv(foodCsv).flatMap((f) => {
+    const n = nut.get(Number(f.id))
+    // sem kcal (vazia ou NA) a linha não tem dados: entraria como 0 kcal com cara de valor real
+    const k = n?.kcal?.trim()
+    if (!n || !k || k === 'NA') return []
+    return [{ id: Number(f.id), name: f.name, kcal: num(n.kcal), p: num(n.protein), c: num(n.carbohydrates), f: num(n.lipids) }]
   })
 }
 

@@ -12,7 +12,7 @@ export const TACO_EXAMPLES: string[] = [
   'Mamão, Papaia, cru',
   'Aveia, flocos, crua',
   'Batata, doce, cozida',
-  'Leite, de vaca, desnatado, UHT',
+  'Iogurte, natural',
   'Iogurte, natural, desnatado',
   'Queijo, minas, frescal',
   'Brócolis, cozido',

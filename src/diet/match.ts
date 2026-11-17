@@ -5,7 +5,7 @@ export const foodKey = (s: string): string =>
   s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
 
 // só conectivos; "com", "sem", "cru", "cozido" mudam o alimento
-const IGNORED = new Set(['de', 'da', 'do', 'e'])
+const IGNORED = new Set(['de', 'da', 'do', 'e', 'em'])
 
 export function matchFood(
   name: string,
@@ -22,12 +22,15 @@ export function matchFood(
 
   const words = key.split(' ').filter((w) => w && !IGNORED.has(w))
   if (!words.length) return null
-  const food = taco
-    .filter((f) => {
-      const has = new Set(foodKey(f.name).split(' '))
-      return words.every((w) => has.has(w))
-    })
-    .sort((a, b) => a.name.length - b.name.length || a.name.localeCompare(b.name, 'pt-BR'))
-    .find((f) => aiKcal === undefined || Math.abs((f.kcal * grams) / 100 - aiKcal) <= aiKcal * 0.35)
+  const candidates = taco.filter((f) => {
+    const has = new Set(foodKey(f.name).split(' '))
+    return words.every((w) => has.has(w))
+  })
+  // sem kcal da IA não dá pra escolher entre cru, cozido, pó...: só casa se houver um candidato
+  const food = aiKcal === undefined
+    ? (candidates.length === 1 ? candidates[0] : undefined)
+    : candidates
+      .sort((a, b) => a.name.length - b.name.length || a.name.localeCompare(b.name, 'pt-BR'))
+      .find((f) => Math.abs((f.kcal * grams) / 100 - aiKcal) <= aiKcal * 0.35)
   return food ? { kind: 'words', food } : null
 }
