@@ -17,7 +17,7 @@ const DAYS = [
 ]
 const EMPTY: WorkoutPlan = { workouts: [] }
 
-type Props = { initial?: WorkoutPlan; onDone: () => void; onCancel?: () => void }
+type Props = { initial?: WorkoutPlan; onDone: (plan: WorkoutPlan) => void; onCancel?: () => void }
 
 // sem `initial`, espera o plano salvo carregar: senão a cópia local nasceria vazia e o Salvar apagaria o plano
 export function PlanEditor(props: Props) {
@@ -54,7 +54,7 @@ function PlanForm({ start, onDone, onCancel }: Props & { start: WorkoutPlan }) {
 
   const save = () => {
     savePlan(plan)
-    onDone()
+    onDone(plan)
   }
 
   const ew = editing && plan.workouts.find((w) => w.id === editing.wid)

@@ -81,3 +81,9 @@ test('prompt leva perfil e anamnese; sem dados manda a IA perguntar', () => {
   expect(empty).not.toContain('Sexo')
   expect(empty).toContain('me pergunte primeiro')
 })
+test('anamnese inválida vinda de backup não quebra nem gera linha vazia', () => {
+  const p = buildPrompt({ sex: 'M', heightCm: 170, weightKg: 70, anamnesis: { extras: 'cardio', weak: ['xyz'], notes: 3 } as never })
+  expect(p).not.toContain('Incluir também')
+  expect(p).not.toContain('Pontos fracos')
+  expect(p).not.toContain('Lesões, limitações ou preferências:')
+})

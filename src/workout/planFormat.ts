@@ -149,6 +149,10 @@ const SPLITS: Record<Split, string> = { fullbody: 'full body (corpo todo em cada
 const MUSCLES: Record<Muscle, string> = { peito: 'peito', costas: 'costas', ombros: 'ombros', biceps: 'bíceps', triceps: 'tríceps', pernas: 'pernas', gluteos: 'glúteos', panturrilha: 'panturrilha' }
 const EXTRAS: Record<Extra, string> = { cardio: 'cardio', abdomen: 'abdômen', mobilidade: 'mobilidade/alongamento' }
 
+// backup importado não valida a anamnese: aceita só lista e só valores conhecidos
+const names = <T extends string>(v: unknown, labels: Record<T, string>) =>
+  Array.isArray(v) ? v.map((x) => labels[x as T]).filter(Boolean).join(', ') : ''
+
 function aboutMe(p?: Profile): string[] {
   const a = p?.anamnesis ?? {}
   return [
@@ -163,10 +167,10 @@ function aboutMe(p?: Profile): string[] {
     a.place && PLACES[a.place] ? `Onde treino: ${PLACES[a.place]}` : '',
     a.daysPerWeek ? `Dias por semana: ${a.daysPerWeek}` : '',
     a.split && SPLITS[a.split] ? `Divisão preferida: ${SPLITS[a.split]}` : '',
-    a.extras?.length ? `Incluir também: ${a.extras.map((e) => EXTRAS[e]).filter(Boolean).join(', ')}` : '',
-    a.weak?.length ? `Pontos fracos (quero priorizar): ${a.weak.map((m) => MUSCLES[m]).filter(Boolean).join(', ')}` : '',
+    names(a.extras, EXTRAS) && `Incluir também: ${names(a.extras, EXTRAS)}`,
+    names(a.weak, MUSCLES) && `Pontos fracos (quero priorizar): ${names(a.weak, MUSCLES)}`,
     a.minutes ? `Tempo por treino: até ${a.minutes} min${a.extras?.includes('cardio') ? ', contando o cardio' : ''}` : '',
-    a.notes?.trim() ? `Lesões, limitações ou preferências: ${a.notes.trim()}` : '',
+    typeof a.notes === 'string' && a.notes.trim() ? `Lesões, limitações ou preferências: ${a.notes.trim()}` : '',
   ].filter(Boolean).map((l) => `- ${l}`)
 }
 

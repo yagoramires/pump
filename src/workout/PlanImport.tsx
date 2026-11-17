@@ -55,7 +55,8 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
   }
 
   useEffect(() => {
-    if (!ready || !text.trim()) return
+    // editando: um exercício criado no editor muda customs, e rever geraria ids novos pros exercícios do plano
+    if (!ready || editing || !text.trim()) return
     let stale = false
     const run = async () => {
       let file
@@ -75,11 +76,13 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
     const t = setTimeout(() => void run(), instant.current ? 0 : 400)
     instant.current = false
     return () => { stale = true; clearTimeout(t) }
-  }, [text, ready, customs])
+  }, [text, ready, customs, editing])
 
-  // o PlanEditor grava o plano no Salvar; aqui só entram os exercícios novos
-  const doImport = () => {
-    if (review?.newCustoms.length) setCustoms((prev) => [...prev, ...review.newCustoms])
+  // o PlanEditor grava o plano no Salvar; aqui só entram os exercícios novos que ficaram no plano
+  const doImport = (saved: WorkoutPlan) => {
+    const used = new Set(saved.workouts.flatMap((w) => w.exercises.map((e) => e.exerciseId)))
+    const added = review?.newCustoms.filter((c) => used.has(c.id)) ?? []
+    if (added.length) setCustoms((prev) => [...prev, ...added])
     onDone()
   }
 

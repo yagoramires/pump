@@ -11,7 +11,7 @@ beforeEach(async () => {
 })
 afterEach(() => vi.unstubAllGlobals())
 
-test('colar JSON válido mostra o resumo sozinho, sem botão Revisar', async () => {
+test('colar JSON válido mostra o resumo sozinho e libera Revisar plano', async () => {
   const user = userEvent.setup()
   render(<PlanImport onDone={vi.fn()} />)
   await user.click(await screen.findByRole('textbox'))
@@ -21,7 +21,7 @@ test('colar JSON válido mostra o resumo sozinho, sem botão Revisar', async () 
   expect(screen.getByRole('button', { name: 'Revisar plano' })).toBeEnabled()
 })
 
-test('colar texto inválido mostra problemas e mantém Importar desabilitado', async () => {
+test('colar texto inválido mostra problemas e mantém Revisar plano desabilitado', async () => {
   const user = userEvent.setup()
   render(<PlanImport onDone={vi.fn()} />)
   await user.click(await screen.findByRole('textbox'))
