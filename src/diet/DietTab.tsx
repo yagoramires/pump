@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { Fragment, useEffect, useState, type ReactNode } from 'react'
 import { Check, Droplet, ListChecks, MoreHorizontal, Pencil, Plus, Sparkles, Upload, Utensils } from 'lucide-react'
 import type { DietDay, DietLog, DietPlan, WaterLog } from '../types'
 import { DEFAULT_SETTINGS, EMPTY_DIET, NO_PROFILE } from '../types'
@@ -11,7 +11,7 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/compone
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { formatDec } from '@/lib/number'
 import { cn } from '@/lib/utils'
-import { currentMealId, currentMenu, dayFromMenu, daySummary, ensureDay, itemKcal, setDayFree, setDayMenu, setMealFree, sortedMeals, toggleMeal, touched } from './day'
+import { currentMealId, currentMenu, dayFromMenu, daySummary, ensureDay, itemKcal, optionLetter, setDayFree, setDayMenu, setMealFree, sortedMeals, toggleMeal, touched } from './day'
 import { addCup, removeCup, turnWaterOn } from './water'
 import { DietEditor } from './DietEditor'
 import { DietImport } from './DietImport'
@@ -41,6 +41,10 @@ export function DietTab() {
   const [openId, setOpenId] = useState<string>()
   const [confirmMenu, setConfirmMenu] = useState<string>()
   const [sheet, setSheet] = useState<'more' | 'menus' | 'water'>()
+  // a refeição aberta sumiu do dia (trocou o cardápio, virou o dia): esquece o id pra ela não reabrir sozinha depois
+  const openGone = !!openId && !(log[today]?.meals ?? currentMenu(plan)?.meals ?? []).some((m) => m.id === openId)
+  // oxlint-disable-next-line react/set-state-in-effect -- o dia muda por fora do componente (storage, virada do dia), não por um evento daqui
+  useEffect(() => { if (openGone) setOpenId(undefined) }, [openGone])
 
   // o PWA volta do segundo plano sem remontar: passou da meia-noite, mostra o dia novo
   useEffect(() => {
@@ -97,7 +101,7 @@ export function DietTab() {
 
   const goal = day.goalKcal
   const gm = day.goalMacros
-  const macros = ([['P', s.p, gm?.p], ['C', s.c, gm?.c], ['G', s.f, gm?.f]] as const).map(([l, done, t]) => `${l} ${Math.round(done)}${t ? `/${Math.round(t)}` : ''}`).join(' · ')
+  const macros = ([['P', s.p, gm?.p], ['C', s.c, gm?.c], ['G', s.f, gm?.f]] as const).map(([l, done, t]) => `${l} ${Math.round(done)}${t ? `/${Math.round(t)}` : ''}`)
   const pct = goal ? Math.min(100, Math.round((s.kcal / goal) * 100)) : 0
   const waterOn = settings.water?.enabled ? settings.water : undefined
   const waterMl = water[today]?.ml ?? 0
@@ -109,7 +113,7 @@ export function DietTab() {
   const nowId = day.free ? undefined : currentMealId(day.meals, now)
   const isFree = (d: DietDay, id: string) => !!d.meals.find((m) => m.id === id)?.free // decide no salvo, não no render
 
-  // a refeição aberta é relida do dia a cada render; sumiu (trocou o cardápio), fecha
+  // a refeição aberta é relida do dia a cada render; sumiu, mostra a lista (o efeito lá em cima limpa o id)
   const openMeal = day.meals.find((m) => m.id === openId)
   if (openMeal) return <MealScreen meal={openMeal} menu={dayMenu} plan={plan} dayFree={!!day.free} act={act} onClose={() => setOpenId(undefined)} />
 
@@ -133,7 +137,8 @@ export function DietTab() {
 
   return (
     <div className="pb-6">
-      <div className="flex items-center justify-between gap-2">
+      {/* alinhado com a engrenagem flutuante do App (-mt-1.5) e com um respiro antes dela */}
+      <div className="-mt-1.5 flex items-center justify-between gap-2 pr-2">
         <span className={cn(LABEL, 'min-w-0 truncate')}>{`${formatDayLabel(today)} · ${day.menuName}`}</span>
         <button type="button" className="icon-btn" aria-label="Mais opções da dieta" onClick={() => setSheet('more')}><MoreHorizontal size={18} /></button>
       </div>
@@ -149,7 +154,10 @@ export function DietTab() {
         )}
         <div className="min-w-0 flex-1">
           <div className="text-[15px] font-semibold tabular-nums text-strong">{goal ? `${formatDec(s.kcal)} / ${formatDec(goal)} kcal` : `${formatDec(s.kcal)} kcal`}</div>
-          <div className={cn('truncate text-[12.5px] tabular-nums', day.free ? 'text-accent' : 'text-text-2')}>{day.free ? 'Dia livre' : macros}</div>
+          {/* quebra entre os macros, nunca no meio de um número (320 px com a pílula de água) */}
+          <div className={cn('text-[12.5px] tabular-nums', day.free ? 'text-accent' : 'text-text-2')}>
+            {day.free ? 'Dia livre' : macros.map((m, i) => <Fragment key={m[0]}>{i > 0 && ' · '}<span className="whitespace-nowrap">{m}</span></Fragment>)}
+          </div>
         </div>
         {waterOn && (
           <button
@@ -166,17 +174,17 @@ export function DietTab() {
           const options = dayMenu?.meals.find((x) => x.id === m.id)?.options ?? []
           const many = options.length > 1 && !m.swappedMeal
           const sub = m.free ? 'livre' : !m.done && many ? `${options.length} opções` : `${formatDec(Math.round(m.items.filter((i) => !i.skipped).reduce((t, i) => t + itemKcal(i), 0)))} kcal`
-          const now = m.id === nowId
+          const isNow = m.id === nowId
           return (
-            <li key={m.id} aria-current={now ? 'true' : undefined} className={cn('flex items-center gap-1 border-t border-line pr-1.5 first:border-t-0', now && 'bg-accent-bg')}>
+            <li key={m.id} aria-current={isNow ? 'true' : undefined} className={cn('flex items-center gap-1 border-t border-line pr-1.5 first:border-t-0', isNow && 'bg-accent-bg')}>
               <button type="button" className="flex min-h-14 min-w-0 flex-1 items-center gap-2.5 py-2 pl-3 text-left" onClick={() => setOpenId(m.id)}>
-                <span className={cn('w-10 shrink-0 text-[12px] tabular-nums', now ? 'text-accent' : 'text-faint')}>{m.time}</span>
+                <span className={cn('w-10 shrink-0 text-[12px] tabular-nums', isNow ? 'text-accent' : 'text-faint')}>{m.time}</span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[15px] font-semibold text-strong">{m.name}</span>
                   <span className="block truncate text-[12.5px] text-text-2">{sub}</span>
                 </span>
                 {m.done && !m.free && many && (
-                  <span className="shrink-0 rounded-md border border-accent-line px-1.5 text-[11px] font-semibold text-accent">{'ABCD'[Math.max(0, options.findIndex((o) => o.id === m.optionId))] ?? ''}</span>
+                  <span className="shrink-0 rounded-md border border-accent-line px-1.5 text-[11px] font-semibold text-accent">{optionLetter(Math.max(0, options.findIndex((o) => o.id === m.optionId)))}</span>
                 )}
               </button>
               <button

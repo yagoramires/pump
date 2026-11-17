@@ -8,7 +8,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { formatDec } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { FoodPicker } from './FoodPicker'
-import { type Act, addExtra, chooseOption, iaLabel, itemKcal, itemMacros, portionText, removeItem, setMealFree, skipItem, swapItem, swapMeal, toggleMeal, undoSwap } from './day'
+import { type Act, addExtra, chooseOption, iaLabel, itemKcal, itemMacros, optionLetter, portionText, removeItem, setMealFree, skipItem, swapItem, swapMeal, toggleMeal, undoSwap } from './day'
 
 type Props = { meal: DayMeal; menu?: Menu; plan: DietPlan; dayFree: boolean; act: Act; onClose: () => void }
 
@@ -25,7 +25,6 @@ export function MealScreen({ meal, menu, plan, dayFree, act, onClose }: Props) {
   const options = menu?.meals.find((m) => m.id === meal.id)?.options ?? []
   const selIdx = Math.max(0, options.findIndex((o) => o.id === meal.optionId))
   const selected = options[selIdx]
-  const letter = (i: number) => 'ABCD'[i] ?? String(i + 1)
 
   const counted = meal.items.filter((i) => !i.skipped)
   const t = counted.reduce((s, i) => { const x = itemMacros(i); return { p: s.p + x.p, c: s.c + x.c, f: s.f + x.f } }, { p: 0, c: 0, f: 0 })
@@ -89,7 +88,7 @@ export function MealScreen({ meal, menu, plan, dayFree, act, onClose }: Props) {
             className="mt-2 grid w-full auto-cols-fr grid-flow-col gap-[3px] rounded-xl border border-border bg-panel p-[3px]"
           >
             {options.map((o, i) => (
-              <ToggleGroupItem key={o.id} value={o.id} className="h-11 rounded-[9px] text-[13px] font-semibold text-faint data-[state=on]:bg-[#2a2c33] data-[state=on]:text-strong">{letter(i)}</ToggleGroupItem>
+              <ToggleGroupItem key={o.id} value={o.id} className="h-11 rounded-[9px] text-[13px] font-semibold text-faint data-[state=on]:bg-[#2a2c33] data-[state=on]:text-strong">{optionLetter(i)}</ToggleGroupItem>
             ))}
           </ToggleGroup>
         )}
@@ -99,13 +98,17 @@ export function MealScreen({ meal, menu, plan, dayFree, act, onClose }: Props) {
             {options[0] && !free && <Button variant="ghost" size="sm" className="h-11 shrink-0 text-accent" onClick={() => act((d) => chooseOption(d, meal.id, options[0]))}>Voltar às opções</Button>}
           </div>
         ) : (
-          options.length > 1 && <p className="mx-0.5 mt-1.5 text-[13px] text-text-2">{[`Opção ${letter(selIdx)}`, selected.name].filter(Boolean).join(' · ')}</p>
+          options.length > 1 && <p className="mx-0.5 mt-1.5 text-[13px] text-text-2">{[`Opção ${optionLetter(selIdx)}`, selected.name].filter(Boolean).join(' · ')}</p>
         )}
 
-        <ul className={cn(CARD, 'mt-3', free && 'opacity-60')}>{meal.items.map(itemRow)}</ul>
-        {!free && (
-          <Button variant="ghost" size="sm" className="mt-1 h-11 text-accent" onClick={() => setPicking('extra')}><Plus aria-hidden="true" />Adicionar extra</Button>
-        )}
+        <ul className={cn(CARD, 'mt-3 bg-panel', free && 'opacity-60')}>
+          {meal.items.map(itemRow)}
+          {!free && (
+            <li className="border-t border-line first:border-t-0">
+              <button type="button" className="flex min-h-11 w-full items-center gap-2 px-3 text-sm text-accent" onClick={() => setPicking('extra')}><Plus size={16} aria-hidden="true" />Adicionar extra</button>
+            </li>
+          )}
+        </ul>
         <p className="flex justify-between gap-2 px-0.5 pt-2 text-[13px] text-text-2">
           <span>Total</span>
           <b className="font-semibold text-strong tabular-nums">{total}</b>

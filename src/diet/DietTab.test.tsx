@@ -107,6 +107,19 @@ test('lista mostra horário, nome e opções; tocar abre a refeição', async ()
   expect(calorias()).toHaveTextContent('234 / 2.000 kcal')
 })
 
+test('refeição aberta que some do dia fecha e não reabre quando volta', async () => {
+  await save('dietPlan', plan)
+  resetStoreForTests()
+  const user = userEvent.setup()
+  render(<DietTab />)
+  await openMeal(user, 'Café')
+  await act(() => save('dietLog', { [TODAY]: dayFromMenu(menuB) }))
+  expect(await screen.findByRole('list', { name: 'Refeições' })).toHaveTextContent('Único')
+  await act(() => save('dietLog', { [TODAY]: dayFromMenu(menuA) }))
+  expect(await screen.findByRole('list', { name: 'Refeições' })).toHaveTextContent('Café')
+  expect(screen.queryByRole('heading', { name: 'Café · 07:00' })).not.toBeInTheDocument()
+})
+
 test('check da lista marca com a opção escolhida (B)', async () => {
   await save('dietPlan', plan)
   await save('dietLog', { [TODAY]: chooseOption(dayFromMenu(menuA), 'm1', menuA.meals[1].options[1]) })
