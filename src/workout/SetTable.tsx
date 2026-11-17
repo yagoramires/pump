@@ -8,7 +8,8 @@ type Draft = { kg?: string; reps?: string }
 type Props = {
   ex: SessionExercise
   prev: (SetDone | null)[]
-  onCheck: (i: number, v: SetDone | null) => void
+  /** alterna a série: v é o valor se ela for marcada; marcar ou desmarcar se decide no último valor salvo */
+  onCheck: (i: number, v: SetDone) => void
   /** série já feita: só os campos válidos que mudaram */
   onEdit: (i: number, p: Partial<SetDone>) => void
 }
@@ -22,7 +23,6 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
   const clearDraft = (i: number) => setDrafts((d) => ({ ...d, [i]: {} }))
 
   const check = (i: number) => {
-    if (ex.sets[i]) return onCheck(i, null)
     const d = drafts[i] ?? {}
     onCheck(i, { reps: d.reps?.trim() || ex.reps, weightKg: parseDecimal(d.kg ?? '') ?? ex.weightKg })
     clearDraft(i)
@@ -38,8 +38,14 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
     clearDraft(i)
   }
   const box = (done: boolean) =>
-    cn('h-11 w-16 rounded-lg text-center text-[15px] font-semibold outline-none focus-visible:ring-2 focus-visible:ring-accent/40', done ? 'bg-transparent text-accent' : 'bg-surface text-strong')
-  const enterBlurs = (e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && e.currentTarget.blur()
+    cn('h-11 w-16 rounded-lg text-center text-base font-semibold outline-none focus-visible:ring-2 focus-visible:ring-accent/40', done ? 'bg-transparent text-accent' : 'bg-surface text-strong')
+  const inputProps = (i: number) => ({
+    autoComplete: 'off',
+    enterKeyHint: 'done' as const,
+    onFocus: (e: React.FocusEvent<HTMLInputElement>) => e.currentTarget.select(),
+    onBlur: () => commit(i),
+    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && e.currentTarget.blur(),
+  })
 
   return (
     <table className="w-full border-collapse tabular-nums">
@@ -59,10 +65,9 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
                   className={box(!!s)}
                   inputMode="decimal"
                   aria-label={`Carga da série ${n} de ${ex.name}`}
-                  value={drafts[i]?.kg ?? formatKg(s ? s.weightKg : ex.weightKg)}
+                  value={drafts[i]?.kg ?? String(s ? s.weightKg : ex.weightKg).replace('.', ',')} // sem milhar: "1.240" voltaria como 1,24
                   onChange={(e) => setDraft(i, { kg: e.target.value })}
-                  onBlur={() => commit(i)}
-                  onKeyDown={enterBlurs}
+                  {...inputProps(i)}
                 />
               </td>
               <td className="py-1">
@@ -71,8 +76,7 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
                   aria-label={`Reps da série ${n} de ${ex.name}`}
                   value={drafts[i]?.reps ?? (s ? s.reps : ex.reps)}
                   onChange={(e) => setDraft(i, { reps: e.target.value })}
-                  onBlur={() => commit(i)}
-                  onKeyDown={enterBlurs}
+                  {...inputProps(i)}
                 />
               </td>
               <td className="py-1">

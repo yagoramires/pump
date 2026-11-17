@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import type { SessionExercise } from '../types'
 import { imageUrl } from '../catalog/catalog'
-import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
+import { X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { cn } from '@/lib/utils'
 
 export function ExercisePreview({ exercise, onClose }: { exercise: SessionExercise; onClose: () => void }) {
@@ -18,9 +20,14 @@ export function ExercisePreview({ exercise, onClose }: { exercise: SessionExerci
     <Drawer open onOpenChange={(o) => !o && onClose()}>
       <DrawerContent>
         <div className="flex flex-col gap-3 overflow-y-auto px-4 pt-3 pb-[calc(20px+env(safe-area-inset-bottom))]">
-          <div>
-            <DrawerTitle className="text-[19px] font-semibold text-strong">{exercise.name}</DrawerTitle>
-            <DrawerDescription className="mt-0.5 text-[13px] text-text-2 first-letter:uppercase">{exercise.muscles.join(' · ')}</DrawerDescription>
+          <div className="flex items-start gap-2">
+            <div className="min-w-0 flex-1">
+              <DrawerTitle className="text-[19px] font-semibold text-strong">{exercise.name}</DrawerTitle>
+              <DrawerDescription className="mt-0.5 text-[13px] text-text-2 first-letter:uppercase">{exercise.muscles.join(' · ')}</DrawerDescription>
+            </div>
+            <DrawerClose asChild>
+              <Button variant="ghost" size="icon" aria-label="Fechar" className="-mt-2 -mr-2 text-text-2"><X className="size-5" aria-hidden="true" /></Button>
+            </DrawerClose>
           </div>
           {images.length > 0 && (
             <div className="relative overflow-hidden rounded-[14px] bg-surface">

@@ -90,10 +90,10 @@ export function TreinoTab() {
           {plan.workouts.map((w) => (
             <button key={w.id} type="button" onClick={() => setChosenId(w.id)} className="flex min-h-14 w-full items-center gap-3 border-t border-line px-3.5 py-2.5 text-left first:border-t-0">
               <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-accent-line bg-accent-bg text-sm font-bold text-accent">{w.label}</span>
-              <div className="min-w-0 flex-1">
-                <div className="text-[15px] font-semibold text-strong">{w.name}</div>
-                <div className="text-[13px] text-text-2">{exCount(w.exercises.length)}</div>
-              </div>
+              <span className="block min-w-0 flex-1">
+                <span className="block text-[15px] font-semibold text-strong">{w.name}</span>
+                <span className="block text-[13px] text-text-2">{exCount(w.exercises.length)}</span>
+              </span>
               <ChevronRight size={16} className="text-faint" aria-hidden="true" />
             </button>
           ))}
@@ -107,15 +107,17 @@ export function TreinoTab() {
   const minutes = session ? stats.minutes : null
   const open = openIdx ?? firstIncomplete(view)
 
-  const check = (exIdx: number, setIdx: number, v: SetDone | null) => {
+  const check = (exIdx: number, setIdx: number, v: SetDone) => {
     unlockAudio() // dentro do toque: o iOS só libera áudio num gesto
     const restSec = view.exercises[exIdx].restSec
+    let marked = false // o updater do usePersisted roda na hora, então dá pra ler depois
     setLog((prev) => {
       const s = prev[today] ?? startSession(workout!, today)
-      const marked = setDone(s, exIdx, setIdx, v)
-      return { ...prev, [today]: v ? setRestEnd(marked, Date.now() + restSec * 1000) : marked }
+      marked = !s.exercises[exIdx].sets[setIdx] // decide no último valor salvo: dois toques rápidos desmarcam
+      const next = setDone(s, exIdx, setIdx, marked ? v : null)
+      return { ...prev, [today]: marked ? setRestEnd(next, Date.now() + restSec * 1000) : next }
     })
-    if (!v) return
+    if (!marked) return
     setRestTotal(restSec)
     if (view.exercises[exIdx].sets.every((d, j) => j === setIdx || d)) setOpenIdx(undefined) // completou: vai pro próximo incompleto
   }
@@ -146,7 +148,7 @@ export function TreinoTab() {
         </div>
         <div>
           <div className="text-[13px] text-text-2">Volume de hoje</div>
-          <div className="mt-0.5 text-lg font-semibold text-strong tabular-nums">{`${formatKg(Math.round(stats.volumeKg * 10) / 10)} kg`}</div>
+          <div className="mt-0.5 text-lg font-semibold text-strong tabular-nums">{`${formatKg(stats.volumeKg)} kg`}</div>
           <div className="mt-1 text-[13px] text-text-2">{minutes === null ? exCount(view.exercises.length) : `${minutes} min · ${exCount(view.exercises.length)}`}</div>
         </div>
       </div>

@@ -130,3 +130,30 @@ test('completar o último set do aberto abre o próximo incompleto', async () =>
   expect(await screen.findByRole('button', { name: 'Série 1 de Remada X' })).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Série 1 de Supino reto' })).not.toBeInTheDocument()
 })
+test('dois toques rápidos na mesma série desmarcam e o segundo não reinicia o descanso', async () => {
+  render(<TreinoTab />)
+  const s1 = await screen.findByRole('button', { name: 'Série 1 de Supino reto' })
+  act(() => {
+    s1.click() // marca às 18:00:00 -> descanso até 18:01:00
+    vi.setSystemTime(new Date(2026, 10, 16, 18, 0, 30))
+    s1.click() // desmarca: se reiniciasse, iria pra 18:01:30
+  })
+  await waitFor(async () => {
+    const s = (await load('workoutLog'))?.['2026-11-16']
+    expect(s?.exercises[0].sets[0]).toBeNull()
+    expect(s?.restEndsAt).toBe(new Date(2026, 10, 16, 18, 1, 0).getTime())
+  })
+  expect(s1).toHaveAttribute('aria-pressed', 'false')
+})
+test('preview fecha pelo botão Fechar', async () => {
+  const user = userEvent.setup()
+  render(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: 'Ver Supino reto' }))
+  await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Fechar' }))
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+})
+test('volume do resumo separa milhar', async () => {
+  await save('workoutLog', { '2026-11-16': { date: '2026-11-16', workoutId: 'a', workoutLabel: 'A', workoutName: 'Peito e tríceps', exercises: [{ ...plano.workouts[0].exercises[0], sets: [{ reps: '10', weightKg: 62 }, { reps: '10', weightKg: 62 }] }] } })
+  render(<TreinoTab />)
+  expect(await screen.findByText('1.240 kg')).toBeInTheDocument()
+})

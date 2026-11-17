@@ -5,5 +5,5 @@ export function parseDecimal(s: string): number | null {
 }
 
 export function formatKg(n: number): string {
-  return String(n).replace('.', ',')
+  return n.toLocaleString('pt-BR', { maximumFractionDigits: 2 })
 }
