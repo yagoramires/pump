@@ -173,6 +173,8 @@ test('pílula de água abre os copos; água desligada mostra o link', async () =
   expect(within(drawer).getByText('Água · 0 de 2,8 L')).toBeInTheDocument()
   expect(within(drawer).getAllByRole('button', { name: 'Adicionar copo' })).toHaveLength(11)
   await user.click(within(drawer).getAllByRole('button', { name: 'Adicionar copo' })[5])
+  // espera o 1º copo encher antes do 2º toque: senão o toque cai no copo recém-cheio e tira em vez de somar
+  await within(drawer).findByText('Água · 0,3 de 2,8 L')
   await user.click(within(drawer).getAllByRole('button', { name: 'Adicionar copo' })[0])
   await waitFor(async () => expect((await load('waterLog'))?.[TODAY]).toEqual({ ml: 500, goalMl: 2750 }))
   expect(await within(drawer).findByText('Água · 0,5 de 2,8 L')).toBeInTheDocument()
