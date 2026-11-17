@@ -20,7 +20,7 @@ import { Delta } from './Delta'
 import { usePhoto } from './usePhoto'
 import { PhotoCapture } from './PhotoCapture'
 import { PhotoCompare } from './PhotoCompare'
-import { AchievementsScreen } from './AchievementsScreen'
+import { AchievementIcon, AchievementsScreen } from './AchievementsScreen'
 import { HistoryScreen } from './HistoryScreen'
 import { buildReport } from './report'
 import { generatePdf, sharePdf } from './pdf/generate'
@@ -165,7 +165,7 @@ export function EvolutionTab() {
           <Delta d={diff(fat)} unit="pt" metric="fat" dir={dir} />
         </Kpi>
         <Kpi label="Treinos" value={String(sessions.length)}>
-          <span className="text-text-2">{sessions.length ? `${formatDec(sessions.length / weeks, 1)}/sem` : '—'}</span>
+          <span className={sessions.length ? 'text-accent' : 'text-text-2'}>{sessions.length ? `${formatDec(sessions.length / weeks, 1)}/sem` : '—'}</span>
         </Kpi>
       </div>
 
@@ -217,7 +217,7 @@ export function EvolutionTab() {
         <div className="flex gap-2.5 px-3.5 pb-3.5">
           {Array.from({ length: 4 }, (_, i) => earned[i]).map((x, i) =>
             x ? (
-              <span key={x.id} role="img" aria-label={x.title} title={x.title} className="flex size-[60px] items-center justify-center rounded-[18px] border border-accent-line bg-accent-bg text-accent"><Trophy size={22} aria-hidden="true" /></span>
+              <span key={x.id} role="img" aria-label={x.title} title={x.title} className="flex size-[60px] items-center justify-center rounded-[18px] border border-accent-line bg-accent-bg text-accent"><AchievementIcon id={x.id} /></span>
             ) : (
               <span key={i} aria-hidden="true" className="flex size-[60px] items-center justify-center rounded-[18px] border border-border bg-surface text-border-strong"><Trophy size={22} /></span>
             ),

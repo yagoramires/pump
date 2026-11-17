@@ -1,15 +1,31 @@
-import { ChevronLeft, Trophy } from 'lucide-react'
+import { createElement } from 'react'
+import { Camera, ChevronLeft, Dumbbell, ListChecks, Percent, Sparkles, Timer, TrendingUp, type LucideIcon } from 'lucide-react'
 import { NO_PROFILE, type Measurement, type PhotoSet, type WorkoutLog, type WorkoutPlan } from '../types'
 import { usePersisted } from '../storage/db'
 import { formatDayMonth, todayKey } from '../lib/date'
 import { Overlay } from '@/components/Overlay'
 import { cn } from '@/lib/utils'
-import { computeAchievements } from './achievements'
+import { computeAchievements, type AchievementId } from './achievements'
 
 const NO_LOG: WorkoutLog = {}
 const NO_PLAN: WorkoutPlan = { workouts: [] }
 const NO_MEASURES: Measurement[] = []
 const NO_PHOTOS: PhotoSet[] = []
+const ICON: Record<AchievementId, LucideIcon> = {
+  'first-workout': Dumbbell,
+  'streak-3': Timer,
+  'streak-7': Timer,
+  'streak-30': Timer,
+  'workouts-10': ListChecks,
+  'workouts-50': ListChecks,
+  'workouts-100': ListChecks,
+  record: TrendingUp,
+  'first-photo': Camera,
+  'weight-small': Sparkles,
+  'weight-big': Sparkles,
+  'fat-1': Percent,
+}
+export const AchievementIcon = ({ id }: { id: AchievementId }) => createElement(ICON[id], { size: 22, 'aria-hidden': true })
 
 export function AchievementsScreen({ onClose }: { onClose: () => void }) {
   const [workoutLog, , a] = usePersisted('workoutLog', NO_LOG)
@@ -30,14 +46,15 @@ export function AchievementsScreen({ onClose }: { onClose: () => void }) {
         <p className="mt-3 text-sm text-text-2">Carregando…</p>
       ) : (
         <ul className="mt-3 grid grid-cols-3 gap-x-2.5 gap-y-4">
-          {list.map((x) => (
+          {/* ganhas primeiro, como no mockup; sort é estável e mantém a ordem dentro de cada grupo */}
+          {[...list].sort((x, y) => Number(!x.earnedAt) - Number(!y.earnedAt)).map((x) => (
             <li key={x.id} className="flex flex-col items-center gap-1 text-center text-xs text-text-2">
               <span
                 role="img"
                 aria-label={x.earnedAt ? 'Ganha' : 'Bloqueada'}
                 className={cn('mb-0.5 flex size-[58px] items-center justify-center rounded-[18px] border', x.earnedAt ? 'border-accent-line bg-accent-bg text-accent' : 'border-border bg-surface text-border-strong')}
               >
-                <Trophy size={22} aria-hidden="true" />
+                <AchievementIcon id={x.id} />
               </span>
               <b className="text-[13px] font-semibold text-strong">{x.title}</b>
               {x.earnedAt ? formatDayMonth(x.earnedAt) : x.progress}

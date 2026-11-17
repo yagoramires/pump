@@ -143,7 +143,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                       <div className="min-w-0 flex-1">
                         <div className="text-[15px] font-semibold text-strong">Medidas</div>
                         <div className="text-[13px] text-text-2 tabular-nums">
-                          {FIELDS.filter((f) => measure[f.key] !== undefined).map((f) => `${f.label} ${formatKg(measure[f.key]!)} ${f.unit}`).join(' · ')}
+                          {FIELDS.filter((f) => measure[f.key] !== undefined).map((f) => `${f.label} ${formatKg(measure[f.key]!)} ${f.unit}`).join(' · ')}
                         </div>
                       </div>
                       <button type="button" className={DEL} onClick={() => setConfirm('measures')}>Apagar medidas</button>
