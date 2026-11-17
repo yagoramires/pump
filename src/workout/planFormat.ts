@@ -1,5 +1,6 @@
-import type { CustomExercise, Exercise, PlanExercise, WorkoutPlan } from '../types'
+import type { CustomExercise, Exercise, Goal, Level, PlanExercise, Place, Profile, WorkoutPlan } from '../types'
 import { normalize } from '../catalog/search'
+import { formatKg } from '../lib/number'
 import { PLAN_DEFAULTS, toPlanExercise } from './templates'
 
 export type Dia = 'dom' | 'seg' | 'ter' | 'qua' | 'qui' | 'sex' | 'sab'
@@ -141,9 +142,41 @@ export function exportPlanFormat(plan: WorkoutPlan): PumpPlanoFile {
   }
 }
 
-export const LLM_PROMPT = `Monte meu plano de treino de musculação no formato "Pump" e responda SOMENTE com o JSON, sem explicação antes ou depois.
+const GOALS: Record<Goal, string> = { hipertrofia: 'ganhar massa muscular', emagrecer: 'emagrecer', forca: 'ganhar força', saude: 'saúde e condicionamento' }
+const LEVELS: Record<Level, string> = { iniciante: 'iniciante', intermediario: 'intermediário', avancado: 'avançado' }
+const PLACES: Record<Place, string> = { academia: 'academia completa', casa: 'em casa, com pouco equipamento' }
 
-Antes de montar, me pergunte (se eu não tiver dito): objetivo, quantos dias por semana posso treinar, equipamentos disponíveis, nível de experiência e lesões ou limitações.
+function aboutMe(p?: Profile): string[] {
+  const a = p?.anamnesis ?? {}
+  return [
+    // heightCm > 0 = perfil preenchido; sem ele o sexo é só o valor padrão
+    p?.heightCm ? `Sexo: ${p.sex === 'F' ? 'feminino' : 'masculino'}` : '',
+    a.age ? `Idade: ${a.age} anos` : '',
+    p?.heightCm ? `Altura: ${p.heightCm} cm` : '',
+    p?.weightKg ? `Peso: ${formatKg(p.weightKg)} kg` : '',
+    // backup importado não valida a anamnese: valor desconhecido viraria "undefined" no prompt
+    a.goal && GOALS[a.goal] ? `Objetivo: ${GOALS[a.goal]}` : '',
+    a.level && LEVELS[a.level] ? `Nível: ${LEVELS[a.level]}` : '',
+    a.place && PLACES[a.place] ? `Onde treino: ${PLACES[a.place]}` : '',
+    a.daysPerWeek ? `Dias por semana: ${a.daysPerWeek}` : '',
+    a.minutes ? `Tempo por treino: até ${a.minutes} min` : '',
+    a.notes?.trim() ? `Lesões, limitações ou preferências: ${a.notes.trim()}` : '',
+  ].filter(Boolean).map((l) => `- ${l}`)
+}
+
+export const buildPrompt = (profile?: Profile): string => {
+  const me = aboutMe(profile)
+  return `Você é um personal trainer. Monte meu plano de treino de musculação no formato "Pump".
+
+Sobre mim:
+${me.length ? me.join('\n') : '- (ainda não contei nada)'}
+
+Como fazer:
+1. Se eu colar uma ficha pronta junto, só transcreva ela pro formato, sem mudar nada.
+2. Senão, se faltar algo importante pra montar um bom plano (objetivo, dias por semana, onde treino, nível, lesões), me pergunte primeiro, tudo numa mensagem só, e espere minha resposta. Nessa hora não mande JSON.
+3. Monte o plano pro meu objetivo: escolha séries, repetições e descanso de acordo com ele, distribua os treinos nos dias que tenho, caiba no tempo por treino e evite exercícios que piorem minhas lesões ou limitações.
+4. Só coloque "cargaKg" se souber quanto eu levanto; senão deixe de fora.
+5. Com o plano pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
 
 Formato:
 - "formato": sempre "pump-plano".
@@ -181,4 +214,5 @@ Exemplo:
 }
 \`\`\`
 
-Responda só com o JSON.`
+Quando for mandar o plano, responda só com o JSON.`
+}

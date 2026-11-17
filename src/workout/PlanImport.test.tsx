@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { clear } from 'idb-keyval'
+import { clear, get } from 'idb-keyval'
 import { resetStoreForTests } from '../storage/db'
 import { PlanImport } from './PlanImport'
 
@@ -28,4 +28,19 @@ test('colar texto inválido mostra problemas e mantém Importar desabilitado', a
   await user.paste('oi')
   expect(await screen.findByText('Não encontrei um plano em JSON no texto')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Importar plano' })).toBeDisabled()
+})
+
+test('anamnese fica salva no perfil e vai no prompt copiado', async () => {
+  const user = userEvent.setup()
+  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
+  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+  render(<PlanImport onDone={vi.fn()} />)
+  await user.click(await screen.findByRole('radio', { name: 'Ganhar massa' }))
+  await user.click(screen.getByRole('radio', { name: '4' }))
+  await user.type(screen.getByLabelText('Lesões, limitações ou preferências'), 'ombro')
+  await user.click(screen.getByRole('button', { name: 'Copiar' }))
+  expect(writeText).toHaveBeenCalledWith(expect.stringContaining('- Objetivo: ganhar massa muscular\n'))
+  expect(writeText.mock.calls[0][0]).toContain('- Dias por semana: 4')
+  expect(writeText.mock.calls[0][0]).toContain('- Lesões, limitações ou preferências: ombro')
+  expect((await get('profile'))?.anamnesis).toEqual({ goal: 'hipertrofia', daysPerWeek: 4, notes: 'ombro' })
 })

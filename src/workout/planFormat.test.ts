@@ -1,7 +1,7 @@
 import { ex } from '../../test/helpers'
 import type { WorkoutPlan } from '../types'
 import { readFileSync } from 'node:fs'
-import { LLM_PROMPT, exportPlanFormat, parsePlanFormat, planFromFormat, type PlanFormatError } from './planFormat'
+import { buildPrompt, exportPlanFormat, parsePlanFormat, planFromFormat, type PlanFormatError } from './planFormat'
 import { normalize } from '../catalog/search'
 
 const ok = { formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'Peito', dias: ['seg', 'qui'], exercicios: [{ nome: 'supino reto com barra', series: 4, reps: 10, cargaKg: 40 }, { nome: 'Remada na máquina do Zé', series: 3, reps: '12', obs: 'banco 3' }] }] }
@@ -45,7 +45,7 @@ test('recusa carga infinita (1e999 no JSON)', () => {
 })
 test('os nomes de exemplo do prompt existem no catálogo', () => {
   const names = new Set((JSON.parse(readFileSync('public/catalog/exercises.json', 'utf8')) as { name: string }[]).map((e) => normalize(e.name)))
-  const examples = [...LLM_PROMPT.matchAll(/"nome": "([^"]+)"|\(ex\.: ([^)]+)\)/g)].flatMap((m) => m[1] ? [m[1]] : [...m[2].matchAll(/"([^"]+)"/g)].map((q) => q[1]))
+  const examples = [...buildPrompt().matchAll(/"nome": "([^"]+)"|\(ex\.: ([^)]+)\)/g)].flatMap((m) => m[1] ? [m[1]] : [...m[2].matchAll(/"([^"]+)"/g)].map((q) => q[1]))
   const exercises = examples.filter((n) => n !== 'Peito e tríceps')
   expect(exercises.length).toBeGreaterThan(4)
   expect(exercises.filter((n) => !names.has(normalize(n)))).toEqual([])
@@ -71,3 +71,13 @@ test('exportar e reimportar devolve o mesmo plano (fora os ids)', () => {
 })
 test('dieta presente é ignorada com aviso nesta fase', () =>
   expect(planFromFormat({ ...parsePlanFormat(JSON.stringify(ok)), dieta: {} }, catalog, []).ignoredDiet).toBe(true))
+test('prompt leva perfil e anamnese; sem dados manda a IA perguntar', () => {
+  const p = buildPrompt({ sex: 'F', heightCm: 165, weightKg: 62.5, anamnesis: { goal: 'emagrecer', level: 'iniciante', place: 'casa', daysPerWeek: 3, age: 34, minutes: 45, notes: ' joelho ' } })
+  for (const l of ['- Sexo: feminino', '- Idade: 34 anos', '- Altura: 165 cm', '- Peso: 62,5 kg', '- Objetivo: emagrecer', '- Nível: iniciante', '- Onde treino: em casa, com pouco equipamento', '- Dias por semana: 3', '- Tempo por treino: até 45 min', '- Lesões, limitações ou preferências: joelho'])
+    expect(p).toContain(l)
+  // perfil pulado: o sexo 'M' é só o padrão e não pode ir pro prompt
+  const empty = buildPrompt({ sex: 'M', heightCm: 0, weightKg: 0 })
+  expect(empty).toContain('- (ainda não contei nada)')
+  expect(empty).not.toContain('Sexo')
+  expect(empty).toContain('me pergunte primeiro')
+})
