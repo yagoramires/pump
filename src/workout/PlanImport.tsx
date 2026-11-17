@@ -13,7 +13,7 @@ const NO_PLAN: WorkoutPlan = { workouts: [] }
 const NO_CUSTOMS: CustomExercise[] = []
 type Review = { plan: WorkoutPlan; newCustoms: CustomExercise[]; unmatched: string[]; ignoredDiet: boolean }
 
-function Step({ n, title, sub, children }: { n: number; title: string; sub: string; children?: ReactNode }) {
+export function Step({ n, title, sub, children }: { n: number; title: string; sub: string; children?: ReactNode }) {
   return (
     <div className="flex items-center gap-3 border-t border-line p-3.5 first:border-t-0">
       <span className="flex size-8 shrink-0 items-center justify-center rounded-[9px] border border-accent-line bg-accent-bg text-sm font-bold text-accent">{n}</span>

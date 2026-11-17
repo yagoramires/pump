@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
-const LABEL = 'mb-1.5 block text-[10px] font-semibold tracking-[0.08em] text-faint uppercase'
+export const LABEL = 'mb-1.5 block text-[10px] font-semibold tracking-[0.08em] text-faint uppercase'
 const DAYS = ['1', '2', '3', '4', '5', '6', '7']
 const GOAL_LABEL: Record<Goal, string> = { hipertrofia: 'Ganhar massa', emagrecer: 'Emagrecer', forca: 'Força', saude: 'Saúde' }
 const LEVEL_LABEL: Record<Level, string> = { iniciante: 'Iniciante', intermediario: 'Intermediário', avancado: 'Avançado' }
@@ -15,7 +15,7 @@ const MUSCLE_LABEL: Record<Muscle, string> = { peito: 'Peito', costas: 'Costas',
 const GROUP = 'grid w-full gap-[3px] rounded-[11px] border border-border bg-panel p-[3px]'
 const ITEM = 'h-auto min-h-9 whitespace-normal py-1 leading-tight rounded-[8px] px-1 text-[13px] font-semibold text-text-2 data-[state=on]:bg-surface data-[state=on]:text-strong data-[state=on]:shadow-[inset_0_0_0_1px_var(--color-border-strong)]'
 
-function Chips<T extends string>({ label, options, value, onChange, cols }: { label: string; options: Record<T, string>; value?: T; onChange: (v?: T) => void; cols?: string }) {
+export function Chips<T extends string>({ label, options, value, onChange, cols }: { label: string; options: Record<T, string>; value?: T; onChange: (v?: T) => void; cols?: string }) {
   return (
     <div>
       <span className={LABEL}>{label}</span>
@@ -28,7 +28,7 @@ function Chips<T extends string>({ label, options, value, onChange, cols }: { la
   )
 }
 
-function MultiChips<T extends string>({ label, options, value, onChange, cols }: { label: string; options: Record<T, string>; value?: T[]; onChange: (v?: T[]) => void; cols?: string }) {
+export function MultiChips<T extends string>({ label, options, value, onChange, cols }: { label: string; options: Record<T, string>; value?: T[]; onChange: (v?: T[]) => void; cols?: string }) {
   return (
     <div>
       <span className={LABEL}>{label}</span>
