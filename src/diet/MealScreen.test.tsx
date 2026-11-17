@@ -129,3 +129,11 @@ test('item da IA mostra "estimativa da IA"', () => {
   expect(screen.getByText('Bolo da vó')).toBeInTheDocument()
   expect(screen.getByText('estimativa da IA')).toBeInTheDocument()
 })
+
+test('subtítulo do item: porção · gramas, ou só gramas', () => {
+  const day = dayFromMenu(menuA)
+  day.meals[0].items[0] = { ...day.meals[0].items[0], portion: '1 filé' }
+  render(<Harness initial={day} />)
+  expect(screen.getByText('1 filé · 150 g')).toBeInTheDocument()
+  expect(screen.getByText('120 g')).toBeInTheDocument()
+})

@@ -1,5 +1,6 @@
 import { daysBetween, weekStart } from '../lib/date'
 import type { DayItem, DayMeal, DietDay, DietItem, DietLog, DietPlan, MealOption, Menu, WaterLog } from '../types'
+import { formatDec } from '@/lib/number'
 import { waterMet } from './water'
 
 export type Act = (f: (d: DietDay) => DietDay) => void
@@ -59,6 +60,7 @@ export const setDayFree = (d: DietDay, free: boolean): DietDay => ({ ...d, free 
 export const itemKcal = (i: DietItem) => (i.per100.kcal * i.grams) / 100
 /** aviso de origem: número da IA nunca aparece sem rótulo */
 export const iaLabel = (i: Pick<DietItem, 'source' | 'per100'>) => (i.source === 'ia' ? (i.per100.kcal ? 'estimativa da IA' : 'sem valores') : undefined)
+export const portionText = (i: Pick<DietItem, 'portion' | 'grams'>) => (i.portion ? `${i.portion} · ${formatDec(i.grams)} g` : `${formatDec(i.grams)} g`)
 export const itemMacros = (i: DietItem) => ({ p: (i.per100.p * i.grams) / 100, c: (i.per100.c * i.grams) / 100, f: (i.per100.f * i.grams) / 100 })
 
 const r1 = (n: number) => Math.round(n * 10) / 10

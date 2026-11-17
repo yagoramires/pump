@@ -8,7 +8,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { formatDec } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { FoodPicker } from './FoodPicker'
-import { type Act, addExtra, chooseOption, iaLabel, itemKcal, itemMacros, removeItem, setMealFree, skipItem, swapItem, swapMeal, toggleMeal, undoSwap } from './day'
+import { type Act, addExtra, chooseOption, iaLabel, itemKcal, itemMacros, portionText, removeItem, setMealFree, skipItem, swapItem, swapMeal, toggleMeal, undoSwap } from './day'
 
 type Props = { meal: DayMeal; menu?: Menu; plan: DietPlan; dayFree: boolean; act: Act; onClose: () => void }
 
@@ -44,7 +44,7 @@ export function MealScreen({ meal, menu, plan, dayFree, act, onClose }: Props) {
         {i.extra && <Plus size={12} className="shrink-0 text-accent" aria-hidden="true" />}
         <span className="min-w-0 flex-1 py-1.5">
           <span className={cn('block truncate text-sm', i.skipped ? 'text-faint line-through' : i.swappedFrom ? 'text-accent' : 'text-text')}>{i.name}</span>
-          <span className="block truncate text-[12.5px] text-faint">{i.portion ?? `${formatDec(i.grams)} g`}</span>
+          <span className="block truncate text-[12.5px] text-faint">{portionText(i)}</span>
           {iaLabel(i) && <span className="block text-[12px] text-c7">{iaLabel(i)}</span>}
         </span>
         <span className="w-10 shrink-0 text-right text-[12.5px] tabular-nums text-text-2">{Math.round(itemKcal(i))}</span>

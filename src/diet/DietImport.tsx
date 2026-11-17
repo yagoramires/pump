@@ -9,7 +9,7 @@ import { PlanFormatError } from '../workout/planFormat'
 import { Step } from '../workout/PlanImport'
 import { buildDietPrompt } from './prompt'
 import { dietFromFormat, parseDietFormat } from './dietFormat'
-import { ensureDay, itemKcal, sortedMeals } from './day'
+import { ensureDay, itemKcal, portionText, sortedMeals } from './day'
 import { DietAnamnesisForm } from './DietAnamnesisForm'
 import { DietEditor } from './DietEditor'
 import { FoodPicker } from './FoodPicker'
@@ -34,7 +34,6 @@ const replaceItem = (plan: DietPlan, id: string, next: DietItem): DietPlan => ({
   ...plan,
   menus: plan.menus.map((m) => ({ ...m, meals: m.meals.map((ml) => ({ ...ml, options: ml.options.map((o) => ({ ...o, items: o.items.map((i) => (i.id === id ? next : i)) })) })) })),
 })
-const portionText = (i: DietItem) => (i.portion ? `${i.portion} · ${formatDec(i.grams)} g` : `${formatDec(i.grams)} g`)
 
 export function DietImport({ mode, onDone, onBack }: Props) {
   const [profile, setProfile, profileLoaded] = usePersisted('profile', NO_PROFILE)
