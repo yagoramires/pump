@@ -1,7 +1,8 @@
 import type { SetDone, Workout, WorkoutSession } from '../types'
 
-export const startSession = (w: Workout, date: string): WorkoutSession => ({
+export const startSession = (w: Workout, date: string, now = new Date()): WorkoutSession => ({
   date,
+  startedAt: now.toISOString(),
   workoutId: w.id,
   workoutLabel: w.label,
   workoutName: w.name,
