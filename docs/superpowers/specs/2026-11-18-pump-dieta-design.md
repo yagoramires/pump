@@ -254,3 +254,33 @@ Totais de qualquer dia (hoje ou passado) vêm de **uma função pura** sobre a c
 - Também aceita `dieta.refeicoes` (um cardápio só, nome "Cardápio") e refeição com `alimentos` direto (uma opção só).
 - Validação extra: 1 a 5 cardápios; 1 a 4 opções por refeição; cada opção com 1 a 30 alimentos; mensagens no padrão de §7.7 ("Cardápio {c}, refeição {n}, opção {o}: …").
 - O prompt pede **2 opções por refeição** e, se o objetivo e os dias de treino justificarem, **2 cardápios** ("Dia de treino" e "Descanso").
+
+## 14. Redesenho da aba Dieta: lista enxuta + refeição com opções (2026-11-18)
+
+Pedido do Yago depois de testar: "a view da dieta tá com muita informação; a view deveria ser de cada refeição, e em cada refeição uma tab pra cada opção A, B, C". Mockup aprovado: `docs/design/dieta-refeicao.html` (versão B, toggle com letra). Onde contradiz §7.4 e §13.2, vale esta seção.
+
+**Abordagens:** A) uma refeição por tela com passo a passo pelo dia; **B) lista enxuta + refeição aberta em tela cheia (escolhida pelo Yago)**. O seletor de opção é um **toggle segmentado** com as letras (escolha do Yago), não botões.
+
+### 14.1 Aba (lista)
+- Topo: rótulo do dia com o nome do cardápio de hoje ("Ter, 18 nov · Dia de treino"), título "Dieta" e um botão ⋯ com: **Cardápio de hoje** (troca, com a confirmação de §13.2), **Dia livre / Desfazer dia livre** e **Editar cardápio**. O seletor e o botão "Dia livre" saem da tela.
+- Resumo numa linha: anel pequeno com a % da meta, "{feito} / {meta} kcal" e os macros em texto ("P 44/160 · C 122/240 · G 26/65"). Sem meta, só o feito, sem anel.
+- Água vira uma **pílula** "{x}/{meta} L" à direita do resumo (só com a água ligada). Tocar abre uma gaveta com os copos de hoje (o cartão de copos atual vai pra dentro dela). Desligada: a linha "Ligar contador de água" fica embaixo da lista. *(Chamada minha.)*
+- Lista de refeições por horário, cada linha com: horário, nome, subtítulo ("{kcal} kcal" se feita; "{n} opções" se tiver mais de uma; "livre"), a **letra da opção escolhida** quando a refeição está feita e há mais de uma opção, e o círculo de check. A refeição do horário atual (a primeira não feita cujo horário já passou, ou a próxima) fica destacada. *(Chamada minha.)*
+- Tocar no círculo marca/desmarca a refeição com a opção que está escolhida nela. Tocar na linha abre a refeição.
+
+### 14.2 Refeição aberta (tela cheia, sobre a aba)
+- Topo: voltar, "{nome} · {horário}" e ⋯ com **Trocar por refeição de outro cardápio** (a lista de §13.2, só com refeições de outros cardápios) e **Refeição livre / Desfazer**.
+- **Toggle segmentado A · B · C…** (só quando a refeição tem mais de uma opção), no visual do mockup: trilho escuro e a opção escolhida em cinza mais claro. Embaixo, "Opção {letra} · {nome}" (só a letra se não tiver nome).
+- Itens da opção escolhida: nome, porção · gramas, kcal, rótulo "estimativa da IA"/"sem valores" quando for o caso; tocar abre a gaveta de trocar/pular só hoje (como hoje). Trocados em verde com o ícone, pulados riscados com Desfazer, extras com Remover. "+ Adicionar extra" no fim.
+- Linha de total da opção: "{kcal} kcal · P · C · G".
+- Botões fixos embaixo: **Refeição livre** e **Comi esta** (marca e volta pra lista); com a refeição feita, viram **Desmarcar** e **Voltar**. Em refeição livre ou dia livre, os itens ficam esmaecidos e as ações de item somem (regra de §13.2).
+
+### 14.3 Escolher a opção (dados)
+- `DayMeal` ganha `optionId?: string` (a opção escolhida). A cópia do dia começa com a 1ª opção (`optionId` = id dela).
+- Trocar a aba do toggle chama uma função nova `chooseOption(day, mealId, optionId, menu)`: troca os itens da refeição pelos da opção (mantém os extras, descarta trocas e pulos dessa refeição, como `swapMeal`), grava `optionId` e limpa `swappedMeal`. Escolher a mesma opção não faz nada. Escolher uma opção **conta como mexer no dia** (`touched`), como as outras ações. *(Chamada minha: assim a escolha fica salva ao reabrir.)*
+- "Trocar por refeição de outro cardápio" continua usando `swapMeal` (grava `swappedMeal`, limpa `optionId`); nesse caso o toggle não aparece e a linha mostra "De {cardápio}: {refeição}" com "Voltar às opções" (volta pra 1ª opção).
+- As opções vêm do cardápio do dia (`day.menuId`); se o cardápio foi apagado, a refeição mostra só os itens da cópia, sem toggle.
+- Histórico/PDF não mudam (leem os itens da cópia).
+
+### 14.4 Fora
+- Arrastar entre refeições, notificação de horário e reordenar refeições na lista.
