@@ -41,6 +41,8 @@ export interface WorkoutSession {
   restEndsAt?: number
   startedAt?: string
   completedAt?: string
+  /** descanso marcado: sem exercícios e sem completedAt */
+  rest?: boolean
 }
 /** chave = date */
 export type WorkoutLog = Record<string, WorkoutSession>
@@ -59,11 +61,15 @@ export const DEFAULT_SETTINGS: Settings = { lastTab: 'treino', onboardingDone: f
 
 export interface Per100 { kcal: number; p: number; c: number; f: number }
 export interface DietItem { id: string; name: string; grams: number; portion?: string; per100: Per100; source: 'taco' | 'custom' | 'ia'; tacoId?: number }
-export interface Meal { id: string; name: string; time: string; items: DietItem[] }
-export interface DietPlan { meals: Meal[]; goalKcal?: number; goalMacros?: { p: number; c: number; f: number } }
+export interface Macros { p: number; c: number; f: number }
+export interface MealOption { id: string; name?: string; items: DietItem[] }
+export interface Meal { id: string; name: string; time: string; options: MealOption[] }
+export interface Menu { id: string; name: string; meals: Meal[]; goalKcal?: number; goalMacros?: Macros }
+export interface DietPlan { menus: Menu[]; lastMenuId?: string }
 export interface DayItem extends DietItem { skipped?: boolean; swappedFrom?: string; extra?: boolean }
-export interface DayMeal extends Omit<Meal, 'items'> { done: boolean; items: DayItem[] }
-export interface DietDay { meals: DayMeal[]; goalKcal?: number }
+/** swappedMeal = nome da opção/refeição escolhida em "Trocar refeição" */
+export interface DayMeal extends Omit<Meal, 'options'> { done: boolean; free?: boolean; swappedMeal?: string; items: DayItem[] }
+export interface DietDay { menuId: string; menuName: string; meals: DayMeal[]; goalKcal?: number; goalMacros?: Macros; free?: boolean }
 /** chave = todayKey */
 export type DietLog = Record<string, DietDay>
 export interface WaterDay { ml: number; goalMl: number }
@@ -73,4 +79,4 @@ export type Restriction = 'lactose' | 'gluten' | 'vegetariano' | 'vegano'
 export interface DietAnamnesis { goal: DietGoal; meals?: number; wake?: string; train?: string; sleep?: string; restrictions?: Restriction[]; avoid?: string; eatOut?: 'casa' | 'fora' | 'misto'; notes?: string }
 export interface WaterSettings { enabled: boolean; goalMl: number; cupMl: number }
 export interface TacoFood { id: number; name: string; kcal: number; p: number; c: number; f: number }
-export const EMPTY_DIET: DietPlan = { meals: [] }
+export const EMPTY_DIET: DietPlan = { menus: [] }

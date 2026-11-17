@@ -39,7 +39,7 @@ export function parseBackup(text: string): BackupFile {
     (customExercises === undefined || Array.isArray(customExercises)) &&
     (measurements === undefined || Array.isArray(measurements)) &&
     (photoSets === undefined || Array.isArray(photoSets)) &&
-    (dietPlan === undefined || (isObj(dietPlan) && Array.isArray(dietPlan.meals))) &&
+    (dietPlan === undefined || (isObj(dietPlan) && Array.isArray(dietPlan.menus))) &&
     (dietLog === undefined || (isObj(dietLog) && Object.values(dietLog).every((d) => isObj(d) && Array.isArray(d.meals)))) &&
     (waterLog === undefined || (isObj(waterLog) && Object.values(waterLog).every((d) => isObj(d) && typeof d.ml === 'number' && typeof d.goalMl === 'number'))) &&
     (foods === undefined || Array.isArray(foods))

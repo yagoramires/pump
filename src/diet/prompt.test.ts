@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import type { TacoFood } from '../types'
+import { parseDietFormat } from './dietFormat'
 import { buildDietPrompt, TACO_EXAMPLES } from './prompt'
 
 test('buildDietPrompt traz perfil, anamnese da dieta, padrão TACO e formato, sem passar de 6000 caracteres sem os dados', () => {
@@ -21,6 +22,23 @@ test('buildDietPrompt traz perfil, anamnese da dieta, padrão TACO e formato, se
   expect(empty).toContain('- (ainda não contei nada)')
   expect(empty).not.toContain('Objetivo da dieta')
   expect(empty).toContain('me pergunte primeiro')
+})
+
+test('prompt pede 2 opções por refeição e respeita 6000 caracteres', () => {
+  const empty = buildDietPrompt(undefined)
+  expect(empty.length).toBeLessThanOrEqual(6000)
+  expect(empty).toContain('2 opções')
+  expect(empty).toContain('"cardapios"')
+  expect(empty).toContain('"opcoes"')
+  expect(empty).not.toContain('"Descanso"')
+  // o exemplo do prompt é um arquivo válido no formato novo
+  const example = parseDietFormat(empty)
+  expect(example.cardapios[0].refeicoes[0].opcoes).toHaveLength(2)
+
+  const trains = buildDietPrompt({ sex: 'M', heightCm: 180, weightKg: 80, anamnesis: { daysPerWeek: 4 } })
+  expect(trains).toContain('2 cardápios')
+  expect(trains).toContain('"Dia de treino"')
+  expect(trains).toContain('"Descanso"')
 })
 
 test('anamnese da dieta inválida vinda de backup não gera linha', () => {

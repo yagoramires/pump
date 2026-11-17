@@ -48,6 +48,10 @@ function aboutMe(p?: Profile): string[] {
 
 export const buildDietPrompt = (profile?: Profile): string => {
   const me = aboutMe(profile)
+  // quem treina ganha um cardápio pro descanso, com meta própria
+  const menus = profile?.anamnesis?.daysPerWeek
+    ? 'Faça 2 cardápios: "Dia de treino" e "Descanso", cada um com sua meta (no descanso, em geral menos calorias e carboidrato).'
+    : 'Faça 1 cardápio.'
   return `Você é um nutricionista. Monte meu cardápio no formato "Pump".
 
 Sobre mim:
@@ -56,42 +60,65 @@ ${me.length ? me.join('\n') : '- (ainda não contei nada)'}
 Como fazer:
 1. Se eu colar uma dieta pronta (de nutricionista, por exemplo), só transcreva ela pro formato, sem mudar as quantidades.
 2. Senão, se faltar algo importante pra montar um bom cardápio (objetivo, peso, altura, idade, refeições por dia, horários), me pergunte primeiro, tudo numa mensagem só, e espere minha resposta. Nessa hora não mande JSON.
-3. Calcule uma meta diária de calorias e de macros (proteína, carboidrato e gordura) coerente com meu objetivo e meu perfil.
-4. Distribua as refeições nos meus horários, respeite minhas restrições e o que não como, e use comida simples do dia a dia no Brasil.
-5. Escreva o nome de cada alimento no padrão da tabela TACO 4ª edição: "Alimento, tipo, preparo", sempre dizendo o preparo (cru, cozido, grelhado, assado, frito...). Exemplos de nomes da TACO: ${TACO_EXAMPLES.map((n) => `"${n}"`).join(', ')}.
-6. Pra cada alimento, informe as gramas, a porção caseira e os valores da quantidade indicada (não por 100 g): kcal, proteína, carboidrato e gordura.
-7. Com o cardápio pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
+3. ${menus}
+4. Calcule uma meta diária de calorias e de macros (proteína, carboidrato e gordura) coerente com meu objetivo e meu perfil.
+5. Distribua as refeições nos meus horários, respeite minhas restrições e o que não como, e use comida simples do dia a dia no Brasil.
+6. Dê 2 opções em cada refeição (ex.: "Ovos com pão" e "Iogurte com aveia"), com calorias e macros parecidos, pra eu poder variar.
+7. Escreva o nome de cada alimento no padrão da tabela TACO 4ª edição: "Alimento, tipo, preparo", sempre dizendo o preparo (cru, cozido, grelhado, assado, frito...). Exemplos de nomes da TACO: ${TACO_EXAMPLES.map((n) => `"${n}"`).join(', ')}.
+8. Pra cada alimento, informe as gramas, a porção caseira e os valores da quantidade indicada (não por 100 g): kcal, proteína, carboidrato e gordura.
+9. Com o cardápio pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
 
 Formato:
 - "formato": sempre "pump-plano".
 - "versao": sempre 1.
 - "dieta":
-  - "metaKcal": meta diária de calorias, número inteiro de 800 a 6000.
-  - "macros": meta diária em gramas, com "proteinaG", "carboG" e "gorduraG" (cada um de 0 a 600).
-  - "refeicoes": lista de 1 a 10 refeições. Cada refeição tem:
-    - "nome": nome da refeição (ex.: "Café da manhã").
-    - "horario": hora no formato "HH:MM" (ex.: "07:00").
-    - "alimentos": lista de 1 a 30 alimentos. Cada alimento tem:
-      - "nome": nome no padrão da TACO (obrigatório).
-      - "gramas": quantidade em gramas, de 1 a 2000 (obrigatório).
-      - "porcao": porção caseira, ex.: "1 unidade" ou "2 colheres de sopa".
-      - "kcal", "proteinaG", "carboG", "gorduraG": valores da quantidade indicada, números maiores ou iguais a 0.
+  - "cardapios": lista de 1 a 5 cardápios. Cada cardápio tem:
+    - "nome": nome do cardápio (ex.: "Dia de treino").
+    - "metaKcal": meta diária de calorias, número inteiro de 800 a 6000.
+    - "macros": meta diária em gramas, com "proteinaG", "carboG" e "gorduraG" (cada um de 0 a 600).
+    - "refeicoes": lista de 1 a 10 refeições. Cada refeição tem:
+      - "nome": nome da refeição (ex.: "Café da manhã").
+      - "horario": hora no formato "HH:MM" (ex.: "07:00").
+      - "opcoes": lista de 1 a 4 opções (faça 2). Cada opção tem:
+        - "nome": nome curto da opção (ex.: "Ovos com pão").
+        - "alimentos": lista de 1 a 30 alimentos. Cada alimento tem:
+          - "nome": nome no padrão da TACO (obrigatório).
+          - "gramas": quantidade em gramas, de 1 a 2000 (obrigatório).
+          - "porcao": porção caseira, ex.: "1 unidade" ou "2 colheres de sopa".
+          - "kcal", "proteinaG", "carboG", "gorduraG": valores da quantidade indicada, números maiores ou iguais a 0.
 
-Exemplo:
+Exemplo (um cardápio e uma refeição, só pra mostrar o formato):
 \`\`\`json
 {
   "formato": "pump-plano",
   "versao": 1,
   "dieta": {
-    "metaKcal": 1950,
-    "macros": { "proteinaG": 150, "carboG": 190, "gorduraG": 60 },
-    "refeicoes": [
+    "cardapios": [
       {
-        "nome": "Café da manhã",
-        "horario": "07:00",
-        "alimentos": [
-          { "nome": "Pão, trigo, francês", "gramas": 50, "porcao": "1 unidade", "kcal": 150, "proteinaG": 4, "carboG": 29.3, "gorduraG": 1.6 },
-          { "nome": "Ovo, de galinha, inteiro, cozido/10minutos", "gramas": 100, "porcao": "2 unidades", "kcal": 146, "proteinaG": 13.3, "carboG": 0.6, "gorduraG": 9.5 }
+        "nome": "Cardápio",
+        "metaKcal": 1950,
+        "macros": { "proteinaG": 150, "carboG": 190, "gorduraG": 60 },
+        "refeicoes": [
+          {
+            "nome": "Café da manhã",
+            "horario": "07:00",
+            "opcoes": [
+              {
+                "nome": "Ovos com pão",
+                "alimentos": [
+                  { "nome": "Pão, trigo, francês", "gramas": 50, "porcao": "1 unidade", "kcal": 150, "proteinaG": 4, "carboG": 29.3, "gorduraG": 1.6 },
+                  { "nome": "Ovo, de galinha, inteiro, cozido/10minutos", "gramas": 100, "porcao": "2 unidades", "kcal": 146, "proteinaG": 13.3, "carboG": 0.6, "gorduraG": 9.5 }
+                ]
+              },
+              {
+                "nome": "Iogurte com aveia",
+                "alimentos": [
+                  { "nome": "Iogurte, natural", "gramas": 170, "porcao": "1 pote", "kcal": 87, "proteinaG": 7, "carboG": 3.2, "gorduraG": 5.1 },
+                  { "nome": "Aveia, flocos, crua", "gramas": 30, "porcao": "3 colheres de sopa", "kcal": 118, "proteinaG": 4.2, "carboG": 20, "gorduraG": 2.6 }
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
