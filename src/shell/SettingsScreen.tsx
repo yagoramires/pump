@@ -1,11 +1,11 @@
 import { useState, type ReactNode } from 'react'
-import { ChevronLeft, ChevronRight, List, RotateCcw, Share2, Sparkles, User } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Droplet, List, RotateCcw, Share2, Sparkles, User, Utensils } from 'lucide-react'
 import { toast } from 'sonner'
-import { NO_PROFILE, type Settings } from '../types'
+import { NO_PROFILE, type Settings, type WaterSettings } from '../types'
 import { exportBackup } from '../storage/backup'
 import { usePersisted } from '../storage/db'
 import { daysBetween, todayKey } from '../lib/date'
-import { formatKg } from '../lib/number'
+import { formatDec, formatKg, parseDecimal } from '../lib/number'
 import { IconDot } from '@/components/IconDot'
 import { Overlay } from '@/components/Overlay'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
@@ -13,8 +13,13 @@ import { ImportBackupButton } from './ImportBackupButton'
 import { PlanEditor } from '../workout/PlanEditor'
 import { PlanImport } from '../workout/PlanImport'
 import { ProfileForm } from '../onboarding/Onboarding'
+import { DietEditor } from '../diet/DietEditor'
+import { DietImport } from '../diet/DietImport'
+import { waterDefaults } from '../diet/water'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 
-type View = 'menu' | 'plan' | 'import' | 'profile'
+type View = 'menu' | 'plan' | 'import' | 'profile' | 'diet' | 'diet-ia' | 'water'
 
 const LABEL = 'px-1 pt-4 pb-1.5 text-[10px] font-semibold uppercase tracking-[.08em] text-faint'
 
@@ -42,14 +47,73 @@ function BackHeader({ title, onBack, label = 'Voltar' }: { title: string; onBack
   )
 }
 
+const LIMITS = { goalMl: [250, 10000], cupMl: [50, 1000] } as const
+
+function WaterForm({ water, ready, weightKg, setSettings }: { water?: WaterSettings; ready: boolean; weightKg: number; setSettings: (f: (s: Settings) => Settings) => void }) {
+  const on = !!water?.enabled
+  const [draft, setDraft] = useState(() => ({ goalMl: String(water?.goalMl ?? ''), cupMl: String(water?.cupMl ?? '') }))
+  const toggle = () =>
+    setSettings((s) => {
+      const w = s.water ?? waterDefaults(weightKg)
+      const next = { ...w, enabled: !s.water?.enabled }
+      setDraft({ goalMl: String(next.goalMl), cupMl: String(next.cupMl) })
+      return { ...s, water: next }
+    })
+  const field = (k: keyof typeof LIMITS, label: string) => {
+    const [min, max] = LIMITS[k]
+    const n = parseDecimal(draft[k])
+    const bad = n === null || n < min || n > max
+    return (
+      <label className="flex flex-col gap-1.5">
+        <span className="text-[13px] text-text-2">{label}</span>
+        <Input
+          aria-label={label} inputMode="numeric" autoComplete="off" aria-invalid={bad} value={draft[k]}
+          onChange={(e) => {
+            const v = e.target.value
+            setDraft((d) => ({ ...d, [k]: v }))
+            const x = parseDecimal(v)
+            if (x !== null && x >= min && x <= max) setSettings((s) => (s.water ? { ...s, water: { ...s.water, [k]: Math.round(x) } } : s))
+          }}
+        />
+        {bad && <span className="text-[12.5px] text-negative">{`Entre ${formatDec(min)} e ${formatDec(max)} ml`}</span>}
+      </label>
+    )
+  }
+  return (
+    <div className="mt-3 flex flex-col gap-4">
+      <Group>
+        <div className="flex min-h-14 items-center gap-3 px-3.5 py-2">
+          <span id="water-switch" className="flex-1 text-[15px] font-semibold text-strong">Contador de água</span>
+          <button
+            type="button" role="switch" aria-checked={on} aria-labelledby="water-switch" disabled={!ready} onClick={toggle}
+            className={cn('relative h-8 w-13 shrink-0 rounded-full border transition-colors disabled:opacity-40', on ? 'border-accent bg-accent' : 'border-border bg-surface')}
+          >
+            <span className={cn('absolute top-0.5 left-0.5 size-6 rounded-full transition-transform', on ? 'translate-x-5 bg-on-accent' : 'bg-text-2')} />
+          </button>
+        </div>
+      </Group>
+      {on && (
+        <div className="grid grid-cols-2 gap-3">
+          {field('goalMl', 'Meta (ml)')}
+          {field('cupMl', 'Copo (ml)')}
+        </div>
+      )}
+      <p className="text-[13px] text-text-2">Ao ligar, a meta é 35 ml por kg do seu peso. Os copos aparecem na aba Dieta.</p>
+    </div>
+  )
+}
+
 export function SettingsScreen({ settings, onClose, setSettings }: { settings: Settings; onClose: () => void; setSettings: (f: (s: Settings) => Settings) => void }) {
   const [view, setView] = useState<View>('menu')
   const [confirmRedo, setConfirmRedo] = useState(false)
-  const [profile] = usePersisted('profile', NO_PROFILE)
+  const [profile, , profileLoaded] = usePersisted('profile', NO_PROFILE)
   const back = () => setView('menu')
 
   if (view === 'plan') return <Overlay><PlanEditor onDone={back} onCancel={back} /></Overlay>
   if (view === 'import') return <Overlay><PlanImport onDone={back} onBack={back} /></Overlay>
+  if (view === 'diet') return <Overlay><DietEditor onDone={back} onCancel={back} /></Overlay>
+  if (view === 'diet-ia') return <Overlay><DietImport mode="ia" onDone={back} onBack={back} /></Overlay>
+  if (view === 'water') return <Overlay><BackHeader title="Água" onBack={back} /><WaterForm water={settings.water} ready={profileLoaded} weightKg={profile.weightKg} setSettings={setSettings} /></Overlay>
   if (view === 'profile') return <Overlay><BackHeader title="Perfil" onBack={back} /><div className="mt-3"><ProfileForm submitLabel="Salvar" onDone={back} /></div></Overlay>
 
   const days = settings.lastBackupAt ? daysBetween(settings.lastBackupAt, todayKey()) : undefined
@@ -63,6 +127,12 @@ export function SettingsScreen({ settings, onClose, setSettings }: { settings: S
         <Row icon={<List size={18} aria-hidden="true" />} color="var(--c1)" title="Editar plano" onClick={() => setView('plan')} />
         <Row icon={<Sparkles size={18} aria-hidden="true" />} color="var(--c4)" title="Importar/exportar via IA" onClick={() => setView('import')} />
         <Row icon={<User size={18} aria-hidden="true" />} color="var(--c2)" title="Perfil" sub={profile.weightKg && profile.heightCm ? `${formatKg(profile.weightKg)} kg · ${profile.heightCm} cm` : undefined} onClick={() => setView('profile')} />
+      </Group>
+      <div className={LABEL}>DIETA</div>
+      <Group>
+        <Row icon={<Utensils size={18} aria-hidden="true" />} color="var(--c7)" title="Cardápio" onClick={() => setView('diet')} />
+        <Row icon={<Sparkles size={18} aria-hidden="true" />} color="var(--c4)" title="Gerar com IA" onClick={() => setView('diet-ia')} />
+        <Row icon={<Droplet size={18} aria-hidden="true" />} color="var(--c2)" title="Água" sub={settings.water?.enabled ? `${formatDec(settings.water.goalMl / 1000)} L por dia` : 'Desligada'} onClick={() => setView('water')} />
       </Group>
       <div className={LABEL}>SEUS DADOS</div>
       <Group>

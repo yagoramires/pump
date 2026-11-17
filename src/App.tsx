@@ -4,13 +4,13 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
 import { BottomNav } from './shell/BottomNav'
-import { ComingSoon } from './shell/ComingSoon'
 import { InstallGate } from './shell/InstallGate'
 import { FatalScreen } from './shell/ErrorBoundary'
 import { SettingsScreen } from './shell/SettingsScreen'
 import { isIOS, isStandalone } from './shell/platform'
 import { Onboarding } from './onboarding/Onboarding'
 import { TreinoTab } from './workout/TreinoTab'
+import { DietTab } from './diet/DietTab'
 import { syncPreviewCache } from './workout/previews'
 import { backupDue, daysWithoutBackup, exportBackup } from './storage/backup'
 import { requestPersist, usePersisted } from './storage/db'
@@ -87,7 +87,7 @@ export default function App() {
         ) : (
           <>
             <button type="button" className="icon-btn float-right -mt-1.5" aria-label="Configurações" onClick={() => setShowSettings(true)}><SettingsIcon size={17} /></button>
-            {tab === 'treino' ? <TreinoTab /> : tab === 'evolucao' ? <EvolutionTab /> : <ComingSoon title="Dieta" />}
+            {tab === 'treino' ? <TreinoTab /> : tab === 'evolucao' ? <EvolutionTab /> : <DietTab />}
           </>
         )}
       </main>

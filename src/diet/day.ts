@@ -11,7 +11,7 @@ export const dayFromMenu = (menu: Menu): DietDay => ({
 
 export const currentMenu = (plan: DietPlan): Menu | undefined => plan.menus.find((m) => m.id === plan.lastMenuId) ?? plan.menus[0]
 
-const touched = (d: DietDay) =>
+export const touched = (d: DietDay) =>
   d.free || d.meals.some((m) => m.done || m.free || m.swappedMeal || m.items.some((i) => i.skipped || i.swappedFrom || i.extra))
 
 export const ensureDay = (log: DietLog, plan: DietPlan, date: string): DietLog => {
