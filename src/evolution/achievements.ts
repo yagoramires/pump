@@ -1,4 +1,7 @@
-import type { DietLog, DietPlan, Measurement, PhotoSet, Profile, WaterLog, WorkoutLog, WorkoutPlan } from '../types'
+import type { Profile } from '../profile/types'
+import type { WorkoutLog, WorkoutPlan } from '../workout/types'
+import type { DietLog, DietPlan, WaterLog } from '../diet/types'
+import type { Measurement, PhotoSet } from './types'
 import { daysBetween, parseDayKey, todayKey, weekStart, weekday } from '../lib/date'
 import { formatKg } from '../lib/number'
 import { dayStatus } from '../diet/day'

@@ -9,3 +9,5 @@ globalThis.caches = fakeCacheStorage({})
 HTMLElement.prototype.setPointerCapture ??= () => {}
 HTMLElement.prototype.releasePointerCapture ??= () => {}
 HTMLElement.prototype.hasPointerCapture ??= () => false
+// o File do jsdom pode não ter .text()
+Blob.prototype.text ??= function (this: Blob) { return new Response(this).text() }

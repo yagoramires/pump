@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Check, ChevronRight, Dumbbell, HeartPulse, Moon, Undo2 } from 'lucide-react'
 import { toast } from 'sonner'
-import type { SetDone, WorkoutLog, WorkoutPlan } from '../types'
+import { DEFAULTS } from '../schema'
+import type { SetDone, WorkoutLog } from './types'
 import { load, usePersisted } from '../storage/db'
 import { formatDayLabel, todayKey } from '../lib/date'
 import { Button } from '@/components/ui/button'
@@ -21,15 +22,13 @@ import { firstIncomplete, previousSets, sessionStats } from './stats'
 import { unlockAudio } from './restTimer'
 import { isCardio } from './cardio'
 
-const EMPTY_PLAN: WorkoutPlan = { workouts: [] }
-const EMPTY_LOG: WorkoutLog = {}
 const LABEL = 'text-[10px] font-semibold uppercase tracking-[.05em] text-faint'
 const exCount = (n: number) => `${n} exercício${n === 1 ? '' : 's'}`
 
 export function TreinoTab() {
   const [today, setToday] = useState(() => todayKey()) // treino que passa da meia-noite segue no mesmo dia
-  const [plan, , planLoaded] = usePersisted('workoutPlan', EMPTY_PLAN)
-  const [log, setLog, logLoaded] = usePersisted('workoutLog', EMPTY_LOG)
+  const [plan, , planLoaded] = usePersisted('workoutPlan', DEFAULTS.workoutPlan)
+  const [log, setLog, logLoaded] = usePersisted('workoutLog', DEFAULTS.workoutLog)
   const [chosenId, setChosenId] = useState<string>()
   const [editingPlan, setEditingPlan] = useState(false)
   const [preview, setPreview] = useState<number>()

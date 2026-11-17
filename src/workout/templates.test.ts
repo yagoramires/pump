@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import type { Exercise } from '../types'
+import type { Exercise } from './types'
 import { TEMPLATES, PLAN_DEFAULTS, instantiateTemplate, toPlanExercise } from './templates'
 
 const catalog: Exercise[] = JSON.parse(readFileSync('public/catalog/exercises.json', 'utf8'))

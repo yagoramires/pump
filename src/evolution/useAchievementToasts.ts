@@ -1,25 +1,21 @@
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 import { usePersisted } from '../storage/db'
-import { DEFAULT_SETTINGS, EMPTY_DIET, NO_PROFILE } from '../types'
+import { DEFAULTS } from '../schema'
 import { todayKey } from '../lib/date'
 import { computeAchievements } from './achievements'
 
-const NO_LOG = {}
-const NO_PLAN = { workouts: [] }
-const NONE: never[] = []
-
 /** toast de conquista nova; na primeira vez só marca as já ganhas como vistas */
 export function useAchievementToasts(): void {
-  const [workoutLog, , a] = usePersisted('workoutLog', NO_LOG)
-  const [workoutPlan, , b] = usePersisted('workoutPlan', NO_PLAN)
-  const [measurements, , c] = usePersisted('measurements', NONE)
-  const [photoSets, , d] = usePersisted('photoSets', NONE)
-  const [profile, , e] = usePersisted('profile', NO_PROFILE)
-  const [settings, setSettings, f] = usePersisted('settings', DEFAULT_SETTINGS)
-  const [dietLog, , g] = usePersisted('dietLog', NO_LOG)
-  const [waterLog, , h] = usePersisted('waterLog', NO_LOG)
-  const [dietPlan, , i] = usePersisted('dietPlan', EMPTY_DIET)
+  const [workoutLog, , a] = usePersisted('workoutLog', DEFAULTS.workoutLog)
+  const [workoutPlan, , b] = usePersisted('workoutPlan', DEFAULTS.workoutPlan)
+  const [measurements, , c] = usePersisted('measurements', DEFAULTS.measurements)
+  const [photoSets, , d] = usePersisted('photoSets', DEFAULTS.photoSets)
+  const [profile, , e] = usePersisted('profile', DEFAULTS.profile)
+  const [settings, setSettings, f] = usePersisted('settings', DEFAULTS.settings)
+  const [dietLog, , g] = usePersisted('dietLog', DEFAULTS.dietLog)
+  const [waterLog, , h] = usePersisted('waterLog', DEFAULTS.waterLog)
+  const [dietPlan, , i] = usePersisted('dietPlan', DEFAULTS.dietPlan)
   const shown = useRef(new Set<string>())
   const ready = a && b && c && d && e && f && g && h && i
 

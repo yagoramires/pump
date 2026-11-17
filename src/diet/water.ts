@@ -1,4 +1,4 @@
-import type { WaterDay, WaterLog, WaterSettings } from '../types'
+import type { WaterDay, WaterLog, WaterSettings } from './types'
 
 export const waterDefaults = (weightKg: number): WaterSettings => ({
   enabled: true,

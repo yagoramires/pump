@@ -1,4 +1,4 @@
-import type { DietAnamnesis, DietGoal, Restriction } from '../types'
+import type { DietAnamnesis, DietGoal, Restriction } from './types'
 import { Chips, MultiChips } from '../workout/AnamnesisForm'
 import { Input } from '@/components/ui/input'
 

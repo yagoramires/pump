@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Check, ChevronDown, ChevronLeft, ImageOff } from 'lucide-react'
-import { NO_PROFILE, type Angle, type Measurement, type PhotoSet } from '../types'
+import { DEFAULTS } from '../schema'
+import type { Angle } from './types'
 import { usePersisted } from '../storage/db'
 import { formatDayMonth } from '../lib/date'
 import { formatDec, formatKg } from '@/lib/number'
@@ -13,8 +14,6 @@ import { nearest } from './measurements'
 import { AngleTabs } from './PhotoCapture'
 import { usePhoto } from './usePhoto'
 
-const NO_SETS: PhotoSet[] = []
-const NO_MEASURES: Measurement[] = []
 const CHIP = 'flex h-11 items-center gap-1 rounded-[10px] border border-border px-3 text-[13px] text-text'
 
 function Pane({ id, date, now }: { id?: string; date: string; now: boolean }) {
@@ -32,9 +31,9 @@ function Pane({ id, date, now }: { id?: string; date: string; now: boolean }) {
 }
 
 export function PhotoCompare({ onClose }: { onClose: () => void }) {
-  const [sets, , a] = usePersisted('photoSets', NO_SETS)
-  const [ms, , b] = usePersisted('measurements', NO_MEASURES)
-  const [profile, , c] = usePersisted('profile', NO_PROFILE)
+  const [sets, , a] = usePersisted('photoSets', DEFAULTS.photoSets)
+  const [ms, , b] = usePersisted('measurements', DEFAULTS.measurements)
+  const [profile, , c] = usePersisted('profile', DEFAULTS.profile)
   const [angle, setAngle] = useState<Angle>('frente')
   const [chosen, setChosen] = useState<{ before?: string; after?: string }>({})
   const [picking, setPicking] = useState<'before' | 'after'>()

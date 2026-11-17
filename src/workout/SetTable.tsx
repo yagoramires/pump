@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Check } from 'lucide-react'
-import type { SessionExercise, SetDone } from '../types'
+import type { SessionExercise, SetDone } from './types'
 import { formatKg, parseDecimal } from '@/lib/number'
 import { cn } from '@/lib/utils'
 

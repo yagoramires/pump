@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Check, ChevronDown, Dumbbell } from 'lucide-react'
-import type { SessionExercise } from '../types'
+import type { SessionExercise } from './types'
 import { IconDot } from '@/components/IconDot'
 import { muscleColor } from '@/components/muscleColor'
 import { formatKg } from '@/lib/number'

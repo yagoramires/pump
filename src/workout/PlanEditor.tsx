@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Dumbbell, HeartPulse, MoreHorizontal, Plus } from 'lucide-react'
-import type { PlanExercise, Workout, WorkoutPlan } from '../types'
+import { DEFAULTS } from '../schema'
+import type { PlanExercise, Workout, WorkoutPlan } from './types'
 import { usePersisted } from '../storage/db'
 import { CatalogPicker } from '../catalog/CatalogPicker'
 import { toPlanExercise } from './templates'
@@ -16,19 +17,18 @@ import { cn } from '@/lib/utils'
 const DAYS = [
   ['D', 'Domingo'], ['S', 'Segunda'], ['T', 'Terça'], ['Q', 'Quarta'], ['Q', 'Quinta'], ['S', 'Sexta'], ['S', 'Sábado'],
 ]
-const EMPTY: WorkoutPlan = { workouts: [] }
 
 type Props = { initial?: WorkoutPlan; onDone: (plan: WorkoutPlan) => void; onCancel?: () => void }
 
 // sem `initial`, espera o plano salvo carregar: senão a cópia local nasceria vazia e o Salvar apagaria o plano
 export function PlanEditor(props: Props) {
-  const [saved, , loaded] = usePersisted('workoutPlan', EMPTY)
+  const [saved, , loaded] = usePersisted('workoutPlan', DEFAULTS.workoutPlan)
   if (!props.initial && !loaded) return <p className="p-4 text-sm text-text-2">Carregando…</p>
   return <PlanForm {...props} start={props.initial ?? saved} />
 }
 
 function PlanForm({ start, onDone, onCancel }: Props & { start: WorkoutPlan }) {
-  const [, savePlan] = usePersisted('workoutPlan', EMPTY)
+  const [, savePlan] = usePersisted('workoutPlan', DEFAULTS.workoutPlan)
   const [plan, setPlan] = useState<WorkoutPlan>(() => structuredClone(start))
   const [picking, setPicking] = useState<string>() // id do treino que recebe o exercício
   const [editing, setEditing] = useState<{ wid: string; i: number }>()

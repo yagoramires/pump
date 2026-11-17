@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import type { DietItem, DietLog, DietPlan, Meal, Menu } from '../types'
+import type { DietItem, DietLog, DietPlan, Meal, Menu } from './types'
 import {
   addExtra, chooseOption, currentMealId, currentMenu, dayFromMenu, dayStatus, daySummary, ensureDay, freeUses, itemKcal, itemMacros, removeItem,
   setDayFree, setDayMenu, setMealFree, skipItem, sortedMeals, swapItem, swapMeal, toggleMeal, touched, undoSwap,

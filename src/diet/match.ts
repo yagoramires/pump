@@ -1,4 +1,4 @@
-import type { DietItem, TacoFood } from '../types'
+import type { DietItem, TacoFood } from './types'
 
 /** Diferente do `normalize` do catálogo de exercícios: aqui pontuação vira espaço e a comparação é por palavras. */
 export const foodKey = (s: string): string =>

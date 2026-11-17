@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from 'react'
 import { CalendarDays, Camera, ChevronRight, FileText, Plus, Ruler, Share2, TrendingUp, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
-import { EMPTY_DIET, NO_PROFILE, type DietLog, type MeasureFields, type Measurement, type PhotoSet, type WaterLog, type WorkoutLog, type WorkoutPlan } from '../types'
+import { DEFAULTS } from '../schema'
+import type { MeasureFields } from './types'
 import { usePersisted } from '../storage/db'
 import { loadPhoto } from '../storage/photos'
 import { daysBetween, formatDayMonth, todayKey } from '../lib/date'
@@ -28,12 +29,6 @@ import { generatePdf, sharePdf } from './pdf/generate'
 
 type View = 'capture' | 'compare' | 'achievements' | 'history'
 type Pt = { date: string; value: number }
-const NO_MEASURES: Measurement[] = []
-const NO_PHOTOS: PhotoSet[] = []
-const NO_LOG: WorkoutLog = {}
-const NO_PLAN: WorkoutPlan = { workouts: [] }
-const NO_DIET_LOG: DietLog = {}
-const NO_WATER: WaterLog = {}
 const LABEL = 'text-[10px] font-semibold uppercase tracking-[.05em] text-faint'
 const CARD = 'mb-2.5 overflow-hidden rounded-[14px] border border-border bg-panel'
 const LINK = 'h-11 px-1 text-[13px] font-medium text-accent disabled:text-faint'
@@ -67,14 +62,14 @@ function Thumb({ id, label }: { id?: string; label: string }) {
 }
 
 export function EvolutionTab() {
-  const [log, , a] = usePersisted('workoutLog', NO_LOG)
-  const [plan, , b] = usePersisted('workoutPlan', NO_PLAN)
-  const [measurements, , c] = usePersisted('measurements', NO_MEASURES)
-  const [photoSets, , d] = usePersisted('photoSets', NO_PHOTOS)
-  const [profile, , e] = usePersisted('profile', NO_PROFILE)
-  const [dietLog, , f] = usePersisted('dietLog', NO_DIET_LOG)
-  const [waterLog, , g] = usePersisted('waterLog', NO_WATER)
-  const [dietPlan, , h] = usePersisted('dietPlan', EMPTY_DIET)
+  const [log, , a] = usePersisted('workoutLog', DEFAULTS.workoutLog)
+  const [plan, , b] = usePersisted('workoutPlan', DEFAULTS.workoutPlan)
+  const [measurements, , c] = usePersisted('measurements', DEFAULTS.measurements)
+  const [photoSets, , d] = usePersisted('photoSets', DEFAULTS.photoSets)
+  const [profile, , e] = usePersisted('profile', DEFAULTS.profile)
+  const [dietLog, , f] = usePersisted('dietLog', DEFAULTS.dietLog)
+  const [waterLog, , g] = usePersisted('waterLog', DEFAULTS.waterLog)
+  const [dietPlan, , h] = usePersisted('dietPlan', DEFAULTS.dietPlan)
   const [range, setRange] = useState('90')
   const [choosing, setChoosing] = useState(false)
   const [measuring, setMeasuring] = useState(false)

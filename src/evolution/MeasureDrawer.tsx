@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { NO_PROFILE, type MeasureFields, type Measurement, type Profile } from '../types'
+import { DEFAULTS } from '../schema'
+import type { Profile } from '../profile/types'
+import type { MeasureFields, Measurement } from './types'
 import { usePersisted } from '../storage/db'
 import { formatDayMonth, todayKey } from '../lib/date'
 import { parseDecimal } from '@/lib/number'
@@ -10,12 +12,11 @@ import { bodyFat } from './bodyFat'
 import { FIELDS, upsertMeasurement } from './measurements'
 
 type Key = keyof MeasureFields
-const NONE: Measurement[] = []
 const select = (e: React.FocusEvent<HTMLInputElement>) => e.currentTarget.select()
 
 export function MeasureDrawer({ open, onClose, date }: { open: boolean; onClose: () => void; date: string }) {
-  const [list, setList, listLoaded] = usePersisted('measurements', NONE)
-  const [profile, setProfile, profileLoaded] = usePersisted('profile', NO_PROFILE)
+  const [list, setList, listLoaded] = usePersisted('measurements', DEFAULTS.measurements)
+  const [profile, setProfile, profileLoaded] = usePersisted('profile', DEFAULTS.profile)
 
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>

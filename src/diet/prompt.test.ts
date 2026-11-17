@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import type { TacoFood } from '../types'
+import type { TacoFood } from './types'
 import { parseDietFormat } from './dietFormat'
 import { buildDietPrompt, TACO_EXAMPLES } from './prompt'
 

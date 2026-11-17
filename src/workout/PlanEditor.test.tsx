@@ -1,4 +1,4 @@
-import type { PlanExercise, Workout } from '../types'
+import type { PlanExercise, Workout } from './types'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'

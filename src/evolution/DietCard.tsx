@@ -1,4 +1,4 @@
-import type { DietLog, WaterLog } from '../types'
+import type { DietLog, WaterLog } from '../diet/types'
 import { parseDayKey, todayKey } from '../lib/date'
 import { formatDec } from '@/lib/number'
 import { dietStats } from '../diet/day'

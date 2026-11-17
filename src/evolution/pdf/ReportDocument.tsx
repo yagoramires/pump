@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Document, Font, Image, Page, Path, Polyline, StyleSheet, Svg, Text, View } from '@react-pdf/renderer'
-import type { Angle } from '../../types'
+import type { Angle } from '../types'
 import { daysBetween, formatDayMonth, parseDayKey } from '../../lib/date'
 import { formatDec } from '../../lib/number'
 import type { Report } from '../report'

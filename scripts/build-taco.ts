@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from 'node:fs'
-import type { TacoFood } from '../src/types.ts'
+import type { TacoFood } from '../src/diet/types.ts'
 
 // shortcut: CSV simples (aspas duplas, sem quebra de linha dentro de campo), basta pro dataset da TACO
 function parseCsv(text: string): Record<string, string>[] {

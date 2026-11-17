@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Check, ChevronLeft, Copy, FileUp } from 'lucide-react'
-import { NO_PROFILE, type CustomExercise, type WorkoutPlan } from '../types'
+import { DEFAULTS } from '../schema'
+import type { CustomExercise, WorkoutPlan } from './types'
 import { usePersisted } from '../storage/db'
 import { fetchCatalog } from '../catalog/catalog'
 import { PlanFormatError, buildPrompt, exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
@@ -9,8 +10,6 @@ import { PlanEditor } from './PlanEditor'
 import { IconDot } from '@/components/IconDot'
 import { Button } from '@/components/ui/button'
 
-const NO_PLAN: WorkoutPlan = { workouts: [] }
-const NO_CUSTOMS: CustomExercise[] = []
 type Review = { plan: WorkoutPlan; newCustoms: CustomExercise[]; unmatched: string[]; ignoredDiet: boolean }
 
 export function Step({ n, title, sub, children }: { n: number; title: string; sub: string; children?: ReactNode }) {
@@ -27,9 +26,9 @@ export function Step({ n, title, sub, children }: { n: number; title: string; su
 }
 
 export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: () => void }) {
-  const [plan, , planLoaded] = usePersisted('workoutPlan', NO_PLAN)
-  const [customs, setCustoms, customsLoaded] = usePersisted('customExercises', NO_CUSTOMS)
-  const [profile, setProfile, profileLoaded] = usePersisted('profile', NO_PROFILE)
+  const [plan, , planLoaded] = usePersisted('workoutPlan', DEFAULTS.workoutPlan)
+  const [customs, setCustoms, customsLoaded] = usePersisted('customExercises', DEFAULTS.customExercises)
+  const [profile, setProfile, profileLoaded] = usePersisted('profile', DEFAULTS.profile)
   const [text, setText] = useState('')
   const [notice, setNotice] = useState('')
   const [problems, setProblems] = useState<string[]>([])

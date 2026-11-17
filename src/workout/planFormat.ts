@@ -1,4 +1,5 @@
-import type { CustomExercise, Exercise, Extra, Goal, Level, Muscle, PlanExercise, Place, Profile, Split, WorkoutPlan } from '../types'
+import type { Profile } from '../profile/types'
+import type { CustomExercise, Exercise, Extra, Goal, Level, Muscle, Place, PlanExercise, Split, WorkoutPlan } from './types'
 import { normalize } from '../catalog/search'
 import { formatKg } from '../lib/number'
 import { PLAN_DEFAULTS, toPlanExercise } from './templates'

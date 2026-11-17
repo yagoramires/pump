@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Plus, Sparkles } from 'lucide-react'
-import { NO_PROFILE, type Exercise, type Profile, type Settings, type WorkoutPlan } from '../types'
+import { DEFAULTS, type Settings } from '../schema'
+import type { Profile } from '../profile/types'
+import type { Exercise, WorkoutPlan } from '../workout/types'
 import { usePersisted } from '../storage/db'
 import { fetchCatalog } from '../catalog/catalog'
 import { todayKey } from '../lib/date'
@@ -19,7 +21,7 @@ const LABEL = 'text-[10px] font-semibold tracking-[0.08em] text-faint uppercase'
 const WEEK = [1, 2, 3, 4, 5, 6, 0] // seg..dom
 
 export function ProfileForm({ submitLabel, onDone }: { submitLabel: string; onDone: () => void }) {
-  const [saved, setProfile, loaded] = usePersisted('profile', NO_PROFILE)
+  const [saved, setProfile, loaded] = usePersisted('profile', DEFAULTS.profile)
   if (!loaded) return <p className="text-sm text-text-2">Carregando…</p>
   return <ProfileFields start={saved} setProfile={setProfile} submitLabel={submitLabel} onDone={onDone} />
 }
@@ -137,7 +139,7 @@ export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => 
         })}
       </div>
       <div className="mt-2.5 grid grid-cols-2 gap-2.5">
-        <Button type="button" variant="outline" className="h-16 flex-col gap-1" onClick={() => { setInitial({ workouts: [] }); setStep('editor') }}><Plus size={16} aria-hidden="true" />Do zero</Button>
+        <Button type="button" variant="outline" className="h-16 flex-col gap-1" onClick={() => { setInitial(DEFAULTS.workoutPlan); setStep('editor') }}><Plus size={16} aria-hidden="true" />Do zero</Button>
         <Button type="button" variant="outline" className="h-16 flex-col gap-1" onClick={() => setStep('import')}><Sparkles size={16} className="text-accent" aria-hidden="true" />Importar de IA</Button>
       </div>
       <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md flex-col gap-2 bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">

@@ -1,8 +1,8 @@
-import { Component, useState, type ReactNode } from 'react'
+import { Component, type ReactNode } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import { EmptyState } from '@/components/EmptyState'
 import { Button } from '@/components/ui/button'
-import { exportBackup } from '../storage/backup'
+import { useBackupExport } from './useBackupExport'
 
 export function FatalScreen({ title, text, children }: { title: string; text: string; children: ReactNode }) {
   return (
@@ -16,10 +16,10 @@ export function FatalScreen({ title, text, children }: { title: string; text: st
 }
 
 function CrashScreen() {
-  const [error, setError] = useState<string>()
+  const { send, error } = useBackupExport()
   return (
     <FatalScreen title="Algo deu errado" text="Seus dados continuam salvos neste aparelho. Exporte um backup por garantia e recarregue o app.">
-      <Button type="button" variant="secondary" onClick={() => exportBackup().catch((e) => setError(e instanceof Error ? e.message : 'Falha ao exportar'))}>Exportar backup</Button>
+      <Button type="button" variant="secondary" onClick={send}>Exportar backup</Button>
       <Button type="button" onClick={() => location.reload()}>Recarregar</Button>
       {error && <p className="text-sm text-negative">{error}</p>}
     </FatalScreen>

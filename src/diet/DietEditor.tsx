@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, ChevronLeft, Copy, Plus, Share2, Trash2 } from 'lucide-react'
-import type { DietItem, DietLog, DietPlan, Macros, Meal, MealOption, Menu } from '../types'
-import { EMPTY_DIET } from '../types'
+import { DEFAULTS } from '../schema'
+import type { DietItem, DietLog, DietPlan, Macros, Meal, MealOption, Menu } from './types'
 import { usePersisted } from '../storage/db'
 import { currentMenu, ensureDay, iaLabel, itemKcal, sortedMeals } from './day'
 import { exportDietFormat, HHMM } from './dietFormat'
@@ -19,7 +19,6 @@ import { cn } from '@/lib/utils'
 type Props = { initial?: DietPlan; confirmReplace?: boolean; onDone: () => void; onCancel: () => void }
 type Setter<T> = (v: T | ((prev: T) => T)) => void
 
-const NO_LOG: DietLog = {}
 const LETTERS = 'ABCD'
 const LABEL = 'text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
 const CONFIRM = {
@@ -93,8 +92,8 @@ function NumField({ value, onChange, label, className, placeholder }: { value?: 
 
 // sem `initial`, espera o cardápio salvo carregar: senão a cópia local nasceria vazia e o Salvar apagaria o cardápio
 export function DietEditor(props: Props) {
-  const [saved, savePlan, loaded] = usePersisted('dietPlan', EMPTY_DIET)
-  const [, setLog, logLoaded] = usePersisted('dietLog', NO_LOG)
+  const [saved, savePlan, loaded] = usePersisted('dietPlan', DEFAULTS.dietPlan)
+  const [, setLog, logLoaded] = usePersisted('dietLog', DEFAULTS.dietLog)
   if (!loaded || !logLoaded) return <p className="p-4 text-sm text-text-2">Carregando…</p>
   return <DietForm {...props} start={props.initial ?? saved} replacing={!!props.confirmReplace && saved.menus.length > 0} savePlan={savePlan} setLog={setLog} />
 }
@@ -159,7 +158,7 @@ function DietForm({ start, replacing, onDone, onCancel, savePlan, setLog }: Prop
   const confirmed = () => {
     if (confirm === 'menu') return removeMenu()
     if (confirm === 'replace') return save(true)
-    savePlan(() => EMPTY_DIET)
+    savePlan(() => DEFAULTS.dietPlan)
     onDone()
   }
 

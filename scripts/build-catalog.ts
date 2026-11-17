@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
-import type { Exercise } from '../src/types.ts'
+import type { Exercise } from '../src/workout/types.ts'
 
 export interface Upstream {
   id: string

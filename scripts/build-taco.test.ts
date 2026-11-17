@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import type { TacoFood } from '../src/types.ts'
+import type { TacoFood } from '../src/diet/types.ts'
 import { buildTaco } from './build-taco.ts'
 
 test('buildTaco junta nome e nutrientes; NA e Tr nos macros viram 0', () => {

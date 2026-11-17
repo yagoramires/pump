@@ -2,8 +2,8 @@ import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from '../storage/db'
-import type { DietItem, DietPlan, Meal, Menu } from '../types'
-import { DEFAULT_SETTINGS } from '../types'
+import { DEFAULTS } from '../schema'
+import type { DietItem, DietPlan, Meal, Menu } from './types'
 import { chooseOption, dayFromMenu, toggleMeal } from './day'
 import { DietTab } from './DietTab'
 
@@ -156,7 +156,7 @@ test('refeição do horário atual destacada', async () => {
 test('pílula de água abre os copos; água desligada mostra o link', async () => {
   await save('dietPlan', plan)
   await save('profile', { sex: 'M', heightCm: 180, weightKg: 80 })
-  await save('settings', { ...DEFAULT_SETTINGS, onboardingDone: true })
+  await save('settings', { ...DEFAULTS.settings, onboardingDone: true })
   resetStoreForTests()
   const user = userEvent.setup()
   render(<DietTab />)

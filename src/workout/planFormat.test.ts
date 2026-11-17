@@ -1,5 +1,5 @@
 import { ex } from '../../test/helpers'
-import type { WorkoutPlan } from '../types'
+import type { WorkoutPlan } from './types'
 import { readFileSync } from 'node:fs'
 import { buildPrompt, exportPlanFormat, parsePlanFormat, planFromFormat, type PlanFormatError } from './planFormat'
 import { normalize } from '../catalog/search'

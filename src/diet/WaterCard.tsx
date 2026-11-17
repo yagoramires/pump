@@ -1,5 +1,5 @@
 import { Droplet } from 'lucide-react'
-import type { WaterSettings } from '../types'
+import type { WaterSettings } from './types'
 import { formatDec } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { cupsShown } from './water'

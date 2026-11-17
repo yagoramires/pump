@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, Minus, MoreHorizontal, Plus } from 'lucide-react'
-import type { PlanExercise } from '../types'
+import type { PlanExercise } from './types'
 import { parseDecimal } from '@/lib/number'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'

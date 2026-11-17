@@ -1,7 +1,7 @@
 import { firstIncomplete, previousSets, repsNumber, sessionStats } from './stats'
 import { startSession } from './session'
 import { pe, workoutOf } from '../../test/helpers'
-import type { SetDone } from '../types'
+import type { SetDone } from './types'
 
 test('repsNumber pega o primeiro número', () => {
   expect(repsNumber('10')).toBe(10); expect(repsNumber('10-12')).toBe(10); expect(repsNumber('falha')).toBe(0)

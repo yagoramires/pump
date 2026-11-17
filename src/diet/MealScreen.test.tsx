@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { DietDay, DietItem, DietPlan, Menu } from '../types'
+import type { DietDay, DietItem, DietPlan, Menu } from './types'
 import { dayFromMenu, skipItem, toggleMeal } from './day'
 import { MealScreen } from './MealScreen'
 

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { CameraOff, ChevronLeft, SwitchCamera, Timer } from 'lucide-react'
 import { toast } from 'sonner'
-import type { Angle, PhotoSet } from '../types'
+import { DEFAULTS } from '../schema'
+import type { Angle } from './types'
 import { usePersisted } from '../storage/db'
 import { deletePhotos, savePhoto } from '../storage/photos'
 import { formatDayMonth } from '../lib/date'
@@ -12,7 +13,6 @@ import { setAngle } from './photoSets'
 import { fileToJpeg, videoToJpeg } from './resize'
 
 const ANGLES: { v: Angle; label: string }[] = [{ v: 'frente', label: 'Frente' }, { v: 'lado', label: 'Lado' }, { v: 'costas', label: 'Costas' }]
-const NONE: PhotoSet[] = []
 const PILL = 'flex h-11 items-center justify-self-start rounded-[10px] border border-border px-3.5 text-[13px] font-medium text-text'
 
 export function AngleTabs({ value, onChange }: { value: Angle; onChange: (a: Angle) => void }) {
@@ -42,7 +42,7 @@ const Silhouette = () => (
 )
 
 export function PhotoCapture({ date, onClose }: { date: string; onClose: () => void }) {
-  const [, setSets, loaded] = usePersisted('photoSets', NONE)
+  const [, setSets, loaded] = usePersisted('photoSets', DEFAULTS.photoSets)
   const [i, setI] = useState(0)
   const [facing, setFacing] = useState<'user' | 'environment'>('user')
   // sem contexto seguro (http) ou navegador antigo, navigator.mediaDevices/getUserMedia não existe

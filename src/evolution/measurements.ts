@@ -1,4 +1,4 @@
-import type { MeasureFields, Measurement } from '../types'
+import type { MeasureFields, Measurement } from './types'
 
 const KEYS = ['weightKg', 'neckCm', 'waistCm', 'hipCm', 'armCm', 'chestCm', 'thighCm'] as const
 export const FIELDS: { key: keyof MeasureFields; label: string; unit: string }[] = [

@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Share } from 'lucide-react'
 import { allData } from '../storage/db'
-import { exportBackup } from '../storage/backup'
+import { useBackupExport } from './useBackupExport'
 import { EmptyState } from '@/components/EmptyState'
 import { Button } from '@/components/ui/button'
 
 export function InstallGate({ onDismiss }: { onDismiss: () => void }) {
   const [hasData, setHasData] = useState(false)
-  const [error, setError] = useState<string>()
+  const { send, error } = useBackupExport()
   useEffect(() => {
     void allData().then((d) => setHasData(Object.keys(d).length > 0)).catch(() => {})
   }, [])
@@ -18,7 +18,7 @@ export function InstallGate({ onDismiss }: { onDismiss: () => void }) {
         {hasData && (
           <>
             <p className="max-w-[300px] text-sm text-text-2">Você já tem dados aqui. Exporte um backup para importar no app instalado.</p>
-            <Button type="button" variant="secondary" className="w-full max-w-xs" onClick={() => exportBackup().catch((e) => setError(e instanceof Error ? e.message : 'Falha ao exportar'))}>Exportar backup</Button>
+            <Button type="button" variant="secondary" className="w-full max-w-xs" onClick={send}>Exportar backup</Button>
             {error && <p role="alert" className="text-sm text-negative">{error}</p>}
           </>
         )}

@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { ArrowLeftRight, Check, ChevronLeft, MoreHorizontal, Plus, Sparkles } from 'lucide-react'
-import type { DayItem, DayMeal, DietDay, DietItem, DietPlan, Menu } from '../types'
+import type { DayItem, DayMeal, DietDay, DietItem, DietPlan, Menu } from './types'
 import { Overlay } from '@/components/Overlay'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { delMany, entries, get, keys, set, setMany } from 'idb-keyval'
-import type { UserData } from '../types'
+import type { UserData } from '../schema'
 
 type Listener = (v: unknown) => void
 const cache = new Map<string, unknown>()

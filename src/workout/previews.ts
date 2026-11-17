@@ -1,4 +1,4 @@
-import type { WorkoutPlan } from '../types'
+import type { WorkoutPlan } from './types'
 import { imageUrl } from '../catalog/catalog'
 
 export const PREVIEW_CACHE = 'pump-previews-v1'

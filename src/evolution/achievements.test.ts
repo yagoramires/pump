@@ -1,5 +1,5 @@
 import { dietDay, pe } from '../../test/helpers'
-import type { DietLog } from '../types'
+import type { DietLog } from '../diet/types'
 import { computeAchievements, type Achievement, type AchievementId } from './achievements'
 
 const done = (date: string, sets: { id: string; kg: number }[] = []) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', completedAt: `${date}T19:00:00.000Z`, exercises: sets.map((s) => ({ ...pe({ exerciseId: s.id, name: s.id }), sets: [{ reps: '10', weightKg: s.kg }] })) })

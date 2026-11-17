@@ -1,4 +1,4 @@
-import type { Angle, PhotoSet } from '../types'
+import type { Angle, PhotoSet } from './types'
 
 export function setAngle(sets: PhotoSet[], date: string, angle: Angle, photoId: string): { sets: PhotoSet[]; replaced?: string } {
   const cur = sets.find((s) => s.date === date)

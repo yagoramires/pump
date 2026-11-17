@@ -11,12 +11,13 @@ import { isIOS, isStandalone } from './shell/platform'
 import { Onboarding } from './onboarding/Onboarding'
 import { TreinoTab } from './workout/TreinoTab'
 import { syncPreviewCache } from './workout/previews'
-import { backupDue, daysWithoutBackup, exportBackup } from './storage/backup'
+import { backupDue, daysWithoutBackup } from './storage/backup'
+import { useBackupExport } from './shell/useBackupExport'
 import { requestPersist, usePersisted } from './storage/db'
 import { todayKey } from './lib/date'
 import { useAchievementToasts } from './evolution/useAchievementToasts'
 import { EvolutionTab } from './evolution/EvolutionTab'
-import { DEFAULT_SETTINGS } from './types'
+import { DEFAULTS } from './schema'
 
 // dieta fora do chunk principal (orçamento de bundle); continua no precache
 const DietTab = lazy(() => import('./diet/DietTab').then((m) => ({ default: m.DietTab })))
@@ -30,11 +31,12 @@ function AchievementToasts() {
 }
 
 export default function App() {
-  const [settings, setSettings, loaded] = usePersisted('settings', DEFAULT_SETTINGS)
-  const [workoutPlan, , planLoaded] = usePersisted('workoutPlan', { workouts: [] })
+  const [settings, setSettings, loaded] = usePersisted('settings', DEFAULTS.settings)
+  const [workoutPlan, , planLoaded] = usePersisted('workoutPlan', DEFAULTS.workoutPlan)
   const [storageError, setStorageError] = useState<string>()
   const [readFailed, setReadFailed] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const backup = useBackupExport(toast.error)
 
   useEffect(() => {
     void requestPersist()
@@ -80,7 +82,7 @@ export default function App() {
       {backupDue(settings, todayKey()) && (
         <div className="mx-auto mt-3 max-w-md px-4"><div className="flex items-center gap-2 rounded-xl border border-accent-line bg-accent-bg py-1 pr-1 pl-3.5 text-[13px] text-text">
           <span className="flex-1">{`Faz ${daysWithoutBackup(settings, todayKey())} dias sem backup`}</span>
-          <Button type="button" variant="ghost" size="sm" className="text-accent" onClick={() => exportBackup().catch((e) => toast.error(e instanceof Error ? e.message : 'Falha ao exportar'))}>Enviar backup</Button>
+          <Button type="button" variant="ghost" size="sm" className="text-accent" onClick={backup.send}>Enviar backup</Button>
         </div></div>
       )}
       <main className={MAIN}>

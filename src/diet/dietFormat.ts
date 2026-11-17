@@ -1,4 +1,4 @@
-import type { DietItem, DietPlan, Menu, TacoFood } from '../types'
+import type { DietItem, DietPlan, Menu, TacoFood } from './types'
 import { extractJson, PlanFormatError } from '../workout/planFormat'
 import { matchFood } from './match'
 

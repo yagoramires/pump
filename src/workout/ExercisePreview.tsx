@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { SessionExercise } from '../types'
+import type { SessionExercise } from './types'
 import { imageUrl } from '../catalog/catalog'
 import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'

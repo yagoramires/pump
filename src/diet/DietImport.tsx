@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { AlertTriangle, ChevronLeft, Copy, FileUp } from 'lucide-react'
 import { toast } from 'sonner'
-import type { DietAnamnesis, DietItem, DietLog, DietPlan } from '../types'
-import { EMPTY_DIET, NO_PROFILE } from '../types'
+import { DEFAULTS } from '../schema'
+import type { DietAnamnesis, DietItem, DietPlan } from './types'
 import { usePersisted } from '../storage/db'
 import { fetchTaco } from '../catalog/catalog'
 import { PlanFormatError } from '../workout/planFormat'
@@ -26,8 +26,6 @@ type Report = ReturnType<typeof dietFromFormat>['items'][number]
 /** `info` = como cada item (pelo id) casou e o nome que a IA escreveu */
 type Review = { plan: DietPlan; info: Record<string, Report>; offline: boolean }
 
-const NO_FOODS: DietItem[] = []
-const NO_LOG: DietLog = {}
 const LETTERS = 'ABCD'
 const allItems = (plan: DietPlan) => plan.menus.flatMap((m) => m.meals.flatMap((ml) => ml.options.flatMap((o) => o.items)))
 const replaceItem = (plan: DietPlan, id: string, next: DietItem): DietPlan => ({
@@ -36,10 +34,10 @@ const replaceItem = (plan: DietPlan, id: string, next: DietItem): DietPlan => ({
 })
 
 export function DietImport({ mode, onDone, onBack }: Props) {
-  const [profile, setProfile, profileLoaded] = usePersisted('profile', NO_PROFILE)
-  const [saved, setPlan, planLoaded] = usePersisted('dietPlan', EMPTY_DIET)
-  const [, setLog, logLoaded] = usePersisted('dietLog', NO_LOG)
-  const [foods, , foodsLoaded] = usePersisted('foods', NO_FOODS)
+  const [profile, setProfile, profileLoaded] = usePersisted('profile', DEFAULTS.profile)
+  const [saved, setPlan, planLoaded] = usePersisted('dietPlan', DEFAULTS.dietPlan)
+  const [, setLog, logLoaded] = usePersisted('dietLog', DEFAULTS.dietLog)
+  const [foods, , foodsLoaded] = usePersisted('foods', DEFAULTS.foods)
   const [edited, setEdited] = useState<Partial<DietAnamnesis>>()
   const [text, setText] = useState('')
   const [problems, setProblems] = useState<string[]>([])

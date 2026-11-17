@@ -1,6 +1,6 @@
 import { useId, useState } from 'react'
 import { Camera, ChevronLeft, ChevronRight, Dumbbell, GlassWater, Moon, Ruler, Utensils } from 'lucide-react'
-import type { DietLog, Measurement, PhotoSet, WaterLog, WorkoutLog } from '../types'
+import { DEFAULTS } from '../schema'
 import { usePersisted } from '../storage/db'
 import { deletePhotos } from '../storage/photos'
 import { formatDayMonth, todayKey } from '../lib/date'
@@ -17,11 +17,6 @@ import { FIELDS, upsertMeasurement } from './measurements'
 import { removeSet } from './photoSets'
 import { usePhoto } from './usePhoto'
 
-const NO_LOG: WorkoutLog = {}
-const NO_MEASURES: Measurement[] = []
-const NO_PHOTOS: PhotoSet[] = []
-const NO_DIET: DietLog = {}
-const NO_WATER: WaterLog = {}
 const WEEK = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']
 const ROW = 'flex items-center gap-3 border-t border-line px-3.5 py-2.5 first:border-t-0'
 const DEL = 'h-11 shrink-0 px-1 text-[13px] font-medium text-destructive'
@@ -47,11 +42,11 @@ function Thumb({ id, label }: { id: string; label: string }) {
 }
 
 export function HistoryScreen({ onClose }: { onClose: () => void }) {
-  const [log, , a] = usePersisted('workoutLog', NO_LOG)
-  const [measures, setMeasures, b] = usePersisted('measurements', NO_MEASURES)
-  const [sets, setSets, c] = usePersisted('photoSets', NO_PHOTOS)
-  const [diet, setDiet, dl] = usePersisted('dietLog', NO_DIET)
-  const [water, setWater, wl] = usePersisted('waterLog', NO_WATER)
+  const [log, , a] = usePersisted('workoutLog', DEFAULTS.workoutLog)
+  const [measures, setMeasures, b] = usePersisted('measurements', DEFAULTS.measurements)
+  const [sets, setSets, c] = usePersisted('photoSets', DEFAULTS.photoSets)
+  const [diet, setDiet, dl] = usePersisted('dietLog', DEFAULTS.dietLog)
+  const [water, setWater, wl] = usePersisted('waterLog', DEFAULTS.waterLog)
   const [now] = useState(() => new Date()) // fixo enquanto a tela está aberta
   const today = todayKey(now)
   const [month, setMonth] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1))

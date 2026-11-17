@@ -1,8 +1,9 @@
 import { lazy, Suspense, useState, type ReactNode } from 'react'
 import { ChevronLeft, ChevronRight, Droplet, List, RotateCcw, Share2, Sparkles, User, Utensils } from 'lucide-react'
 import { toast } from 'sonner'
-import { NO_PROFILE, type Settings, type WaterSettings } from '../types'
-import { exportBackup } from '../storage/backup'
+import { DEFAULTS, type Settings } from '../schema'
+import type { WaterSettings } from '../diet/types'
+import { useBackupExport } from './useBackupExport'
 import { usePersisted } from '../storage/db'
 import { daysBetween, todayKey } from '../lib/date'
 import { formatDec, formatKg, parseDecimal } from '../lib/number'
@@ -103,7 +104,8 @@ function WaterForm({ water, ready, weightKg, setSettings }: { water?: WaterSetti
 export function SettingsScreen({ settings, onClose, setSettings }: { settings: Settings; onClose: () => void; setSettings: (f: (s: Settings) => Settings) => void }) {
   const [view, setView] = useState<View>('menu')
   const [confirmRedo, setConfirmRedo] = useState(false)
-  const [profile, , profileLoaded] = usePersisted('profile', NO_PROFILE)
+  const [profile, , profileLoaded] = usePersisted('profile', DEFAULTS.profile)
+  const backup = useBackupExport(toast.error)
   const back = () => setView('menu')
 
   if (view === 'plan') return <Overlay><PlanEditor onDone={back} onCancel={back} /></Overlay>
@@ -133,7 +135,7 @@ export function SettingsScreen({ settings, onClose, setSettings }: { settings: S
       </Group>
       <div className={LABEL}>SEUS DADOS</div>
       <Group>
-        <Row icon={<Share2 size={18} aria-hidden="true" />} color="var(--c6)" title="Enviar backup" sub={`WhatsApp, Arquivos… · ${last}`} onClick={() => exportBackup().catch((e) => toast.error(e instanceof Error ? e.message : 'Falha ao exportar'))} />
+        <Row icon={<Share2 size={18} aria-hidden="true" />} color="var(--c6)" title="Enviar backup" sub={`WhatsApp, Arquivos… · ${last}`} onClick={backup.send} />
         <ImportBackupButton label="Restaurar backup" variant="row" />
       </Group>
       <p className="mt-2.5 rounded-[11px] border border-border bg-surface px-3 py-2.5 text-[13px] text-text-2">Seus dados ficam só neste aparelho. Envie um backup de vez em quando.</p>

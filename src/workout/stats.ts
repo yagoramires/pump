@@ -1,5 +1,5 @@
 import { isCardio } from './cardio'
-import type { SetDone, WorkoutLog, WorkoutSession } from '../types'
+import type { SetDone, WorkoutLog, WorkoutSession } from './types'
 
 export const repsNumber = (reps: string): number => Number(/\d+/.exec(reps)?.[0] ?? 0)
 

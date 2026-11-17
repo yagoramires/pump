@@ -1,18 +1,12 @@
 import { createElement } from 'react'
 import { CalendarCheck, Camera, ChevronLeft, Dumbbell, GlassWater, ListChecks, Percent, Sparkles, Timer, TrendingUp, Utensils, type LucideIcon } from 'lucide-react'
-import { EMPTY_DIET, NO_PROFILE, type DietLog, type Measurement, type PhotoSet, type WaterLog, type WorkoutLog, type WorkoutPlan } from '../types'
+import { DEFAULTS } from '../schema'
 import { usePersisted } from '../storage/db'
 import { formatDayMonth, todayKey } from '../lib/date'
 import { Overlay } from '@/components/Overlay'
 import { cn } from '@/lib/utils'
 import { computeAchievements, type AchievementId } from './achievements'
 
-const NO_LOG: WorkoutLog = {}
-const NO_PLAN: WorkoutPlan = { workouts: [] }
-const NO_MEASURES: Measurement[] = []
-const NO_PHOTOS: PhotoSet[] = []
-const NO_DIET_LOG: DietLog = {}
-const NO_WATER: WaterLog = {}
 const ICON: Record<AchievementId, LucideIcon> = {
   'first-workout': Dumbbell,
   'streak-3': Timer,
@@ -33,14 +27,14 @@ const ICON: Record<AchievementId, LucideIcon> = {
 export const AchievementIcon = ({ id }: { id: AchievementId }) => createElement(ICON[id], { size: 22, 'aria-hidden': true })
 
 export function AchievementsScreen({ onClose }: { onClose: () => void }) {
-  const [workoutLog, , a] = usePersisted('workoutLog', NO_LOG)
-  const [workoutPlan, , b] = usePersisted('workoutPlan', NO_PLAN)
-  const [measurements, , c] = usePersisted('measurements', NO_MEASURES)
-  const [photoSets, , d] = usePersisted('photoSets', NO_PHOTOS)
-  const [profile, , e] = usePersisted('profile', NO_PROFILE)
-  const [dietLog, , f] = usePersisted('dietLog', NO_DIET_LOG)
-  const [waterLog, , g] = usePersisted('waterLog', NO_WATER)
-  const [dietPlan, , h] = usePersisted('dietPlan', EMPTY_DIET)
+  const [workoutLog, , a] = usePersisted('workoutLog', DEFAULTS.workoutLog)
+  const [workoutPlan, , b] = usePersisted('workoutPlan', DEFAULTS.workoutPlan)
+  const [measurements, , c] = usePersisted('measurements', DEFAULTS.measurements)
+  const [photoSets, , d] = usePersisted('photoSets', DEFAULTS.photoSets)
+  const [profile, , e] = usePersisted('profile', DEFAULTS.profile)
+  const [dietLog, , f] = usePersisted('dietLog', DEFAULTS.dietLog)
+  const [waterLog, , g] = usePersisted('waterLog', DEFAULTS.waterLog)
+  const [dietPlan, , h] = usePersisted('dietPlan', DEFAULTS.dietPlan)
   const list = a && b && c && d && e && f && g && h ? computeAchievements({ workoutLog, workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan }, todayKey()) : undefined
 
   return (

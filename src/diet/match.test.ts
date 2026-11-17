@@ -1,4 +1,4 @@
-import type { DietItem, TacoFood } from '../types'
+import type { DietItem, TacoFood } from './types'
 import { foodKey, matchFood } from './match'
 
 // fixture com nomes reais da TACO

@@ -1,4 +1,5 @@
-import type { DietDay, DietItem, Exercise, PlanExercise, Workout, WorkoutPlan } from '../src/types'
+import type { DietDay, DietItem } from '../src/diet/types'
+import type { Exercise, PlanExercise, Workout, WorkoutPlan } from '../src/workout/types'
 
 export const pe = (over: Partial<PlanExercise> = {}): PlanExercise => ({
   exerciseId: 'X', name: 'X', muscles: [], images: [], instructions: [], sets: 3, reps: '10', weightKg: 0, restSec: 90, ...over,

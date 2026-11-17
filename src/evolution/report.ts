@@ -1,4 +1,7 @@
-import type { Angle, DietLog, DietPlan, Measurement, PhotoSet, Profile, WaterLog, WorkoutLog, WorkoutPlan } from '../types'
+import type { Profile } from '../profile/types'
+import type { WorkoutLog, WorkoutPlan } from '../workout/types'
+import type { DietLog, DietPlan, WaterLog } from '../diet/types'
+import type { Angle, Measurement, PhotoSet } from './types'
 import { daysBetween } from '../lib/date'
 import { sessionStats } from '../workout/stats'
 import { dietStats } from '../diet/day'

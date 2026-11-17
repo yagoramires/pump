@@ -1,5 +1,5 @@
 import { daysBetween, weekStart } from '../lib/date'
-import type { DayItem, DayMeal, DietDay, DietItem, DietLog, DietPlan, MealOption, Menu, WaterLog } from '../types'
+import type { DayItem, DayMeal, DietDay, DietItem, DietLog, DietPlan, MealOption, Menu, WaterLog } from './types'
 import { formatDec } from '@/lib/number'
 import { waterMet } from './water'
 

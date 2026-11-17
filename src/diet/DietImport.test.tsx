@@ -1,4 +1,4 @@
-import type { DietLog, DietPlan, TacoFood } from '../types'
+import type { DietLog, DietPlan, TacoFood } from './types'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { clear, get } from 'idb-keyval'

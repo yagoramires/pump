@@ -1,4 +1,4 @@
-import type { DietItem, DietPlan, TacoFood } from '../types'
+import type { DietItem, DietPlan, TacoFood } from './types'
 import type { PlanFormatError } from '../workout/planFormat'
 import { dietFromFormat, exportDietFormat, parseDietFormat, type PumpAlimento, type PumpDieta } from './dietFormat'
 

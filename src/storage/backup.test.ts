@@ -1,5 +1,5 @@
 import { clear } from 'idb-keyval'
-import type { Settings } from '../types'
+import type { Settings } from '../schema'
 import { backupDue, buildBackup, daysWithoutBackup, exportBackup, importBackupFile, parseBackup } from './backup'
 import { allData, load, replaceAll, resetStoreForTests, save } from './db'
 import { loadPhoto, savePhoto } from './photos'

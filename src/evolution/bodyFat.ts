@@ -1,4 +1,5 @@
-import type { MeasureFields, Profile, Sex } from '../types'
+import type { Profile, Sex } from '../profile/types'
+import type { MeasureFields } from './types'
 
 const r1 = (n: number) => Math.round(n * 10) / 10
 

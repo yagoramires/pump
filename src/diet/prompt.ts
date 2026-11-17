@@ -1,4 +1,5 @@
-import type { DietAnamnesis, DietGoal, Profile, Restriction } from '../types'
+import type { Profile } from '../profile/types'
+import type { DietAnamnesis, DietGoal, Restriction } from './types'
 import { GOALS, names, profileLines } from '../workout/planFormat'
 
 export const TACO_EXAMPLES: string[] = [

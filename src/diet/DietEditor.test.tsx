@@ -1,10 +1,10 @@
-import type { DietItem, DietPlan } from '../types'
+import { DEFAULTS } from '../schema'
+import type { DietItem, DietPlan } from './types'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from '../storage/db'
 import { todayKey } from '../lib/date'
-import { EMPTY_DIET } from '../types'
 import { DietEditor } from './DietEditor'
 
 const shake: DietItem = { id: 'f1', name: 'Meu shake', grams: 100, per100: { kcal: 120, p: 20, c: 5, f: 2 }, source: 'custom' }
@@ -55,7 +55,7 @@ test('DietEditor salva refeição com horário e item; Apagar cardápio volta a 
   render(<DietEditor onDone={onDone} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Apagar todos os cardápios' }))
   await user.click(await screen.findByRole('button', { name: 'Apagar' }))
-  await waitFor(async () => expect(await load('dietPlan')).toEqual(EMPTY_DIET))
+  await waitFor(async () => expect(await load('dietPlan')).toEqual(DEFAULTS.dietPlan))
   expect((await load('dietLog'))?.[todayKey()]).toBeDefined()
 })
 

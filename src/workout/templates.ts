@@ -1,4 +1,4 @@
-import type { CustomExercise, Exercise, PlanExercise, WorkoutPlan } from '../types'
+import type { CustomExercise, Exercise, PlanExercise, WorkoutPlan } from './types'
 
 export interface PlanTemplate {
   id: string

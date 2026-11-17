@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState, type ReactNode } from 'react'
 import { Check, Droplet, ListChecks, MoreHorizontal, Pencil, Plus, Sparkles, Upload, Utensils } from 'lucide-react'
-import type { DietDay, DietLog, DietPlan, WaterLog } from '../types'
-import { DEFAULT_SETTINGS, EMPTY_DIET, NO_PROFILE } from '../types'
+import { DEFAULTS } from '../schema'
+import type { DietDay, DietPlan } from './types'
 import { usePersisted } from '../storage/db'
 import { formatDayLabel, todayKey } from '../lib/date'
 import { Button } from '@/components/ui/button'
@@ -18,8 +18,6 @@ import { DietImport } from './DietImport'
 import { MealScreen } from './MealScreen'
 import { WaterCard } from './WaterCard'
 
-const NO_LOG: DietLog = {}
-const NO_WATER: WaterLog = {}
 const LABEL = 'text-[10px] font-semibold uppercase tracking-[.05em] text-faint'
 const SHEET_CARD = 'overflow-hidden rounded-[14px] border border-border bg-surface'
 const RING_R = 19
@@ -32,11 +30,11 @@ const fromScratch = (): DietPlan => ({
 export function DietTab() {
   const [now, setNow] = useState(() => new Date()) // relógio da tela: dia mostrado e refeição destacada
   const today = todayKey(now)
-  const [plan, setPlan, planLoaded] = usePersisted('dietPlan', EMPTY_DIET)
-  const [log, setLog, logLoaded] = usePersisted('dietLog', NO_LOG)
-  const [water, setWater, waterLoaded] = usePersisted('waterLog', NO_WATER)
-  const [settings, setSettings, settingsLoaded] = usePersisted('settings', DEFAULT_SETTINGS)
-  const [profile, , profileLoaded] = usePersisted('profile', NO_PROFILE)
+  const [plan, setPlan, planLoaded] = usePersisted('dietPlan', DEFAULTS.dietPlan)
+  const [log, setLog, logLoaded] = usePersisted('dietLog', DEFAULTS.dietLog)
+  const [water, setWater, waterLoaded] = usePersisted('waterLog', DEFAULTS.waterLog)
+  const [settings, setSettings, settingsLoaded] = usePersisted('settings', DEFAULTS.settings)
+  const [profile, , profileLoaded] = usePersisted('profile', DEFAULTS.profile)
   const [view, setView] = useState<{ kind: 'edit'; initial?: DietPlan } | { kind: 'ia' | 'import' }>()
   const [openId, setOpenId] = useState<string>()
   const [confirmMenu, setConfirmMenu] = useState<string>()

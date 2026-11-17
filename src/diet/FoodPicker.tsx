@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Check, Minus, Plus, Search } from 'lucide-react'
-import type { DietItem, DietLog, Per100, TacoFood } from '../types'
-import { EMPTY_DIET } from '../types'
+import { DEFAULTS } from '../schema'
+import type { DietItem, Per100, TacoFood } from './types'
 import { usePersisted } from '../storage/db'
 import { fetchTaco } from '../catalog/catalog'
 import { normalize, searchCatalog } from '../catalog/search'
@@ -25,8 +25,6 @@ type Props = {
 /** alimento sem quantidade: o que a lista mostra e o que vira DietItem */
 type Food = { name: string; per100: Per100; source: DietItem['source']; tacoId?: number }
 
-const NO_FOODS: DietItem[] = []
-const NO_LOG: DietLog = {}
 const LABEL = 'pt-3 pb-1 text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
 const ROUND = 'flex size-11 touch-manipulation items-center justify-center rounded-xl border border-border text-strong disabled:opacity-40'
 const toFood = ({ name, per100, source, tacoId }: Food): Food => ({ name, per100, source, ...(tacoId !== undefined && { tacoId }) })
@@ -57,9 +55,9 @@ function Rows({ label, foods, selected, onSelect }: { label: string; foods: Food
 export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, onClose, extraAction }: Props) {
   const [taco, setTaco] = useState<TacoFood[]>([])
   const [offline, setOffline] = useState(false)
-  const [plan] = usePersisted('dietPlan', EMPTY_DIET)
-  const [log] = usePersisted('dietLog', NO_LOG)
-  const [foods, setFoods] = usePersisted('foods', NO_FOODS)
+  const [plan] = usePersisted('dietPlan', DEFAULTS.dietPlan)
+  const [log] = usePersisted('dietLog', DEFAULTS.dietLog)
+  const [foods, setFoods] = usePersisted('foods', DEFAULTS.foods)
   const [q, setQ] = useState('')
   const [sel, setSel] = useState<Food>()
   const [grams, setGrams] = useState(initialGrams)

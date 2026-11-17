@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Anamnesis, Extra, Goal, Level, Muscle, Place, Split } from '../types'
+import type { Anamnesis, Extra, Goal, Level, Muscle, Place, Split } from './types'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'

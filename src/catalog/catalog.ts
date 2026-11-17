@@ -1,4 +1,5 @@
-import type { Exercise, TacoFood } from '../types'
+import type { Exercise } from '../workout/types'
+import type { TacoFood } from '../diet/types'
 
 export const IMAGE_BASE =
   'https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/'
