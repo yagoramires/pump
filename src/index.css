@@ -76,3 +76,7 @@ html { color-scheme: dark; }
 body { background: var(--color-bg); color: var(--color-text); font-family: var(--font-sans); font-variant-numeric: tabular-nums; -webkit-tap-highlight-color: transparent; }
 * { scrollbar-width: none; }
 *::-webkit-scrollbar { display: none; }
+
+@layer base {
+  *, ::before, ::after { border-color: var(--color-border); }
+}
