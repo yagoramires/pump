@@ -54,7 +54,7 @@ function ProfileFields({ start, setProfile, submitLabel, onDone }: { start: Prof
       <Field id="altura" label="Altura" unit="cm" value={h} onChange={setH} />
       <Field id="peso" label="Peso" unit="kg" value={w} onChange={setW} />
       <p className="rounded-[11px] border border-border bg-surface px-3 py-2.5 text-[13px] text-text-2">Seus dados ficam só neste aparelho.</p>
-      <Button type="button" className="mt-auto" disabled={!ok} onClick={() => { setProfile({ sex, heightCm: height!, weightKg: weight! }); onDone() }}>{submitLabel}</Button>
+      <Button type="button" className="mt-auto" disabled={!ok} onClick={() => { setProfile({ ...start, sex, heightCm: height!, weightKg: weight! }); onDone() }}>{submitLabel}</Button>
     </div>
   )
 }

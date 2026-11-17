@@ -1,7 +1,12 @@
 export type Tab = 'treino' | 'evolucao' | 'dieta'
 
 export type Sex = 'M' | 'F'
-export interface Profile { sex: Sex; heightCm: number; weightKg: number }
+export type Goal = 'hipertrofia' | 'emagrecer' | 'forca' | 'saude'
+export type Level = 'iniciante' | 'intermediario' | 'avancado'
+export type Place = 'academia' | 'casa'
+/** respostas da anamnese que vão no prompt da IA; tudo opcional */
+export interface Anamnesis { goal?: Goal; level?: Level; place?: Place; daysPerWeek?: number; age?: number; minutes?: number; notes?: string }
+export interface Profile { sex: Sex; heightCm: number; weightKg: number; anamnesis?: Anamnesis }
 export interface Exercise { id: string; name: string; muscles: string[]; equipment: string; instructions: string[]; images: string[] }
 export interface PlanExercise {
   exerciseId: string

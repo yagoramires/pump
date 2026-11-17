@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Check, ChevronLeft, Copy, FileUp } from 'lucide-react'
-import type { CustomExercise, WorkoutPlan } from '../types'
+import type { CustomExercise, Profile, WorkoutPlan } from '../types'
 import { usePersisted } from '../storage/db'
 import { fetchCatalog } from '../catalog/catalog'
-import { PlanFormatError, LLM_PROMPT, exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
+import { PlanFormatError, buildPrompt, exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
+import { AnamnesisForm } from './AnamnesisForm'
 import { IconDot } from '@/components/IconDot'
 import { Button } from '@/components/ui/button'
 
 const NO_PLAN: WorkoutPlan = { workouts: [] }
 const NO_CUSTOMS: CustomExercise[] = []
+const NO_PROFILE: Profile = { sex: 'M', heightCm: 0, weightKg: 0 }
 type Review = { plan: WorkoutPlan; newCustoms: CustomExercise[]; unmatched: string[]; ignoredDiet: boolean }
 
 function Step({ n, title, sub, children }: { n: number; title: string; sub: string; children?: ReactNode }) {
@@ -27,6 +29,7 @@ function Step({ n, title, sub, children }: { n: number; title: string; sub: stri
 export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: () => void }) {
   const [plan, setPlan, planLoaded] = usePersisted('workoutPlan', NO_PLAN)
   const [customs, setCustoms, customsLoaded] = usePersisted('customExercises', NO_CUSTOMS)
+  const [profile, setProfile, profileLoaded] = usePersisted('profile', NO_PROFILE)
   const [text, setText] = useState('')
   const [notice, setNotice] = useState('')
   const [problems, setProblems] = useState<string[]>([])
@@ -88,9 +91,10 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
         {onBack && <button type="button" className="icon-btn" aria-label="Voltar" onClick={onBack}><ChevronLeft size={18} /></button>}
         <h1 className="flex-1 text-[19px] font-semibold text-strong">Importar de uma IA</h1>
       </header>
+      {profileLoaded && <AnamnesisForm initial={profile.anamnesis ?? {}} onChange={(anamnesis) => setProfile((p) => ({ ...p, anamnesis }))} />}
       <div className="overflow-hidden rounded-[14px] border border-border bg-panel">
-        <Step n={1} title="Copie o prompt" sub="Cole no ChatGPT com sua ficha">
-          <Button type="button" variant="outline" size="sm" className="h-9 bg-transparent" onClick={() => copy(LLM_PROMPT, 'Prompt copiado. Cole na sua IA.')}><Copy size={14} aria-hidden="true" />Copiar</Button>
+        <Step n={1} title="Copie o prompt" sub="Cole no ChatGPT (e sua ficha, se tiver)">
+          <Button type="button" variant="outline" size="sm" className="h-9 bg-transparent" disabled={!profileLoaded} onClick={() => copy(buildPrompt(profile), 'Prompt copiado. Cole na sua IA.')}><Copy size={14} aria-hidden="true" />Copiar</Button>
         </Step>
         <Step n={2} title="Cole a resposta aqui" sub="Pode colar o texto todo" />
       </div>
