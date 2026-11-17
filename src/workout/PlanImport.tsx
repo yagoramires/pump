@@ -104,7 +104,7 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
         Escolher arquivo
         <input type="file" hidden accept=".json,application/json,text/plain" onChange={async (e) => {
           const f = e.target.files?.[0]
-          if (f) { instant.current = true; edit(await f.text()) }
+          if (f) { const t = await f.text(); instant.current = t !== text; edit(t) }
           e.target.value = ''
         }} />
       </label>

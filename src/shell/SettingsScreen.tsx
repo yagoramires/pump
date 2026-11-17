@@ -42,21 +42,28 @@ function BackHeader({ title, onBack, label = 'Voltar' }: { title: string; onBack
   )
 }
 
+// tela cheia por cima da barra de abas (z-30; gavetas e diálogos são z-50)
+const Overlay = ({ children }: { children: ReactNode }) => (
+  <div className="fixed inset-0 z-30 overflow-y-auto bg-bg">
+    <div className="mx-auto max-w-md px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))]">{children}</div>
+  </div>
+)
+
 export function SettingsScreen({ settings, onClose, setSettings }: { settings: Settings; onClose: () => void; setSettings: (f: (s: Settings) => Settings) => void }) {
   const [view, setView] = useState<View>('menu')
   const [confirmRedo, setConfirmRedo] = useState(false)
   const [profile] = usePersisted('profile', NO_PROFILE)
   const back = () => setView('menu')
 
-  if (view === 'plan') return <PlanEditor onDone={back} onCancel={back} />
-  if (view === 'import') return <PlanImport onDone={back} onBack={back} />
-  if (view === 'profile') return <><BackHeader title="Perfil" onBack={back} /><ProfileForm submitLabel="Salvar" onDone={back} /></>
+  if (view === 'plan') return <Overlay><PlanEditor onDone={back} onCancel={back} /></Overlay>
+  if (view === 'import') return <Overlay><PlanImport onDone={back} onBack={back} /></Overlay>
+  if (view === 'profile') return <Overlay><BackHeader title="Perfil" onBack={back} /><ProfileForm submitLabel="Salvar" onDone={back} /></Overlay>
 
   const days = settings.lastBackupAt ? daysBetween(settings.lastBackupAt, todayKey()) : undefined
   const last = days === undefined ? 'Nunca' : days === 0 ? 'Último: hoje' : `Último: há ${days} ${days === 1 ? 'dia' : 'dias'}`
 
   return (
-    <div className="pb-6">
+    <Overlay>
       <BackHeader title="Configurações" onBack={onClose} label="Fechar configurações" />
       <div className={LABEL}>TREINO</div>
       <Group>
@@ -83,6 +90,6 @@ export function SettingsScreen({ settings, onClose, setSettings }: { settings: S
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </Overlay>
   )
 }
