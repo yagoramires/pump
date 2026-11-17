@@ -213,3 +213,44 @@ Totais de qualquer dia (hoje ou passado) vêm de **uma função pura** sobre a c
 - Layout fino seguindo `docs/design/dieta.html` e os componentes existentes.
 - Texto exato do prompt e os ~15 exemplos de nomes (tirados do `taco.json`).
 - Ícones das 3 conquistas novas.
+
+## 13. Adendo (2026-11-18, pedido do Yago durante a implementação)
+
+"Ninguém consegue seguir uma dieta igual todo dia." Entram **cardápios**, **opções por refeição**, **refeição/dia livre** e, no treino, **marcar descanso**. Onde este adendo contradiz as seções acima, vale ele.
+
+### 13.1 Decisões do Yago
+- **Vários cardápios**, escolhidos **sempre à mão**: a aba abre no último cardápio usado e um seletor no topo troca o cardápio de hoje.
+- **Livre é neutro 1 vez por semana**: a primeira "refeição livre" ou "dia livre" da semana (domingo a sábado, como o calendário) não conta como desvio; os seguintes contam. Sem bloqueio: dá pra marcar quantos quiser.
+- **Descanso no treino**: opção de marcar descanso na aba Treino.
+
+### 13.2 Comportamento
+- **Cardápios** (*nomes e layout são chamada minha*): o cardápio tem nome, refeições e meta própria (kcal e macros opcionais), pra "Dia de treino" e "Descanso" terem metas diferentes. O editor ganha uma lista de cardápios (criar, renomear, duplicar, apagar; ao menos 1). Trocar o cardápio de hoje refaz a cópia do dia se nada foi marcado; se algo foi marcado, pede confirmação ("O que você marcou hoje será apagado") e refaz.
+- **Opções por refeição**: cada refeição tem 1 a 4 opções (Opção A, B…, nome opcional como "Ovos com pão"). A cópia do dia usa a primeira opção. No dia, **"Trocar refeição"** na refeição abre a lista das outras opções dela e das refeições dos outros cardápios; escolher substitui os itens da refeição de hoje (marcada como `swappedMeal`). Trocar alimento, pular e extra continuam valendo sobre a refeição escolhida.
+- **Refeição livre**: na refeição, "Refeição livre" marca a refeição como feita e livre; não soma kcal nem macros. Desfazer volta ao normal.
+- **Dia livre**: no topo da aba (menu do dia), "Dia livre" marca o dia todo; as refeições ficam esmaecidas e não somam. Desfazer volta.
+- **Desvio**: um dia com refeição livre ou dia livre além do primeiro "livre" da semana não é dia 100%. O primeiro livre da semana: refeição livre conta como refeição feita sem estragar o 100%; dia livre **não quebra** a sequência de "7 dias na dieta" (é pulado: não conta nem quebra). Os seguintes: refeição livre impede o 100%, dia livre quebra a sequência.
+- **Evolução**: o detalhe do dia mostra "Dia livre" ou "N refeição(ões) livre(s)" e o cardápio do dia; a média de kcal do cartão ignora dias livres; o cartão mostra "livres no mês".
+- **Descanso no treino**: num dia com treino previsto, a aba Treino oferece "Descansar hoje" (com desfazer). O descanso marcado é neutro 1 vez por semana: o primeiro da semana não quebra a sequência de treinos (o dia é tratado como não previsto); os seguintes quebram como uma falta. Num dia sem treino previsto não há o que marcar (já é descanso). O Histórico mostra "Descanso" no dia.
+
+### 13.3 Dados (substitui os tipos de §8)
+- `DietPlan = { menus: Menu[]; lastMenuId?: string }`, começando como `{ menus: [] }`.
+- `Menu = { id: string; name: string; meals: Meal[]; goalKcal?: number; goalMacros?: { p: number; c: number; f: number } }`
+- `Meal = { id: string; name: string; time: string; options: MealOption[] }` e `MealOption = { id: string; name?: string; items: DietItem[] }`.
+- `DayMeal = { id; name; time; done: boolean; free?: boolean; swappedMeal?: string /* nome da opção/refeição escolhida */; items: DayItem[] }`.
+- `DietDay = { menuId: string; menuName: string; meals: DayMeal[]; goalKcal?: number; goalMacros?: …; free?: boolean }`.
+- `WorkoutSession` ganha `rest?: boolean` (registro de descanso, sem exercícios e sem `completedAt`).
+- Backup: `dietPlan` exige `menus` array (aceitar também o formato antigo `{ meals }` de antes do adendo não é necessário: nada foi publicado).
+
+### 13.4 Formato Pump (substitui o exemplo de §7.7)
+```json
+{ "formato": "pump-plano", "versao": 1,
+  "dieta": { "cardapios": [
+    { "nome": "Dia de treino", "metaKcal": 2100, "macros": { "proteinaG": 160, "carboG": 220, "gorduraG": 60 },
+      "refeicoes": [
+        { "nome": "Café da manhã", "horario": "07:00", "opcoes": [
+          { "nome": "Ovos com pão", "alimentos": [ { "nome": "Pão, trigo, francês", "gramas": 50, "porcao": "1 un", "kcal": 150, "proteinaG": 4, "carboG": 29, "gorduraG": 1.5 } ] },
+          { "nome": "Iogurte com aveia", "alimentos": [ … ] } ] } ] } ] } }
+```
+- Também aceita `dieta.refeicoes` (um cardápio só, nome "Cardápio") e refeição com `alimentos` direto (uma opção só).
+- Validação extra: 1 a 5 cardápios; 1 a 4 opções por refeição; cada opção com 1 a 30 alimentos; mensagens no padrão de §7.7 ("Cardápio {c}, refeição {n}, opção {o}: …").
+- O prompt pede **2 opções por refeição** e, se o objetivo e os dias de treino justificarem, **2 cardápios** ("Dia de treino" e "Descanso").
