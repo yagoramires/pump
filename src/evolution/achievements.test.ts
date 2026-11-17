@@ -38,3 +38,9 @@ test('primeira foto e gordura −1 ponto', () => {
   expect(get(a, 'first-photo').earnedAt).toBe('2026-11-03')
   expect(get(a, 'fat-1').earnedAt).toBe('2026-11-20')
 })
+test('progresso da sequência parte da sequência atual, não da melhor', () => {
+  const days = ['2026-11-16', '2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20', '2026-11-22'] // 5 seguidos, faltou sáb 21, voltou dom 22
+  const log = Object.fromEntries(days.map((k) => [k, done(k)]))
+  const a = computeAchievements({ workoutLog: log, workoutPlan: plan([0, 1, 2, 3, 4, 5, 6]), measurements: [], photoSets: [] }, '2026-11-22')
+  expect(get(a, 'streak-7').progress).toBe('falta 6')
+})
