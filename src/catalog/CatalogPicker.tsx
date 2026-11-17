@@ -34,13 +34,13 @@ function Chips({ values, value, onChange, label }: { values: string[]; value?: s
 function Row({ e, mine, onPick }: { e: Exercise | CustomExercise; mine?: boolean; onPick: () => void }) {
   const img = 'images' in e ? e.images[0] : undefined
   return (
-    <li className="flex items-center gap-3 border-t border-line py-2">
+    <li className="flex items-center gap-3 border-t border-line px-3 py-2 first:border-t-0">
       {img ? <img src={imageUrl(img)} alt="" loading="lazy" className="size-10 shrink-0 rounded-[10px] bg-surface object-cover" /> : <IconDot color={muscleColor(e.muscles)} size={36}><Dumbbell size={16} /></IconDot>}
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[15px] font-medium text-strong">{e.name}</span>
+        <span className="block truncate text-[15px] font-semibold text-strong">{e.name}</span>
         <span className="block truncate text-[12.5px] text-text-2">{e.muscles.join(', ')}{mine ? ' · seu exercício' : ''}</span>
       </span>
-      <button type="button" className="flex size-11 shrink-0 items-center justify-center rounded-xl text-accent" aria-label={`Adicionar ${e.name}`} onClick={onPick}><Plus size={20} /></button>
+      <button type="button" className="icon-btn mr-1 bg-transparent text-accent" aria-label={`Adicionar ${e.name}`} onClick={onPick}><Plus size={18} /></button>
     </li>
   )
 }
@@ -78,8 +78,8 @@ export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | Cust
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-bg" role="dialog" aria-label="Escolher exercício">
-      <header className="flex items-center gap-1 px-2 py-2">
-        <button type="button" className="flex size-11 items-center justify-center text-text-2" aria-label="Voltar" onClick={onClose}><ChevronLeft size={22} /></button>
+      <header className="flex items-center gap-3 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
+        <button type="button" className="icon-btn" aria-label="Voltar" onClick={onClose}><ChevronLeft size={18} /></button>
         <h1 className="text-[19px] font-semibold text-strong">Exercícios</h1>
       </header>
       <div className="relative mx-4 mb-2">
@@ -95,13 +95,13 @@ export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | Cust
         {shownMine.length > 0 && (
           <>
             <h2 className={LABEL}>Seus exercícios</h2>
-            <ul className="px-4">{shownMine.map((e) => <Row key={e.id} e={e} mine onPick={() => onPick(e)} />)}</ul>
+            <ul className="mx-4 overflow-hidden rounded-[14px] border border-border bg-panel">{shownMine.map((e) => <Row key={e.id} e={e} mine onPick={() => onPick(e)} />)}</ul>
           </>
         )}
         {list.length > 0 && (
           <>
             <h2 className={LABEL}>Catálogo</h2>
-            <ul className="px-4">{list.map((e) => <Row key={e.id} e={e} onPick={() => onPick(e)} />)}</ul>
+            <ul className="mx-4 overflow-hidden rounded-[14px] border border-border bg-panel">{list.map((e) => <Row key={e.id} e={e} onPick={() => onPick(e)} />)}</ul>
           </>
         )}
       </div>

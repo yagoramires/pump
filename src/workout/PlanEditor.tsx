@@ -64,8 +64,8 @@ function PlanForm({ start, onDone, onCancel }: Props & { start: WorkoutPlan }) {
 
   return (
     <div className="flex flex-col gap-3 pb-6">
-      <header className="flex items-center gap-1 py-2">
-        <button type="button" className="flex size-11 items-center justify-center text-text-2" aria-label="Cancelar" onClick={onCancel}><ChevronLeft size={22} /></button>
+      <header className="flex items-center gap-3 py-2">
+        <button type="button" className="icon-btn" aria-label="Cancelar" onClick={onCancel}><ChevronLeft size={18} /></button>
         <h1 className="flex-1 text-[19px] font-semibold text-strong">Editar plano</h1>
         <Button size="sm" onClick={save}>Salvar</Button>
       </header>
@@ -81,7 +81,7 @@ function PlanForm({ start, onDone, onCancel }: Props & { start: WorkoutPlan }) {
               <button
                 key={d}
                 type="button"
-                className={cn('h-11 rounded-[10px] border text-[13px] font-semibold', w.weekdays.includes(d) ? 'border-accent bg-accent-bg text-accent' : 'border-border text-text-2')}
+                className={cn('h-11 rounded-[10px] border text-[13px] font-semibold', w.weekdays.includes(d) ? 'border-accent bg-accent text-on-accent' : 'border-border text-text-2')}
                 aria-label={full}
                 aria-pressed={w.weekdays.includes(d)}
                 onClick={() => patchWorkout(w.id, (x) => ({ ...x, weekdays: x.weekdays.includes(d) ? x.weekdays.filter((n) => n !== d) : [...x.weekdays, d].sort() }))}
@@ -94,7 +94,7 @@ function PlanForm({ start, onDone, onCancel }: Props & { start: WorkoutPlan }) {
             <button key={`${e.exerciseId}-${i}`} type="button" className="flex min-h-14 items-center gap-3 border-t border-line pt-2 text-left" onClick={() => setEditing({ wid: w.id, i })}>
               <IconDot color={muscleColor(e.muscles)} size={36}><Dumbbell size={16} /></IconDot>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-[15px] font-medium text-strong">{e.name}</span>
+                <span className="block truncate text-[15px] font-semibold text-strong">{e.name}</span>
                 <span className="block text-[12.5px] tabular-nums text-text-2">{`${e.sets} × ${e.reps} · ${formatKg(e.weightKg)} kg · ${e.restSec} s`}</span>
               </span>
               <ChevronRight size={16} className="text-faint" />

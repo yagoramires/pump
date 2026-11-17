@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Check, ChevronLeft, FileUp } from 'lucide-react'
+import { Check, ChevronLeft, Copy, FileUp } from 'lucide-react'
 import type { CustomExercise, WorkoutPlan } from '../types'
 import { usePersisted } from '../storage/db'
 import { fetchCatalog } from '../catalog/catalog'
@@ -11,11 +11,14 @@ const NO_PLAN: WorkoutPlan = { workouts: [] }
 const NO_CUSTOMS: CustomExercise[] = []
 type Review = { plan: WorkoutPlan; newCustoms: CustomExercise[]; unmatched: string[]; ignoredDiet: boolean }
 
-function Step({ n, title, children }: { n: number; title: string; children?: ReactNode }) {
+function Step({ n, title, sub, children }: { n: number; title: string; sub: string; children?: ReactNode }) {
   return (
-    <div className="flex items-start gap-3 border-t border-line p-3.5 first:border-t-0">
-      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-bg text-xs font-bold text-accent">{n}</span>
-      <div className="flex-1 pt-0.5 text-[15px] font-semibold text-strong">{title}</div>
+    <div className="flex items-center gap-3 border-t border-line p-3.5 first:border-t-0">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-[9px] border border-accent-line bg-accent-bg text-sm font-bold text-accent">{n}</span>
+      <div className="min-w-0 flex-1">
+        <div className="text-[15px] font-semibold text-strong">{title}</div>
+        <div className="text-[13px] text-text-2">{sub}</div>
+      </div>
       {children}
     </div>
   )
@@ -81,20 +84,20 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
 
   return (
     <div className="flex flex-col gap-3 pb-28">
-      <header className="flex items-center gap-1 py-2">
-        {onBack && <button type="button" className="-ml-2 flex size-11 items-center justify-center text-text-2" aria-label="Voltar" onClick={onBack}><ChevronLeft size={22} /></button>}
+      <header className="flex min-h-11 items-center gap-3 py-2">
+        {onBack && <button type="button" className="icon-btn" aria-label="Voltar" onClick={onBack}><ChevronLeft size={18} /></button>}
         <h1 className="flex-1 text-[19px] font-semibold text-strong">Importar de uma IA</h1>
       </header>
       <div className="overflow-hidden rounded-[14px] border border-border bg-panel">
-        <Step n={1} title="Copie o prompt">
-          <Button type="button" variant="secondary" size="sm" onClick={() => copy(LLM_PROMPT, 'Prompt copiado. Cole na sua IA.')}>Copiar</Button>
+        <Step n={1} title="Copie o prompt" sub="Cole no ChatGPT com sua ficha">
+          <Button type="button" variant="outline" size="sm" className="h-9 bg-transparent" onClick={() => copy(LLM_PROMPT, 'Prompt copiado. Cole na sua IA.')}><Copy size={14} aria-hidden="true" />Copiar</Button>
         </Step>
-        <Step n={2} title="Cole a resposta aqui" />
+        <Step n={2} title="Cole a resposta aqui" sub="Pode colar o texto todo" />
       </div>
       <textarea
         aria-label="Resposta da IA"
         rows={8}
-        className="w-full rounded-[14px] border border-border bg-panel p-3.5 text-base text-text outline-none placeholder:text-faint focus-visible:border-accent-line"
+        className="w-full resize-none rounded-[14px] border border-border bg-panel p-3.5 text-base text-text outline-none placeholder:text-faint focus-visible:border-accent-line"
         placeholder='{ "formato": "pump-plano", ... }'
         value={text}
         onChange={(e) => edit(e.target.value)}
@@ -124,7 +127,7 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
         </div>
       )}
       {review?.ignoredDiet && <p className="text-[13px] text-text-2">A parte de dieta foi ignorada (chega na próxima versão)</p>}
-      <button type="button" className="min-h-11 self-start text-[13px] text-text-2 underline" disabled={!ready} onClick={() => copy(JSON.stringify(exportPlanFormat(plan), null, 2), 'Plano copiado.')}>copiar meu plano</button>
+      <p className="text-[13px] text-text-2">Ou ajuste seu plano atual: <button type="button" className="min-h-11 font-semibold text-accent disabled:opacity-50" disabled={!ready} onClick={() => copy(JSON.stringify(exportPlanFormat(plan), null, 2), 'Plano copiado.')}>copiar meu plano</button></p>
       <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <Button type="button" className="w-full" disabled={!review} onClick={doImport}>Importar plano</Button>
       </div>

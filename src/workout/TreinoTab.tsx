@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/EmptyState'
 import { formatKg } from '@/lib/number'
 import { PlanEditor } from './PlanEditor'
+import { Overlay } from '../shell/SettingsScreen'
 import { ExerciseCard } from './ExerciseCard'
 import { ExercisePreview } from './ExercisePreview'
 import { SetTable } from './SetTable'
@@ -70,7 +71,7 @@ export function TreinoTab() {
 
   if (!planLoaded || !logLoaded) return <p className="text-sm text-text-2">Carregando…</p>
 
-  if (editingPlan) return <PlanEditor onDone={() => setEditingPlan(false)} onCancel={() => setEditingPlan(false)} />
+  if (editingPlan) return <Overlay><PlanEditor onDone={() => setEditingPlan(false)} onCancel={() => setEditingPlan(false)} /></Overlay>
   if (plan.workouts.length === 0) {
     return (
       <EmptyState icon={<Dumbbell size={30} aria-hidden="true" />} title="Nenhum treino montado">

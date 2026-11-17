@@ -61,7 +61,7 @@ export default function App() {
   if (isIOS(navigator.userAgent, navigator.maxTouchPoints) && !isStandalone() && !settings.installDismissed) {
     return <>{banner}<InstallGate onDismiss={() => setSettings((s) => ({ ...s, installDismissed: true }))} /></>
   }
-  if (!settings.onboardingDone) return <>{banner}<main className={MAIN}><Onboarding setSettings={setSettings} /></main></>
+  if (!settings.onboardingDone) return <>{banner}<main className="mx-auto max-w-md px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]"><Onboarding setSettings={setSettings} /></main></>
 
   const tab = settings.lastTab
   return (
@@ -78,7 +78,7 @@ export default function App() {
           <SettingsScreen settings={settings} onClose={() => setShowSettings(false)} setSettings={setSettings} />
         ) : (
           <>
-            <button type="button" className="float-right -mt-2 -mr-2 flex size-11 items-center justify-center text-text-2" aria-label="Configurações" onClick={() => setShowSettings(true)}><SettingsIcon size={20} /></button>
+            <button type="button" className="icon-btn float-right -mt-1.5" aria-label="Configurações" onClick={() => setShowSettings(true)}><SettingsIcon size={17} /></button>
             {tab === 'treino' ? <TreinoTab /> : <ComingSoon title={TITLES[tab]} />}
           </>
         )}

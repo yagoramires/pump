@@ -29,9 +29,9 @@ function Field({ id, label, unit, value, onChange }: { id: string; label: string
   return (
     <div>
       <label htmlFor={id} className={cn(LABEL, 'mb-1.5 block')}>{label}</label>
-      <div className="flex items-center gap-2.5">
-        <Input id={id} className="text-base" inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} />
-        <span className="w-6 text-sm text-text-2">{unit}</span>
+      <div className="relative">
+        <Input id={id} className="pr-11" inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} />
+        <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[13px] text-faint">{unit}</span>
       </div>
     </div>
   )
@@ -39,22 +39,22 @@ function Field({ id, label, unit, value, onChange }: { id: string; label: string
 
 function ProfileFields({ start, setProfile, submitLabel, onDone }: { start: Profile; setProfile: (p: Profile) => void; submitLabel: string; onDone: () => void }) {
   const [sex, setSex] = useState(start.sex)
-  const [h, setH] = useState(start.heightCm ? String(start.heightCm) : '')
-  const [w, setW] = useState(start.weightKg ? String(start.weightKg) : '')
+  const [h, setH] = useState(start.heightCm ? String(start.heightCm).replace('.', ',') : '')
+  const [w, setW] = useState(start.weightKg ? String(start.weightKg).replace('.', ',') : '')
   const height = parseDecimal(h)
   const weight = parseDecimal(w)
   const ok = !!height && !!weight
   return (
-    <div className="flex flex-col gap-4">
-      <ToggleGroup type="single" value={sex} onValueChange={(v) => v && setSex(v as Profile['sex'])} aria-label="Sexo" className="w-full gap-2">
+    <div className="flex flex-1 flex-col gap-4">
+      <ToggleGroup type="single" spacing={1} value={sex} onValueChange={(v) => v && setSex(v as Profile['sex'])} aria-label="Sexo" className="w-full gap-[3px] rounded-[11px] border border-border bg-panel p-[3px]">
         {(['M', 'F'] as const).map((s) => (
-          <ToggleGroupItem key={s} value={s} className="h-11 flex-1 rounded-[10px] border border-border text-text-2 data-[state=on]:border-accent-line data-[state=on]:bg-accent-bg data-[state=on]:text-accent">{s === 'M' ? 'Masculino' : 'Feminino'}</ToggleGroupItem>
+          <ToggleGroupItem key={s} value={s} className="h-10 flex-1 rounded-[8px] font-semibold text-text-2 data-[state=on]:bg-surface data-[state=on]:text-strong data-[state=on]:shadow-[inset_0_0_0_1px_var(--color-border-strong)]">{s === 'M' ? 'Masculino' : 'Feminino'}</ToggleGroupItem>
         ))}
       </ToggleGroup>
       <Field id="altura" label="Altura" unit="cm" value={h} onChange={setH} />
       <Field id="peso" label="Peso" unit="kg" value={w} onChange={setW} />
-      <p className="text-xs text-faint">Seus dados ficam só neste aparelho.</p>
-      <Button type="button" disabled={!ok} onClick={() => { setProfile({ sex, heightCm: height!, weightKg: weight! }); onDone() }}>{submitLabel}</Button>
+      <p className="rounded-[11px] border border-border bg-surface px-3 py-2.5 text-[13px] text-text-2">Seus dados ficam só neste aparelho.</p>
+      <Button type="button" className="mt-auto" disabled={!ok} onClick={() => { setProfile({ sex, heightCm: height!, weightKg: weight! }); onDone() }}>{submitLabel}</Button>
     </div>
   )
 }
@@ -65,7 +65,7 @@ function Steps({ n }: { n: 1 | 2 }) {
   return (
     <div className="mb-4">
       <div className="mb-2 flex gap-1.5" aria-hidden="true">
-        {[1, 2].map((i) => <span key={i} className={cn('h-1 flex-1 rounded-full', i <= n ? 'bg-accent' : 'bg-surface')} />)}
+        {[1, 2].map((i) => <span key={i} className={cn('h-1 flex-1 rounded-full', i <= n ? 'bg-accent' : 'bg-line')} />)}
       </div>
       <div className={LABEL}>{`PASSO ${n} DE 2`}</div>
     </div>
@@ -97,14 +97,15 @@ export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => 
   if (step === 'import') return <PlanImport onDone={finish} onBack={() => setStep('treino')} />
   if (step === 'perfil') {
     return (
-      <div className="flex flex-col gap-4 pb-6">
+      // altura da tela menos o padding do main: Continuar e os atalhos ficam embaixo, perto do polegar
+      <div className="flex min-h-[calc(100dvh-1rem-max(1rem,env(safe-area-inset-bottom)))] flex-col gap-4">
         <div>
           <Steps n={1} />
           <h1 className="text-[26px] font-bold tracking-tight text-strong">Sobre você</h1>
         </div>
         <ProfileForm submitLabel="Continuar" onDone={() => setStep('treino')} />
         {/* fora do form: aparece mesmo enquanto o perfil salvo carrega */}
-        <div className="flex items-center justify-between">
+        <div className="-mt-2 flex flex-wrap items-center justify-between">
           {/* quem instalou o app no iPhone traz aqui os dados que usava no Safari */}
           <ImportBackupButton label="Restaurar backup" />
           <Button type="button" variant="ghost" className="text-text-2" onClick={() => setStep('treino')}>Pular</Button>
@@ -137,8 +138,8 @@ export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => 
         })}
       </div>
       <div className="mt-2.5 grid grid-cols-2 gap-2.5">
-        <Button type="button" variant="secondary" onClick={() => { setInitial({ workouts: [] }); setStep('editor') }}><Plus size={16} aria-hidden="true" />Do zero</Button>
-        <Button type="button" variant="secondary" onClick={() => setStep('import')}><Sparkles size={16} className="text-accent" aria-hidden="true" />Importar de IA</Button>
+        <Button type="button" variant="outline" className="h-16 flex-col gap-1" onClick={() => { setInitial({ workouts: [] }); setStep('editor') }}><Plus size={16} aria-hidden="true" />Do zero</Button>
+        <Button type="button" variant="outline" className="h-16 flex-col gap-1" onClick={() => setStep('import')}><Sparkles size={16} className="text-accent" aria-hidden="true" />Importar de IA</Button>
       </div>
       <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md flex-col gap-2 bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
         {error && <p role="alert" className="rounded-[10px] border border-border bg-panel px-3 py-2 text-sm text-negative">{error}</p>}

@@ -9,8 +9,13 @@ const COPY = {
 export function ComingSoon({ title }: { title: keyof typeof COPY }) {
   const { icon, text } = COPY[title]
   return (
-    <EmptyState icon={icon} title={`${title} chega em breve`}>
-      <p className="max-w-[220px] text-sm text-text-2">{text}</p>
-    </EmptyState>
+    <>
+      <div className="text-[10px] font-semibold uppercase tracking-[.05em] text-faint">{title}</div>
+      <div className="mt-[14vh]">
+        <EmptyState icon={icon} title={`${title} chega em breve`}>
+          <p className="max-w-[220px] text-sm text-text-2">{text}</p>
+        </EmptyState>
+      </div>
+    </>
   )
 }

@@ -26,14 +26,15 @@ export function ImportBackupButton({ label, variant = 'ghost' }: { label: string
       {variant === 'row' ? (
         <button type="button" className="flex min-h-14 w-full items-center gap-3 border-t border-line px-3.5 text-left" onClick={() => fileRef.current?.click()}>
           <IconDot size={36} color="var(--c5)"><Upload size={18} aria-hidden="true" /></IconDot>
-          <span className="flex-1 text-[15px] font-medium text-strong">{label}</span>
+          <span className="flex-1 text-[15px] font-semibold text-strong">{label}</span>
           <ChevronRight size={18} className="text-faint" aria-hidden="true" />
         </button>
       ) : (
-        <Button type="button" variant="ghost" className="text-text-2" onClick={() => fileRef.current?.click()}>{label}</Button>
+        <Button type="button" variant="ghost" className="text-text-2" onClick={() => fileRef.current?.click()}><Upload size={16} aria-hidden="true" />{label}</Button>
       )}
       <input ref={fileRef} type="file" accept=".json,application/json" hidden aria-label="Arquivo de backup" onChange={(e) => { setFile(e.target.files?.[0]); e.target.value = '' }} />
-      {error && <p role="alert" className="text-sm text-negative">{error}</p>}
+      {/* order-last/basis-full: numa linha flex-wrap (montagem) o erro desce para baixo dos botões */}
+      {error && <p role="alert" className="order-last basis-full px-3.5 py-2 text-sm text-negative">{error}</p>}
       <AlertDialog open={!!file} onOpenChange={(o) => { if (!o) setFile(undefined) }}>
         <AlertDialogContent>
           <AlertDialogHeader>

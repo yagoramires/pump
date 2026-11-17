@@ -30,7 +30,7 @@ export function ExercisePreview({ exercise, onClose }: { exercise: SessionExerci
             </DrawerClose>
           </div>
           {images.length > 0 && (
-            <div className="relative overflow-hidden rounded-[14px] bg-surface">
+            <div className={cn('relative shrink-0 overflow-hidden rounded-[14px] bg-surface', images.length > 1 && 'pb-6')}>
               <img className="h-52 w-full object-contain" src={imageUrl(images[frame % images.length])} alt={exercise.name} />
               {images.length > 1 && (
                 <div className="absolute inset-x-0 bottom-2 flex justify-center gap-1">
