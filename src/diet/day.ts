@@ -58,8 +58,8 @@ export const setMealFree = (d: DietDay, mealId: string, free: boolean): DietDay 
 export const setDayFree = (d: DietDay, free: boolean): DietDay => ({ ...d, free })
 
 export const itemKcal = (i: DietItem) => (i.per100.kcal * i.grams) / 100
-/** aviso de origem: número da IA nunca aparece sem rótulo */
 export const optionLetter = (i: number) => 'ABCD'[i] ?? String(i + 1)
+/** aviso de origem: número da IA nunca aparece sem rótulo */
 export const iaLabel = (i: Pick<DietItem, 'source' | 'per100'>) => (i.source === 'ia' ? (i.per100.kcal ? 'estimativa da IA' : 'sem valores') : undefined)
 export const portionText = (i: Pick<DietItem, 'portion' | 'grams'>) => (i.portion ? `${i.portion} · ${formatDec(i.grams)} g` : `${formatDec(i.grams)} g`)
 export const itemMacros = (i: DietItem) => ({ p: (i.per100.p * i.grams) / 100, c: (i.per100.c * i.grams) / 100, f: (i.per100.f * i.grams) / 100 })
@@ -137,5 +137,5 @@ export const sortedMeals = <T extends { time: string }>(meals: T[]): T[] => [...
 export const currentMealId = (meals: DayMeal[], now: Date): string | undefined => {
   const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
   const open = sortedMeals(meals).filter((m) => !m.done && !m.free)
-  return (open.find((m) => m.time <= hhmm) ?? open[0])?.id
+  return (open.find((m) => m.time && m.time <= hhmm) ?? open[0])?.id
 }

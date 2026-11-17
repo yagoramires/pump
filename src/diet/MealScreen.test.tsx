@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { DietDay, DietItem, DietPlan, Menu } from '../types'
-import { dayFromMenu, toggleMeal } from './day'
+import { dayFromMenu, skipItem, toggleMeal } from './day'
 import { MealScreen } from './MealScreen'
 
 const it_ = (id: string, name: string, kcal: number, grams = 100, source: DietItem['source'] = 'custom'): DietItem => ({ id, name, grams, per100: { kcal, p: 10, c: 20, f: 5 }, source })
@@ -53,6 +53,20 @@ test('Comi esta marca e fecha', async () => {
   await user.click(screen.getByRole('button', { name: 'Comi esta' }))
   expect(stored.meals[0].done).toBe(true)
   expect(onClose).toHaveBeenCalled()
+})
+
+test('dia livre desabilita Comi esta', () => {
+  render(<Harness initial={dayFromMenu(menuA)} dayFree />)
+  expect(screen.getByRole('button', { name: 'Comi esta' })).toBeDisabled()
+})
+
+test('clicar na opção ativa não escreve nada', async () => {
+  const user = userEvent.setup()
+  const act = vi.fn()
+  const day = skipItem(dayFromMenu(menuA), 'm1', 'i1', true)
+  render(<MealScreen meal={day.meals[0]} menu={menuA} plan={plan} dayFree={false} act={act} onClose={() => {}} />)
+  await user.click(screen.getByRole('radio', { name: 'A' }))
+  expect(act).not.toHaveBeenCalled()
 })
 
 test('feita mostra Desmarcar', async () => {

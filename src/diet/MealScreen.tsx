@@ -84,7 +84,7 @@ export function MealScreen({ meal, menu, plan, dayFree, act, onClose }: Props) {
         {options.length > 1 && !meal.swappedMeal && (
           <ToggleGroup
             type="single" spacing={1} aria-label="Opção" disabled={free} value={selected.id}
-            onValueChange={(v) => { const o = options.find((x) => x.id === v); if (o) act((d) => chooseOption(d, meal.id, o)) }}
+            onValueChange={(v) => { const o = options.find((x) => x.id === v); if (o && o.id !== selected.id) act((d) => chooseOption(d, meal.id, o)) }}
             className="mt-2 grid w-full auto-cols-fr grid-flow-col gap-[3px] rounded-xl border border-border bg-panel p-[3px]"
           >
             {options.map((o, i) => (
@@ -124,7 +124,7 @@ export function MealScreen({ meal, menu, plan, dayFree, act, onClose }: Props) {
         ) : (
           <>
             {!dayFree && <Button variant="outline" className="h-11 flex-1 bg-transparent" onClick={() => { act((d) => setMealFree(d, meal.id, true)); onClose() }}>Refeição livre</Button>}
-            <Button className="h-11 flex-[1.4]" onClick={() => { act((d) => toggleMeal(d, meal.id)); onClose() }}><Check aria-hidden="true" />Comi esta</Button>
+            <Button className="h-11 flex-[1.4]" disabled={dayFree} onClick={() => { act((d) => toggleMeal(d, meal.id)); onClose() }}><Check aria-hidden="true" />Comi esta</Button>
           </>
         )}
       </div>
@@ -151,8 +151,8 @@ export function MealScreen({ meal, menu, plan, dayFree, act, onClose }: Props) {
                     {!free && row(<ArrowLeftRight size={18} className="text-accent" aria-hidden="true" />, 'Trocar por refeição de outro cardápio', () => setSheet('swap'))}
                     {row(<Sparkles size={18} className="text-accent" aria-hidden="true" />, meal.free ? 'Desfazer refeição livre' : 'Refeição livre', () => {
                       setSheet(undefined)
-                      if (meal.free) act((d) => setMealFree(d, meal.id, false))
-                      else { act((d) => setMealFree(d, meal.id, true)); onClose() }
+                      act((d) => setMealFree(d, meal.id, !isFree(d)))
+                      if (!meal.free) onClose()
                     })}
                   </ul>
                 </>
