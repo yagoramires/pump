@@ -32,3 +32,9 @@ test('firstIncomplete', () => {
   s.exercises[1].sets = [{ reps: '10', weightKg: 0 }]
   expect(firstIncomplete(s)).toBe(-1)
 })
+test('sessionStats: startedAt ilegível dá null e tempo negativo vira 0', () => {
+  const s = { ...startSession(workoutOf([{ sets: 1 }]), '2026-11-16'), startedAt: 'lixo' }
+  expect(sessionStats(s, new Date()).minutes).toBeNull()
+  const fut = startSession(workoutOf([{ sets: 1 }]), '2026-11-16', new Date(2026, 10, 16, 19, 0))
+  expect(sessionStats(fut, new Date(2026, 10, 16, 18, 0)).minutes).toBe(0)
+})

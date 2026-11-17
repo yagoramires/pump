@@ -5,12 +5,13 @@ export const repsNumber = (reps: string): number => Number(/\d+/.exec(reps)?.[0]
 export const sessionStats = (s: WorkoutSession, now: Date) => {
   const sets = s.exercises.flatMap((e) => e.sets)
   const doneSets = sets.filter((d): d is SetDone => d !== null)
-  const end = s.completedAt ? new Date(s.completedAt) : now
+  const end = s.completedAt ? Date.parse(s.completedAt) : now.getTime()
+  const ms = s.startedAt ? end - Date.parse(s.startedAt) : NaN
   return {
     done: doneSets.length,
     total: sets.length,
     volumeKg: doneSets.reduce((a, d) => a + d.weightKg * repsNumber(d.reps), 0),
-    minutes: s.startedAt ? Math.floor((end.getTime() - new Date(s.startedAt).getTime()) / 60000) : null,
+    minutes: Number.isFinite(ms) ? Math.max(0, Math.floor(ms / 60000)) : null,
   }
 }
 
