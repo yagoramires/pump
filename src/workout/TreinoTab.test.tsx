@@ -202,3 +202,30 @@ test('cardio fica num bloco à parte, só com a duração, e marca feito sem des
   expect(screen.queryByText('01:30')).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Esteira feito' })).toHaveAttribute('aria-pressed', 'true')
 })
+test('descansar hoje grava o registro e mostra Desfazer', async () => {
+  const user = userEvent.setup()
+  render(<><TreinoTab /><Toaster /></>)
+  await user.click(await screen.findByRole('button', { name: 'Descansar hoje' }))
+  expect(await screen.findByRole('heading', { name: 'Descanso marcado' })).toBeInTheDocument()
+  expect(await screen.findByText('Descanso marcado', { selector: '[data-title]' })).toBeInTheDocument() // toast
+  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16']).toEqual({ date: '2026-11-16', workoutId: '', workoutLabel: '', workoutName: 'Descanso', exercises: [], rest: true }))
+  expect(screen.getByRole('button', { name: /Peito e tríceps/ })).toBeInTheDocument()
+  // toasts de testes anteriores também têm "Desfazer": procura dentro do estado de descanso
+  await user.click(within(screen.getByRole('heading', { name: 'Descanso marcado' }).parentElement!).getByRole('button', { name: 'Desfazer' }))
+  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16']).toBeUndefined())
+  expect(await screen.findByRole('button', { name: 'Descansar hoje' })).toBeInTheDocument()
+})
+test('iniciar treino depois de marcar descanso substitui o registro', async () => {
+  await save('workoutLog', { '2026-11-16': { date: '2026-11-16', workoutId: '', workoutLabel: '', workoutName: 'Descanso', exercises: [], rest: true } })
+  const user = userEvent.setup()
+  render(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: /Peito e tríceps/ }))
+  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await waitFor(async () => {
+    const s = (await load('workoutLog'))?.['2026-11-16']
+    expect(s?.rest).toBeUndefined()
+    expect(s?.workoutId).toBe('a')
+    expect(s?.exercises[0].sets[0]).toEqual({ reps: '10', weightKg: 40 })
+  })
+  expect(screen.queryByRole('button', { name: 'Descansar hoje' })).not.toBeInTheDocument()
+})

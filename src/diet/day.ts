@@ -1,4 +1,4 @@
-import { daysBetween, parseDayKey, todayKey, weekday } from '../lib/date'
+import { daysBetween, weekStart } from '../lib/date'
 import type { DayItem, DayMeal, DietDay, DietItem, DietLog, DietPlan, Menu, WaterLog } from '../types'
 import { waterMet } from './water'
 
@@ -81,9 +81,7 @@ export const isFullDay = (day?: DietDay): boolean => {
 
 /** usos de "livre" na semana (domingo a sábado) de `date`, antes dele; dia livre vale 1, senão cada refeição livre vale 1 */
 export const freeUses = (log: DietLog, date: string): number => {
-  const start = parseDayKey(date)
-  start.setDate(start.getDate() - weekday(date))
-  const from = todayKey(start)
+  const from = weekStart(date)
   let n = 0
   for (const [k, d] of Object.entries(log))
     if (k >= from && k < date) n += d.free ? 1 : d.meals.filter((m) => m.free).length

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Check, ChevronRight, Dumbbell, HeartPulse, Moon } from 'lucide-react'
+import { Check, ChevronRight, Dumbbell, HeartPulse, Moon, Undo2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { SetDone, WorkoutLog, WorkoutPlan } from '../types'
 import { load, usePersisted } from '../storage/db'
@@ -42,7 +42,8 @@ export function TreinoTab() {
     return () => clearInterval(id)
   }, [])
 
-  const session = log[today]
+  const rest = log[today]?.rest
+  const session = rest ? undefined : log[today] // descanso marcado não é sessão
 
   // o PWA volta do segundo plano sem remontar: troca de dia, menos com treino em andamento
   useEffect(() => {
@@ -50,7 +51,7 @@ export function TreinoTab() {
       if (document.visibilityState !== 'visible' || todayKey() === today) return
       // lê o salvo, não o render: um check recém-feito pode ainda não ter chegado na tela
       const s = (await load('workoutLog').catch(() => undefined))?.[today]
-      if (s && !s.completedAt) return
+      if (s && !s.completedAt && !s.rest) return
       setToday(todayKey())
       setChosenId(undefined)
       setOpenIdx(undefined)
@@ -65,7 +66,7 @@ export function TreinoTab() {
     (f: (s: NonNullable<typeof session>) => NonNullable<typeof session>) =>
       setLog((prev) => {
         const s = prev[today]
-        return s ? { ...prev, [today]: f(s) } : prev
+        return s && !s.rest ? { ...prev, [today]: f(s) } : prev
       }),
     [setLog, today],
   )
@@ -84,13 +85,27 @@ export function TreinoTab() {
     )
   }
 
-  if (!session && !workout) {
+  const undoRest = () =>
+    setLog((prev) => {
+      if (!prev[today]?.rest) return prev
+      const { [today]: _gone, ...others } = prev
+      return others
+    })
+
+  if ((rest && !chosenId) || (!session && !workout)) {
     return (
       <div>
         <div className={LABEL}>{formatDayLabel(today)}</div>
-        <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Dia de descanso">
-          <p className="max-w-[260px] text-sm text-text-2">Seu plano não tem treino hoje. Quer treinar mesmo assim?</p>
-        </EmptyState>
+        {rest ? (
+          <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Descanso marcado">
+            <p className="max-w-[260px] text-sm text-text-2">Hoje é dia de recuperar. Quer treinar mesmo assim?</p>
+            <Button variant="outline" className="h-11 rounded-[13px]" onClick={undoRest}><Undo2 aria-hidden="true" /> Desfazer</Button>
+          </EmptyState>
+        ) : (
+          <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Dia de descanso">
+            <p className="max-w-[260px] text-sm text-text-2">Seu plano não tem treino hoje. Quer treinar mesmo assim?</p>
+          </EmptyState>
+        )}
         <div className={`${LABEL} mx-0.5 mb-1.5`}>Escolher um treino</div>
         <div className="overflow-hidden rounded-[14px] border border-border bg-panel">
           {plan.workouts.map((w) => (
@@ -112,13 +127,22 @@ export function TreinoTab() {
   const stats = sessionStats(view, now)
   const minutes = session ? stats.minutes : null
   const open = openIdx ?? firstIncomplete(view)
+  // o registro de descanso é trocado pela sessão no primeiro toque
+  const current = (prev: WorkoutLog) => {
+    const s = prev[today]
+    return s && !s.rest ? s : startSession(workout!, today)
+  }
+  const markRest = () => {
+    setLog((prev) => (prev[today] ? prev : { ...prev, [today]: { date: today, workoutId: '', workoutLabel: '', workoutName: 'Descanso', exercises: [], rest: true } }))
+    toast('Descanso marcado')
+  }
 
   const check = (exIdx: number, setIdx: number, v: SetDone) => {
     unlockAudio() // dentro do toque: o iOS só libera áudio num gesto
     const restSec = view.exercises[exIdx].restSec
     let marked = false // o updater do usePersisted roda na hora, então dá pra ler depois
     setLog((prev) => {
-      const s = prev[today] ?? startSession(workout!, today)
+      const s = current(prev)
       marked = !s.exercises[exIdx].sets[setIdx] // decide no último valor salvo: dois toques rápidos desmarcam
       const next = setDone(s, exIdx, setIdx, marked ? v : null)
       return { ...prev, [today]: marked ? setRestEnd(next, Date.now() + restSec * 1000) : next }
@@ -130,7 +154,7 @@ export function TreinoTab() {
   // cardio não tem carga nem descanso: só marca feito
   const toggleCardio = (exIdx: number) =>
     setLog((prev) => {
-      const s = prev[today] ?? startSession(workout!, today)
+      const s = current(prev)
       const e = s.exercises[exIdx]
       return { ...prev, [today]: setDone(s, exIdx, 0, e.sets[0] ? null : { reps: e.reps, weightKg: 0 }) }
     })
@@ -167,6 +191,9 @@ export function TreinoTab() {
           <div className="mt-1 text-[13px] text-text-2">{minutes === null ? exCount(view.exercises.length) : `${minutes} min · ${exCount(view.exercises.length)}`}</div>
         </div>
       </div>
+      {!log[today] && workoutForDate(plan, today) && (
+        <Button variant="outline" className="mb-2.5 h-11 w-full rounded-[13px]" onClick={markRest}><Moon aria-hidden="true" /> Descansar hoje</Button>
+      )}
 
       {view.exercises.map((e, i) => !isCardio(e) && (
         <ExerciseCard key={i} ex={e} open={open === i} onToggle={() => setOpenIdx(open === i ? -1 : i)} onPreview={() => setPreview(i)}>

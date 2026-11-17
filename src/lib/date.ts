@@ -11,6 +11,13 @@ export function parseDayKey(key: string): Date {
 
 export const weekday = (key: string) => parseDayKey(key).getDay()
 
+/** domingo da semana de `key` */
+export function weekStart(key: string): string {
+  const d = parseDayKey(key)
+  d.setDate(d.getDate() - d.getDay())
+  return todayKey(d)
+}
+
 // UTC evita que a virada do horário de verão distorça a contagem de dias
 export function daysBetween(a: string, b: string): number {
   const utc = (k: string) => {

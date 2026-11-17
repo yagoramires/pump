@@ -90,3 +90,19 @@ test('água 7 dias lê o waterLog mesmo com a água desligada', () => {
   const short = { ...water, '2026-11-13': { ml: 2000, goalMl: 2500 } }
   expect(get(computeAchievements({ ...base, dietPlan: menu, waterLog: short }, '2026-11-20'), 'water-7')).toMatchObject({ earnedAt: undefined, progress: 'falta 7' })
 })
+test('1º descanso da semana não quebra a sequência; o 2º quebra', () => {
+  // plano todo dia; semana de dom 15 a sáb 21
+  const rest = (date: string) => ({ date, workoutId: '', workoutLabel: '', workoutName: 'Descanso', exercises: [], rest: true })
+  const every = plan([0, 1, 2, 3, 4, 5, 6])
+  const one = { '2026-11-16': done('2026-11-16'), '2026-11-17': rest('2026-11-17'), '2026-11-18': done('2026-11-18'), '2026-11-19': done('2026-11-19') }
+  const a = computeAchievements({ workoutLog: one, workoutPlan: every, measurements: [], photoSets: [] }, '2026-11-20')
+  expect(get(a, 'streak-3').earnedAt).toBe('2026-11-19')
+  expect(get(a, 'workouts-10').progress).toBe('falta 7') // descanso não é treino
+  const two = { ...one, '2026-11-18': rest('2026-11-18'), '2026-11-19': done('2026-11-19'), '2026-11-20': done('2026-11-20') }
+  const b = computeAchievements({ workoutLog: two, workoutPlan: every, measurements: [], photoSets: [] }, '2026-11-21')
+  expect(get(b, 'streak-3').earnedAt).toBeUndefined()
+  expect(get(b, 'streak-7').progress).toBe('falta 5')
+  // semana nova (dom 22) zera a cota: 19, 20, 21, (22 descanso), 23 = 4
+  const three = { ...two, '2026-11-21': done('2026-11-21'), '2026-11-22': rest('2026-11-22'), '2026-11-23': done('2026-11-23') }
+  expect(get(computeAchievements({ workoutLog: three, workoutPlan: every, measurements: [], photoSets: [] }, '2026-11-24'), 'streak-7').progress).toBe('falta 3')
+})

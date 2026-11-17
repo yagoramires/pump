@@ -102,3 +102,15 @@ test('Histórico mostra dieta e água do dia e apaga com confirmação', async (
   await waitFor(async () => expect(await load('waterLog')).toEqual({}))
   expect(screen.queryByText('Dieta · 600 kcal')).not.toBeInTheDocument()
 })
+test('Histórico mostra Descanso no dia', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(2026, 10, 17, 12))
+  await save('workoutLog', { '2026-11-16': { date: '2026-11-16', workoutId: '', workoutLabel: '', workoutName: 'Descanso', exercises: [], rest: true } })
+  const user = userEvent.setup()
+  render(<HistoryScreen onClose={vi.fn()} />)
+  const d16 = await screen.findByRole('button', { name: '16' })
+  expect(d16).not.toHaveAccessibleDescription() // sem ponto de treino
+  expect(d16).not.toHaveClass('bg-accent-bg')
+  await user.click(d16)
+  expect(screen.getByText('Descanso')).toBeInTheDocument()
+  expect(screen.queryByText('Nada registrado neste dia.')).not.toBeInTheDocument()
+})

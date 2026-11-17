@@ -1,5 +1,5 @@
 import type { DietLog, DietPlan, Measurement, PhotoSet, Profile, WaterLog, WorkoutLog, WorkoutPlan } from '../types'
-import { daysBetween, parseDayKey, todayKey, weekday } from '../lib/date'
+import { daysBetween, parseDayKey, todayKey, weekStart, weekday } from '../lib/date'
 import { formatKg } from '../lib/number'
 import { dayStatus } from '../diet/day'
 import { waterMet } from '../diet/water'
@@ -29,11 +29,17 @@ function dayRun(from: string | undefined, today: string, ok: (k: string) => bool
   return { n, first, seven }
 }
 
+/** descansos marcados na semana (domingo a sábado) de `date`, antes dele */
+export const restsBefore = (log: WorkoutLog, date: string): number => {
+  const from = weekStart(date)
+  return Object.entries(log).filter(([k, s]) => s.rest && k >= from && k < date).length
+}
+
 export function computeAchievements(d: Input, today: string): Achievement[] {
   const sessions = byDate(Object.values(d.workoutLog).filter((s) => s.completedAt))
   const total = (n: number): Achievement['earnedAt'] => sessions[n - 1]?.date
 
-  // sequência: dia previsto no plano atual, sem treino e antes de hoje, zera
+  // sequência: dia previsto no plano atual, sem treino e antes de hoje, zera; o 1º descanso marcado da semana não conta como previsto
   const trained = new Set(sessions.map((s) => s.date))
   const planned = new Set(d.workoutPlan.workouts.flatMap((w) => w.weekdays))
   const reached = new Map<number, string>()
@@ -47,7 +53,7 @@ export function computeAchievements(d: Input, today: string): Achievement[] {
       if (trained.has(key)) {
         count++
         if (!reached.has(count)) reached.set(count, key)
-      } else if (key < today && planned.has(weekday(key))) count = 0
+      } else if (key < today && planned.has(weekday(key)) && !(d.workoutLog[key]?.rest && restsBefore(d.workoutLog, key) === 0)) count = 0
     }
   }
   const streakAt = (n: number) => [...reached].find(([c]) => c >= n)?.[1]
