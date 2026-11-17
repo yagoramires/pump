@@ -2,6 +2,8 @@ import { daysBetween, weekStart } from '../lib/date'
 import type { DayItem, DayMeal, DietDay, DietItem, DietLog, DietPlan, MealOption, Menu, WaterLog } from '../types'
 import { waterMet } from './water'
 
+export type Act = (f: (d: DietDay) => DietDay) => void
+
 export const dayFromMenu = (menu: Menu): DietDay => ({
   menuId: menu.id,
   menuName: menu.name,

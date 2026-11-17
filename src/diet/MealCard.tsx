@@ -6,9 +6,8 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/compone
 import { formatDec } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { FoodPicker } from './FoodPicker'
-import { addExtra, iaLabel, itemKcal, removeItem, setMealFree, skipItem, swapItem, swapMeal, toggleMeal, undoSwap } from './day'
+import { type Act, addExtra, iaLabel, itemKcal, removeItem, setMealFree, skipItem, swapItem, swapMeal, toggleMeal, undoSwap } from './day'
 
-export type Act = (f: (d: DietDay) => DietDay) => void
 type Props = { meal: DayMeal; plan: DietPlan; menuId: string; dayFree: boolean; open: boolean; onOpen: () => void; act: Act }
 
 const LABEL = 'pt-3 pb-1 text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
