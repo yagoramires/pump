@@ -43,18 +43,26 @@ export function parseBackup(text: string): BackupFile {
   return b as unknown as BackupFile
 }
 
-export const backupDue = (s: Settings, today: string): boolean => {
+export const daysWithoutBackup = (s: Settings, today: string): number | undefined => {
   const since = s.lastBackupAt ?? s.firstUseAt
-  return since ? daysBetween(since, today) >= 14 : false
+  return since ? daysBetween(since, today) : undefined
 }
+
+export const backupDue = (s: Settings, today: string): boolean => (daysWithoutBackup(s, today) ?? 0) >= 14
 
 export async function exportBackup(now = new Date()): Promise<'shared' | 'downloaded' | 'cancelled'> {
   const day = todayKey(now)
-  const file = new File([JSON.stringify(buildBackup(await allData(), now))], `pump-backup-${day}.json`, { type: 'application/json' })
-  const result = await shareFile(file)
-  if (result === 'cancelled') return result
-  await save('settings', { ...(await load('settings') ?? DEFAULT_SETTINGS), lastBackupAt: day })
-  return result
+  try {
+    const file = new File([JSON.stringify(buildBackup(await allData(), now))], `pump-backup-${day}.json`, { type: 'application/json' })
+    const result = await shareFile(file)
+    if (result === 'cancelled') return result
+    await save('settings', { ...(await load('settings') ?? DEFAULT_SETTINGS), lastBackupAt: day })
+    return result
+  } catch (e) {
+    // quem chama mostra a mensagem na tela: nada de erro cru do navegador em inglês
+    console.error(e)
+    throw new Error('Não consegui enviar o backup. Tente de novo.', { cause: e })
+  }
 }
 
 // jsdom's File may lack .text()

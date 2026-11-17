@@ -37,6 +37,6 @@ test('buildReport sem medidas: body null; sem fotos: photoPairs []', () => {
   expect(r.body).toBeNull()
   expect(r.photoPairs).toEqual([])
   expect(r.period).toEqual({ start: '2026-11-16', end: '2026-11-16', days: 1 })
-  expect(r.summary).toEqual({ weightDelta: undefined, fatDelta: undefined, workouts: 1, volumeTons: 0.4 })
+  expect(r.summary).toEqual({ weight: undefined, weightDelta: undefined, fat: undefined, fatDelta: undefined, workouts: 1, volumeTons: 0.4 })
   expect(r.training.achievements.map((a) => a.title)).toContain('Primeiro treino')
 })

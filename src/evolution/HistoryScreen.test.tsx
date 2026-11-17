@@ -52,3 +52,13 @@ test('apagar medidas do dia remove o registro', async () => {
   await user.click(await screen.findByRole('button', { name: 'Apagar' }))
   await waitFor(async () => expect(await load('measurements')).toEqual([{ id: 'n', date: '2026-11-10', weightKg: 79 }]))
 })
+test('abre com hoje selecionado e o dia descreve o que tem registrado', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(2026, 10, 17, 12))
+  await save('measurements', [{ id: 'm', date: '2026-11-17', weightKg: 78.4 }])
+  render(<HistoryScreen onClose={vi.fn()} />)
+  const today = await screen.findByRole('button', { name: '17' })
+  expect(today).toHaveAttribute('aria-pressed', 'true')
+  expect(today).toHaveAttribute('aria-current', 'date')
+  expect(today).toHaveAccessibleDescription('com registro')
+  expect(screen.getByText('Peso 78,4 kg')).toBeInTheDocument()
+})

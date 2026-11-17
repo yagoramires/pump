@@ -4,9 +4,9 @@ const W = 240
 const H = 90
 
 /** linha simples sem eixos; x proporcional aos dias, y entre o mínimo e o máximo */
-export function LineChart({ points, height = 96 }: { points: { date: string; value: number }[]; height?: number }) {
+export function LineChart({ points, height = 96, empty = 'Registre mais um peso pra ver o gráfico' }: { points: { date: string; value: number }[]; height?: number; empty?: string }) {
   if (points.length < 2) {
-    return <p className="flex items-center justify-center px-6 text-center text-[13px] text-text-2" style={{ height }}>Registre mais um peso pra ver o gráfico</p>
+    return <p className="flex items-center justify-center px-6 text-center text-[13px] text-text-2" style={{ height }}>{empty}</p>
   }
   const sorted = [...points].sort((a, b) => a.date.localeCompare(b.date))
   const first = sorted[0].date

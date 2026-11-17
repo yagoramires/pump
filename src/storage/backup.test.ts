@@ -1,6 +1,6 @@
 import { clear } from 'idb-keyval'
 import type { Settings } from '../types'
-import { backupDue, buildBackup, importBackupFile, parseBackup } from './backup'
+import { backupDue, buildBackup, daysWithoutBackup, exportBackup, importBackupFile, parseBackup } from './backup'
 import { allData, load, replaceAll, resetStoreForTests, save } from './db'
 import { loadPhoto, savePhoto } from './photos'
 
@@ -59,3 +59,15 @@ test('backup recusa photo: com valor que não é imagem', () =>
   expect(() => parseBackup(JSON.stringify({ app: 'pump', version: 1, data: { 'photo:x': 'oi' } }))).toThrow('Backup com conteúdo desconhecido'))
 test('backup recusa measurements que não é lista', () =>
   expect(() => parseBackup(JSON.stringify({ app: 'pump', version: 1, data: { measurements: {} } }))).toThrow('Backup corrompido'))
+test('erro ao enviar o backup vira mensagem em pt-BR', async () => {
+  Object.assign(navigator, { canShare: () => true, share: vi.fn().mockRejectedValue(new TypeError('Failed to execute share')) })
+  vi.spyOn(console, 'error').mockImplementation(() => {})
+  await expect(exportBackup()).rejects.toThrow('Não consegui enviar o backup')
+  vi.restoreAllMocks()
+  Object.assign(navigator, { canShare: undefined, share: undefined })
+})
+test('daysWithoutBackup conta desde o último backup ou o primeiro uso', () => {
+  expect(daysWithoutBackup({ lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01' }, '2026-11-17')).toBe(16)
+  expect(daysWithoutBackup({ lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01', lastBackupAt: '2026-11-10' }, '2026-11-17')).toBe(7)
+  expect(daysWithoutBackup({ lastTab: 'treino', onboardingDone: true }, '2026-11-17')).toBeUndefined()
+})

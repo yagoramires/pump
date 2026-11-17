@@ -185,8 +185,8 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
             <Big label="Por semana" value={formatDec(t.perWeek)} size={44} />
           </View>
           {t.topLifts.length > 0 && <Text style={[s.lb, { marginBottom: 9 }]}>Maiores cargas</Text>}
-          {t.topLifts.map((x) => (
-            <View key={x.name} style={s.row}>
+          {t.topLifts.map((x, i) => (
+            <View key={i} style={s.row}>
               <Text>{winAnsi(x.name)}</Text>
               <FromTo first={x.first} last={x.max} unit="kg" />
             </View>

@@ -18,7 +18,8 @@ function toJpeg(src: CanvasImageSource, w: number, h: number, mirror = false): s
 }
 
 export async function fileToJpeg(file: File): Promise<string> {
-  const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' })
+  // iOS 15 recusa o objeto de opções; lá a orientação do EXIF já vem aplicada
+  const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' }).catch(() => createImageBitmap(file))
   try {
     return toJpeg(bmp, bmp.width, bmp.height)
   } finally {

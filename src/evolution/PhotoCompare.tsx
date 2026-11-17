@@ -53,8 +53,12 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
   if (!before || !after) return <Overlay>{header}<p className="text-sm text-text-2">Nenhuma foto ainda.</p></Overlay>
 
   const dir = goalDirection(profile)
-  const fatAt = (date: string) =>
-    bodyFat(profile.sex, profile.heightCm, { neckCm: nearest(ms, date, 'neckCm'), waistCm: nearest(ms, date, 'waistCm'), hipCm: nearest(ms, date, 'hipCm') }) ?? undefined
+  // como na aba e no PDF: gordura de um registro só, nunca pescoço de um dia com cintura de outro
+  const fats = [...ms].sort((x, y) => x.date.localeCompare(y.date)).flatMap((m) => {
+    const value = bodyFat(profile.sex, profile.heightCm, m)
+    return value === null ? [] : [{ date: m.date, value }]
+  })
+  const fatAt = (date: string) => (fats.filter((f) => f.date <= date).pop() ?? fats[0])?.value
   const rows: { label: string; metric: Metric; unit: string; delta: string; from?: number; to?: number; fmt: (n: number) => string }[] = [
     { label: 'Peso', metric: 'weightKg', unit: ' kg', delta: 'kg', from: nearest(ms, before.date, 'weightKg'), to: nearest(ms, after.date, 'weightKg'), fmt: formatKg },
     { label: 'Cintura', metric: 'waistCm', unit: ' cm', delta: 'cm', from: nearest(ms, before.date, 'waistCm'), to: nearest(ms, after.date, 'waistCm'), fmt: formatKg },

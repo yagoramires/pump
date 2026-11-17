@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { Camera, ChevronLeft, ChevronRight, Dumbbell, Ruler } from 'lucide-react'
 import type { Measurement, PhotoSet, WorkoutLog } from '../types'
 import { usePersisted } from '../storage/db'
@@ -43,8 +43,9 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const [now] = useState(() => new Date()) // fixo enquanto a tela está aberta
   const today = todayKey(now)
   const [month, setMonth] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1))
-  const [day, setDay] = useState<string>()
+  const [day, setDay] = useState<string | undefined>(today)
   const [confirm, setConfirm] = useState<keyof typeof CONFIRM>()
+  const descId = useId()
 
   const y = month.getFullYear()
   const m = month.getMonth()
@@ -89,6 +90,9 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
         <p className="mt-3 text-sm text-text-2">Carregando…</p>
       ) : (
         <>
+          {/* o nome do botão fica só o número; o estado do dia vai na descrição */}
+          <span id={`${descId}t`} hidden>treino</span>
+          <span id={`${descId}r`} hidden>com registro</span>
           <div className="mt-2 grid grid-cols-7 gap-1 rounded-[14px] border border-border bg-panel p-2.5 text-center">
             {WEEK.map((w, i) => <span key={i} aria-hidden="true" className="pb-1 text-[11px] font-semibold text-faint">{w}</span>)}
             {Array.from({ length: month.getDay() }, (_, i) => <span key={`x${i}`} />)}
@@ -101,6 +105,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                   type="button"
                   aria-pressed={k === day}
                   aria-current={k === today ? 'date' : undefined}
+                  aria-describedby={[trained && `${descId}t`, dot && `${descId}r`].filter(Boolean).join(' ') || undefined}
                   className={cn(
                     'relative flex h-11 items-center justify-center rounded-[10px] border text-sm tabular-nums',
                     trained ? 'border-accent-line bg-accent-bg font-semibold text-accent' : 'border-transparent text-text-2',

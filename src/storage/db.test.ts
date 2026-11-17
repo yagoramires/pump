@@ -100,3 +100,8 @@ test('saves sobrepostos: um save que termina depois não desfaz o update seguint
   resetStoreForTests()
   expect(Object.keys((await load('workoutLog'))!).sort()).toEqual(['a', 'b', 'c'])
 })
+test('replaceAll não guarda fotos no cache em memória (loadPhoto lê direto do banco)', async () => {
+  await replaceAll({ 'photo:a': 'data:image/jpeg;base64,AAA', settings: { lastTab: 'treino', onboardingDone: true } })
+  await idb.del('photo:a')
+  expect(await load('photo:a' as never)).toBeUndefined()
+})

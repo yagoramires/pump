@@ -11,7 +11,7 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/compone
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { EmptyState } from '@/components/EmptyState'
 import { IconDot } from '@/components/IconDot'
-import { bodyFat, goalDirection } from './bodyFat'
+import { goalDirection } from './bodyFat'
 import { firstLast } from './measurements'
 import { computeAchievements } from './achievements'
 import { LineChart } from './LineChart'
@@ -101,10 +101,10 @@ export function EvolutionTab() {
     </>
   )
 
-  const ms = [...measurements].sort((x, y) => x.date.localeCompare(y.date))
-  const sessions = Object.values(log).filter((s) => s.completedAt).sort((x, y) => x.date.localeCompare(y.date))
-  const start = [sessions[0]?.date, ms[0]?.date, ...photoSets.map((p) => p.date)].filter((x): x is string => !!x).sort()[0]
-  if (!start) {
+  // mesmos números do PDF: a aba lê do relatório em vez de recalcular
+  const report = buildReport({ workoutLog: log, workoutPlan: plan, measurements, photoSets, profile }, today)
+  const { period, summary, training } = report
+  if (!summary.workouts && !measurements.length && !photoSets.length) {
     return (
       <>
         <EmptyState icon={<TrendingUp size={30} aria-hidden="true" />} title="Sua evolução começa aqui">
@@ -119,20 +119,11 @@ export function EvolutionTab() {
   const dir = goalDirection(profile)
   const diff = ({ first, last }: { first?: Pt; last?: Pt }) => (first && last && first.date !== last.date ? last.value - first.value : undefined)
 
-  const weight = firstLast(measurements, 'weightKg')
-  const fats = ms.flatMap((m) => {
-    const value = bodyFat(profile.sex, profile.heightCm, m)
-    return value === null ? [] : [{ date: m.date, value }]
-  })
-  const fat = { first: fats[0], last: fats[fats.length - 1] }
-  const weeks = sessions.length ? Math.max(1, (daysBetween(sessions[0].date, today) + 1) / 7) : 1
-  const points = ms
-    .filter((m) => m.weightKg !== undefined && (range === 'all' || daysBetween(m.date, today) <= Number(range)))
-    .map((m) => ({ date: m.date, value: m.weightKg! }))
+  const weights = report.body?.weight ?? []
+  const points = weights.filter((p) => range === 'all' || daysBetween(p.date, today) <= Number(range))
   const rows = MEASURES.map((x) => ({ ...x, ...firstLast(measurements, x.key) })).filter((x) => x.first && x.last)
   const lastSet = [...photoSets].sort((x, y) => x.date.localeCompare(y.date)).pop()
   const earned = computeAchievements({ workoutLog: log, workoutPlan: plan, measurements, photoSets, profile }, today).filter((x) => x.earnedAt)
-  const days = daysBetween(start, today)
 
   // PDF pronto só vale pros dados de quando foi gerado: qualquer registro novo volta pra "Gerar PDF"
   const deps = [log, plan, measurements, photoSets, profile, today]
@@ -140,13 +131,15 @@ export function EvolutionTab() {
   const makePdf = async () => {
     setBusy(true)
     try {
-      const report = buildReport({ workoutLog: log, workoutPlan: plan, measurements, photoSets, profile }, today)
       const ids = report.photoPairs.flatMap((p) => [p.before.id, p.after.id])
       const photos: Record<string, string> = {}
       await Promise.all(ids.map(async (id) => { const src = await loadPhoto(id); if (src) photos[id] = src }))
       setPdf({ blob: await generatePdf(report, photos), deps })
-    } catch {
-      toast.error('Não consegui gerar o PDF')
+    } catch (e) {
+      console.error(e)
+      // o react-pdf é baixado na hora: sem rede o import dinâmico falha
+      const offline = !navigator.onLine || /dynamically imported module|module script failed|Loading chunk/i.test(e instanceof Error ? e.message : '')
+      toast.error(offline ? 'Sem internet pra gerar o PDF. Conecte e tente de novo.' : 'Não consegui gerar o PDF')
     } finally {
       setBusy(false)
     }
@@ -154,18 +147,18 @@ export function EvolutionTab() {
 
   return (
     <div className="pb-24">
-      <div className={LABEL}>{`Desde ${formatDayMonth(start)} · ${days} ${days === 1 ? 'dia' : 'dias'}`}</div>
+      <div className={LABEL}>{`Desde ${formatDayMonth(period.start)} · ${period.days} ${period.days === 1 ? 'dia' : 'dias'}`}</div>
       <h1 className="mt-0.5 mb-3 text-[26px] font-bold tracking-tight text-strong">Evolução</h1>
 
       <div className="mb-2.5 grid grid-cols-3 gap-2">
-        <Kpi label="Peso" value={weight.last ? `${formatKg(weight.last.value)} kg` : '—'}>
-          <Delta d={diff(weight)} unit="kg" metric="weightKg" dir={dir} />
+        <Kpi label="Peso" value={summary.weight !== undefined ? `${formatKg(summary.weight)} kg` : '—'}>
+          <Delta d={summary.weightDelta} unit="kg" metric="weightKg" dir={dir} />
         </Kpi>
-        <Kpi label="Gordura" value={fat.last ? `${formatDec(fat.last.value)}%` : '—'}>
-          <Delta d={diff(fat)} unit="pt" metric="fat" dir={dir} />
+        <Kpi label="Gordura" value={summary.fat !== undefined ? `${formatDec(summary.fat)}%` : '—'}>
+          <Delta d={summary.fatDelta} unit="pt" metric="fat" dir={dir} />
         </Kpi>
-        <Kpi label="Treinos" value={String(sessions.length)}>
-          <span className={sessions.length ? 'text-accent' : 'text-text-2'}>{sessions.length ? `${formatDec(sessions.length / weeks, 1)}/sem` : '—'}</span>
+        <Kpi label="Treinos" value={String(summary.workouts)}>
+          <span className={summary.workouts ? 'text-accent' : 'text-text-2'}>{summary.workouts ? `${formatDec(training.perWeek, 1)}/sem` : '—'}</span>
         </Kpi>
       </div>
 
@@ -178,7 +171,7 @@ export function EvolutionTab() {
             ))}
           </ToggleGroup>
         </div>
-        <div className="px-3.5 pb-3"><LineChart points={points} /></div>
+        <div className="px-3.5 pb-3"><LineChart points={points} empty={weights.length >= 2 ? 'Poucos registros nesse período' : undefined} /></div>
       </div>
 
       {rows.length > 0 && (

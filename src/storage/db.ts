@@ -61,7 +61,8 @@ export async function replaceAll(data: Record<string, unknown>): Promise<void> {
   })
   const touched = new Set([...Object.keys(data), ...old, ...cache.keys()])
   cache.clear()
-  Object.entries(data).forEach(([k, v]) => cache.set(k, v))
+  // fotos não passam pelo cache: loadPhoto lê direto do banco e guardar o base64 aqui só gasta memória
+  Object.entries(data).forEach(([k, v]) => !k.startsWith('photo:') && cache.set(k, v))
   touched.forEach((k) => known.add(k))
   touched.forEach(notify)
 }

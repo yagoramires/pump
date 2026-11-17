@@ -3,11 +3,12 @@ export async function shareFile(file: File): Promise<'shared' | 'downloaded' | '
   if (navigator.canShare?.({ files: [file] })) {
     try {
       await navigator.share({ files: [file] })
+      return 'shared'
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') return 'cancelled'
-      throw e
+      // iOS: preparar o arquivo demorou e o toque já "expirou"; baixar ainda funciona
+      if (!(e instanceof DOMException && e.name === 'NotAllowedError')) throw e
     }
-    return 'shared'
   }
   const url = URL.createObjectURL(file)
   const a = document.createElement('a')

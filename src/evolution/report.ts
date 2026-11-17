@@ -8,7 +8,7 @@ import { FIELDS, firstLast } from './measurements'
 type Pt = { date: string; value: number }
 export interface Report {
   period: { start: string; end: string; days: number }
-  summary: { weightDelta?: number; fatDelta?: number; workouts: number; volumeTons: number }
+  summary: { weight?: number; weightDelta?: number; fat?: number; fatDelta?: number; workouts: number; volumeTons: number }
   photoPairs: { angle: Angle; before: { date: string; id: string }; after: { date: string; id: string } }[]
   body: { weight: Pt[]; rows: { label: string; unit: string; first: number; last: number; delta: number; good: boolean }[] } | null
   training: { workouts: number; perWeek: number; topLifts: { name: string; first: number; max: number }[]; achievements: { title: string; earnedAt: string }[] }
@@ -76,7 +76,7 @@ export function buildReport(d: Input, today: string): Report {
 
   return {
     period: { start, end: today, days: daysBetween(start, today) + 1 },
-    summary: { weightDelta: diff(weight), fatDelta: diff(fat), workouts: sessions.length, volumeTons: r1(volume / 1000) },
+    summary: { weight: weight.last?.value, weightDelta: diff(weight), fat: fat.last?.value, fatDelta: diff(fat), workouts: sessions.length, volumeTons: r1(volume / 1000) },
     photoPairs,
     body,
     training: { workouts: sessions.length, perWeek: r1(sessions.length / weeks), topLifts, achievements },
