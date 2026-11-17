@@ -1,4 +1,4 @@
-import type { CustomExercise, Exercise, Goal, Level, PlanExercise, Place, Profile, WorkoutPlan } from '../types'
+import type { CustomExercise, Exercise, Extra, Goal, Level, PlanExercise, Place, Profile, Split, WorkoutPlan } from '../types'
 import { normalize } from '../catalog/search'
 import { formatKg } from '../lib/number'
 import { PLAN_DEFAULTS, toPlanExercise } from './templates'
@@ -145,6 +145,8 @@ export function exportPlanFormat(plan: WorkoutPlan): PumpPlanoFile {
 const GOALS: Record<Goal, string> = { hipertrofia: 'ganhar massa muscular', emagrecer: 'emagrecer', forca: 'ganhar força', saude: 'saúde e condicionamento' }
 const LEVELS: Record<Level, string> = { iniciante: 'iniciante', intermediario: 'intermediário', avancado: 'avançado' }
 const PLACES: Record<Place, string> = { academia: 'academia completa', casa: 'em casa, com pouco equipamento' }
+const SPLITS: Record<Split, string> = { fullbody: 'full body (corpo todo em cada treino)', ab: 'AB (superiores e inferiores)', abc: 'ABC', abcd: 'ABCD', abcde: 'ABCDE', ppl: 'push/pull/legs (empurrar, puxar, pernas)' }
+const EXTRAS: Record<Extra, string> = { cardio: 'cardio', abdomen: 'abdômen', mobilidade: 'mobilidade/alongamento' }
 
 function aboutMe(p?: Profile): string[] {
   const a = p?.anamnesis ?? {}
@@ -159,6 +161,8 @@ function aboutMe(p?: Profile): string[] {
     a.level && LEVELS[a.level] ? `Nível: ${LEVELS[a.level]}` : '',
     a.place && PLACES[a.place] ? `Onde treino: ${PLACES[a.place]}` : '',
     a.daysPerWeek ? `Dias por semana: ${a.daysPerWeek}` : '',
+    a.split && SPLITS[a.split] ? `Divisão preferida: ${SPLITS[a.split]}` : '',
+    a.extras?.length ? `Incluir também: ${a.extras.map((e) => EXTRAS[e]).filter(Boolean).join(', ')}` : '',
     a.minutes ? `Tempo por treino: até ${a.minutes} min` : '',
     a.notes?.trim() ? `Lesões, limitações ou preferências: ${a.notes.trim()}` : '',
   ].filter(Boolean).map((l) => `- ${l}`)
@@ -174,9 +178,10 @@ ${me.length ? me.join('\n') : '- (ainda não contei nada)'}
 Como fazer:
 1. Se eu colar uma ficha pronta junto, só transcreva ela pro formato, sem mudar nada.
 2. Senão, se faltar algo importante pra montar um bom plano (objetivo, dias por semana, onde treino, nível, lesões), me pergunte primeiro, tudo numa mensagem só, e espere minha resposta. Nessa hora não mande JSON.
-3. Monte o plano pro meu objetivo: escolha séries, repetições e descanso de acordo com ele, distribua os treinos nos dias que tenho, caiba no tempo por treino e evite exercícios que piorem minhas lesões ou limitações.
-4. Só coloque "cargaKg" se souber quanto eu levanto; senão deixe de fora.
-5. Com o plano pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
+3. Monte o plano pro meu objetivo: escolha séries, repetições e descanso de acordo com ele, use a divisão que prefiro (se eu disse), distribua os treinos nos dias que tenho, caiba no tempo por treino e evite exercícios que piorem minhas lesões ou limitações.
+4. Cardio, abdômen ou mobilidade entram como exercícios do treino; no cardio use "series": 1 e o tempo em "reps", como "20 min".
+5. Só coloque "cargaKg" se souber quanto eu levanto; senão deixe de fora.
+6. Com o plano pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
 
 Formato:
 - "formato": sempre "pump-plano".

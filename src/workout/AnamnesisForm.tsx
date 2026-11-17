@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Anamnesis, Goal, Level, Place } from '../types'
+import type { Anamnesis, Extra, Goal, Level, Place, Split } from '../types'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -9,14 +9,18 @@ const DAYS = ['1', '2', '3', '4', '5', '6', '7']
 const GOAL_LABEL: Record<Goal, string> = { hipertrofia: 'Ganhar massa', emagrecer: 'Emagrecer', forca: 'Força', saude: 'Saúde' }
 const LEVEL_LABEL: Record<Level, string> = { iniciante: 'Iniciante', intermediario: 'Intermediário', avancado: 'Avançado' }
 const PLACE_LABEL: Record<Place, string> = { academia: 'Academia', casa: 'Em casa' }
+const SPLIT_LABEL: Record<Split, string> = { fullbody: 'Full body', ab: 'AB', abc: 'ABC', abcd: 'ABCD', abcde: 'ABCDE', ppl: 'Push/Pull/Legs' }
+const EXTRA_LABEL: Record<Extra, string> = { cardio: 'Cardio', abdomen: 'Abdômen', mobilidade: 'Mobilidade' }
+const GROUP = 'grid w-full gap-[3px] rounded-[11px] border border-border bg-panel p-[3px]'
+const ITEM = 'h-9 rounded-[8px] px-1 text-[13px] font-semibold text-text-2 data-[state=on]:bg-surface data-[state=on]:text-strong data-[state=on]:shadow-[inset_0_0_0_1px_var(--color-border-strong)]'
 
 function Chips<T extends string>({ label, options, value, onChange, cols }: { label: string; options: Record<T, string>; value?: T; onChange: (v?: T) => void; cols?: string }) {
   return (
     <div>
       <span className={LABEL}>{label}</span>
-      <ToggleGroup type="single" spacing={1} aria-label={label} value={value ?? ''} onValueChange={(v) => onChange((v || undefined) as T | undefined)} className={cn('grid w-full gap-[3px] rounded-[11px] border border-border bg-panel p-[3px]', cols ?? 'grid-flow-col auto-cols-fr')}>
+      <ToggleGroup type="single" spacing={1} aria-label={label} value={value ?? ''} onValueChange={(v) => onChange((v || undefined) as T | undefined)} className={cn(GROUP, cols ?? 'grid-flow-col auto-cols-fr')}>
         {(Object.keys(options) as T[]).map((k) => (
-          <ToggleGroupItem key={k} value={k} className="h-9 rounded-[8px] px-1 text-[13px] font-semibold text-text-2 data-[state=on]:bg-surface data-[state=on]:text-strong data-[state=on]:shadow-[inset_0_0_0_1px_var(--color-border-strong)]">{options[k]}</ToggleGroupItem>
+          <ToggleGroupItem key={k} value={k} className={ITEM}>{options[k]}</ToggleGroupItem>
         ))}
       </ToggleGroup>
     </div>
@@ -43,6 +47,13 @@ export function AnamnesisForm({ initial, onChange }: { initial: Anamnesis; onCha
       <Chips label="Nível" options={LEVEL_LABEL} value={value.level} onChange={(v) => set('level', v)} />
       <Chips label="Onde treina" options={PLACE_LABEL} value={value.place} onChange={(v) => set('place', v)} />
       <Chips label="Dias por semana" options={Object.fromEntries(DAYS.map((d) => [d, d]))} value={value.daysPerWeek ? String(value.daysPerWeek) : undefined} onChange={(v) => set('daysPerWeek', v ? Number(v) : undefined)} />
+      <Chips label="Divisão preferida" options={SPLIT_LABEL} value={value.split} onChange={(v) => set('split', v)} cols="grid-cols-3" />
+      <div>
+        <span className={LABEL}>Incluir também</span>
+        <ToggleGroup type="multiple" spacing={1} aria-label="Incluir também" value={value.extras ?? []} onValueChange={(v) => set('extras', v.length ? (v as Extra[]) : undefined)} className={cn(GROUP, 'grid-flow-col auto-cols-fr')}>
+          {(Object.keys(EXTRA_LABEL) as Extra[]).map((k) => <ToggleGroupItem key={k} value={k} className={ITEM}>{EXTRA_LABEL[k]}</ToggleGroupItem>)}
+        </ToggleGroup>
+      </div>
       <div className="grid grid-cols-2 gap-3">
         {([['idade', 'Idade', 'anos', 'age'], ['tempo', 'Tempo por treino', 'min', 'minutes']] as const).map(([id, label, unit, k]) => (
           <div key={id}>
