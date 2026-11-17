@@ -7,3 +7,5 @@ export function parseDecimal(s: string): number | null {
 export function formatKg(n: number): string {
   return n.toLocaleString('pt-BR', { maximumFractionDigits: 2 })
 }
+
+export const formatDec = (n: number, min = 0): string => n.toLocaleString('pt-BR', { minimumFractionDigits: min, maximumFractionDigits: 1 })

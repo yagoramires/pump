@@ -26,5 +26,8 @@ export async function fileToJpeg(file: File): Promise<string> {
   }
 }
 
-export const videoToJpeg = async (video: HTMLVideoElement, mirror: boolean): Promise<string> =>
-  toJpeg(video, video.videoWidth, video.videoHeight, mirror)
+export async function videoToJpeg(video: HTMLVideoElement, mirror: boolean): Promise<string> {
+  // antes do primeiro quadro o canvas sai vazio ("data:,")
+  if (video.readyState < 2 || !video.videoWidth) throw new Error('vídeo ainda sem quadro')
+  return toJpeg(video, video.videoWidth, video.videoHeight, mirror)
+}

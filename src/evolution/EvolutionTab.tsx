@@ -1,21 +1,23 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { CalendarDays, Camera, ChevronRight, FileText, Plus, Ruler, TrendingUp, Trophy } from 'lucide-react'
 import { NO_PROFILE, type MeasureFields, type Measurement, type PhotoSet, type WorkoutLog, type WorkoutPlan } from '../types'
 import { usePersisted } from '../storage/db'
-import { loadPhoto } from '../storage/photos'
 import { daysBetween, formatDayMonth, todayKey } from '../lib/date'
-import { formatKg } from '@/lib/number'
+import { formatDec, formatKg } from '@/lib/number'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { EmptyState } from '@/components/EmptyState'
 import { IconDot } from '@/components/IconDot'
-import { cn } from '@/lib/utils'
 import { bodyFat, goalDirection } from './bodyFat'
 import { firstLast } from './measurements'
 import { computeAchievements } from './achievements'
 import { LineChart } from './LineChart'
 import { MeasureDrawer } from './MeasureDrawer'
+import { Delta } from './Delta'
+import { usePhoto } from './usePhoto'
+import { PhotoCapture } from './PhotoCapture'
+import { PhotoCompare } from './PhotoCompare'
 
 type View = 'capture' | 'compare' | 'achievements' | 'history'
 type Pt = { date: string; value: number }
@@ -35,17 +37,6 @@ const MEASURES: { key: keyof MeasureFields; label: string }[] = [
   { key: 'chestCm', label: 'Peito' },
   { key: 'thighCm', label: 'Coxa' },
 ]
-// o que melhora ao subir (gain) ou ao descer (loss); o resto fica neutro
-const GOOD = { gain: ['weightKg', 'armCm', 'chestCm', 'thighCm'], loss: ['weightKg', 'waistCm', 'hipCm'] }
-
-const dec = (n: number, min = 0) => n.toLocaleString('pt-BR', { minimumFractionDigits: min, maximumFractionDigits: 1 })
-
-function Delta({ d, unit, good, className }: { d?: number; unit: string; good: (d: number) => boolean; className?: string }) {
-  if (d === undefined) return <span className={cn('text-text-2', className)}>—</span>
-  const r = Math.round(d * 10) / 10
-  return <span className={cn(r !== 0 && good(r) ? 'text-accent' : 'text-text-2', className)}>{`${r < 0 ? '−' : r > 0 ? '+' : ''}${dec(Math.abs(r))} ${unit}`}</span>
-}
-
 function Kpi({ label, value, children }: { label: string; value: string; children: ReactNode }) {
   return (
     <div className="min-w-0 rounded-xl border border-border bg-panel px-3 py-2.5">
@@ -57,12 +48,7 @@ function Kpi({ label, value, children }: { label: string; value: string; childre
 }
 
 function Thumb({ id, label }: { id?: string; label: string }) {
-  const [src, setSrc] = useState<string>()
-  useEffect(() => {
-    let alive = true
-    if (id) loadPhoto(id).then((v) => alive && setSrc(v)).catch(() => {})
-    return () => { alive = false }
-  }, [id])
+  const src = usePhoto(id)
   return (
     <div className="relative flex aspect-[3/4] items-end justify-center overflow-hidden rounded-[10px] bg-surface pb-1.5 text-xs text-text-2">
       {src && <img src={src} alt={`Foto de ${label}`} className="absolute inset-0 size-full object-cover" />}
@@ -80,11 +66,13 @@ export function EvolutionTab() {
   const [range, setRange] = useState('90')
   const [choosing, setChoosing] = useState(false)
   const [measuring, setMeasuring] = useState(false)
-  // captura, comparação, conquistas e histórico: as telas ainda não existem
-  const [, setView] = useState<View>()
+  // conquistas e histórico: as telas ainda não existem
+  const [view, setView] = useState<View>()
   const today = todayKey()
 
   if (!(a && b && c && d && e)) return <p className="text-sm text-text-2">Carregando…</p>
+  if (view === 'capture') return <PhotoCapture date={today} onClose={() => setView(undefined)} />
+  if (view === 'compare') return <PhotoCompare onClose={() => setView(undefined)} />
 
   const drawers = (
     <>
@@ -120,7 +108,6 @@ export function EvolutionTab() {
   }
 
   const dir = goalDirection(profile)
-  const good = (key: string) => (v: number) => (v > 0 ? GOOD.gain.includes(key) && dir === 'gain' : GOOD.loss.includes(key) && dir === 'loss')
   const diff = ({ first, last }: { first?: Pt; last?: Pt }) => (first && last && first.date !== last.date ? last.value - first.value : undefined)
 
   const weight = firstLast(measurements, 'weightKg')
@@ -145,13 +132,13 @@ export function EvolutionTab() {
 
       <div className="mb-2.5 grid grid-cols-3 gap-2">
         <Kpi label="Peso" value={weight.last ? `${formatKg(weight.last.value)} kg` : '—'}>
-          <Delta d={diff(weight)} unit="kg" good={good('weightKg')} />
+          <Delta d={diff(weight)} unit="kg" metric="weightKg" dir={dir} />
         </Kpi>
-        <Kpi label="Gordura" value={fat.last ? `${dec(fat.last.value)}%` : '—'}>
-          <Delta d={diff(fat)} unit="pt" good={(v) => v < 0} />
+        <Kpi label="Gordura" value={fat.last ? `${formatDec(fat.last.value)}%` : '—'}>
+          <Delta d={diff(fat)} unit="pt" metric="fat" dir={dir} />
         </Kpi>
         <Kpi label="Treinos" value={String(sessions.length)}>
-          <span className="text-text-2">{sessions.length ? `${dec(sessions.length / weeks, 1)}/sem` : '—'}</span>
+          <span className="text-text-2">{sessions.length ? `${formatDec(sessions.length / weeks, 1)}/sem` : '—'}</span>
         </Kpi>
       </div>
 
@@ -175,7 +162,7 @@ export function EvolutionTab() {
               <span className="text-text-2">{r.label}</span>
               <span className="tabular-nums">
                 <b className="font-semibold text-strong">{`${formatKg(r.first!.value)} → ${formatKg(r.last!.value)} cm`}</b>
-                <Delta d={diff(r)} unit="cm" good={good(r.key)} className="ml-2 text-[13px]" />
+                <Delta d={diff(r)} unit="cm" metric={r.key} dir={dir} className="ml-2 text-[13px]" />
               </span>
             </div>
           ))}
@@ -191,7 +178,7 @@ export function EvolutionTab() {
           </span>
         </div>
         <div className="grid grid-cols-3 gap-2 px-3.5 pb-3.5">
-          {(['frente', 'lado', 'costas'] as const).map((angle) => <Thumb key={lastSet?.[angle] ?? angle} id={lastSet?.[angle]} label={angle} />)}
+          {(['frente', 'lado', 'costas'] as const).map((angle) => <Thumb key={angle} id={lastSet?.[angle]} label={angle} />)}
         </div>
       </div>
 

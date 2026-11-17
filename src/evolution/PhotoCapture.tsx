@@ -1,0 +1,215 @@
+import { useEffect, useRef, useState } from 'react'
+import { CameraOff, ChevronLeft, SwitchCamera, Timer } from 'lucide-react'
+import { toast } from 'sonner'
+import type { Angle, PhotoSet } from '../types'
+import { usePersisted } from '../storage/db'
+import { deletePhotos, savePhoto } from '../storage/photos'
+import { formatDayMonth } from '../lib/date'
+import { Button } from '@/components/ui/button'
+import { Overlay } from '@/components/Overlay'
+import { cn } from '@/lib/utils'
+import { setAngle } from './photoSets'
+import { fileToJpeg, videoToJpeg } from './resize'
+
+const ANGLES: { v: Angle; label: string }[] = [{ v: 'frente', label: 'Frente' }, { v: 'lado', label: 'Lado' }, { v: 'costas', label: 'Costas' }]
+const NONE: PhotoSet[] = []
+const PILL = 'flex h-11 items-center justify-self-start rounded-[10px] border border-border px-3.5 text-[13px] font-medium text-text'
+
+export function AngleTabs({ value, onChange }: { value: Angle; onChange: (a: Angle) => void }) {
+  return (
+    <div role="tablist" aria-label="Ângulo" className="mb-2.5 flex gap-[3px] rounded-[11px] border border-border bg-panel p-[3px]">
+      {ANGLES.map((a) => (
+        <button
+          key={a.v}
+          type="button"
+          role="tab"
+          aria-selected={a.v === value}
+          className="h-11 flex-1 rounded-lg text-[13px] font-semibold text-text-2 aria-selected:bg-surface aria-selected:text-strong aria-selected:shadow-[inset_0_0_0_1px_var(--color-border-strong)]"
+          onClick={() => onChange(a.v)}
+        >
+          {a.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+const Silhouette = () => (
+  <svg viewBox="0 0 100 200" aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-[8%] mx-auto h-[84%] fill-none stroke-accent/40" strokeWidth="1.5" strokeDasharray="4 3" strokeLinejoin="round">
+    <circle cx="50" cy="26" r="13" />
+    <path d="M30 52 Q50 42 70 52 L78 102 L69 104 L66 76 L64 120 L62 188 L52 188 L50 128 L48 188 L38 188 L36 120 L34 76 L31 104 L22 102 Z" />
+  </svg>
+)
+
+export function PhotoCapture({ date, onClose }: { date: string; onClose: () => void }) {
+  const [, setSets, loaded] = usePersisted('photoSets', NONE)
+  const [i, setI] = useState(0)
+  const [facing, setFacing] = useState<'user' | 'environment'>('user')
+  // sem contexto seguro (http) ou navegador antigo, navigator.mediaDevices não existe
+  const [camOk, setCamOk] = useState<boolean | undefined>(() => (navigator.mediaDevices ? undefined : false))
+  const [ready, setReady] = useState(false)
+  const [timer, setTimer] = useState(false)
+  const [count, setCount] = useState<number>()
+  const [preview, setPreview] = useState<string>()
+  const [saving, setSaving] = useState(false)
+  const video = useRef<HTMLVideoElement>(null)
+  const stream = useRef<MediaStream>(undefined)
+  const tick = useRef<number>(undefined)
+
+  // um stream por facingMode: trocar ou desmontar para as tracks do anterior
+  useEffect(() => {
+    const md = navigator.mediaDevices as MediaDevices | undefined
+    if (!md) return
+    let alive = true
+    let s: MediaStream | undefined
+    md.getUserMedia({ video: { facingMode: facing } })
+      .then((got) => {
+        s = got
+        if (!alive) return got.getTracks().forEach((t) => t.stop())
+        stream.current = got
+        if (video.current) video.current.srcObject = got
+        setCamOk(true)
+      })
+      .catch(() => alive && setCamOk(false))
+    return () => {
+      alive = false
+      s?.getTracks().forEach((t) => t.stop())
+    }
+  }, [facing])
+
+  useEffect(() => () => clearInterval(tick.current), [])
+
+  const cancelCount = () => {
+    clearInterval(tick.current)
+    setCount(undefined)
+  }
+  const close = () => {
+    cancelCount()
+    stream.current?.getTracks().forEach((t) => t.stop())
+    onClose()
+  }
+  const goTo = (n: number) => {
+    cancelCount()
+    setPreview(undefined)
+    if (n >= ANGLES.length) close()
+    else setI(n)
+  }
+  const shoot = () => {
+    if (video.current) videoToJpeg(video.current, facing === 'user').then(setPreview, () => toast.error('Não consegui tirar a foto'))
+  }
+  const shutter = () => {
+    if (!timer) return shoot()
+    let n = 5
+    setCount(n)
+    tick.current = window.setInterval(() => {
+      n -= 1
+      if (n > 0) return setCount(n)
+      cancelCount()
+      shoot()
+    }, 1000)
+  }
+  const flip = () => {
+    cancelCount()
+    setReady(false)
+    setFacing((f) => (f === 'user' ? 'environment' : 'user'))
+  }
+  const pick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // escolher o mesmo arquivo de novo dispara onChange
+    if (file) fileToJpeg(file).then(setPreview, () => toast.error('Não consegui abrir a imagem'))
+  }
+  const use = async () => {
+    if (!preview) return
+    setSaving(true)
+    let id: string
+    try {
+      id = await savePhoto(preview)
+    } catch {
+      setSaving(false)
+      return void toast.error('Não consegui salvar a foto')
+    }
+    // o updater roda na hora (usePersisted), então replaced já vem preenchido na linha seguinte
+    const out: { replaced?: string } = {}
+    setSets((prev) => {
+      const r = setAngle(prev, date, ANGLES[i].v, id)
+      out.replaced = r.replaced
+      return r.sets
+    })
+    if (out.replaced) void deletePhotos([out.replaced]).catch(() => {})
+    setSaving(false)
+    goTo(i + 1)
+  }
+
+  return (
+    <Overlay>
+      <header className="flex items-center gap-3 py-2">
+        <button type="button" className="icon-btn" aria-label="Voltar" onClick={close}><ChevronLeft size={18} /></button>
+        <h1 className="flex-1 text-[19px] font-semibold text-strong">{`Fotos · ${formatDayMonth(date)}`}</h1>
+      </header>
+      <div className="mt-2">
+        <AngleTabs value={ANGLES[i].v} onChange={(a) => goTo(ANGLES.findIndex((x) => x.v === a))} />
+      </div>
+
+      {camOk === false && !preview ? (
+        <div className="mb-3 flex aspect-[3/4] flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-surface px-6 text-center text-sm text-text-2">
+          <CameraOff size={28} aria-hidden="true" />
+          <p>Câmera indisponível — escolha da galeria.</p>
+        </div>
+      ) : (
+        <div className="relative mb-3 aspect-[3/4] overflow-hidden rounded-2xl border border-border bg-black">
+          {camOk !== false && (
+            <video ref={video} playsInline muted autoPlay onLoadedData={() => setReady(true)} className={cn('absolute inset-0 size-full object-cover', facing === 'user' && '-scale-x-100')} />
+          )}
+          {preview ? (
+            <img src={preview} alt={`Prévia: ${ANGLES[i].label}`} className="absolute inset-0 size-full object-cover" />
+          ) : (
+            <>
+              <Silhouette />
+              {count !== undefined && <span aria-live="polite" className="absolute inset-0 flex items-center justify-center text-7xl font-bold text-strong tabular-nums">{count}</span>}
+              <button
+                type="button"
+                aria-label="Temporizador 5 s"
+                aria-pressed={timer}
+                className={cn('absolute top-2 left-2 flex size-11 items-center justify-center rounded-full bg-black/50', timer ? 'text-accent' : 'text-white')}
+                onClick={() => { cancelCount(); setTimer((t) => !t) }}
+              >
+                <Timer size={20} aria-hidden="true" />
+              </button>
+              <button type="button" aria-label="Trocar câmera" className="absolute top-2 right-2 flex size-11 items-center justify-center rounded-full bg-black/50 text-white" onClick={flip}>
+                <SwitchCamera size={20} aria-hidden="true" />
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {preview ? (
+        <div className="grid grid-cols-2 gap-2">
+          <Button variant="outline" className="h-11 rounded-[13px] font-bold" onClick={() => setPreview(undefined)}>Refazer</Button>
+          <Button className="h-11 rounded-[13px] font-bold" disabled={!loaded || saving} onClick={() => void use()}>Usar</Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 items-center">
+          <label className={cn(PILL, 'focus-within:ring-2 focus-within:ring-accent/40')}>
+            Galeria
+            <input type="file" accept="image/*" aria-label="Escolher da galeria" className="sr-only" onChange={pick} />
+          </label>
+          {camOk === false ? (
+            <span />
+          ) : (
+            <button
+              type="button"
+              aria-label="Tirar foto"
+              disabled={!ready || count !== undefined}
+              className="mx-auto flex size-16 items-center justify-center rounded-full border-4 border-white disabled:opacity-40"
+              onClick={shutter}
+            >
+              <span className="size-[50px] rounded-full bg-white" />
+            </button>
+          )}
+          <button type="button" className={cn(PILL, 'justify-self-end')} onClick={() => goTo(i + 1)}>Pular</button>
+        </div>
+      )}
+    </Overlay>
+  )
+}

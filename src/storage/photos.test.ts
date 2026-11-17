@@ -13,3 +13,6 @@ test('savePhoto/loadPhoto/deletePhotos', async () => {
   await deletePhotos([id])
   expect(await loadPhoto(id)).toBeUndefined()
 })
+test('savePhoto recusa o que não é imagem', async () => {
+  await expect(savePhoto('data:,')).rejects.toThrow('não é imagem')
+})

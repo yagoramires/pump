@@ -2,6 +2,7 @@ import { delMany, get, set } from 'idb-keyval'
 
 // fotos ficam fora do store (UserData): chave photo:<id>, direto no idb-keyval
 export async function savePhoto(dataUrl: string): Promise<string> {
+  if (!dataUrl.startsWith('data:image/')) throw new Error('a foto não é imagem')
   const id = crypto.randomUUID()
   try {
     await set(`photo:${id}`, dataUrl)
