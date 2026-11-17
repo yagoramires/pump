@@ -30,7 +30,7 @@ export function parseBackup(text: string): BackupFile {
   if (!isObj(data) || Object.entries(data).some(([k, v]) => !known(k, v))) {
     throw new Error('Backup com conteúdo desconhecido')
   }
-  const { workoutPlan: plan, workoutLog: log, settings, profile, customExercises, measurements, photoSets } = data
+  const { workoutPlan: plan, workoutLog: log, settings, profile, customExercises, measurements, photoSets, dietPlan, dietLog, waterLog, foods } = data
   const ok =
     (plan === undefined || (isObj(plan) && Array.isArray(plan.workouts))) &&
     (log === undefined || (isObj(log) && Object.values(log).every((d) => isObj(d) && Array.isArray(d.exercises)))) &&
@@ -38,7 +38,11 @@ export function parseBackup(text: string): BackupFile {
     (profile === undefined || isObj(profile)) &&
     (customExercises === undefined || Array.isArray(customExercises)) &&
     (measurements === undefined || Array.isArray(measurements)) &&
-    (photoSets === undefined || Array.isArray(photoSets))
+    (photoSets === undefined || Array.isArray(photoSets)) &&
+    (dietPlan === undefined || (isObj(dietPlan) && Array.isArray(dietPlan.meals))) &&
+    (dietLog === undefined || (isObj(dietLog) && Object.values(dietLog).every((d) => isObj(d) && Array.isArray(d.meals)))) &&
+    (waterLog === undefined || (isObj(waterLog) && Object.values(waterLog).every((d) => isObj(d) && typeof d.ml === 'number' && typeof d.goalMl === 'number'))) &&
+    (foods === undefined || Array.isArray(foods))
   if (!ok) throw new Error('Backup corrompido')
   return b as unknown as BackupFile
 }

@@ -71,3 +71,21 @@ test('daysWithoutBackup conta desde o último backup ou o primeiro uso', () => {
   expect(daysWithoutBackup({ lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01', lastBackupAt: '2026-11-10' }, '2026-11-17')).toBe(7)
   expect(daysWithoutBackup({ lastTab: 'treino', onboardingDone: true }, '2026-11-17')).toBeUndefined()
 })
+
+test('backup com dieta: ida e volta', async () => {
+  const saved = {
+    dietPlan: { meals: [{ id: 'm1', name: 'Café', time: '07:00', items: [] }] },
+    dietLog: { '2026-11-18': { meals: [] } },
+    waterLog: { '2026-11-18': { ml: 500, goalMl: 2500 } },
+    foods: [],
+  }
+  for (const [k, v] of Object.entries(saved)) await save(k as keyof typeof saved, v as never)
+  const b = buildBackup(await allData(), new Date(2026, 10, 18))
+  await replaceAll({})
+  await importBackupFile(new File([JSON.stringify(b)], 'b.json'))
+  for (const [k, v] of Object.entries(saved)) expect(await load(k as keyof typeof saved)).toEqual(v)
+})
+test('backup recusa dietPlan sem meals', () =>
+  expect(() => parseBackup(JSON.stringify({ app: 'pump', version: 1, data: { dietPlan: {} } }))).toThrow('Backup corrompido'))
+test('backup recusa waterLog com dia sem ml', () =>
+  expect(() => parseBackup(JSON.stringify({ app: 'pump', version: 1, data: { waterLog: { '2026-11-18': {} } } }))).toThrow('Backup corrompido'))

@@ -18,3 +18,6 @@ test('filtro de aparelho é por igualdade', () => {
   const l = [ex('A', { equipment: 'barra' }), ex('B', { equipment: 'halter' })]
   expect(searchCatalog(l, '', { equipment: 'halter' }).map(e => e.name)).toEqual(['B'])
 })
+
+test('searchCatalog funciona com itens sem muscles', () =>
+  expect(searchCatalog([{ name: 'Arroz, tipo 1, cozido' }, { name: 'Feijão, carioca, cozido' }], 'arroz').map((x) => x.name)).toEqual(['Arroz, tipo 1, cozido']))

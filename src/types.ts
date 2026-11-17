@@ -9,7 +9,7 @@ export type Extra = 'cardio' | 'abdomen' | 'mobilidade'
 export type Muscle = 'peito' | 'costas' | 'ombros' | 'biceps' | 'triceps' | 'pernas' | 'gluteos' | 'panturrilha'
 /** respostas da anamnese que vão no prompt da IA; tudo opcional */
 export interface Anamnesis { goal?: Goal; level?: Level; place?: Place; daysPerWeek?: number; split?: Split; extras?: Extra[]; weak?: Muscle[]; age?: number; minutes?: number; notes?: string }
-export interface Profile { sex: Sex; heightCm: number; weightKg: number; anamnesis?: Anamnesis }
+export interface Profile { sex: Sex; heightCm: number; weightKg: number; anamnesis?: Anamnesis; dietAnamnesis?: DietAnamnesis }
 /** perfil ainda não preenchido (heightCm 0 = vazio) */
 export const NO_PROFILE: Profile = { sex: 'M', heightCm: 0, weightKg: 0 }
 export interface Exercise { id: string; name: string; muscles: string[]; equipment: string; instructions: string[]; images: string[] }
@@ -47,12 +47,30 @@ export type WorkoutLog = Record<string, WorkoutSession>
 /** id 'custom-<uuid>' */
 export interface CustomExercise { id: string; name: string; muscles: string[]; note?: string }
 /** datas = todayKey */
-export interface Settings { lastTab: Tab; onboardingDone: boolean; firstUseAt?: string; lastBackupAt?: string; installDismissed?: boolean; seenAchievements?: string[] }
+export interface Settings { lastTab: Tab; onboardingDone: boolean; firstUseAt?: string; lastBackupAt?: string; installDismissed?: boolean; seenAchievements?: string[]; water?: WaterSettings }
 export type Angle = 'frente' | 'lado' | 'costas'
 export interface MeasureFields { weightKg?: number; neckCm?: number; waistCm?: number; hipCm?: number; armCm?: number; chestCm?: number; thighCm?: number }
 export interface Measurement extends MeasureFields { id: string; date: string }
 /** valores dos ângulos = id da foto (chave photo:<id>) */
 export interface PhotoSet { id: string; date: string; frente?: string; lado?: string; costas?: string }
-export interface UserData { profile: Profile; workoutPlan: WorkoutPlan; workoutLog: WorkoutLog; customExercises: CustomExercise[]; settings: Settings; measurements: Measurement[]; photoSets: PhotoSet[] }
-export const USER_KEYS = ['profile', 'workoutPlan', 'workoutLog', 'customExercises', 'settings', 'measurements', 'photoSets'] as const
+export interface UserData { profile: Profile; workoutPlan: WorkoutPlan; workoutLog: WorkoutLog; customExercises: CustomExercise[]; settings: Settings; measurements: Measurement[]; photoSets: PhotoSet[]; dietPlan: DietPlan; dietLog: DietLog; waterLog: WaterLog; foods: DietItem[] }
+export const USER_KEYS = ['profile', 'workoutPlan', 'workoutLog', 'customExercises', 'settings', 'measurements', 'photoSets', 'dietPlan', 'dietLog', 'waterLog', 'foods'] as const
 export const DEFAULT_SETTINGS: Settings = { lastTab: 'treino', onboardingDone: false }
+
+export interface Per100 { kcal: number; p: number; c: number; f: number }
+export interface DietItem { id: string; name: string; grams: number; portion?: string; per100: Per100; source: 'taco' | 'custom' | 'ia'; tacoId?: number }
+export interface Meal { id: string; name: string; time: string; items: DietItem[] }
+export interface DietPlan { meals: Meal[]; goalKcal?: number; goalMacros?: { p: number; c: number; f: number } }
+export interface DayItem extends DietItem { skipped?: boolean; swappedFrom?: string; extra?: boolean }
+export interface DayMeal extends Omit<Meal, 'items'> { done: boolean; items: DayItem[] }
+export interface DietDay { meals: DayMeal[]; goalKcal?: number }
+/** chave = todayKey */
+export type DietLog = Record<string, DietDay>
+export interface WaterDay { ml: number; goalMl: number }
+export type WaterLog = Record<string, WaterDay>
+export type DietGoal = 'perder-rapido' | 'perder' | 'manter' | 'ganhar' | 'ganhar-rapido'
+export type Restriction = 'lactose' | 'gluten' | 'vegetariano' | 'vegano'
+export interface DietAnamnesis { goal: DietGoal; meals?: number; wake?: string; train?: string; sleep?: string; restrictions?: Restriction[]; avoid?: string; eatOut?: 'casa' | 'fora' | 'misto'; notes?: string }
+export interface WaterSettings { enabled: boolean; goalMl: number; cupMl: number }
+export interface TacoFood { id: number; name: string; kcal: number; p: number; c: number; f: number }
+export const EMPTY_DIET: DietPlan = { meals: [] }
