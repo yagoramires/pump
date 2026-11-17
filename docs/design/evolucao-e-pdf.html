@@ -1,0 +1,262 @@
+<style>
+  :root{--bg:#0b0c0d;--panel:#121315;--surface:#1a1b1f;--line:#222428;--border:#26282e;--bstrong:#3a3d45;--text:#d6d8dd;--t2:#8a8d96;--faint:#5d6068;--strong:#fff;--acc:#c6ff3d;--accbg:#1a2309;--accline:#34440d;--on:#0b0c0d;--c1:#6d9c04;--c2:#3a91dc;--c3:#dc5f52;--c4:#956ed2;--c5:#a77e33;--c6:#009f99;--c7:#c68206;--c8:#cd6199}
+  .grid{display:flex;flex-wrap:wrap;gap:28px 22px;justify-content:center;margin:16px 0}
+  .col{display:flex;flex-direction:column;align-items:center;gap:8px;width:280px}
+  .col h3{margin:0;font-size:14px}
+  .col p{margin:0;color:#8a8d96;font-size:12px;text-align:center;line-height:1.4}
+  .ph{width:280px;height:600px;border-radius:38px;border:1px solid #2a2c33;background:var(--bg);color:var(--text);position:relative;overflow:hidden;font:13px -apple-system,"SF Pro Display",Inter,sans-serif}
+  .ic{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  .sb{height:32px}.pad{padding:0 14px}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .lbl{font-size:10px;color:var(--faint);letter-spacing:.05em;text-transform:uppercase;font-weight:600}
+  h1{margin:2px 0 12px;font-size:21px;color:var(--strong);letter-spacing:-.01em}
+  h1.sm{font-size:17px;margin:0}
+  .icb{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--t2);flex:none}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
+  .xrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--line)}
+  .card>.xrow:first-child{border-top:0}
+  .dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+  .nm{color:var(--strong);font-weight:600;font-size:13px}
+  .sub{font-size:11px;color:var(--t2);margin-top:1px}
+  .end{margin-left:auto;display:flex;align-items:center;gap:6px;color:var(--faint);font-size:11px}
+  .ok{color:var(--acc)}
+  .hero{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:10px}
+  .ring{width:56px;height:56px;border-radius:50%;background:conic-gradient(var(--acc) 0 33%,var(--line) 0);display:flex;align-items:center;justify-content:center;flex:none}
+  .ring>div{width:44px;height:44px;border-radius:50%;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px}
+  .ring small{font-size:8px;color:var(--faint);font-weight:500}
+  .t{font-size:11px;color:var(--t2)}.bigv{color:#fff;font-weight:600;font-size:14px;margin-top:2px}
+  table{width:100%;border-collapse:collapse}
+  th{font-size:9px;color:var(--faint);font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:2px 0 6px;text-align:center}
+  td{text-align:center;padding:6px 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+  td.prev{color:var(--faint);font-size:11px}
+  td .box{display:inline-block;min-width:36px;padding:5px 0;border-radius:7px;background:var(--surface);color:var(--strong);font-weight:600}
+  tr.done td{background:var(--accbg)} tr.done td .box{background:transparent;color:var(--acc)}
+  .chk{width:26px;height:26px;border-radius:8px;border:1px solid var(--bstrong);display:inline-flex;align-items:center;justify-content:center;color:transparent}
+  tr.done .chk{background:var(--acc);border-color:var(--acc);color:var(--on)}
+  .chk .ic{width:13px;height:13px;stroke-width:3}
+  .rest{position:absolute;left:10px;right:10px;bottom:136px;background:var(--surface);border:1px solid var(--accline);border-radius:14px;padding:8px 10px;display:flex;align-items:center;gap:8px;box-shadow:0 10px 30px #000a}
+  .rest b{font-size:17px;color:var(--acc);font-variant-numeric:tabular-nums}
+  .bar{flex:1;height:4px;border-radius:2px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}
+  .pill{font-size:10.5px;padding:5px 8px;border-radius:8px;border:1px solid var(--border);color:var(--text);white-space:nowrap}
+  .cta{position:absolute;left:10px;right:10px;bottom:80px;height:44px;border-radius:13px;background:var(--acc);color:var(--on);font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
+  .cta.ghost{background:var(--surface);color:var(--t2);border:1px solid var(--border)}
+  .nav{position:absolute;left:0;right:0;bottom:0;height:68px;background:var(--panel);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding-top:9px}
+  .nav div{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--faint)}
+  .nav div.on{color:var(--acc)} .nav .ic{width:20px;height:20px}
+  .fade{position:absolute;left:0;right:0;bottom:68px;height:90px;background:linear-gradient(transparent,var(--bg) 60%)}
+  .btn{height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:13px;border:1px solid var(--border);background:var(--surface);color:var(--text);margin-bottom:8px}
+  .btn.pri{background:var(--acc);border-color:var(--acc);color:var(--on)}
+  .btn.link{background:none;border:0;color:var(--t2);font-weight:500}
+  .field{margin-bottom:10px}.field span{display:block;font-size:10.5px;color:var(--faint);margin-bottom:5px}
+  .in{height:44px;border-radius:11px;background:var(--panel);border:1px solid var(--border);display:flex;align-items:center;padding:0 12px;color:var(--strong);font-size:15px;justify-content:space-between}
+  .in small{color:var(--faint);font-size:12px}
+  .seg{display:flex;background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:3px;gap:3px;margin-bottom:12px}
+  .seg div{flex:1;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--t2);font-weight:600;font-size:12.5px}
+  .seg div.on{background:var(--surface);color:var(--strong);box-shadow:inset 0 0 0 1px var(--bstrong)}
+  .steps{display:flex;gap:4px;margin:4px 0 14px}.steps i{flex:1;height:3px;border-radius:2px;background:var(--line)}.steps i.on{background:var(--acc)}
+  .plan{display:flex;align-items:center;gap:10px;padding:12px;border-top:1px solid var(--line)}
+  .plan:first-child{border-top:0}
+  .plan.sel{background:var(--accbg)}
+  .days{display:flex;gap:3px}.days i{width:7px;height:7px;border-radius:50%;background:var(--line)}.days i.on{background:var(--acc)}
+  .badge{width:28px;height:28px;border-radius:8px;background:var(--accbg);border:1px solid var(--accline);color:var(--acc);font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;font-size:12px}
+  .wd{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:0 12px 10px}
+  .wd span{height:30px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--t2);font-weight:600}
+  .wd span.on{background:var(--acc);border-color:var(--acc);color:var(--on)}
+  .add{display:flex;align-items:center;justify-content:center;gap:6px;padding:11px;color:var(--acc);font-weight:600;font-size:12.5px;border-top:1px solid var(--line)}
+  .scrim{position:absolute;inset:0;background:#000a}
+  .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--border);border-radius:22px 22px 0 0;padding:8px 14px 18px}
+  .grab{width:36px;height:4px;border-radius:2px;background:var(--bstrong);margin:0 auto 12px}
+  .stp{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line)}
+  .stp .k{font-size:12px;color:var(--t2)}
+  .ctl{display:flex;align-items:center;gap:6px}
+  .ctl b{min-width:58px;text-align:center;color:#fff;font-size:15px;font-variant-numeric:tabular-nums}
+  .ctl span{width:36px;height:36px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text);font-size:18px}
+  .search{height:42px;border-radius:11px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--faint);margin-bottom:10px}
+  .chips{display:flex;gap:6px;overflow:hidden;margin-bottom:10px}
+  .chip{height:30px;padding:0 11px;border-radius:9px;border:1px solid var(--border);display:flex;align-items:center;font-size:11.5px;color:var(--text);white-space:nowrap}
+  .chip.on{border-color:var(--acc);color:var(--acc);background:var(--accbg)}
+  .thumb{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#2a2c33,#17181c);flex:none;display:flex;align-items:center;justify-content:center;color:var(--faint)}
+  .plus{width:30px;height:30px;border-radius:9px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--acc);margin-left:auto}
+  .sec{font-size:10px;color:var(--faint);letter-spacing:.05em;text-transform:uppercase;font-weight:600;margin:14px 2px 6px}
+  .note{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:10px 12px;font-size:11.5px;color:var(--t2);line-height:1.45}
+  .ta{height:120px;border-radius:11px;background:var(--panel);border:1px solid var(--border);padding:10px 12px;color:var(--faint);font-size:12px;margin-bottom:10px}
+  .media{height:150px;border-radius:14px;background:linear-gradient(135deg,#25272d,#121315);margin-bottom:12px;display:flex;align-items:center;justify-content:center;color:var(--faint);position:relative}
+  .media .dots{position:absolute;bottom:8px;display:flex;gap:4px}.media .dots i{width:6px;height:6px;border-radius:50%;background:var(--bstrong)}.media .dots i.on{background:var(--acc)}
+  ol{margin:0;padding-left:18px;color:var(--text);font-size:12px;line-height:1.55}
+  .empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;margin-top:70px}
+  .bigdot{width:72px;height:72px;border-radius:50%;background:var(--accbg);border:1px solid var(--accline);color:var(--acc);display:flex;align-items:center;justify-content:center}
+  .bigdot .ic{width:30px;height:30px}
+  .tagm{font-size:9.5px;color:var(--t2);border:1px solid var(--border);border-radius:6px;padding:2px 6px}
+</style>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-db" viewBox="0 0 24 24"><path d="M17.596 12.768a2 2 0 1 0 2.829-2.829l-1.768-1.767a2 2 0 0 0 2.828-2.829l-2.828-2.828a2 2 0 0 0-2.829 2.828l-1.767-1.768a2 2 0 1 0-2.829 2.829z"/><path d="m2.5 21.5 1.4-1.4"/><path d="m20.1 3.9 1.4-1.4"/><path d="M5.343 21.485a2 2 0 1 0 2.829-2.828l1.767 1.768a2 2 0 1 0 2.829-2.829l-6.364-6.364a2 2 0 1 0-2.829 2.829l1.768 1.767a2 2 0 0 0-2.828 2.829z"/><path d="m9.6 14.4 4.8-4.8"/></symbol>
+  <symbol id="i-ut" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></symbol>
+  <symbol id="i-tr" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></symbol>
+  <symbol id="i-ck" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-tm" viewBox="0 0 24 24"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></symbol>
+  <symbol id="i-dots" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2z"/></symbol>
+  <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 15V3M7 10l5 5 5-5M5 21h14"/></symbol>
+  <symbol id="i-ul" viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5M5 21h14"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16V5a2 2 0 0 1 2-2h11"/></symbol>
+  <symbol id="i-rot" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+</svg><style>
+  .kp{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}
+  .kp .k{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:8px 9px}
+  .kp .s{font-size:9.5px;color:var(--faint)} .kp .v{font-size:14px;color:#fff;font-weight:600;margin-top:2px}
+  .kp .d{font-size:10px;color:var(--acc);margin-top:1px}
+  .chart{height:96px;margin:4px 12px 10px}
+  .mrow{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-top:1px solid var(--line);font-size:12px}
+  .mrow b{color:#fff;font-weight:600} .mrow .dd{color:var(--acc);font-size:11px;margin-left:6px}
+  .ph3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:0 12px 12px}
+  .ph3 div{aspect-ratio:3/4;border-radius:10px;background:linear-gradient(160deg,#2b2d33,#15161a);display:flex;align-items:flex-end;justify-content:center;font-size:9.5px;color:var(--t2);padding-bottom:5px}
+  .badges{display:flex;gap:8px;padding:0 12px 12px;overflow:hidden}
+  .bd{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex:none}
+  .bd.on{background:var(--accbg);border:1px solid var(--accline);color:var(--acc)} .bd.off{background:var(--surface);border:1px solid var(--border);color:var(--bstrong)}
+  .hd{display:flex;justify-content:space-between;align-items:center;padding:10px 12px 6px}
+  .hd .nm{font-size:12.5px} .hd a{font-size:11px;color:var(--acc);text-decoration:none}
+  .seg2{display:flex;background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:3px;gap:3px;margin-bottom:10px}
+  .seg2 div{flex:1;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--t2);font-weight:600;font-size:12px}
+  .seg2 div.on{background:var(--surface);color:#fff;box-shadow:inset 0 0 0 1px var(--bstrong)}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .cmp .p{aspect-ratio:3/4;border-radius:14px;background:linear-gradient(160deg,#2c2e34,#141518);position:relative}
+  .cmp .p span{position:absolute;left:8px;top:8px;font-size:10px;background:#000a;color:#fff;border-radius:6px;padding:2px 6px}
+  .cmp .p.now span{background:var(--acc);color:var(--on);font-weight:700}
+  .sil{position:absolute;inset:18% 30%;border:2px dashed #c6ff3d66;border-radius:40% 40% 20% 20%}
+  .cam{height:330px;border-radius:16px;background:#050506;position:relative;margin-bottom:12px;border:1px solid var(--border)}
+  .shutter{width:64px;height:64px;border-radius:50%;border:4px solid #fff;margin:0 auto;display:flex;align-items:center;justify-content:center}
+  .shutter i{width:50px;height:50px;border-radius:50%;background:#fff;display:block}
+  .gridb{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .gb{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;font-size:10px;color:var(--t2)}
+  .gb .bd{width:58px;height:58px;border-radius:18px}
+  .gb b{color:#fff;font-size:11px;font-weight:600}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;padding:4px 12px 12px;text-align:center;font-size:10.5px;color:var(--t2)}
+  .cal i{display:flex;align-items:center;justify-content:center;height:30px;border-radius:9px;font-style:normal}
+  .cal i.t{background:var(--accbg);color:var(--acc);border:1px solid var(--accline)} .cal i.h{color:var(--faint)} .cal i.today{box-shadow:inset 0 0 0 1px #fff}
+  .pages{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin:16px 0}
+  .pg{width:250px;height:354px;background:var(--bg);border:1px solid #2a2c33;border-radius:6px;color:var(--text);font:10px -apple-system,Inter,sans-serif;padding:18px;position:relative;overflow:hidden;box-shadow:0 10px 30px #0006}
+  .pg h4{margin:0 0 4px;color:#fff;font-size:15px} .pg .lb{font-size:7.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:700}
+  .pg .big{font-size:26px;color:#fff;font-weight:800;letter-spacing:-.02em} .pg .acc{color:var(--acc)}
+  .pg .row{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line)}
+  .pg .foot{position:absolute;left:18px;right:18px;bottom:12px;display:flex;justify-content:space-between;color:var(--faint);font-size:7.5px}
+  .logo{font-weight:800;color:#fff;font-size:13px}.logo b{color:var(--acc)}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 10px}
+  .pair div{aspect-ratio:3/4;border-radius:8px;background:linear-gradient(160deg,#2c2e34,#141518);position:relative}
+  .pair div span{position:absolute;left:5px;top:5px;font-size:7px;background:#000a;color:#fff;border-radius:4px;padding:1px 4px}
+</style>
+
+<h2>Evolução + PDF · rascunho</h2>
+<p class="subtitle">Mesmo padrão do redesign. Telas da aba Evolução, registro de medidas e fotos, conquistas e as páginas do PDF.</p>
+
+<div class="grid">
+
+<div class="col"><h3>1 · Evolução (topo da aba)</h3>
+<div class="ph"><div class="sb"></div><div class="pad">
+  <div class="top"><span class="lbl">Desde 16 nov · 88 dias</span><span class="icb"><svg class="ic"><use href="#i-gear"/></svg></span></div>
+  <h1>Evolução</h1>
+  <div class="kp">
+    <div class="k"><div class="s">Peso</div><div class="v">78,4 kg</div><div class="d">−1,6 kg</div></div>
+    <div class="k"><div class="s">Gordura</div><div class="v">18,2%</div><div class="d">−1,1 pt</div></div>
+    <div class="k"><div class="s">Treinos</div><div class="v">34</div><div class="d">3,2/sem</div></div>
+  </div>
+  <div class="card"><div class="hd"><span class="nm">Peso</span><a>90 dias</a></div>
+    <svg class="chart" viewBox="0 0 240 90" preserveAspectRatio="none"><polyline fill="none" stroke="#c6ff3d" stroke-width="2.2" points="0,20 30,24 60,30 90,28 120,40 150,46 180,52 210,60 240,64"/><polyline fill="none" stroke="#26282e" stroke-width="1" points="0,89 240,89"/></svg>
+  </div>
+  <div class="card"><div class="hd"><span class="nm">Fotos</span><a>Comparar</a></div><div class="ph3"><div>frente</div><div>lado</div><div>costas</div></div></div>
+  <div class="card"><div class="hd"><span class="nm">Conquistas</span><a>Ver todas</a></div>
+    <div class="badges"><span class="bd on"><svg class="ic"><use href="#i-db"/></svg></span><span class="bd on"><svg class="ic"><use href="#i-tm"/></svg></span><span class="bd on"><svg class="ic"><use href="#i-tr"/></svg></span><span class="bd off"><svg class="ic"><use href="#i-spark"/></svg></span></div></div>
+</div>
+<div style="position:absolute;left:10px;right:10px;bottom:80px;display:flex;gap:8px"><div class="btn" style="flex:1;margin:0"><svg class="ic"><use href="#i-plus"/></svg>Registrar</div><div class="btn pri" style="flex:1;margin:0"><svg class="ic"><use href="#i-dl"/></svg>Gerar PDF</div></div>
+<div class="nav"><div><svg class="ic"><use href="#i-db"/></svg>Treino</div><div class="on"><svg class="ic"><use href="#i-tr"/></svg>Evolução</div><div><svg class="ic"><use href="#i-ut"/></svg>Dieta</div></div></div>
+<p>Números grandes no topo, gráfico de peso, últimas fotos, conquistas e os dois botões no alcance do polegar.</p></div>
+
+<div class="col"><h3>2 · Registrar medidas (gaveta)</h3>
+<div class="ph"><div class="sb"></div><div class="scrim"></div>
+<div class="sheet" style="height:520px"><div class="grab"></div>
+  <div class="top" style="margin-bottom:8px"><h1 class="sm">Registrar · 12 fev</h1><span class="tagm">hoje</span></div>
+  <div class="stp"><span class="k">Peso</span><div class="in" style="width:120px;height:38px;font-size:14px">78,4 <small>kg</small></div></div>
+  <div class="stp"><span class="k">Pescoço</span><div class="in" style="width:120px;height:38px;font-size:14px">38 <small>cm</small></div></div>
+  <div class="stp"><span class="k">Cintura</span><div class="in" style="width:120px;height:38px;font-size:14px">81 <small>cm</small></div></div>
+  <div class="stp"><span class="k">Braço</span><div class="in" style="width:120px;height:38px;font-size:14px">36 <small>cm</small></div></div>
+  <div class="stp"><span class="k">Peito · Coxa</span><div class="in" style="width:120px;height:38px;font-size:14px">102 · 58</div></div>
+  <div class="note" style="margin-top:8px;display:flex;justify-content:space-between"><span>% de gordura (estimativa)</span><b style="color:var(--acc)">18,2%</b></div>
+  <div class="btn pri" style="margin-top:12px">Salvar</div>
+</div></div>
+<p>Campos com unidade e vírgula; o % de gordura aparece na hora quando tem pescoço + cintura (+ quadril na mulher).</p></div>
+
+<div class="col"><h3>3 · Nova foto (câmera)</h3>
+<div class="ph"><div class="sb"></div><div class="pad">
+  <div class="top" style="margin-bottom:10px"><span class="icb"><svg class="ic"><use href="#i-back"/></svg></span><h1 class="sm" style="flex:1">Fotos · 12 fev</h1></div>
+  <div class="seg2"><div class="on">Frente</div><div>Lado</div><div>Costas</div></div>
+  <div class="cam"><div class="sil"></div></div>
+  <div style="display:flex;align-items:center;justify-content:space-between"><span class="pill">Galeria</span><span class="shutter"><i></i></span><span class="pill">Pular</span></div>
+</div></div>
+<p>Um ângulo por vez com silhueta-guia; dá pra puxar da galeria ou pular.</p></div>
+
+<div class="col"><h3>4 · Comparar fotos</h3>
+<div class="ph"><div class="sb"></div><div class="pad">
+  <div class="top" style="margin-bottom:10px"><span class="icb"><svg class="ic"><use href="#i-back"/></svg></span><h1 class="sm" style="flex:1">Comparar</h1></div>
+  <div class="seg2"><div class="on">Frente</div><div>Lado</div><div>Costas</div></div>
+  <div class="cmp"><div class="p"><span>16 nov</span></div><div class="p now"><span>12 fev</span></div></div>
+  <div style="display:flex;gap:8px;margin-top:10px"><span class="chip">Antes: 16 nov ▾</span><span class="chip on">Depois: 12 fev ▾</span></div>
+  <div class="card" style="margin-top:12px"><div class="mrow" style="border-top:0"><span>Peso</span><span><b>80,0 → 78,4 kg</b><span class="dd">−1,6</span></span></div><div class="mrow"><span>Cintura</span><span><b>85 → 81 cm</b><span class="dd">−4</span></span></div><div class="mrow"><span>Gordura</span><span><b>19,3 → 18,2%</b><span class="dd">−1,1</span></span></div></div>
+</div></div>
+<p>Antes e depois por ângulo, com as datas trocáveis e a diferença das medidas embaixo.</p></div>
+
+<div class="col"><h3>5 · Conquistas</h3>
+<div class="ph"><div class="sb"></div><div class="pad">
+  <div class="top" style="margin-bottom:10px"><span class="icb"><svg class="ic"><use href="#i-back"/></svg></span><h1 class="sm" style="flex:1">Conquistas</h1><span class="tagm">6 de 14</span></div>
+  <div class="gridb">
+    <div class="gb"><span class="bd on"><svg class="ic"><use href="#i-db"/></svg></span><b>1º treino</b>16 nov</div>
+    <div class="gb"><span class="bd on"><svg class="ic"><use href="#i-tm"/></svg></span><b>7 seguidos</b>28 nov</div>
+    <div class="gb"><span class="bd on"><svg class="ic"><use href="#i-list"/></svg></span><b>10 treinos</b>02 dez</div>
+    <div class="gb"><span class="bd on"><svg class="ic"><use href="#i-tr"/></svg></span><b>Recorde</b>supino 50 kg</div>
+    <div class="gb"><span class="bd on"><svg class="ic"><use href="#i-user"/></svg></span><b>1ª foto</b>16 nov</div>
+    <div class="gb"><span class="bd on"><svg class="ic"><use href="#i-spark"/></svg></span><b>−1 kg</b>20 dez</div>
+    <div class="gb"><span class="bd off"><svg class="ic"><use href="#i-tm"/></svg></span><b>30 seguidos</b>falta 12</div>
+    <div class="gb"><span class="bd off"><svg class="ic"><use href="#i-list"/></svg></span><b>50 treinos</b>falta 16</div>
+    <div class="gb"><span class="bd off"><svg class="ic"><use href="#i-spark"/></svg></span><b>−5 kg</b>falta 3,4 kg</div>
+  </div>
+</div></div>
+<p>Estante 3 por linha; ganhas em verde com a data, bloqueadas apagadas com o que falta.</p></div>
+
+<div class="col"><h3>6 · Histórico</h3>
+<div class="ph"><div class="sb"></div><div class="pad">
+  <div class="top" style="margin-bottom:10px"><span class="icb"><svg class="ic"><use href="#i-back"/></svg></span><h1 class="sm" style="flex:1">Fevereiro</h1><span class="tagm">‹ ›</span></div>
+  <div class="card"><div class="cal"><span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+    <i class="h">1</i><i class="t">2</i><i class="t">3</i><i>4</i><i class="t">5</i><i class="t">6</i><i>7</i><i class="h">8</i><i class="t">9</i><i class="t">10</i><i>11</i><i class="t today">12</i><i>13</i><i>14</i></div></div>
+  <div class="sec">12 fev · Treino A</div>
+  <div class="card"><div class="xrow"><div class="dot" style="background:#3a91dc22;color:var(--c2)"><svg class="ic"><use href="#i-db"/></svg></div><div><div class="nm">Peito, ombro e tríceps</div><div class="sub">18 séries · 3.420 kg · 52 min</div></div></div>
+  <div class="xrow"><div class="dot" style="background:#6d9c0422;color:var(--acc)"><svg class="ic"><use href="#i-tr"/></svg></div><div><div class="nm">Medidas registradas</div><div class="sub">78,4 kg · cintura 81 cm</div></div></div></div>
+</div></div>
+<p>Calendário com os dias de treino marcados; tocar num dia mostra o que foi feito.</p></div>
+
+</div>
+
+<h2 style="margin-top:28px">PDF de evolução · páginas</h2>
+<div class="pages">
+  <div class="pg"><div class="logo">pump<b>.</b></div><div style="margin-top:70px" class="lb">Relatório de evolução</div><h4 style="font-size:20px;margin-top:4px">16 nov 2026 → 12 fev 2027</h4><div class="lb" style="margin-top:2px">88 dias de acompanhamento</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:28px"><div><div class="lb">Peso</div><div class="big">−1,6<span style="font-size:12px"> kg</span></div></div><div><div class="lb">Gordura</div><div class="big acc">−1,1<span style="font-size:12px"> pt</span></div></div><div><div class="lb">Treinos</div><div class="big">34</div></div><div><div class="lb">Volume</div><div class="big">98<span style="font-size:12px"> t</span></div></div></div>
+    <div class="foot"><span>Gerado pelo Pump</span><span>1/5</span></div></div>
+  <div class="pg"><div class="lb">Antes e depois</div><h4>Frente</h4><div class="pair"><div><span>16 nov</span></div><div><span>12 fev</span></div></div><h4>Lado</h4><div class="pair" style="margin-bottom:0"><div><span>16 nov</span></div><div><span>12 fev</span></div></div><div class="foot"><span>Costas na próxima página</span><span>2/5</span></div></div>
+  <div class="pg"><div class="lb">Corpo</div><h4>Peso e medidas</h4>
+    <svg viewBox="0 0 220 70" style="width:100%;height:70px;margin:6px 0 8px"><polyline fill="none" stroke="#c6ff3d" stroke-width="2" points="0,12 30,16 60,22 90,20 120,32 150,38 180,44 220,52"/></svg>
+    <div class="row"><span>Peso</span><span>80,0 → <b style="color:#fff">78,4 kg</b> <span class="acc">−1,6</span></span></div><div class="row"><span>Gordura</span><span>19,3 → <b style="color:#fff">18,2%</b> <span class="acc">−1,1</span></span></div><div class="row"><span>Cintura</span><span>85 → <b style="color:#fff">81 cm</b> <span class="acc">−4</span></span></div><div class="row"><span>Braço</span><span>35 → <b style="color:#fff">36 cm</b> <span class="acc">+1</span></span></div>
+    <div class="foot"><span>% de gordura: estimativa (US Navy)</span><span>4/5</span></div></div>
+  <div class="pg"><div class="lb">Treino</div><h4>Constância e força</h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 10px"><div><div class="lb">Treinos</div><div class="big" style="font-size:20px">34</div></div><div><div class="lb">Por semana</div><div class="big" style="font-size:20px">3,2</div></div></div>
+    <div class="lb" style="margin-bottom:4px">Maiores cargas</div>
+    <div class="row"><span>Supino reto</span><span>40 → <b style="color:#fff">50 kg</b></span></div><div class="row"><span>Agachamento</span><span>60 → <b style="color:#fff">80 kg</b></span></div><div class="row"><span>Puxada frontal</span><span>45 → <b style="color:#fff">55 kg</b></span></div>
+    <div class="lb" style="margin:10px 0 4px">Conquistas no período</div><div style="display:flex;gap:5px"><span class="bd on" style="width:26px;height:26px;border-radius:8px"></span><span class="bd on" style="width:26px;height:26px;border-radius:8px"></span><span class="bd on" style="width:26px;height:26px;border-radius:8px"></span><span class="bd on" style="width:26px;height:26px;border-radius:8px"></span></div>
+    <div class="foot"><span>Gerado pelo Pump</span><span>5/5</span></div></div>
+</div>
