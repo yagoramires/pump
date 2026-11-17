@@ -52,7 +52,7 @@ export default function App() {
   }
   if (!loaded) return null
   const banner = storageError && (
-    <div role="alert" className="sticky top-0 z-10 mx-auto flex max-w-md items-center gap-2 border-b border-border bg-panel py-1 pr-1 pl-4 text-[13px] text-negative">
+    <div role="alert" className="fixed inset-x-2 top-[max(0.5rem,env(safe-area-inset-top))] z-40 mx-auto flex max-w-md items-center gap-2 rounded-[14px] border border-negative/30 bg-panel py-1 pr-1 pl-4 text-[13px] text-negative">
       <span className="flex-1">Não consegui salvar: {storageError}</span>
       <button type="button" className="flex size-11 items-center justify-center" aria-label="Fechar aviso" onClick={() => setStorageError(undefined)}><X size={18} /></button>
     </div>

@@ -19,7 +19,7 @@ export function ExercisePreview({ exercise, onClose }: { exercise: SessionExerci
   return (
     <Drawer open onOpenChange={(o) => !o && onClose()}>
       <DrawerContent>
-        <div className="flex flex-col gap-3 overflow-y-auto px-4 pt-3 pb-[calc(20px+env(safe-area-inset-bottom))]">
+        <div className="flex flex-col gap-3 overflow-y-auto px-4 pt-3 pb-5">
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
               <DrawerTitle className="text-[19px] font-semibold text-strong">{exercise.name}</DrawerTitle>

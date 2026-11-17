@@ -131,7 +131,9 @@ export function TreinoTab() {
     })
   const conclude = () => {
     patch((s) => completeSession(s, new Date()))
-    toast('Treino concluído')
+    toast('Treino concluído', {
+      action: { label: 'Desfazer', onClick: () => patch((s) => ({ ...s, completedAt: undefined })) },
+    })
   }
 
   return (
@@ -162,7 +164,7 @@ export function TreinoTab() {
         </ExerciseCard>
       ))}
 
-      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(68px+env(safe-area-inset-bottom))] h-24 bg-linear-to-b from-transparent to-bg to-60%" />
+      <div className="pointer-events-none fixed bottom-[calc(68px+env(safe-area-inset-bottom))] left-1/2 h-24 w-full max-w-md -translate-x-1/2 bg-linear-to-b from-transparent to-bg to-60%" />
       {session?.restEndsAt !== undefined && (
         <RestCard
           endAt={session.restEndsAt}
@@ -175,7 +177,7 @@ export function TreinoTab() {
           onFinish={finishRest}
         />
       )}
-      <div className="fixed inset-x-4 bottom-[calc(80px+env(safe-area-inset-bottom))] z-10">
+      <div className="fixed bottom-[calc(80px+env(safe-area-inset-bottom))] left-1/2 z-10 w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2">
         {session?.completedAt ? (
           <Button variant="secondary" className="h-11 w-full rounded-[13px] font-bold" disabled><Check aria-hidden="true" /> Treino concluído</Button>
         ) : (

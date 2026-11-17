@@ -16,7 +16,7 @@ type Props = {
 }
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
-const ROUND = 'flex size-11 items-center justify-center rounded-xl border border-border text-strong disabled:opacity-40'
+const ROUND = 'flex size-11 touch-manipulation items-center justify-center rounded-xl border border-border text-strong disabled:opacity-40'
 const FIELD = 'h-11 rounded-xl bg-surface px-3 text-center text-base font-semibold tabular-nums text-strong outline-none focus-visible:ring-2 focus-visible:ring-accent/40'
 const select = (e: React.FocusEvent<HTMLInputElement>) => e.currentTarget.select()
 

@@ -5,6 +5,7 @@ import { load, resetStoreForTests, save } from '../storage/db'
 import type { WorkoutPlan } from '../types'
 import { pe } from '../../test/helpers'
 import { TreinoTab } from './TreinoTab'
+import { Toaster } from '@/components/ui/sonner'
 
 const plano: WorkoutPlan = { workouts: [
   { id: 'a', label: 'A', name: 'Peito e tríceps', weekdays: [1], exercises: [
@@ -167,4 +168,24 @@ test('volume do resumo separa milhar', async () => {
   await save('workoutLog', { '2026-11-16': { date: '2026-11-16', workoutId: 'a', workoutLabel: 'A', workoutName: 'Peito e tríceps', exercises: [{ ...plano.workouts[0].exercises[0], sets: [{ reps: '10', weightKg: 62 }, { reps: '10', weightKg: 62 }] }] } })
   render(<TreinoTab />)
   expect(await screen.findByText('1.240 kg')).toBeInTheDocument()
+})
+
+test('desfazer o toast de concluir limpa completedAt', async () => {
+  const user = userEvent.setup()
+  render(<><TreinoTab /><Toaster /></>)
+  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await user.click(screen.getByRole('button', { name: 'Concluir treino' }))
+  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].completedAt).toBeDefined())
+  await user.click((await screen.findAllByRole('button', { name: 'Desfazer' }))[0]) // toasts de outros testes ficam na fila global
+  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].completedAt).toBeUndefined())
+})
+test('carga acima de 500 kg numa série feita é rejeitada e mantém a anterior', async () => {
+  const user = userEvent.setup()
+  render(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  const kg = await screen.findByLabelText('Carga da série 1 de Supino reto')
+  await user.clear(kg)
+  await user.type(kg, '4045')
+  await user.tab()
+  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]?.weightKg).toBe(40))
 })

@@ -35,7 +35,7 @@ export function RestCard({ endAt, totalSec, onSkip, onAdd15, onFinish }: Props) 
     <div
       role="timer"
       aria-label="Descanso"
-      className="fixed inset-x-4 bottom-[calc(136px+env(safe-area-inset-bottom))] z-10 flex items-center gap-2.5 rounded-[14px] border border-accent-line bg-surface py-1 pr-1 pl-3.5 shadow-[0_10px_30px_#000a]"
+      className="fixed bottom-[calc(136px+env(safe-area-inset-bottom))] left-1/2 z-10 flex w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 items-center gap-2.5 rounded-[14px] border border-accent-line bg-surface py-1 pr-1 pl-3.5 shadow-[0_10px_30px_#000a]"
     >
       <Timer size={18} className="shrink-0 text-accent" aria-hidden="true" />
       <b className="text-[19px] font-bold text-accent tabular-nums">{mmss(left)}</b>

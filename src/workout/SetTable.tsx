@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Check } from 'lucide-react'
 import type { SessionExercise, SetDone } from '../types'
 import { formatKg, parseDecimal } from '@/lib/number'
@@ -14,23 +14,25 @@ type Props = {
   onEdit: (i: number, p: Partial<SetDone>) => void
 }
 
+const parseKg = (v: string) => { const n = parseDecimal(v); return n !== null && n <= 500 ? n : null } // acima de 500: rejeita, como a gaveta
 const TH = 'pb-1.5 text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
 
 export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
   // o que foi digitado fica só na tela até marcar (ou até o blur, se a série já foi feita)
   const [drafts, setDrafts] = useState<Record<number, Draft>>({})
-  const setDraft = (i: number, p: Draft) => setDrafts((d) => ({ ...d, [i]: { ...d[i], ...p } }))
+  const typed = useRef(false)
+  const setDraft = (i: number, p: Draft) => { typed.current = true; setDrafts((d) => ({ ...d, [i]: { ...d[i], ...p } })) }
   const clearDraft = (i: number) => setDrafts((d) => ({ ...d, [i]: {} }))
 
   const check = (i: number) => {
     const d = drafts[i] ?? {}
-    onCheck(i, { reps: d.reps?.trim() || ex.reps, weightKg: parseDecimal(d.kg ?? '') ?? ex.weightKg })
+    onCheck(i, { reps: d.reps?.trim() || ex.reps, weightKg: parseKg(d.kg ?? '') ?? ex.weightKg })
     clearDraft(i)
   }
   const commit = (i: number) => {
     const d = drafts[i]
     if (!ex.sets[i] || !d) return
-    const kg = parseDecimal(d.kg ?? '') // inválida: mantém a anterior
+    const kg = parseKg(d.kg ?? '') // inválida: mantém a anterior
     const p: Partial<SetDone> = {}
     if (kg !== null) p.weightKg = kg
     if (d.reps?.trim()) p.reps = d.reps.trim()
@@ -42,7 +44,13 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
   const inputProps = (i: number) => ({
     autoComplete: 'off',
     enterKeyHint: 'done' as const,
-    onFocus: (e: React.FocusEvent<HTMLInputElement>) => e.currentTarget.select(),
+    onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
+      const t = e.currentTarget
+      typed.current = false
+      t.select()
+      // iOS reposiciona o cursor após o foco; só reaplica se ainda não digitaram
+      requestAnimationFrame(() => typed.current || t.setSelectionRange(0, t.value.length))
+    },
     onBlur: () => commit(i),
     onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && e.currentTarget.blur(),
   })
@@ -80,7 +88,7 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
                 />
               </td>
               <td className="py-1">
-                <button type="button" aria-label={`Série ${n} de ${ex.name}`} aria-pressed={s !== null} onClick={() => check(i)} className="inline-flex size-11 items-center justify-center">
+                <button type="button" aria-label={`Série ${n} de ${ex.name}`} aria-pressed={s !== null} onClick={() => check(i)} className="inline-flex size-11 touch-manipulation items-center justify-center">
                   <span className={cn('flex size-7 items-center justify-center rounded-lg border', s ? 'border-accent bg-accent text-on-accent' : 'border-border-strong text-transparent')}>
                     <Check size={15} strokeWidth={3} aria-hidden="true" />
                   </span>
