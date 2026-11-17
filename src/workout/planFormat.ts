@@ -1,4 +1,4 @@
-import type { CustomExercise, Exercise, Goal, Level, PlanExercise, Place, Profile, WorkoutPlan } from '../types'
+import type { CustomExercise, Exercise, Extra, Goal, Level, Muscle, PlanExercise, Place, Profile, Split, WorkoutPlan } from '../types'
 import { normalize } from '../catalog/search'
 import { formatKg } from '../lib/number'
 import { PLAN_DEFAULTS, toPlanExercise } from './templates'
@@ -145,6 +145,13 @@ export function exportPlanFormat(plan: WorkoutPlan): PumpPlanoFile {
 const GOALS: Record<Goal, string> = { hipertrofia: 'ganhar massa muscular', emagrecer: 'emagrecer', forca: 'ganhar força', saude: 'saúde e condicionamento' }
 const LEVELS: Record<Level, string> = { iniciante: 'iniciante', intermediario: 'intermediário', avancado: 'avançado' }
 const PLACES: Record<Place, string> = { academia: 'academia completa', casa: 'em casa, com pouco equipamento' }
+const SPLITS: Record<Split, string> = { fullbody: 'full body (corpo todo em cada treino)', ab: 'AB (superiores e inferiores)', abc: 'ABC', abcd: 'ABCD', abcde: 'ABCDE', ppl: 'push/pull/legs (empurrar, puxar, pernas)' }
+const MUSCLES: Record<Muscle, string> = { peito: 'peito', costas: 'costas', ombros: 'ombros', biceps: 'bíceps', triceps: 'tríceps', pernas: 'pernas', gluteos: 'glúteos', panturrilha: 'panturrilha' }
+const EXTRAS: Record<Extra, string> = { cardio: 'cardio', abdomen: 'abdômen', mobilidade: 'mobilidade/alongamento' }
+
+// backup importado não valida a anamnese: aceita só lista e só valores conhecidos
+const names = <T extends string>(v: unknown, labels: Record<T, string>) =>
+  Array.isArray(v) ? v.map((x) => labels[x as T]).filter(Boolean).join(', ') : ''
 
 function aboutMe(p?: Profile): string[] {
   const a = p?.anamnesis ?? {}
@@ -159,8 +166,11 @@ function aboutMe(p?: Profile): string[] {
     a.level && LEVELS[a.level] ? `Nível: ${LEVELS[a.level]}` : '',
     a.place && PLACES[a.place] ? `Onde treino: ${PLACES[a.place]}` : '',
     a.daysPerWeek ? `Dias por semana: ${a.daysPerWeek}` : '',
-    a.minutes ? `Tempo por treino: até ${a.minutes} min` : '',
-    a.notes?.trim() ? `Lesões, limitações ou preferências: ${a.notes.trim()}` : '',
+    a.split && SPLITS[a.split] ? `Divisão preferida: ${SPLITS[a.split]}` : '',
+    names(a.extras, EXTRAS) && `Incluir também: ${names(a.extras, EXTRAS)}`,
+    names(a.weak, MUSCLES) && `Pontos fracos (quero priorizar): ${names(a.weak, MUSCLES)}`,
+    a.minutes ? `Tempo por treino: até ${a.minutes} min${a.extras?.includes('cardio') ? ', contando o cardio' : ''}` : '',
+    typeof a.notes === 'string' && a.notes.trim() ? `Lesões, limitações ou preferências: ${a.notes.trim()}` : '',
   ].filter(Boolean).map((l) => `- ${l}`)
 }
 
@@ -173,10 +183,12 @@ ${me.length ? me.join('\n') : '- (ainda não contei nada)'}
 
 Como fazer:
 1. Se eu colar uma ficha pronta junto, só transcreva ela pro formato, sem mudar nada.
-2. Senão, se faltar algo importante pra montar um bom plano (objetivo, dias por semana, onde treino, nível, lesões), me pergunte primeiro, tudo numa mensagem só, e espere minha resposta. Nessa hora não mande JSON.
-3. Monte o plano pro meu objetivo: escolha séries, repetições e descanso de acordo com ele, distribua os treinos nos dias que tenho, caiba no tempo por treino e evite exercícios que piorem minhas lesões ou limitações.
-4. Só coloque "cargaKg" se souber quanto eu levanto; senão deixe de fora.
-5. Com o plano pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
+2. Senão, se faltar algo importante pra montar um bom plano (objetivo, dias por semana, tempo por treino, onde treino, nível, lesões), me pergunte primeiro, tudo numa mensagem só, e espere minha resposta. Nessa hora não mande JSON.
+3. Monte o plano pro meu objetivo: escolha séries, repetições e descanso de acordo com ele, use a divisão que prefiro (se eu disse), distribua os treinos nos dias que tenho, dê um pouco mais de volume aos meus pontos fracos e evite exercícios que piorem minhas lesões ou limitações.
+4. Cada treino tem que caber no tempo por treino. Some 5 min de aquecimento, o cardio e, pra cada série, uns 40 s de execução mais o descanso. Por exemplo: 60 min com 20 de cardio deixam uns 35 min pra musculação, o que dá umas 12 a 15 séries (4 ou 5 exercícios). Se passar do tempo, corte exercícios ou séries, nunca o descanso.
+5. Cardio, abdômen ou mobilidade entram como exercícios do treino; no cardio use "series": 1 e o tempo em "reps", como "20 min".
+6. Só coloque "cargaKg" se souber quanto eu levanto; senão deixe de fora.
+7. Com o plano pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
 
 Formato:
 - "formato": sempre "pump-plano".

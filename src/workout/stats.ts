@@ -1,3 +1,4 @@
+import { isCardio } from './cardio'
 import type { SetDone, WorkoutLog, WorkoutSession } from '../types'
 
 export const repsNumber = (reps: string): number => Number(/\d+/.exec(reps)?.[0] ?? 0)
@@ -24,4 +25,5 @@ export const previousSets = (log: WorkoutLog, today: string, exerciseId: string)
   return []
 }
 
-export const firstIncomplete = (s: WorkoutSession): number => s.exercises.findIndex((e) => e.sets.includes(null))
+// cardio fica num bloco à parte, sem acordeão: abre o primeiro exercício de força incompleto
+export const firstIncomplete = (s: WorkoutSession): number => s.exercises.findIndex((e) => !isCardio(e) && e.sets.includes(null))

@@ -1,0 +1,3 @@
+// shortcut: cardio = 1 série com duração em minutos ("15 min", "20-30 min"), como o prompt pede; se precisar marcar cardio na mão, vira um campo do exercício
+export const isCardio = (e: { sets: number | unknown[]; reps: string }): boolean =>
+  (typeof e.sets === 'number' ? e.sets : e.sets.length) === 1 && /^\s*\d+(\s*(-|–|a)\s*\d+)?\s*min(utos)?\s*$/i.test(e.reps)

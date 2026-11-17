@@ -5,6 +5,7 @@ import { usePersisted } from '../storage/db'
 import { fetchCatalog } from '../catalog/catalog'
 import { PlanFormatError, buildPrompt, exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
 import { AnamnesisForm } from './AnamnesisForm'
+import { PlanEditor } from './PlanEditor'
 import { IconDot } from '@/components/IconDot'
 import { Button } from '@/components/ui/button'
 
@@ -26,13 +27,14 @@ function Step({ n, title, sub, children }: { n: number; title: string; sub: stri
 }
 
 export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: () => void }) {
-  const [plan, setPlan, planLoaded] = usePersisted('workoutPlan', NO_PLAN)
+  const [plan, , planLoaded] = usePersisted('workoutPlan', NO_PLAN)
   const [customs, setCustoms, customsLoaded] = usePersisted('customExercises', NO_CUSTOMS)
   const [profile, setProfile, profileLoaded] = usePersisted('profile', NO_PROFILE)
   const [text, setText] = useState('')
   const [notice, setNotice] = useState('')
   const [problems, setProblems] = useState<string[]>([])
   const [review, setReview] = useState<Review>()
+  const [editing, setEditing] = useState(false)
   const instant = useRef(false) // arquivo escolhido revisa na hora; digitar espera 400 ms
   const ready = planLoaded && customsLoaded
 
@@ -53,7 +55,8 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
   }
 
   useEffect(() => {
-    if (!ready || !text.trim()) return
+    // editando: um exercício criado no editor muda customs, e rever geraria ids novos pros exercícios do plano
+    if (!ready || editing || !text.trim()) return
     let stale = false
     const run = async () => {
       let file
@@ -73,16 +76,18 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
     const t = setTimeout(() => void run(), instant.current ? 0 : 400)
     instant.current = false
     return () => { stale = true; clearTimeout(t) }
-  }, [text, ready, customs])
+  }, [text, ready, customs, editing])
 
-  const doImport = () => {
-    if (!review) return
-    setPlan(review.plan)
-    if (review.newCustoms.length) setCustoms((prev) => [...prev, ...review.newCustoms])
+  // o PlanEditor grava o plano no Salvar; aqui só entram os exercícios novos que ficaram no plano
+  const doImport = (saved: WorkoutPlan) => {
+    const used = new Set(saved.workouts.flatMap((w) => w.exercises.map((e) => e.exerciseId)))
+    const added = review?.newCustoms.filter((c) => used.has(c.id)) ?? []
+    if (added.length) setCustoms((prev) => [...prev, ...added])
     onDone()
   }
 
   const exCount = review?.plan.workouts.reduce((n, w) => n + w.exercises.length, 0) ?? 0
+  if (editing && review) return <PlanEditor initial={review.plan} onDone={doImport} onCancel={() => setEditing(false)} />
 
   return (
     <div className="flex flex-col gap-3 pb-28">
@@ -132,7 +137,7 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
       {review?.ignoredDiet && <p className="text-[13px] text-text-2">A parte de dieta foi ignorada (chega na próxima versão)</p>}
       <p className="text-[13px] text-text-2">Ou ajuste seu plano atual: <button type="button" className="min-h-11 font-semibold text-accent disabled:opacity-50" disabled={!ready} onClick={() => copy(JSON.stringify(exportPlanFormat(plan), null, 2), 'Plano copiado.')}>copiar meu plano</button></p>
       <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <Button type="button" className="w-full" disabled={!review} onClick={doImport}>Importar plano</Button>
+        <Button type="button" className="w-full" disabled={!review} onClick={() => setEditing(true)}>Revisar plano</Button>
       </div>
     </div>
   )
