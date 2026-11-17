@@ -29,6 +29,8 @@ test('primeira vez abre a montagem; pular leva à aba Treino; depois abre na úl
   render(<App />)
   expect(await screen.findByRole('heading', { name: /Dieta/ })).toBeInTheDocument()
   expect(screen.getByText(/chega em breve/)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Evolução' }))
+  expect(await screen.findByRole('heading', { name: 'Sua evolução começa aqui' })).toBeInTheDocument()
 })
 test('dados ilegíveis: tela de erro em vez da montagem, sem gravar nada', async () => {
   const settings = { lastTab: 'treino' as const, onboardingDone: true }

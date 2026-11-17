@@ -24,3 +24,9 @@ export function formatDayLabel(key: string): string {
   const d = parseDayKey(key)
   return `${DIAS[d.getDay()]}, ${d.getDate()} ${MESES[d.getMonth()]}`
 }
+
+/** '16 nov' */
+export function formatDayMonth(key: string): string {
+  const d = parseDayKey(key)
+  return `${d.getDate()} ${MESES[d.getMonth()].toLowerCase()}`
+}

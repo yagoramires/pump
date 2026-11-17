@@ -15,10 +15,10 @@ import { exportBackup, backupDue } from './storage/backup'
 import { requestPersist, usePersisted } from './storage/db'
 import { todayKey } from './lib/date'
 import { useAchievementToasts } from './evolution/useAchievementToasts'
+import { EvolutionTab } from './evolution/EvolutionTab'
 import { DEFAULT_SETTINGS } from './types'
 
 const MAIN = 'mx-auto max-w-md px-4 pt-4 pb-[calc(96px+env(safe-area-inset-bottom))]'
-const TITLES = { evolucao: 'Evolução', dieta: 'Dieta' } as const
 
 // componente à parte: o hook só pode rodar no layout principal, depois dos retornos antecipados
 function AchievementToasts() {
@@ -86,7 +86,7 @@ export default function App() {
         ) : (
           <>
             <button type="button" className="icon-btn float-right -mt-1.5" aria-label="Configurações" onClick={() => setShowSettings(true)}><SettingsIcon size={17} /></button>
-            {tab === 'treino' ? <TreinoTab /> : <ComingSoon title={TITLES[tab]} />}
+            {tab === 'treino' ? <TreinoTab /> : tab === 'evolucao' ? <EvolutionTab /> : <ComingSoon title="Dieta" />}
           </>
         )}
       </main>
