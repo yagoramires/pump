@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 const LABEL = 'mb-1.5 block text-[10px] font-semibold tracking-[0.08em] text-faint uppercase'
-const DAYS = ['2', '3', '4', '5', '6']
+const DAYS = ['1', '2', '3', '4', '5', '6', '7']
 const GOAL_LABEL: Record<Goal, string> = { hipertrofia: 'Ganhar massa', emagrecer: 'Emagrecer', forca: 'Força', saude: 'Saúde' }
 const LEVEL_LABEL: Record<Level, string> = { iniciante: 'Iniciante', intermediario: 'Intermediário', avancado: 'Avançado' }
 const PLACE_LABEL: Record<Place, string> = { academia: 'Academia', casa: 'Em casa' }
