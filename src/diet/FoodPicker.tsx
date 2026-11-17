@@ -4,7 +4,7 @@ import type { DietItem, DietLog, Per100, TacoFood } from '../types'
 import { EMPTY_DIET } from '../types'
 import { usePersisted } from '../storage/db'
 import { fetchTaco } from '../catalog/catalog'
-import { searchCatalog } from '../catalog/search'
+import { normalize, searchCatalog } from '../catalog/search'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
@@ -37,7 +37,7 @@ function Rows({ label, foods, selected, onSelect }: { label: string; foods: Food
       {foods.map((f) => {
         const on = f.name === selected
         return (
-          <li key={`${f.source}-${f.tacoId ?? f.name}`} className="border-t border-line first:border-t-0">
+          <li key={f.name} className="border-t border-line first:border-t-0">
             <button type="button" className={cn('flex min-h-14 w-full items-center gap-3 px-3 py-2 text-left', on && 'bg-accent-bg')} aria-pressed={on} onClick={() => onSelect(f)}>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[15px] font-semibold text-strong">{f.name}</span>
@@ -90,7 +90,8 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
 
   const num = (s: string) => (s.trim() ? parseDecimal(s) : 0)
   const values = { kcal: draft.kcal.trim() ? parseDecimal(draft.kcal) : null, p: num(draft.p), c: num(draft.c), f: num(draft.f) }
-  const valid = !!draft.name.trim() && Object.values(values).every((v) => v !== null)
+  const dup = !!draft.name.trim() && foods.some((f) => normalize(f.name) === normalize(draft.name))
+  const valid = !!draft.name.trim() && !dup && Object.values(values).every((v) => v !== null)
   const create = () => {
     if (!valid) return
     const item: DietItem = { id: crypto.randomUUID(), name: draft.name.trim(), grams: 100, per100: values as Per100, source: 'custom' }
@@ -112,6 +113,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
             <form className="flex flex-col gap-3" onSubmit={(e) => { e.preventDefault(); create() }}>
               <h2 className="text-[15px] font-semibold text-strong">Alimento próprio</h2>
               {field('name', 'Nome do alimento', 'Nome', false)}
+              {dup && <p role="alert" className="text-[13px] text-negative">Já existe um alimento com esse nome</p>}
               <p className="text-[12.5px] text-text-2">Valores por 100 g</p>
               <div className="grid grid-cols-2 gap-2">
                 {field('kcal', 'kcal por 100 g', 'kcal')}
@@ -151,7 +153,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
                 <div className="flex items-center gap-2">
                   <button type="button" className={ROUND} aria-label="Diminuir quantidade" disabled={grams <= 10} onClick={() => setGrams((g) => Math.max(10, g - 10))}><Minus size={16} /></button>
                   <span className="min-w-16 text-center text-base font-semibold tabular-nums text-strong">{formatDec(grams)} g</span>
-                  <button type="button" className={ROUND} aria-label="Aumentar quantidade" onClick={() => setGrams((g) => g + 10)}><Plus size={16} /></button>
+                  <button type="button" className={ROUND} aria-label="Aumentar quantidade" disabled={grams >= 2000} onClick={() => setGrams((g) => Math.min(2000, g + 10))}><Plus size={16} /></button>
                 </div>
               </div>
               <Input aria-label="Porção" placeholder="Porção (opcional), ex.: 2 un" autoComplete="off" value={portion} onChange={(e) => setPortion(e.target.value)} />

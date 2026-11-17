@@ -39,13 +39,32 @@ const setMacro = (m: Menu, k: keyof Macros, n?: number): Menu => {
 }
 const problemOf = (plan: DietPlan): { menuId: string; text: string } | undefined => {
   for (const m of plan.menus) {
-    const text = !m.name.trim() ? 'Dê um nome a cada cardápio'
-      : !m.meals.length ? `${m.name}: adicione uma refeição`
-      : m.meals.some((ml) => !ml.name.trim() || !HHMM.test(ml.time)) ? `${m.name}: preencha nome e horário (HH:MM) de cada refeição`
+    const n = m.name.trim()
+    const text = !n ? 'Dê um nome a cada cardápio'
+      : !m.meals.length ? `${n}: adicione uma refeição`
+      : m.meals.some((ml) => !ml.name.trim() || !HHMM.test(ml.time)) ? `${n}: preencha nome e horário (HH:MM) de cada refeição`
+      : m.meals.some((ml) => ml.options.some((o) => !o.items.length)) ? `${n}: cada opção precisa de ao menos 1 alimento`
+      : m.goalKcal !== undefined && (m.goalKcal < 800 || m.goalKcal > 6000) ? `${n}: meta fora da faixa (800 a 6000 kcal)`
       : ''
     if (text) return { menuId: m.id, text }
   }
 }
+const tidy = (s?: string) => s?.trim() || undefined
+// limites do formato Pump: passar deles gera um export que o import recusa
+const MAX_MENUS = 5, MAX_MEALS = 10, MAX_ITEMS = 30
+const clampGrams = (g: number) => Math.min(2000, Math.max(1, g))
+const tidyPlan = (plan: DietPlan): DietPlan => ({
+  ...plan,
+  menus: plan.menus.map((m) => ({
+    ...m,
+    name: m.name.trim(),
+    meals: sortedMeals(m.meals).map((ml) => ({
+      ...ml,
+      name: ml.name.trim(),
+      options: ml.options.map((o) => ({ ...o, name: tidy(o.name), items: o.items.map((i) => ({ ...i, portion: tidy(i.portion) })) })),
+    })),
+  })),
+})
 
 /** texto livre com vírgula; vazio = sem valor. Usar com `key` pra reiniciar quando o valor muda por fora */
 function NumField({ value, onChange, label, className, placeholder }: { value?: number; onChange: (n?: number) => void; label: string; className?: string; placeholder?: string }) {
@@ -120,14 +139,14 @@ function DietForm({ start, onDone, onCancel, savePlan, setLog }: Props & { start
       return setMenuId(problem.menuId) // mostra o cardápio com o problema
     }
     const lastMenuId = plan.menus.some((m) => m.id === plan.lastMenuId) ? plan.lastMenuId : plan.menus[0].id
-    const next: DietPlan = { menus: plan.menus.map((m) => ({ ...m, meals: sortedMeals(m.meals) })), lastMenuId }
+    const next: DietPlan = { ...tidyPlan(plan), lastMenuId }
     savePlan(() => next)
     setLog((l) => ensureDay(l, next, todayKey()))
     onDone()
   }
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(exportDietFormat(plan))
+      await navigator.clipboard.writeText(exportDietFormat(tidyPlan(plan)))
       setNotice('Cardápio copiado. Cole na IA pra pedir ajustes.')
     } catch {
       setNotice('Não consegui copiar. Tente de novo.')
@@ -156,13 +175,13 @@ function DietForm({ start, onDone, onCancel, savePlan, setLog }: Props & { start
             {m.name.trim() || 'Sem nome'}
           </button>
         ))}
-        <button type="button" className="flex h-11 shrink-0 items-center gap-1 rounded-[10px] border border-dashed border-border-strong px-3 text-[13px] text-text-2" onClick={() => addMenu(newMenu(plan.menus.length + 1))}><Plus size={16} /> Novo cardápio</button>
+        <button type="button" className="flex h-11 shrink-0 items-center gap-1 rounded-[10px] border border-dashed border-border-strong px-3 text-[13px] text-text-2 disabled:opacity-40" disabled={plan.menus.length >= MAX_MENUS} onClick={() => addMenu(newMenu(plan.menus.length + 1))}><Plus size={16} /> Novo cardápio</button>
       </div>
 
       <section className="flex flex-col gap-2 rounded-[14px] border border-border bg-panel p-3">
         <div className="flex items-center gap-2">
           <Input className="min-w-0 flex-1 font-semibold" aria-label="Nome do cardápio" autoComplete="off" enterKeyHint="done" value={menu.name} onChange={(e) => patchMenu((m) => ({ ...m, name: e.target.value }))} />
-          <button type="button" className="icon-btn" aria-label="Duplicar cardápio" onClick={() => addMenu(copyMenu(menu))}><Copy size={16} /></button>
+          <button type="button" className="icon-btn disabled:opacity-40" aria-label="Duplicar cardápio" disabled={plan.menus.length >= MAX_MENUS} onClick={() => addMenu(copyMenu(menu))}><Copy size={16} /></button>
           <button type="button" className="icon-btn text-negative disabled:opacity-40" aria-label="Apagar cardápio" disabled={plan.menus.length < 2} onClick={() => setConfirm('menu')}><Trash2 size={16} /></button>
         </div>
         <div className="flex items-center justify-between gap-3 border-t border-line pt-2">
@@ -196,12 +215,12 @@ function DietForm({ start, onDone, onCancel, savePlan, setLog }: Props & { start
                   Opção {LETTERS[j]}
                 </button>
               ))}
-              {meal.options.length < 4 && <button type="button" className="flex size-11 items-center justify-center text-accent" aria-label="Adicionar opção" onClick={() => addOption(meal)}><Plus size={18} /></button>}
+              {meal.options.length < 4 && <button type="button" className="flex size-11 items-center justify-center text-accent" aria-label={`Adicionar opção na refeição ${mi + 1}`} onClick={() => addOption(meal)}><Plus size={18} /></button>}
               <span className="ml-auto text-[12.5px] tabular-nums text-text-2">{kcal} kcal</span>
             </div>
             <div className="flex items-center gap-2">
-              <Input className="min-w-0 flex-1" aria-label="Nome da opção" placeholder={`Nome da opção ${LETTERS[oi]} (opcional)`} autoComplete="off" value={opt.name ?? ''} onChange={(e) => patchOption(meal.id, oi, (o) => ({ ...o, name: e.target.value || undefined }))} />
-              {meal.options.length > 1 && <button type="button" className="icon-btn" aria-label={`Remover opção ${LETTERS[oi]}`} onClick={() => removeOption(meal, oi)}><Trash2 size={16} /></button>}
+              <Input className="min-w-0 flex-1" aria-label={`Nome da opção da refeição ${mi + 1}`} placeholder={`Nome da opção ${LETTERS[oi]} (opcional)`} autoComplete="off" value={opt.name ?? ''} onChange={(e) => patchOption(meal.id, oi, (o) => ({ ...o, name: e.target.value || undefined }))} />
+              {meal.options.length > 1 && <button type="button" className="icon-btn" aria-label={`Remover opção ${LETTERS[oi]} da refeição ${mi + 1}`} onClick={() => removeOption(meal, oi)}><Trash2 size={16} /></button>}
             </div>
             <ul>
               {opt.items.map((it, i) => (
@@ -212,7 +231,7 @@ function DietForm({ start, onDone, onCancel, savePlan, setLog }: Props & { start
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Input className="min-w-0 flex-1" aria-label={`Porção de ${it.name}`} placeholder="Porção" autoComplete="off" value={it.portion ?? ''} onChange={(e) => patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, portion: e.target.value || undefined } : x)))} />
-                    <NumField className="w-16 text-center" label={`Gramas de ${it.name}`} value={it.grams} onChange={(n) => n && patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, grams: n } : x)))} />
+                    <NumField className="w-16 text-center" label={`Gramas de ${it.name}`} value={it.grams} onChange={(n) => n && patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, grams: clampGrams(n) } : x)))} />
                     <span className="text-[12.5px] text-text-2">g</span>
                     <button type="button" className="icon-btn disabled:opacity-40" aria-label={`Subir ${it.name}`} disabled={i === 0} onClick={() => patchItems(meal.id, oi, (xs) => { const a = [...xs]; [a[i - 1], a[i]] = [a[i], a[i - 1]]; return a })}><ArrowUp size={14} /></button>
                     <button type="button" className="icon-btn disabled:opacity-40" aria-label={`Descer ${it.name}`} disabled={i === opt.items.length - 1} onClick={() => patchItems(meal.id, oi, (xs) => { const a = [...xs]; [a[i], a[i + 1]] = [a[i + 1], a[i]]; return a })}><ArrowDown size={14} /></button>
@@ -221,11 +240,11 @@ function DietForm({ start, onDone, onCancel, savePlan, setLog }: Props & { start
                 </li>
               ))}
             </ul>
-            <button type="button" className={cn(dash, 'justify-start text-accent')} onClick={() => setPicking({ mealId: meal.id, oi, name: meal.name })}><Plus size={18} /> Alimento</button>
+            <button type="button" className={cn(dash, 'justify-start text-accent disabled:opacity-40')} disabled={opt.items.length >= MAX_ITEMS} onClick={() => setPicking({ mealId: meal.id, oi, name: meal.name })}><Plus size={18} /> Alimento</button>
           </section>
         )
       })}
-      <button type="button" className={cn(dash, 'border border-dashed border-border-strong text-text-2')} onClick={addMeal}><Plus size={18} /> Refeição</button>
+      <button type="button" className={cn(dash, 'border border-dashed border-border-strong text-text-2 disabled:opacity-40')} disabled={menu.meals.length >= MAX_MEALS} onClick={addMeal}><Plus size={18} /> Refeição</button>
 
       <Button variant="outline" onClick={copy}><Share2 /> Exportar cardápio</Button>
       {notice && <p className="text-center text-[13px] text-text-2" role="status">{notice}</p>}
