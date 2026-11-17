@@ -6,8 +6,9 @@ export type Level = 'iniciante' | 'intermediario' | 'avancado'
 export type Place = 'academia' | 'casa'
 export type Split = 'fullbody' | 'ab' | 'abc' | 'abcd' | 'abcde' | 'ppl'
 export type Extra = 'cardio' | 'abdomen' | 'mobilidade'
+export type Muscle = 'peito' | 'costas' | 'ombros' | 'biceps' | 'triceps' | 'pernas' | 'gluteos' | 'panturrilha'
 /** respostas da anamnese que vão no prompt da IA; tudo opcional */
-export interface Anamnesis { goal?: Goal; level?: Level; place?: Place; daysPerWeek?: number; split?: Split; extras?: Extra[]; age?: number; minutes?: number; notes?: string }
+export interface Anamnesis { goal?: Goal; level?: Level; place?: Place; daysPerWeek?: number; split?: Split; extras?: Extra[]; weak?: Muscle[]; age?: number; minutes?: number; notes?: string }
 export interface Profile { sex: Sex; heightCm: number; weightKg: number; anamnesis?: Anamnesis }
 /** perfil ainda não preenchido (heightCm 0 = vazio) */
 export const NO_PROFILE: Profile = { sex: 'M', heightCm: 0, weightKg: 0 }

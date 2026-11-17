@@ -72,8 +72,8 @@ test('exportar e reimportar devolve o mesmo plano (fora os ids)', () => {
 test('dieta presente é ignorada com aviso nesta fase', () =>
   expect(planFromFormat({ ...parsePlanFormat(JSON.stringify(ok)), dieta: {} }, catalog, []).ignoredDiet).toBe(true))
 test('prompt leva perfil e anamnese; sem dados manda a IA perguntar', () => {
-  const p = buildPrompt({ sex: 'F', heightCm: 165, weightKg: 62.5, anamnesis: { goal: 'emagrecer', level: 'iniciante', place: 'casa', daysPerWeek: 3, split: 'ppl', extras: ['cardio', 'abdomen'], age: 34, minutes: 45, notes: ' joelho ' } })
-  for (const l of ['- Sexo: feminino', '- Idade: 34 anos', '- Altura: 165 cm', '- Peso: 62,5 kg', '- Objetivo: emagrecer', '- Nível: iniciante', '- Onde treino: em casa, com pouco equipamento', '- Dias por semana: 3', '- Divisão preferida: push/pull/legs (empurrar, puxar, pernas)', '- Incluir também: cardio, abdômen', '- Tempo por treino: até 45 min', '- Lesões, limitações ou preferências: joelho'])
+  const p = buildPrompt({ sex: 'F', heightCm: 165, weightKg: 62.5, anamnesis: { goal: 'emagrecer', level: 'iniciante', place: 'casa', daysPerWeek: 3, split: 'ppl', extras: ['cardio', 'abdomen'], weak: ['peito', 'panturrilha'], age: 34, minutes: 45, notes: ' joelho ' } })
+  for (const l of ['- Sexo: feminino', '- Idade: 34 anos', '- Altura: 165 cm', '- Peso: 62,5 kg', '- Objetivo: emagrecer', '- Nível: iniciante', '- Onde treino: em casa, com pouco equipamento', '- Dias por semana: 3', '- Divisão preferida: push/pull/legs (empurrar, puxar, pernas)', '- Incluir também: cardio, abdômen', '- Pontos fracos (quero priorizar): peito, panturrilha', '- Tempo por treino: até 45 min, contando o cardio', '- Lesões, limitações ou preferências: joelho'])
     expect(p).toContain(l)
   // perfil pulado: o sexo 'M' é só o padrão e não pode ir pro prompt
   const empty = buildPrompt({ sex: 'M', heightCm: 0, weightKg: 0 })

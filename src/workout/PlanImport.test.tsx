@@ -18,7 +18,7 @@ test('colar JSON válido mostra o resumo sozinho, sem botão Revisar', async () 
   await user.paste(JSON.stringify({ formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'Peito', dias: ['seg'], exercicios: [{ nome: 'Remada X', series: 3, reps: '10' }] }] }))
   expect(await screen.findByText('1 treinos · 1 exercícios')).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Revisar' })).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Importar plano' })).toBeEnabled()
+  expect(screen.getByRole('button', { name: 'Revisar plano' })).toBeEnabled()
 })
 
 test('colar texto inválido mostra problemas e mantém Importar desabilitado', async () => {
@@ -27,7 +27,7 @@ test('colar texto inválido mostra problemas e mantém Importar desabilitado', a
   await user.click(await screen.findByRole('textbox'))
   await user.paste('oi')
   expect(await screen.findByText('Não encontrei um plano em JSON no texto')).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Importar plano' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Revisar plano' })).toBeDisabled()
 })
 
 test('anamnese fica salva no perfil e vai no prompt copiado', async () => {
@@ -43,4 +43,20 @@ test('anamnese fica salva no perfil e vai no prompt copiado', async () => {
   expect(writeText.mock.calls[0][0]).toContain('- Dias por semana: 4')
   expect(writeText.mock.calls[0][0]).toContain('- Lesões, limitações ou preferências: ombro')
   expect((await get('profile'))?.anamnesis).toEqual({ goal: 'hipertrofia', daysPerWeek: 4, notes: 'ombro' })
+})
+
+test('Revisar plano abre o editor; Salvar grava o plano e os exercícios novos', async () => {
+  const user = userEvent.setup()
+  const onDone = vi.fn()
+  render(<PlanImport onDone={onDone} />)
+  await user.click(await screen.findByRole('textbox', { name: 'Resposta da IA' }))
+  await user.paste(JSON.stringify({ formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'Peito', dias: ['seg'], exercicios: [{ nome: 'Remada X', series: 3, reps: '10' }] }] }))
+  await screen.findByText('1 treinos · 1 exercícios')
+  await user.click(screen.getByRole('button', { name: 'Revisar plano' }))
+  expect(await screen.findByRole('heading', { name: 'Editar plano' })).toBeInTheDocument()
+  expect(await get('workoutPlan')).toBeUndefined() // nada gravado antes do Salvar
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  expect(onDone).toHaveBeenCalled()
+  await vi.waitFor(async () => expect((await get('workoutPlan'))?.workouts[0].exercises[0].name).toBe('Remada X'))
+  expect((await get('customExercises'))?.[0].name).toBe('Remada X')
 })
