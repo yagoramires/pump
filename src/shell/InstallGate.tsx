@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
+import { Share } from 'lucide-react'
 import { allData } from '../storage/db'
 import { exportBackup } from '../storage/backup'
+import { EmptyState } from '@/components/EmptyState'
+import { Button } from '@/components/ui/button'
 
 export function InstallGate({ onDismiss }: { onDismiss: () => void }) {
   const [hasData, setHasData] = useState(false)
@@ -9,18 +12,19 @@ export function InstallGate({ onDismiss }: { onDismiss: () => void }) {
     void allData().then((d) => setHasData(Object.keys(d).length > 0)).catch(() => {})
   }, [])
   return (
-    <main>
-      <h1>Instale o Pump</h1>
-      <p>No Safari, toque em Compartilhar e depois em Adicionar à Tela de Início. Só assim o iPhone não apaga os seus dados.</p>
-      {hasData && (
-        <>
-          <p>Você já tem dados aqui. Exporte um backup para importar no app instalado.</p>
-          <button type="button" className="btn ghost" onClick={() => exportBackup().catch((e) => setError(e instanceof Error ? e.message : 'Falha ao exportar'))}>Exportar backup</button>
-          {error && <p role="alert">{error}</p>}
-        </>
-      )}
-      <p className="muted-note">Os dados daqui não passam sozinhos pro app instalado.</p>
-      <button type="button" className="btn ghost" onClick={onDismiss}>Continuar no navegador mesmo assim</button>
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4">
+      <EmptyState icon={<Share size={32} aria-hidden="true" />} title="Instale o Pump">
+        <p className="max-w-[300px] text-sm text-text-2">No Safari, toque em Compartilhar → Adicionar à Tela de Início. Só assim o iPhone não apaga os seus dados.</p>
+        {hasData && (
+          <>
+            <p className="max-w-[300px] text-sm text-text-2">Você já tem dados aqui. Exporte um backup para importar no app instalado.</p>
+            <Button type="button" variant="secondary" className="w-full max-w-xs" onClick={() => exportBackup().catch((e) => setError(e instanceof Error ? e.message : 'Falha ao exportar'))}>Exportar backup</Button>
+            {error && <p role="alert" className="text-sm text-negative">{error}</p>}
+          </>
+        )}
+        <p className="max-w-[300px] text-xs text-faint">Os dados daqui não passam sozinhos pro app instalado.</p>
+        <Button type="button" variant="ghost" className="text-text-2" onClick={onDismiss}>Continuar no navegador mesmo assim</Button>
+      </EmptyState>
     </main>
   )
 }

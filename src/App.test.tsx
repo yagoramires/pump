@@ -18,7 +18,7 @@ beforeEach(async () => {
 test('primeira vez abre a montagem; pular leva à aba Treino; depois abre na última aba', async () => {
   const user = userEvent.setup()
   const { unmount } = render(<App />)
-  expect(await screen.findByRole('heading', { name: 'Perfil' })).toBeInTheDocument()
+  expect(await screen.findByRole('heading', { name: 'Sobre você' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Pular' })) // perfil
   await user.click(screen.getByRole('button', { name: 'Pular' })) // treino
   expect(await screen.findByRole('button', { name: 'Treino' })).toHaveAttribute('aria-current', 'page')
@@ -38,7 +38,7 @@ test('dados ilegíveis: tela de erro em vez da montagem, sem gravar nada', async
   render(<App />)
   expect(await screen.findByRole('heading', { name: 'Não consegui ler seus dados' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument()
-  expect(screen.queryByRole('heading', { name: 'Perfil' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('heading', { name: 'Sobre você' })).not.toBeInTheDocument()
   resetStoreForTests()
   expect(await load('settings')).toEqual(settings)
 })
