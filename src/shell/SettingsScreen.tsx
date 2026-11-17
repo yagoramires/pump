@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { lazy, Suspense, useState, type ReactNode } from 'react'
 import { ChevronLeft, ChevronRight, Droplet, List, RotateCcw, Share2, Sparkles, User, Utensils } from 'lucide-react'
 import { toast } from 'sonner'
 import { NO_PROFILE, type Settings, type WaterSettings } from '../types'
@@ -13,11 +13,12 @@ import { ImportBackupButton } from './ImportBackupButton'
 import { PlanEditor } from '../workout/PlanEditor'
 import { PlanImport } from '../workout/PlanImport'
 import { ProfileForm } from '../onboarding/Onboarding'
-import { DietEditor } from '../diet/DietEditor'
-import { DietImport } from '../diet/DietImport'
 import { turnWaterOn } from '../diet/water'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
+
+const DietEditor = lazy(() => import('../diet/DietEditor').then((m) => ({ default: m.DietEditor })))
+const DietImport = lazy(() => import('../diet/DietImport').then((m) => ({ default: m.DietImport })))
 
 type View = 'menu' | 'plan' | 'import' | 'profile' | 'diet' | 'diet-ia' | 'water'
 
@@ -107,8 +108,8 @@ export function SettingsScreen({ settings, onClose, setSettings }: { settings: S
 
   if (view === 'plan') return <Overlay><PlanEditor onDone={back} onCancel={back} /></Overlay>
   if (view === 'import') return <Overlay><PlanImport onDone={back} onBack={back} /></Overlay>
-  if (view === 'diet') return <Overlay><DietEditor onDone={back} onCancel={back} /></Overlay>
-  if (view === 'diet-ia') return <Overlay><DietImport mode="ia" onDone={back} onBack={back} /></Overlay>
+  if (view === 'diet') return <Overlay><Suspense fallback={<p className="text-sm text-text-2">Carregando…</p>}><DietEditor onDone={back} onCancel={back} /></Suspense></Overlay>
+  if (view === 'diet-ia') return <Overlay><Suspense fallback={<p className="text-sm text-text-2">Carregando…</p>}><DietImport mode="ia" onDone={back} onBack={back} /></Suspense></Overlay>
   if (view === 'water') return <Overlay><BackHeader title="Água" onBack={back} /><WaterForm water={settings.water} ready={profileLoaded} weightKg={profile.weightKg} setSettings={setSettings} /></Overlay>
   if (view === 'profile') return <Overlay><BackHeader title="Perfil" onBack={back} /><div className="mt-3"><ProfileForm submitLabel="Salvar" onDone={back} /></div></Overlay>
 

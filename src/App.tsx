@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { Settings as SettingsIcon, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,6 @@ import { SettingsScreen } from './shell/SettingsScreen'
 import { isIOS, isStandalone } from './shell/platform'
 import { Onboarding } from './onboarding/Onboarding'
 import { TreinoTab } from './workout/TreinoTab'
-import { DietTab } from './diet/DietTab'
 import { syncPreviewCache } from './workout/previews'
 import { backupDue, daysWithoutBackup, exportBackup } from './storage/backup'
 import { requestPersist, usePersisted } from './storage/db'
@@ -18,6 +17,9 @@ import { todayKey } from './lib/date'
 import { useAchievementToasts } from './evolution/useAchievementToasts'
 import { EvolutionTab } from './evolution/EvolutionTab'
 import { DEFAULT_SETTINGS } from './types'
+
+// dieta fora do chunk principal (orçamento de bundle); continua no precache
+const DietTab = lazy(() => import('./diet/DietTab').then((m) => ({ default: m.DietTab })))
 
 const MAIN = 'mx-auto max-w-md px-4 pt-4 pb-[calc(96px+env(safe-area-inset-bottom))]'
 
@@ -87,7 +89,7 @@ export default function App() {
         ) : (
           <>
             <button type="button" className="icon-btn float-right -mt-1.5" aria-label="Configurações" onClick={() => setShowSettings(true)}><SettingsIcon size={17} /></button>
-            {tab === 'treino' ? <TreinoTab /> : tab === 'evolucao' ? <EvolutionTab /> : <DietTab />}
+            {tab === 'treino' ? <TreinoTab /> : tab === 'evolucao' ? <EvolutionTab /> : <Suspense fallback={<p className="text-sm text-text-2">Carregando…</p>}><DietTab /></Suspense>}
           </>
         )}
       </main>
