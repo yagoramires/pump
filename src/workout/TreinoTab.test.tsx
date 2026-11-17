@@ -91,7 +91,18 @@ test('treino em andamento passa da meia-noite e segue no mesmo dia ao voltar', a
   await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16']).toBeDefined())
   vi.setSystemTime(new Date(2026, 10, 17, 0, 30))
-  act(() => { document.dispatchEvent(new Event('visibilitychange')) })
+  await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
+  expect(screen.getByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
+  expect(screen.queryByText('Dia de descanso')).not.toBeInTheDocument()
+})
+test('check recém-feito, ainda gravando, segura o dia ao voltar depois da meia-noite', async () => {
+  render(<TreinoTab />)
+  const s1 = await screen.findByRole('button', { name: 'Série 1 de Supino reto' })
+  await act(async () => {
+    s1.click() // a tela ainda não recebeu a sessão: a gravação no IndexedDB está em andamento
+    vi.setSystemTime(new Date(2026, 10, 17, 0, 30))
+    document.dispatchEvent(new Event('visibilitychange'))
+  })
   expect(screen.getByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
   expect(screen.queryByText('Dia de descanso')).not.toBeInTheDocument()
 })

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Check, ChevronRight, Dumbbell, Moon } from 'lucide-react'
 import { toast } from 'sonner'
 import type { SetDone, WorkoutLog, WorkoutPlan } from '../types'
-import { usePersisted } from '../storage/db'
+import { load, usePersisted } from '../storage/db'
 import { formatDayLabel, todayKey } from '../lib/date'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/EmptyState'
@@ -42,16 +42,18 @@ export function TreinoTab() {
 
   // o PWA volta do segundo plano sem remontar: troca de dia, menos com treino em andamento
   useEffect(() => {
-    const onVisible = () => {
+    const onVisible = async () => {
       if (document.visibilityState !== 'visible' || todayKey() === today) return
-      if (session && !session.completedAt) return
+      // lê o salvo, não o render: um check recém-feito pode ainda não ter chegado na tela
+      const s = (await load('workoutLog').catch(() => undefined))?.[today]
+      if (s && !s.completedAt) return
       setToday(todayKey())
       setChosenId(undefined)
       setOpenIdx(undefined)
     }
     document.addEventListener('visibilitychange', onVisible)
     return () => document.removeEventListener('visibilitychange', onVisible)
-  }, [today, session])
+  }, [today])
   const workout = plan.workouts.find((w) => w.id === chosenId) ?? workoutForDate(plan, today)
 
   // mesma gravação sempre via updater: toques rápidos não perdem atualização
