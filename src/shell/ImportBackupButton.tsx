@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react'
+import { ChevronRight, Upload } from 'lucide-react'
+import { IconDot } from '@/components/IconDot'
 import { importBackupFile } from '../storage/backup'
 import { Button } from '@/components/ui/button'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
@@ -21,14 +23,15 @@ export function ImportBackupButton({ label, variant = 'ghost' }: { label: string
 
   return (
     <>
-      <Button
-        type="button"
-        variant="ghost"
-        className={variant === 'row' ? 'h-14 w-full justify-start rounded-[14px] border border-border bg-panel px-3.5 text-[15px] text-text' : 'text-text-2'}
-        onClick={() => fileRef.current?.click()}
-      >
-        {label}
-      </Button>
+      {variant === 'row' ? (
+        <button type="button" className="flex min-h-14 w-full items-center gap-3 border-t border-line px-3.5 text-left" onClick={() => fileRef.current?.click()}>
+          <IconDot size={36} color="var(--c5)"><Upload size={18} aria-hidden="true" /></IconDot>
+          <span className="flex-1 text-[15px] font-medium text-strong">{label}</span>
+          <ChevronRight size={18} className="text-faint" aria-hidden="true" />
+        </button>
+      ) : (
+        <Button type="button" variant="ghost" className="text-text-2" onClick={() => fileRef.current?.click()}>{label}</Button>
+      )}
       <input ref={fileRef} type="file" accept=".json,application/json" hidden aria-label="Arquivo de backup" onChange={(e) => { setFile(e.target.files?.[0]); e.target.value = '' }} />
       {error && <p role="alert" className="text-sm text-negative">{error}</p>}
       <AlertDialog open={!!file} onOpenChange={(o) => { if (!o) setFile(undefined) }}>

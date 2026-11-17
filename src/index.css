@@ -33,7 +33,7 @@
   --c1: var(--color-c1); --c2: var(--color-c2); --c3: var(--color-c3); --c4: var(--color-c4);
   --c5: var(--color-c5); --c6: var(--color-c6); --c7: var(--color-c7); --c8: var(--color-c8);
 
-  /* shadcn -> tokens Yield (theme.css antigo redefine --bg/--text/--accent, por isso var(--color-*)) */
+  /* shadcn -> tokens Yield */
   --background: var(--color-bg);
   --foreground: var(--color-text);
   --card: var(--color-panel);

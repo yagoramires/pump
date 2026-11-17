@@ -94,7 +94,7 @@ export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => 
   }
 
   if (step === 'editor') return <PlanEditor initial={initial} onDone={finish} onCancel={() => setStep('treino')} />
-  if (step === 'import') return <><Button type="button" variant="ghost" onClick={() => setStep('treino')}>Voltar</Button><PlanImport onDone={finish} /></>
+  if (step === 'import') return <PlanImport onDone={finish} onBack={() => setStep('treino')} />
   if (step === 'perfil') {
     return (
       <div className="flex flex-col gap-4 pb-6">

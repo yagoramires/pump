@@ -63,7 +63,7 @@ function PlanForm({ start, onDone, onCancel }: Props & { start: WorkoutPlan }) {
   const dash = 'flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-medium'
 
   return (
-    <div className="flex flex-col gap-3 px-4 pb-6">
+    <div className="flex flex-col gap-3 pb-6">
       <header className="flex items-center gap-1 py-2">
         <button type="button" className="flex size-11 items-center justify-center text-text-2" aria-label="Cancelar" onClick={onCancel}><ChevronLeft size={22} /></button>
         <h1 className="flex-1 text-[19px] font-semibold text-strong">Editar plano</h1>

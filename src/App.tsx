@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Settings as SettingsIcon } from 'lucide-react'
+import { Settings as SettingsIcon, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
 import { BottomNav } from './shell/BottomNav'
 import { ComingSoon } from './shell/ComingSoon'
@@ -13,9 +14,10 @@ import { syncPreviewCache } from './workout/previews'
 import { exportBackup, backupDue } from './storage/backup'
 import { requestPersist, usePersisted } from './storage/db'
 import { todayKey } from './lib/date'
-import { DEFAULT_SETTINGS, type Tab } from './types'
+import { DEFAULT_SETTINGS } from './types'
 
-const TITLES: Record<Tab, string> = { treino: 'Treino', evolucao: 'Evolução', dieta: 'Dieta' }
+const MAIN = 'mx-auto max-w-md px-4 pt-4 pb-[calc(96px+env(safe-area-inset-bottom))]'
+const TITLES = { evolucao: 'Evolução', dieta: 'Dieta' } as const
 
 export default function App() {
   const [settings, setSettings, loaded] = usePersisted('settings', DEFAULT_SETTINGS)
@@ -44,38 +46,39 @@ export default function App() {
   if (readFailed) {
     return (
       <FatalScreen title="Não consegui ler seus dados" text="Eles continuam guardados neste aparelho. Feche e abra o app ou tente de novo.">
-        <button type="button" className="btn" onClick={() => location.reload()}>Tentar de novo</button>
+        <Button type="button" onClick={() => location.reload()}>Tentar de novo</Button>
       </FatalScreen>
     )
   }
   if (!loaded) return null
   const banner = storageError && (
-    <div role="alert" style={{ position: 'sticky', top: 0, zIndex: 10, padding: '10px 16px', background: 'var(--danger)', color: 'var(--on-accent)' }}>
-      Não consegui salvar: {storageError}
+    <div role="alert" className="sticky top-0 z-10 mx-auto flex max-w-md items-center gap-2 border-b border-border bg-panel py-1 pr-1 pl-4 text-[13px] text-negative">
+      <span className="flex-1">Não consegui salvar: {storageError}</span>
+      <button type="button" className="flex size-11 items-center justify-center" aria-label="Fechar aviso" onClick={() => setStorageError(undefined)}><X size={18} /></button>
     </div>
   )
 
   if (isIOS(navigator.userAgent, navigator.maxTouchPoints) && !isStandalone() && !settings.installDismissed) {
     return <>{banner}<InstallGate onDismiss={() => setSettings((s) => ({ ...s, installDismissed: true }))} /></>
   }
-  if (!settings.onboardingDone) return <>{banner}<main><Onboarding setSettings={setSettings} /></main></>
+  if (!settings.onboardingDone) return <>{banner}<main className={MAIN}><Onboarding setSettings={setSettings} /></main></>
 
   const tab = settings.lastTab
   return (
     <>
       {banner}
       {backupDue(settings, todayKey()) && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'var(--soft-bg)', border: '1px solid var(--soft-border)', color: 'var(--text)' }}>
-          <span style={{ flex: 1 }}>Faz 14 dias sem backup</span>
-          <button type="button" className="btn ghost" onClick={() => void exportBackup().catch(() => {})}>Exportar</button>
-        </div>
+        <div className="mx-auto mt-3 max-w-md px-4"><div className="flex items-center gap-2 rounded-xl border border-accent-line bg-accent-bg py-1 pr-1 pl-3.5 text-[13px] text-text">
+          <span className="flex-1">Faz 14 dias sem backup</span>
+          <Button type="button" variant="ghost" size="sm" className="text-accent" onClick={() => void exportBackup().catch(() => {})}>Exportar</Button>
+        </div></div>
       )}
-      <main>
+      <main className={MAIN}>
         {showSettings ? (
-          <SettingsScreen onClose={() => setShowSettings(false)} setSettings={setSettings} />
+          <SettingsScreen settings={settings} onClose={() => setShowSettings(false)} setSettings={setSettings} />
         ) : (
           <>
-            <button type="button" className="icon-btn" aria-label="Configurações" style={{ float: 'right' }} onClick={() => setShowSettings(true)}><SettingsIcon size={20} /></button>
+            <button type="button" className="float-right -mt-2 -mr-2 flex size-11 items-center justify-center text-text-2" aria-label="Configurações" onClick={() => setShowSettings(true)}><SettingsIcon size={20} /></button>
             {tab === 'treino' ? <TreinoTab /> : <ComingSoon title={TITLES[tab]} />}
           </>
         )}
