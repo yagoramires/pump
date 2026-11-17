@@ -1,6 +1,7 @@
 import { daysBetween, todayKey } from '../lib/date'
 import { DEFAULT_SETTINGS, USER_KEYS, type Settings } from '../types'
 import { allData, load, replaceAll, save } from './db'
+import { shareFile } from '../lib/share'
 
 export interface BackupFile { app: 'pump'; version: 1; exportedAt: string; data: Record<string, unknown> }
 
@@ -50,24 +51,8 @@ export const backupDue = (s: Settings, today: string): boolean => {
 export async function exportBackup(now = new Date()): Promise<'shared' | 'downloaded' | 'cancelled'> {
   const day = todayKey(now)
   const file = new File([JSON.stringify(buildBackup(await allData(), now))], `pump-backup-${day}.json`, { type: 'application/json' })
-  let result: 'shared' | 'downloaded'
-  if (navigator.canShare?.({ files: [file] })) {
-    try {
-      await navigator.share({ files: [file] })
-    } catch (e) {
-      if (e instanceof DOMException && e.name === 'AbortError') return 'cancelled'
-      throw e
-    }
-    result = 'shared'
-  } else {
-    const url = URL.createObjectURL(file)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = file.name
-    a.click()
-    URL.revokeObjectURL(url)
-    result = 'downloaded'
-  }
+  const result = await shareFile(file)
+  if (result === 'cancelled') return result
   await save('settings', { ...(await load('settings') ?? DEFAULT_SETTINGS), lastBackupAt: day })
   return result
 }

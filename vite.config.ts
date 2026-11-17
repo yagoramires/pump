@@ -15,7 +15,8 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.ts',
       injectRegister: false,
-      injectManifest: { globIgnores: ['**/catalog/**'] },
+      // o PDF (react-pdf ~445 KB gzip) só baixa quando pedido, fora do precache
+      injectManifest: { globIgnores: ['**/catalog/**', '**/react-pdf*', '**/ReportDocument-*'] },
       manifest: {
         name: 'Pump',
         short_name: 'Pump',

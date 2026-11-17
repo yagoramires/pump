@@ -19,3 +19,8 @@ export function bodyFat(sex: Sex, heightCm: number, m: MeasureFields): number | 
 
 export const goalDirection = (p?: Profile): 'gain' | 'loss' =>
   p?.anamnesis?.goal === 'hipertrofia' || p?.anamnesis?.goal === 'forca' ? 'gain' : 'loss'
+
+export type Metric = keyof MeasureFields | 'fat'
+// o que melhora ao subir (gain) ou ao descer (loss); o resto fica neutro. Gordura descendo é sempre bom
+const GOOD: Record<'gain' | 'loss', Metric[]> = { gain: ['weightKg', 'armCm', 'chestCm', 'thighCm'], loss: ['weightKg', 'waistCm', 'hipCm'] }
+export const isGood = (m: Metric, dir: 'gain' | 'loss', v: number) => (m === 'fat' ? v < 0 : v > 0 ? dir === 'gain' && GOOD.gain.includes(m) : dir === 'loss' && GOOD.loss.includes(m))

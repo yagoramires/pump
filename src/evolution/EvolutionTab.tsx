@@ -1,7 +1,9 @@
 import { useState, type ReactNode } from 'react'
-import { CalendarDays, Camera, ChevronRight, FileText, Plus, Ruler, TrendingUp, Trophy } from 'lucide-react'
+import { CalendarDays, Camera, ChevronRight, FileText, Plus, Ruler, Share2, TrendingUp, Trophy } from 'lucide-react'
+import { toast } from 'sonner'
 import { NO_PROFILE, type MeasureFields, type Measurement, type PhotoSet, type WorkoutLog, type WorkoutPlan } from '../types'
 import { usePersisted } from '../storage/db'
+import { loadPhoto } from '../storage/photos'
 import { daysBetween, formatDayMonth, todayKey } from '../lib/date'
 import { formatDec, formatKg } from '@/lib/number'
 import { Button } from '@/components/ui/button'
@@ -20,6 +22,8 @@ import { PhotoCapture } from './PhotoCapture'
 import { PhotoCompare } from './PhotoCompare'
 import { AchievementsScreen } from './AchievementsScreen'
 import { HistoryScreen } from './HistoryScreen'
+import { buildReport } from './report'
+import { generatePdf, sharePdf } from './pdf/generate'
 
 type View = 'capture' | 'compare' | 'achievements' | 'history'
 type Pt = { date: string; value: number }
@@ -69,6 +73,8 @@ export function EvolutionTab() {
   const [choosing, setChoosing] = useState(false)
   const [measuring, setMeasuring] = useState(false)
   const [view, setView] = useState<View>()
+  const [busy, setBusy] = useState(false)
+  const [pdf, setPdf] = useState<{ blob: Blob; deps: unknown[] }>()
   const today = todayKey()
 
   if (!(a && b && c && d && e)) return <p className="text-sm text-text-2">Carregando…</p>
@@ -127,6 +133,24 @@ export function EvolutionTab() {
   const lastSet = [...photoSets].sort((x, y) => x.date.localeCompare(y.date)).pop()
   const earned = computeAchievements({ workoutLog: log, workoutPlan: plan, measurements, photoSets, profile }, today).filter((x) => x.earnedAt)
   const days = daysBetween(start, today)
+
+  // PDF pronto só vale pros dados de quando foi gerado: qualquer registro novo volta pra "Gerar PDF"
+  const deps = [log, plan, measurements, photoSets, profile, today]
+  const blob = pdf?.deps.every((x, i) => x === deps[i]) ? pdf.blob : undefined
+  const makePdf = async () => {
+    setBusy(true)
+    try {
+      const report = buildReport({ workoutLog: log, workoutPlan: plan, measurements, photoSets, profile }, today)
+      const ids = report.photoPairs.flatMap((p) => [p.before.id, p.after.id])
+      const photos: Record<string, string> = {}
+      await Promise.all(ids.map(async (id) => { const src = await loadPhoto(id); if (src) photos[id] = src }))
+      setPdf({ blob: await generatePdf(report, photos), deps })
+    } catch {
+      toast.error('Não consegui gerar o PDF')
+    } finally {
+      setBusy(false)
+    }
+  }
 
   return (
     <div className="pb-24">
@@ -212,8 +236,11 @@ export function EvolutionTab() {
       <div className="pointer-events-none fixed bottom-[calc(68px+env(safe-area-inset-bottom))] left-1/2 h-24 w-full max-w-md -translate-x-1/2 bg-linear-to-b from-transparent to-bg to-60%" />
       <div className="fixed bottom-[calc(80px+env(safe-area-inset-bottom))] left-1/2 z-10 flex w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 gap-2">
         <Button variant="secondary" className="h-11 flex-1 rounded-[13px] border border-border font-bold" onClick={() => setChoosing(true)}><Plus aria-hidden="true" /> Registrar</Button>
-        {/* ligado quando o PDF existir */}
-        <Button className="h-11 flex-1 rounded-[13px] font-bold" disabled title="Em breve"><FileText aria-hidden="true" /> Gerar PDF</Button>
+        {blob ? (
+          <Button className="h-11 flex-1 rounded-[13px] font-bold" onClick={() => sharePdf(blob, `pump-evolucao-${today}.pdf`).catch(() => toast.error('Não consegui compartilhar o PDF'))}><Share2 aria-hidden="true" /> Compartilhar PDF</Button>
+        ) : (
+          <Button className="h-11 flex-1 rounded-[13px] font-bold" disabled={busy} onClick={() => void makePdf()}><FileText aria-hidden="true" /> {busy ? 'Gerando…' : 'Gerar PDF'}</Button>
+        )}
       </div>
       {drawers}
     </div>

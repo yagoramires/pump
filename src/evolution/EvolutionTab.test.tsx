@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from '../storage/db'
@@ -6,6 +6,9 @@ import { todayKey } from '../lib/date'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
 import { EvolutionTab } from './EvolutionTab'
+import { generatePdf, sharePdf } from './pdf/generate'
+
+vi.mock('./pdf/generate', () => ({ generatePdf: vi.fn().mockResolvedValue(new Blob(['%PDF'], { type: 'application/pdf' })), sharePdf: vi.fn().mockResolvedValue('shared') }))
 
 beforeEach(async () => {
   await clear()
@@ -84,4 +87,31 @@ test('salvar sem mudar nada não grava nem diz que salvou', async () => {
   expect(await screen.findByText('Nada mudou')).toBeInTheDocument()
   expect(screen.queryByText('Medidas salvas')).not.toBeInTheDocument()
   expect(await load('measurements')).toBeUndefined()
+})
+
+test('Gerar PDF vira Compartilhar PDF e compartilha pump-evolucao-<dia>.pdf', async () => {
+  const user = userEvent.setup()
+  await save('measurements', [{ id: 'a', date: '2026-11-01', weightKg: 80 }])
+  render(<EvolutionTab />)
+  await user.click(await screen.findByRole('button', { name: 'Gerar PDF' }))
+  await user.click(await screen.findByRole('button', { name: 'Compartilhar PDF' }))
+  expect(vi.mocked(sharePdf)).toHaveBeenCalledWith(expect.any(Blob), expect.stringMatching(/^pump-evolucao-/))
+})
+test('erro ao gerar o PDF mostra toast', async () => {
+  const user = userEvent.setup()
+  vi.mocked(generatePdf).mockRejectedValueOnce(new Error('boom'))
+  await save('measurements', [{ id: 'a', date: '2026-11-01', weightKg: 80 }])
+  render(<><EvolutionTab /><Toaster /></>)
+  await user.click(await screen.findByRole('button', { name: 'Gerar PDF' }))
+  expect(await screen.findByText('Não consegui gerar o PDF')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Gerar PDF' })).toBeEnabled()
+})
+test('registro novo depois de gerar volta pra Gerar PDF', async () => {
+  const user = userEvent.setup()
+  await save('measurements', [{ id: 'a', date: '2026-11-01', weightKg: 80 }])
+  render(<EvolutionTab />)
+  await user.click(await screen.findByRole('button', { name: 'Gerar PDF' }))
+  expect(await screen.findByRole('button', { name: 'Compartilhar PDF' })).toBeInTheDocument()
+  await act(() => save('measurements', [{ id: 'a', date: '2026-11-01', weightKg: 79 }]))
+  expect(await screen.findByRole('button', { name: 'Gerar PDF' })).toBeInTheDocument()
 })
