@@ -27,8 +27,8 @@
 
 1. **Cardápio trocado ou editado com o dia já marcado:** as marcações de hoje continuam e dias passados não mudam (teste em Task 2).
 2. **Arquivo só de dieta colado no import de treino:** mensagem "Este arquivo só tem dieta. Importe na aba Dieta." e nada é gravado (teste em Task 3).
-3. **Import sem internet:** a TACO não carrega, todos os itens viram estimativa e aparece o aviso (teste em Task 5).
-4. **Aba aberta passando da meia-noite:** a próxima ação vai pro dia novo (teste em Task 6).
+3. **Import sem internet:** a TACO não carrega, todos os itens viram estimativa e aparece o aviso (teste em Task 6).
+4. **Aba aberta passando da meia-noite:** a próxima ação vai pro dia novo (teste em Task 7).
 5. **JSON da IA com números absurdos** (gramas 0 ou 5000, kcal por 100 g > 900): erro ou valor tratado como ausente, nunca entra calado (teste em Task 3).
 
 ---
@@ -238,11 +238,57 @@ test('todos os TACO_EXAMPLES existem no taco.json', () => {})
 
 ---
 
-### Task 4: Gaveta de alimentos e editor do cardápio
+### Task 4: Adendo §13 — cardápios, opções por refeição e livre (dados, dia, formato, prompt)
+
+**Files:**
+- Modify: `src/types.ts`, `src/storage/backup.ts`, `src/diet/day.ts`, `src/diet/dietFormat.ts`, `src/diet/prompt.ts` e os testes deles
+- Test: `src/diet/day.test.ts`, `src/diet/dietFormat.test.ts`, `src/diet/prompt.test.ts`, `src/storage/backup.test.ts`
+
+**Interfaces (substituem as das Tasks 1–3 onde conflitam; spec §13.3–13.4):**
+- Tipos: `DietPlan = { menus: Menu[]; lastMenuId?: string }`, `Menu = { id; name; meals: Meal[]; goalKcal?; goalMacros? }`, `Meal = { id; name; time; options: MealOption[] }`, `MealOption = { id; name?: string; items: DietItem[] }`, `DayMeal` ganha `free?: boolean; swappedMeal?: string`, `DietDay = { menuId; menuName; meals; goalKcal?; goalMacros?; free?: boolean }`. `EMPTY_DIET = { menus: [] }`. `WorkoutSession` ganha `rest?: boolean`. Backup: `dietPlan` exige `menus` array.
+- `day.ts`:
+  - `dayFromMenu(menu: Menu): DietDay` (substitui `dayFromPlan`; usa a 1ª opção de cada refeição).
+  - `currentMenu(plan: DietPlan): Menu | undefined` — `lastMenuId` ou o primeiro.
+  - `ensureDay(log, plan, date)` — usa `currentMenu`; mesma regra de recópia (nada tocado; `free` e `swappedMeal` também contam como tocado).
+  - `setDayMenu(log, plan, date, menuId): DietLog` — refaz a cópia com o cardápio escolhido (a confirmação é da UI).
+  - `swapMeal(day, mealId, source: { name: string; items: DietItem[] }): DietDay` — troca os itens da refeição de hoje (`swappedMeal` = nome), limpa trocas/pulos dela.
+  - `setMealFree(day, mealId, free: boolean)`, `setDayFree(day, free: boolean)`.
+  - `daySummary` não soma refeição livre nem dia livre; ganha `free: number` (refeições livres) e `dayFree: boolean`.
+  - `freeUses(log: DietLog, date: string): number` — quantos "livres" (dias livres + refeições livres) houve na semana de `date` (domingo a sábado) **antes** de `date` (por ordem de data; dentro do mesmo dia, conta o dia todo como 1 uso se houver dia livre, senão cada refeição livre).
+  - `dayStatus(log, date): 'full' | 'free-ok' | 'off' | 'none'` — `'none'` sem cópia; `'free-ok'` dia livre e primeiro livre da semana; `'full'` = `isFullDay` contando refeição livre como feita quando é o primeiro livre da semana (e não há outros livres no dia além dele); senão `'off'`.
+- `dietFormat.ts`: lê `dieta.cardapios[]` (1 a 5) com `refeicoes[].opcoes[]` (1 a 4, cada uma com 1 a 30 alimentos); também aceita `dieta.refeicoes` (um cardápio "Cardápio") e refeição com `alimentos` direto (uma opção). Mensagens novas no padrão: `Cardápio {c}: falta o nome`, `Cardápio {c}, refeição {n}: …`, `Cardápio {c}, refeição {n}, opção {o}: sem alimentos`, `Mais de 5 cardápios`, `Cardápio {c}, refeição {n}: mais de 4 opções`. `dietFromFormat` devolve `plan` com `menus` e `items` com `menuIdx`, `mealIdx`, `optionIdx`, `itemIdx`. `exportDietFormat` escreve `cardapios` com `opcoes`.
+- `prompt.ts`: pedir 2 opções por refeição e, quando houver dias de treino, 2 cardápios ("Dia de treino" e "Descanso"); exemplo no formato novo; teto de 6000 caracteres continua.
+
+- [ ] **Step 1: Testes que falham**
+
+```ts
+test('dayFromMenu usa a 1ª opção; swapMeal troca pelos itens da outra opção e marca swappedMeal', () => {})
+test('refeição livre e dia livre não somam kcal', () => {})
+test('freeUses conta os livres da semana antes da data (domingo a sábado)', () => {})
+test('dayStatus: 1º livre da semana não estraga o dia; o 2º sim', () => {
+  // dom: refeição livre + resto feito → 'full'; ter: dia livre → 'off' (2º uso); semana seguinte: dia livre → 'free-ok'
+})
+test('setDayMenu refaz a cópia com o cardápio escolhido', () => {})
+test('formato aceita cardapios/opcoes, refeicoes direto e alimentos direto', () => {})
+test('mensagens de cardápio/opção', () => {})
+test('backup recusa dietPlan sem menus', () => {})
+test('prompt pede 2 opções por refeição e respeita 6000 caracteres', () => {})
+```
+
+- [ ] **Step 2:** `bun run test`. Esperado: FAIL.
+- [ ] **Step 3:** Implementar, ajustando os testes das Tasks 1–3 que usavam `meals` no plano.
+- [ ] **Step 4:** `bun run test`, `bun run build`, `bun run lint`.
+- [ ] **Step 5: Commit** `feat(diet): menus, meal options and free days`.
+
+---
+
+### Task 5: Gaveta de alimentos e editor do cardápio
 
 **Files:**
 - Create: `src/diet/FoodPicker.tsx`, `src/diet/DietEditor.tsx`
 - Test: `src/diet/FoodPicker.test.tsx`, `src/diet/DietEditor.test.tsx`
+
+**Adendo §13:** o editor edita `menus`: lista de cardápios no topo (criar, renomear, duplicar, apagar — mínimo 1 enquanto houver cardápio), meta por cardápio, e em cada refeição as opções (abas "Opção A/B…", adicionar/remover opção, nome opcional). "Apagar cardápio" vira "Apagar todos os cardápios". Recentes também saem de todas as opções de todos os cardápios.
 
 **Interfaces:**
 - Consumes: `fetchTaco`, `searchCatalog`, `itemKcal`, `sortedMeals`, `exportDietFormat`, `usePersisted('foods')`, `usePersisted('dietLog')` (recentes).
@@ -267,12 +313,14 @@ test('DietEditor exige horário HH:MM pra salvar', async () => {})
 
 ---
 
-### Task 5: Gerar com IA e Importar
+### Task 6: Gerar com IA e Importar
 
 **Files:**
 - Create: `src/diet/DietImport.tsx`, `src/diet/DietAnamnesisForm.tsx`
 - Modify: `src/workout/AnamnesisForm.tsx` (exportar `Chips`, `MultiChips`), `src/workout/PlanImport.tsx` (exportar `Step`)
 - Test: `src/diet/DietImport.test.tsx`
+
+**Adendo §13:** a revisão mostra os cardápios (abas) e as opções de cada refeição; os rótulos ("na TACO", "estimativa da IA", "sem valores") e a troca por toque valem em qualquer opção. "Usar cardápio" vira "Usar cardápios" e grava `lastMenuId` = primeiro.
 
 **Interfaces:**
 - Consumes: `parseDietFormat`, `dietFromFormat`, `buildDietPrompt`, `fetchTaco`, `FoodPicker`, `DietEditor`, `Step`, `Chips`/`MultiChips`.
@@ -300,13 +348,15 @@ test('substituir cardápio pede confirmação e preserva o que foi marcado hoje'
 
 ---
 
-### Task 6: Aba Dieta, água e Configurações
+### Task 7: Aba Dieta, água e Configurações
 
 **Files:**
 - Create: `src/diet/DietTab.tsx`, `src/diet/MealCard.tsx`, `src/diet/WaterCard.tsx`
 - Modify: `src/App.tsx` (trocar `<ComingSoon title="Dieta" />`), `src/shell/SettingsScreen.tsx` (grupo DIETA), `src/App.test.tsx`
 - Delete: `src/shell/ComingSoon.tsx`
 - Test: `src/diet/DietTab.test.tsx`, `src/shell/SettingsScreen.test.tsx` (se existir; senão no `App.test.tsx`)
+
+**Adendo §13:** topo com seletor do cardápio de hoje (troca via `setDayMenu`; se algo foi marcado, AlertDialog "O que você marcou hoje será apagado"; grava `lastMenuId`); menu do dia com "Dia livre"/"Desfazer dia livre" (refeições esmaecidas); em cada refeição "Trocar refeição" (gaveta com as outras opções dela e as refeições dos outros cardápios → `swapMeal`) e "Refeição livre" (marca feita e livre, não soma). Testes a mais: trocar refeição pela opção B; refeição livre não soma; dia livre esmaece e não soma; trocar cardápio com algo marcado pede confirmação.
 
 **Interfaces:**
 - Consumes: tudo de Tasks 2, 4 e 5; `formatDayLabel`, `EmptyState`.
@@ -341,12 +391,14 @@ test('virada da meia-noite: ação depois da meia-noite vai pro dia novo', async
 
 ---
 
-### Task 7: Evolução — direção, conquistas, Histórico, cartão e PDF
+### Task 8: Evolução — direção, conquistas, Histórico, cartão e PDF
 
 **Files:**
 - Modify: `src/evolution/bodyFat.ts`, `src/evolution/achievements.ts`, `src/evolution/AchievementsScreen.tsx`, `src/evolution/useAchievementToasts.ts`, `src/evolution/HistoryScreen.tsx`, `src/evolution/EvolutionTab.tsx`, `src/evolution/report.ts`, `src/evolution/pdf/ReportDocument.tsx`
 - Create: `src/evolution/DietCard.tsx`
 - Test: `src/evolution/bodyFat.test.ts`, `src/evolution/achievements.test.ts`, `src/evolution/AchievementsScreen.test.tsx`, `src/evolution/HistoryScreen.test.tsx`, `src/evolution/report.test.ts`, `src/evolution/EvolutionTab.test.tsx`
+
+**Adendo §13:** conquistas usam `dayStatus` (`full` conta como 100%; `free-ok` não conta nem quebra a sequência; `off`/`none` quebram). Detalhe do dia mostra o cardápio do dia, "Dia livre" ou "N refeição(ões) livre(s)" e, se houver, "Descanso" (registro `rest` do treino). Cartão: média de kcal ignora dias livres; linha "livres no mês". Testes a mais: dia livre neutro 1×/semana na sequência; 2º livre quebra.
 
 **Interfaces:**
 - Consumes: `daySummary`, `isFullDay`, `waterMet` (Task 2); tipos da Task 1.
@@ -383,14 +435,44 @@ test('Evolução de quem só faz dieta mostra o cartão Dieta', async () => {})
 
 ---
 
-### Task 8: Conferência visual
+### Task 9: Descanso no treino
+
+**Files:**
+- Modify: `src/workout/TreinoTab.tsx`, `src/evolution/achievements.ts`, `src/evolution/HistoryScreen.tsx`
+- Test: `src/workout/TreinoTab.test.tsx`, `src/evolution/achievements.test.ts`, `src/evolution/HistoryScreen.test.tsx`
+
+**Interfaces:**
+- Consumes: `WorkoutSession.rest` (Task 4).
+- Produces:
+  - TreinoTab: num dia com treino previsto e sem sessão iniciada, botão secundário **"Descansar hoje"** que grava `workoutLog[hoje] = { date, workoutId: '', workoutLabel: '', workoutName: 'Descanso', exercises: [], rest: true }`; com o descanso marcado, a aba mostra "Descanso marcado" com **"Desfazer"** (apaga o registro) e a lista de treinos pra escolher um mesmo assim (iniciar um treino substitui o registro de descanso).
+  - `computeAchievements`: na sequência de treinos, um dia previsto com `rest` é tratado como não previsto se for o primeiro descanso marcado da semana (domingo a sábado); os seguintes contam como falta. Registros `rest` nunca contam como treino (já não têm `completedAt`).
+  - Histórico: dia com `rest` mostra "Descanso" no detalhe; sem ponto de treino.
+  - Qualquer código que lista sessões deve ignorar `rest` (conferir `sessionStats`, report, PDF, ExerciseDrawer "Anterior").
+
+- [ ] **Step 1: Testes que falham**
+
+```tsx
+test('descansar hoje grava o registro e mostra Desfazer', async () => {})
+test('iniciar treino depois de marcar descanso substitui o registro', async () => {})
+test('1º descanso da semana não quebra a sequência; o 2º quebra', () => {})
+test('Histórico mostra Descanso no dia', async () => {})
+```
+
+- [ ] **Step 2:** `bun run test`. Esperado: FAIL.
+- [ ] **Step 3:** Implementar.
+- [ ] **Step 4:** `bun run test`, `bun run build`, `bun run lint`.
+- [ ] **Step 5: Commit** `feat(workout): mark rest day`.
+
+---
+
+### Task 10: Conferência visual
 
 **Files:**
 - Modify: só ajustes de estilo e layout que a conferência apontar.
 
 - [ ] **Step 1:** `bun run build && bunx vite preview`, guardar o PID e abrir `http://localhost:4173/pump/` no Playwright MCP, em 390×844.
 - [ ] **Step 2:** Pela UI: gerar o prompt, colar um JSON de cardápio de 5 refeições (com 1 item fora da TACO), usar; marcar refeições, trocar, pular, extra; ligar a água e somar copos.
-- [ ] **Step 3:** Fotografar e comparar com `docs/design/dieta.html` (sem o botão "Modelo" e sem a sugestão de meta, que saíram): convite, anamnese, revisão, dia a dia, gaveta, editor, cartão Dieta e detalhe do Histórico. Corrigir diferenças. Conferir 320 px sem rolagem horizontal nem barra visível.
+- [ ] **Step 3:** Fotografar e comparar com `docs/design/dieta.html` (sem o botão "Modelo" e sem a sugestão de meta, que saíram; mais o seletor de cardápio, trocar refeição, refeição/dia livre e "Descansar hoje" no Treino): convite, anamnese, revisão, dia a dia, gaveta, editor, cartão Dieta e detalhe do Histórico. Corrigir diferenças. Conferir 320 px sem rolagem horizontal nem barra visível.
 - [ ] **Step 4:** Abrir um PDF gerado e ver a seção Dieta.
 - [ ] **Step 5:** `bun run test`, build e lint. Fechar o browser, apagar `.playwright-mcp/`, parar o servidor pelo PID. Commit `style(diet): visual pass against mockup`, se houve ajuste. Salvar 4 prints em `/Users/yagoramires/Documents/.those-guys/out/pump-dieta-*.png`.
 - [ ] **Step 6:** **PARAR:** nada de push.
