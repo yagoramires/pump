@@ -1,5 +1,5 @@
 import { daysBetween, weekStart } from '../lib/date'
-import type { DayItem, DayMeal, DietDay, DietItem, DietLog, DietPlan, Menu, WaterLog } from '../types'
+import type { DayItem, DayMeal, DietDay, DietItem, DietLog, DietPlan, MealOption, Menu, WaterLog } from '../types'
 import { waterMet } from './water'
 
 export const dayFromMenu = (menu: Menu): DietDay => ({
@@ -13,7 +13,7 @@ export const dayFromMenu = (menu: Menu): DietDay => ({
 export const currentMenu = (plan: DietPlan): Menu | undefined => plan.menus.find((m) => m.id === plan.lastMenuId) ?? plan.menus[0]
 
 export const touched = (d: DietDay) =>
-  d.free || d.meals.some((m) => m.done || m.free || m.swappedMeal || m.items.some((i) => i.skipped || i.swappedFrom || i.extra))
+  d.free || d.meals.some((m) => m.done || m.free || m.swappedMeal || m.optionId || m.items.some((i) => i.skipped || i.swappedFrom || i.extra))
 
 export const ensureDay = (log: DietLog, plan: DietPlan, date: string): DietLog => {
   const menu = currentMenu(plan)
@@ -45,7 +45,12 @@ export const undoSwap = (d: DietDay, mealId: string, itemId: string): DietDay =>
   mapItem(d, mealId, itemId, (i) => (i.original ? { ...i.original } : i))
 // extras ficam: já foram comidos e contam na hora em que entram
 export const swapMeal = (d: DietDay, mealId: string, source: { name: string; items: DietItem[] }): DietDay =>
-  mapMeal(d, mealId, (m) => ({ ...m, swappedMeal: source.name, items: [...structuredClone(source.items), ...m.items.filter((i) => i.extra)] }))
+  mapMeal(d, mealId, ({ optionId: _o, ...m }) => ({ ...m, swappedMeal: source.name, items: [...structuredClone(source.items), ...m.items.filter((i) => i.extra)] }))
+export const chooseOption = (d: DietDay, mealId: string, option: MealOption): DietDay => {
+  const cur = d.meals.find((m) => m.id === mealId)
+  if (!cur || (cur.optionId === option.id && !cur.swappedMeal)) return d
+  return mapMeal(d, mealId, ({ swappedMeal: _s, ...m }) => ({ ...m, optionId: option.id, items: [...structuredClone(option.items), ...m.items.filter((i) => i.extra)] }))
+}
 export const setMealFree = (d: DietDay, mealId: string, free: boolean): DietDay => mapMeal(d, mealId, (m) => ({ ...m, free, done: free }))
 export const setDayFree = (d: DietDay, free: boolean): DietDay => ({ ...d, free })
 
@@ -122,3 +127,10 @@ export function dietStats(log: DietLog, water: WaterLog, from: string, to: strin
 }
 
 export const sortedMeals = <T extends { time: string }>(meals: T[]): T[] => [...meals].sort((a, b) => a.time.localeCompare(b.time))
+
+/** refeição "da vez": 1ª não feita já no horário; senão a próxima; senão nenhuma */
+export const currentMealId = (meals: DayMeal[], now: Date): string | undefined => {
+  const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+  const open = sortedMeals(meals).filter((m) => !m.done && !m.free)
+  return (open.find((m) => m.time <= hhmm) ?? open[0])?.id
+}

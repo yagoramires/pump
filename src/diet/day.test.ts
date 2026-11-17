@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 import type { DietItem, DietLog, DietPlan, Meal, Menu } from '../types'
 import {
-  addExtra, currentMenu, dayFromMenu, dayStatus, daySummary, ensureDay, freeUses, itemKcal, itemMacros, removeItem,
-  setDayFree, setDayMenu, setMealFree, skipItem, sortedMeals, swapItem, swapMeal, toggleMeal, undoSwap,
+  addExtra, chooseOption, currentMealId, currentMenu, dayFromMenu, dayStatus, daySummary, ensureDay, freeUses, itemKcal, itemMacros, removeItem,
+  setDayFree, setDayMenu, setMealFree, skipItem, sortedMeals, swapItem, swapMeal, toggleMeal, touched, undoSwap,
 } from './day'
 
 const it = (id: string, name: string, kcal: number, grams = 100): DietItem => ({ id, name, grams, per100: { kcal, p: 10, c: 20, f: 5 }, source: 'custom' })
@@ -43,6 +43,54 @@ describe('day', () => {
     d.meals[0].items[0].grams = 1
     expect(menuA.meals[0].options[1].items[0].grams).toBe(200)
     expect(swapMeal(d, 'zz', { name: 'x', items: [] })).toBe(d)
+  })
+
+  test('chooseOption troca os itens, guarda o optionId, mantém extras e limpa trocas', () => {
+    const [a, b] = menuA.meals[0].options
+    let d = dayFromMenu(menuA)
+    d = addExtra(d, 'm1', it('e1', 'Café', 10))
+    d = swapItem(d, 'm1', 'i1', it('s1', 'Tapioca', 200))
+    const r = chooseOption(d, 'm1', b)
+    expect(r.meals[0].items.map((i) => i.id)).toEqual(['i4', 'i5', 'e1'])
+    expect(r.meals[0].optionId).toBe(b.id)
+    expect(r.meals[0].items.some((i) => i.swappedFrom || i.skipped)).toBe(false)
+    expect(r.meals[0].swappedMeal).toBeUndefined()
+    expect(touched(r)).toBe(true)
+    expect(chooseOption(d, 'zz', a)).toBe(d)
+  })
+
+  test('chooseOption com a mesma opção não muda nada', () => {
+    const [, b] = menuA.meals[0].options
+    const r = chooseOption(dayFromMenu(menuA), 'm1', b)
+    expect(chooseOption(r, 'm1', b)).toBe(r)
+  })
+
+  test('swapMeal limpa optionId e chooseOption depois volta às opções', () => {
+    const [a, b] = menuA.meals[0].options
+    let d = chooseOption(dayFromMenu(menuA), 'm1', b)
+    d = swapMeal(d, 'm1', { name: 'Outra', items: [it('x', 'X', 1)] })
+    expect(d.meals[0].optionId).toBeUndefined()
+    d = chooseOption(d, 'm1', a)
+    expect(d.meals[0]).toMatchObject({ optionId: a.id })
+    expect(d.meals[0].swappedMeal).toBeUndefined()
+    expect(d.meals[0].items.map((i) => i.id)).toEqual(['i1', 'i2'])
+  })
+
+  test('dayFromMenu não grava optionId e não conta como mexido', () => {
+    expect(dayFromMenu(menuA).meals.some((m) => 'optionId' in m)).toBe(false)
+    expect(touched(dayFromMenu(menuA))).toBe(false)
+  })
+
+  test('currentMealId: primeira não feita já no horário; senão a próxima; senão nenhuma', () => {
+    const ms = [meal('a', 'A', '07:00', [it('x', 'x', 1)]), meal('c', 'C', '12:30', [it('x', 'x', 1)]), meal('b', 'B', '10:00', [it('x', 'x', 1)])]
+    let d = toggleMeal(dayFromMenu({ id: 'M', name: 'M', meals: ms }), 'a')
+    const at = (h: number, m: number) => new Date(2026, 10, 18, h, m)
+    expect(currentMealId(d.meals, at(11, 0))).toBe('b')
+    expect(currentMealId(d.meals, at(9, 0))).toBe('b')
+    d = toggleMeal(d, 'b')
+    expect(currentMealId(d.meals, at(11, 0))).toBe('c')
+    d = setMealFree(d, 'c', true)
+    expect(currentMealId(d.meals, at(11, 0))).toBeUndefined()
   })
 
   test('currentMenu usa lastMenuId ou o primeiro', () => {

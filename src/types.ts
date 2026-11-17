@@ -68,8 +68,8 @@ export interface Menu { id: string; name: string; meals: Meal[]; goalKcal?: numb
 export interface DietPlan { menus: Menu[]; lastMenuId?: string }
 /** original = item do cardápio antes da 1ª troca (pra desfazer) */
 export interface DayItem extends DietItem { skipped?: boolean; swappedFrom?: string; extra?: boolean; original?: DietItem }
-/** swappedMeal = nome da opção/refeição escolhida em "Trocar refeição" */
-export interface DayMeal extends Omit<Meal, 'options'> { done: boolean; free?: boolean; swappedMeal?: string; items: DayItem[] }
+/** optionId = opção do cardápio escolhida (ausente = 1ª); swappedMeal = nome da opção/refeição escolhida em "Trocar refeição" */
+export interface DayMeal extends Omit<Meal, 'options'> { done: boolean; free?: boolean; swappedMeal?: string; optionId?: string; items: DayItem[] }
 export interface DietDay { menuId: string; menuName: string; meals: DayMeal[]; goalKcal?: number; goalMacros?: Macros; free?: boolean }
 /** chave = todayKey */
 export type DietLog = Record<string, DietDay>
