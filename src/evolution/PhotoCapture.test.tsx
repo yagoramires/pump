@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests } from '../storage/db'
@@ -45,4 +45,41 @@ test('fechar para as tracks da câmera; Tirar foto só liga com o vídeo pronto'
   await user.click(screen.getByRole('button', { name: 'Voltar' }))
   expect(stop).toHaveBeenCalled()
   expect(onClose).toHaveBeenCalled()
+})
+test('escolher da galeria durante a contagem cancela o disparo', async () => {
+  vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
+  try {
+    vi.spyOn(resize, 'videoToJpeg').mockResolvedValue('data:image/jpeg;base64,CAM')
+    const getUserMedia = vi.fn().mockResolvedValue({ getTracks: () => [{ stop() {} }] })
+    Object.defineProperty(navigator, 'mediaDevices', { value: { getUserMedia }, configurable: true })
+    const user = userEvent.setup()
+    const { container } = render(<PhotoCapture date="2026-11-17" onClose={vi.fn()} />)
+    await waitFor(() => expect(getUserMedia).toHaveBeenCalled())
+    fireEvent.loadedData(container.querySelector('video')!)
+    await user.click(screen.getByRole('button', { name: 'Temporizador 5 s' }))
+    await user.click(screen.getByRole('button', { name: 'Tirar foto' }))
+    await user.upload(screen.getByLabelText('Escolher da galeria'), new File(['x'], 'a.jpg', { type: 'image/jpeg' }))
+    expect(await screen.findByRole('img', { name: 'Prévia: Frente' })).toHaveAttribute('src', 'data:image/jpeg;base64,FAKE')
+    await act(async () => { vi.advanceTimersByTime(6000) })
+    expect(resize.videoToJpeg).not.toHaveBeenCalled()
+    expect(screen.getByRole('img', { name: 'Prévia: Frente' })).toHaveAttribute('src', 'data:image/jpeg;base64,FAKE')
+  } finally {
+    vi.useRealTimers()
+  }
+})
+test('sem câmera traseira: volta pra frontal em vez de cair na galeria', async () => {
+  const getUserMedia = vi.fn((c: { video: { facingMode: string } }) =>
+    c.video.facingMode === 'environment' ? Promise.reject(new Error('NotFound')) : Promise.resolve({ getTracks: () => [{ stop() {} }] }))
+  Object.defineProperty(navigator, 'mediaDevices', { value: { getUserMedia }, configurable: true })
+  const user = userEvent.setup()
+  render(<PhotoCapture date="2026-11-17" onClose={vi.fn()} />)
+  await waitFor(() => expect(getUserMedia).toHaveBeenCalledTimes(1))
+  await user.click(screen.getByRole('button', { name: 'Trocar câmera' }))
+  await waitFor(() => expect(getUserMedia).toHaveBeenLastCalledWith({ video: { facingMode: 'user' } }))
+  expect(screen.queryByText('Câmera indisponível — escolha da galeria.')).not.toBeInTheDocument()
+})
+test('mediaDevices sem getUserMedia: aviso da galeria', async () => {
+  Object.defineProperty(navigator, 'mediaDevices', { value: {}, configurable: true })
+  render(<PhotoCapture date="2026-11-17" onClose={vi.fn()} />)
+  expect(await screen.findByText('Câmera indisponível — escolha da galeria.')).toBeInTheDocument()
 })

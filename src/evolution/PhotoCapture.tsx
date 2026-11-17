@@ -45,8 +45,8 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
   const [, setSets, loaded] = usePersisted('photoSets', NONE)
   const [i, setI] = useState(0)
   const [facing, setFacing] = useState<'user' | 'environment'>('user')
-  // sem contexto seguro (http) ou navegador antigo, navigator.mediaDevices não existe
-  const [camOk, setCamOk] = useState<boolean | undefined>(() => (navigator.mediaDevices ? undefined : false))
+  // sem contexto seguro (http) ou navegador antigo, navigator.mediaDevices/getUserMedia não existe
+  const [camOk, setCamOk] = useState<boolean | undefined>(() => (typeof navigator.mediaDevices?.getUserMedia === 'function' ? undefined : false))
   const [ready, setReady] = useState(false)
   const [timer, setTimer] = useState(false)
   const [count, setCount] = useState<number>()
@@ -59,7 +59,7 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
   // um stream por facingMode: trocar ou desmontar para as tracks do anterior
   useEffect(() => {
     const md = navigator.mediaDevices as MediaDevices | undefined
-    if (!md) return
+    if (typeof md?.getUserMedia !== 'function') return
     let alive = true
     let s: MediaStream | undefined
     md.getUserMedia({ video: { facingMode: facing } })
@@ -70,7 +70,8 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
         if (video.current) video.current.srcObject = got
         setCamOk(true)
       })
-      .catch(() => alive && setCamOk(false))
+      // sem câmera traseira, volta pra frontal; só sem nenhuma cai na galeria
+      .catch(() => alive && (facing === 'environment' ? setFacing('user') : setCamOk(false)))
     return () => {
       alive = false
       s?.getTracks().forEach((t) => t.stop())
@@ -114,6 +115,7 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
     setFacing((f) => (f === 'user' ? 'environment' : 'user'))
   }
   const pick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    cancelCount() // senão a contagem dispara por cima da foto escolhida
     const file = e.target.files?.[0]
     e.target.value = '' // escolher o mesmo arquivo de novo dispara onChange
     if (file) fileToJpeg(file).then(setPreview, () => toast.error('Não consegui abrir a imagem'))
@@ -135,6 +137,7 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
       out.replaced = r.replaced
       return r.sets
     })
+    // falhar aqui só deixa a foto antiga órfã no banco; o registro já aponta pra nova
     if (out.replaced) void deletePhotos([out.replaced]).catch(() => {})
     setSaving(false)
     goTo(i + 1)
