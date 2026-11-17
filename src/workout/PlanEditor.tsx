@@ -1,33 +1,28 @@
 import { useState } from 'react'
-import { ArrowDown, ArrowUp, Minus, Plus, Trash2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Dumbbell, MoreHorizontal, Plus } from 'lucide-react'
 import type { PlanExercise, Workout, WorkoutPlan } from '../types'
 import { usePersisted } from '../storage/db'
 import { CatalogPicker } from '../catalog/CatalogPicker'
 import { toPlanExercise } from './templates'
+import { ExerciseDrawer } from './ExerciseDrawer'
+import { IconDot } from '@/components/IconDot'
+import { muscleColor } from '@/components/muscleColor'
+import { Button } from '@/components/ui/button'
+import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
+import { formatKg } from '@/lib/number'
+import { cn } from '@/lib/utils'
 
 const DAYS = [
   ['D', 'Domingo'], ['S', 'Segunda'], ['T', 'Terça'], ['Q', 'Quarta'], ['Q', 'Quinta'], ['S', 'Sexta'], ['S', 'Sábado'],
 ]
-const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
 const EMPTY: WorkoutPlan = { workouts: [] }
-
-function Stepper({ label, value, text, step, min, max, onChange }: { label: string; value: number; text: string; step: number; min: number; max: number; onChange: (v: number) => void }) {
-  const set = (d: number) => onChange(Math.round(clamp(value + d, min, max) * 10) / 10)
-  return (
-    <div className="stepper" role="group" aria-label={label}>
-      <button type="button" className="icon-btn" aria-label={`Diminuir ${label}`} disabled={value <= min} onClick={() => set(-step)}><Minus size={16} /></button>
-      <span className="stepper-value">{text}</span>
-      <button type="button" className="icon-btn" aria-label={`Aumentar ${label}`} disabled={value >= max} onClick={() => set(step)}><Plus size={16} /></button>
-    </div>
-  )
-}
 
 type Props = { initial?: WorkoutPlan; onDone: () => void; onCancel?: () => void }
 
 // sem `initial`, espera o plano salvo carregar: senão a cópia local nasceria vazia e o Salvar apagaria o plano
 export function PlanEditor(props: Props) {
   const [saved, , loaded] = usePersisted('workoutPlan', EMPTY)
-  if (!props.initial && !loaded) return <p className="muted-note">Carregando…</p>
+  if (!props.initial && !loaded) return <p className="p-4 text-sm text-text-2">Carregando…</p>
   return <PlanForm {...props} start={props.initial ?? saved} />
 }
 
@@ -35,6 +30,8 @@ function PlanForm({ start, onDone, onCancel }: Props & { start: WorkoutPlan }) {
   const [, savePlan] = usePersisted('workoutPlan', EMPTY)
   const [plan, setPlan] = useState<WorkoutPlan>(() => structuredClone(start))
   const [picking, setPicking] = useState<string>() // id do treino que recebe o exercício
+  const [editing, setEditing] = useState<{ wid: string; i: number }>()
+  const [menuFor, setMenuFor] = useState<string>() // id do treino com o menu ⋯ aberto
 
   const patchWorkout = (id: string, f: (w: Workout) => Workout) =>
     setPlan((p) => ({ workouts: p.workouts.map((w) => (w.id === id ? f(w) : w)) }))
@@ -60,21 +57,31 @@ function PlanForm({ start, onDone, onCancel }: Props & { start: WorkoutPlan }) {
     onDone()
   }
 
+  const ew = editing && plan.workouts.find((w) => w.id === editing.wid)
+  const ee = ew?.exercises[editing!.i]
+  const mw = plan.workouts.find((w) => w.id === menuFor)
+  const dash = 'flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-medium'
+
   return (
-    <div className="stack">
+    <div className="flex flex-col gap-3 pb-6">
+      <header className="flex items-center gap-3 py-2">
+        <button type="button" className="icon-btn" aria-label="Cancelar" onClick={onCancel}><ChevronLeft size={18} /></button>
+        <h1 className="flex-1 text-[19px] font-semibold text-strong">Editar plano</h1>
+        <Button size="sm" onClick={save}>Salvar</Button>
+      </header>
       {plan.workouts.map((w) => (
-        <section key={w.id} className="card stack">
-          <div className="row-actions">
-            <span className="badge">{w.label}</span>
-            <input className="field grow" aria-label={`Nome do treino ${w.label}`} value={w.name} onChange={(e) => patchWorkout(w.id, (x) => ({ ...x, name: e.target.value }))} />
-            <button type="button" className="icon-btn" aria-label={`Remover treino ${w.label}`} onClick={() => setPlan((p) => ({ workouts: p.workouts.filter((x) => x.id !== w.id) }))}><Trash2 size={18} /></button>
+        <section key={w.id} className="flex flex-col gap-2 rounded-[14px] border border-border bg-panel p-3">
+          <div className="flex items-center gap-2">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-accent-bg text-base font-semibold text-accent">{w.label}</span>
+            <input id={`name-${w.id}`} className="h-11 min-w-0 flex-1 rounded-xl bg-transparent px-2 text-base font-semibold text-strong outline-none focus-visible:bg-surface" aria-label={`Nome do treino ${w.label}`} autoComplete="off" enterKeyHint="done" value={w.name} onChange={(e) => patchWorkout(w.id, (x) => ({ ...x, name: e.target.value }))} />
+            <button type="button" className="flex size-11 items-center justify-center text-text-2" aria-label={`Mais ações do treino ${w.label}`} onClick={() => setMenuFor(w.id)}><MoreHorizontal size={20} /></button>
           </div>
-          <div className="chips" role="group" aria-label={`Dias do treino ${w.label}`}>
+          <div className="grid grid-cols-7 gap-1" role="group" aria-label={`Dias do treino ${w.label}`}>
             {DAYS.map(([short, full], d) => (
               <button
                 key={d}
                 type="button"
-                className="chip day"
+                className={cn('h-11 rounded-[10px] border text-[13px] font-semibold', w.weekdays.includes(d) ? 'border-accent bg-accent text-on-accent' : 'border-border text-text-2')}
                 aria-label={full}
                 aria-pressed={w.weekdays.includes(d)}
                 onClick={() => patchWorkout(w.id, (x) => ({ ...x, weekdays: x.weekdays.includes(d) ? x.weekdays.filter((n) => n !== d) : [...x.weekdays, d].sort() }))}
@@ -84,34 +91,40 @@ function PlanForm({ start, onDone, onCancel }: Props & { start: WorkoutPlan }) {
             ))}
           </div>
           {w.exercises.map((e, i) => (
-            <div key={`${e.exerciseId}-${i}`} className="plan-ex stack">
-              <div className="row-actions">
-                <span className="grow name">{e.name}</span>
-                <button type="button" className="icon-btn" aria-label={`Subir ${e.name}`} disabled={i === 0} onClick={() => move(w.id, i, -1)}><ArrowUp size={18} /></button>
-                <button type="button" className="icon-btn" aria-label={`Descer ${e.name}`} disabled={i === w.exercises.length - 1} onClick={() => move(w.id, i, 1)}><ArrowDown size={18} /></button>
-                <button type="button" className="icon-btn" aria-label={`Remover ${e.name}`} onClick={() => patchWorkout(w.id, (x) => ({ ...x, exercises: x.exercises.filter((_, j) => j !== i) }))}><Trash2 size={18} /></button>
-              </div>
-              <div className="controls">
-                <Stepper label="séries" value={e.sets} text={`${e.sets}`} step={1} min={1} max={10} onChange={(sets) => patchEx(w.id, i, { sets })} />
-                <label className="ctl">reps
-                  <input className="field" value={e.reps} onChange={(ev) => patchEx(w.id, i, { reps: ev.target.value })} />
-                </label>
-                <Stepper label="carga" value={e.weightKg} text={`${e.weightKg} kg`} step={2.5} min={0} max={500} onChange={(weightKg) => patchEx(w.id, i, { weightKg })} />
-                <label className="ctl">kg
-                  <input className="field" type="number" inputMode="decimal" min={0} max={500} step={0.5} value={e.weightKg} onChange={(ev) => patchEx(w.id, i, { weightKg: clamp(Number(ev.target.value) || 0, 0, 500) })} />
-                </label>
-                <Stepper label="descanso" value={e.restSec} text={`${e.restSec} s`} step={15} min={15} max={600} onChange={(restSec) => patchEx(w.id, i, { restSec })} />
-              </div>
-            </div>
+            <button key={`${e.exerciseId}-${i}`} type="button" className="flex min-h-14 items-center gap-3 border-t border-line pt-2 text-left" onClick={() => setEditing({ wid: w.id, i })}>
+              <IconDot color={muscleColor(e.muscles)} size={36}><Dumbbell size={16} /></IconDot>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[15px] font-semibold text-strong">{e.name}</span>
+                <span className="block text-[12.5px] tabular-nums text-text-2">{`${e.sets} × ${e.reps} · ${formatKg(e.weightKg)} kg · ${e.restSec} s`}</span>
+              </span>
+              <ChevronRight size={16} className="text-faint" />
+            </button>
           ))}
-          <button type="button" className="btn ghost" onClick={() => setPicking(w.id)}><Plus size={18} /> Adicionar exercício</button>
+          <button type="button" className={cn(dash, 'justify-start text-accent')} onClick={() => setPicking(w.id)}><Plus size={18} /> Adicionar exercício</button>
         </section>
       ))}
-      <button type="button" className="btn ghost" onClick={addWorkout}><Plus size={18} /> Adicionar treino</button>
-      <div className="row-actions">
-        {onCancel && <button type="button" className="btn ghost" onClick={onCancel}>Cancelar</button>}
-        <button type="button" className="btn" onClick={save}>Salvar</button>
-      </div>
+      <button type="button" className={cn(dash, 'border border-dashed border-border-strong text-text-2')} onClick={addWorkout}><Plus size={18} /> Novo treino</button>
+      {ew && ee && (
+        <ExerciseDrawer
+          open
+          ex={ee}
+          onChange={(next) => patchEx(ew.id, editing!.i, next)}
+          onRemove={() => { patchWorkout(ew.id, (x) => ({ ...x, exercises: x.exercises.filter((_, j) => j !== editing!.i) })); setEditing(undefined) }}
+          onMoveUp={editing!.i > 0 ? () => { move(ew.id, editing!.i, -1); setEditing({ wid: ew.id, i: editing!.i - 1 }) } : undefined}
+          onMoveDown={editing!.i < ew.exercises.length - 1 ? () => { move(ew.id, editing!.i, 1); setEditing({ wid: ew.id, i: editing!.i + 1 }) } : undefined}
+          onClose={() => setEditing(undefined)}
+        />
+      )}
+      <Drawer open={!!mw} onOpenChange={(o) => !o && setMenuFor(undefined)}>
+        <DrawerContent>
+          <div className="flex flex-col gap-1 px-4 pb-5">
+            <DrawerTitle className="text-[19px] font-semibold text-strong">{mw ? `Treino ${mw.label}` : ''}</DrawerTitle>
+            <DrawerDescription className="sr-only">Ações do treino</DrawerDescription>
+            <Button variant="ghost" className="justify-start" onClick={() => { const id = menuFor; setMenuFor(undefined); setTimeout(() => document.getElementById(`name-${id}`)?.focus(), 300) }}>Renomear</Button>
+            <Button variant="ghost" className="justify-start text-negative" onClick={() => { setPlan((p) => ({ workouts: p.workouts.filter((x) => x.id !== menuFor) })); setMenuFor(undefined) }}>Remover treino</Button>
+          </div>
+        </DrawerContent>
+      </Drawer>
       {picking && (
         <CatalogPicker
           onClose={() => setPicking(undefined)}

@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0b0c0d;
+  --color-panel: #121315;
+  --color-surface: #1a1b1f;
+  --color-line: #222428;
+  --color-border: #26282e;
+  --color-border-strong: #3a3d45;
+  --color-text: #d6d8dd;
+  --color-text-2: #8a8d96;
+  --color-faint: #5d6068;
+  --color-strong: #fff;
+  --color-accent: #c6ff3d;
+  --color-on-accent: #0b0c0d;
+  --color-accent-bg: #1a2309;
+  --color-accent-line: #34440d;
+  --color-negative: #ff6e70;
+  --color-c1: #6d9c04;
+  --color-c2: #3a91dc;
+  --color-c3: #dc5f52;
+  --color-c4: #956ed2;
+  --color-c5: #a77e33;
+  --color-c6: #009f99;
+  --color-c7: #c68206;
+  --color-c8: #cd6199;
+  --font-sans: -apple-system, "SF Pro Display", Inter, sans-serif;
+  --radius-card: 14px;
+}
+
+/* Cores de grupo muscular como var simples (muscleColor devolve var(--cN)) */
+:root {
+  --c1: var(--color-c1); --c2: var(--color-c2); --c3: var(--color-c3); --c4: var(--color-c4);
+  --c5: var(--color-c5); --c6: var(--color-c6); --c7: var(--color-c7); --c8: var(--color-c8);
+
+  /* shadcn -> tokens Yield */
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+  --card: var(--color-panel);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-accent);
+  --primary-foreground: var(--color-on-accent);
+  --secondary: var(--color-surface);
+  --secondary-foreground: var(--color-text);
+  --muted: var(--color-surface);
+  --muted-foreground: var(--color-text-2);
+  --destructive: var(--color-negative);
+  --input: var(--color-border);
+  --ring: var(--color-accent);
+  --radius: 0.75rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
+
+html { color-scheme: dark; }
+body { background: var(--color-bg); color: var(--color-text); font-family: var(--font-sans); font-variant-numeric: tabular-nums; -webkit-tap-highlight-color: transparent; }
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
+
+/* botão de ícone em caixa de 34px (mockup .icb); o ::after leva o toque a 44px */
+@utility icon-btn {
+  position: relative; display: flex; flex: none; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 10px;
+  border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-2);
+  &::after { content: ''; position: absolute; inset: -6px; }
+}
+
+@layer base {
+  *, ::before, ::after { border-color: var(--color-border); }
+}

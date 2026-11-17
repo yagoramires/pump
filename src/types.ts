@@ -29,6 +29,7 @@ export interface WorkoutSession {
   workoutName: string
   exercises: SessionExercise[]
   restEndsAt?: number
+  startedAt?: string
   completedAt?: string
 }
 /** chave = date */

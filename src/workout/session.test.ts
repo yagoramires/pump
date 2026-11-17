@@ -22,3 +22,7 @@ test('setRestEnd e completeSession', () => {
   const c = completeSession(s, new Date(2026, 10, 16, 19))
   expect(c.completedAt).toBeDefined(); expect(c.restEndsAt).toBeUndefined()
 })
+test('startSession grava startedAt', () => {
+  const now = new Date(2026, 10, 16, 18, 0)
+  expect(startSession(workoutOf([]), '2026-11-16', now).startedAt).toBe(now.toISOString())
+})
