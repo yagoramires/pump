@@ -1,14 +1,33 @@
-import type { Measurement, PhotoSet, Profile, WorkoutLog, WorkoutPlan } from '../types'
+import type { DietLog, DietPlan, Measurement, PhotoSet, Profile, WaterLog, WorkoutLog, WorkoutPlan } from '../types'
 import { daysBetween, parseDayKey, todayKey, weekday } from '../lib/date'
 import { formatKg } from '../lib/number'
+import { dayStatus } from '../diet/day'
+import { waterMet } from '../diet/water'
 import { bodyFat, goalDirection } from './bodyFat'
 
-export type AchievementId = 'first-workout' | 'streak-3' | 'streak-7' | 'streak-30' | 'workouts-10' | 'workouts-50' | 'workouts-100' | 'record' | 'first-photo' | 'weight-small' | 'weight-big' | 'fat-1'
+export type AchievementId = 'first-workout' | 'streak-3' | 'streak-7' | 'streak-30' | 'workouts-10' | 'workouts-50' | 'workouts-100' | 'record' | 'first-photo' | 'weight-small' | 'weight-big' | 'fat-1' | 'diet-day' | 'diet-7' | 'water-7'
+export const DIET_ACHIEVEMENTS: AchievementId[] = ['diet-day', 'diet-7', 'water-7']
 export interface Achievement { id: AchievementId; title: string; earnedAt?: string; progress?: string }
-interface Input { workoutLog: WorkoutLog; workoutPlan: WorkoutPlan; measurements: Measurement[]; photoSets: PhotoSet[]; profile?: Profile }
+interface Input { workoutLog: WorkoutLog; workoutPlan: WorkoutPlan; measurements: Measurement[]; photoSets: PhotoSet[]; profile?: Profile; dietLog?: DietLog; waterLog?: WaterLog; dietPlan?: DietPlan }
 
 const EPS = 1e-9
 const byDate = <T extends { date: string }>(l: T[]) => [...l].sort((a, b) => a.date.localeCompare(b.date))
+
+// dias seguidos de `from` até ontem (dia aberto não conta): true soma, null pula, false zera
+function dayRun(from: string | undefined, today: string, ok: (k: string) => boolean | null) {
+  let n = 0, first: string | undefined, seven: string | undefined
+  for (let i = 0, end = from ? daysBetween(from, today) : 0; i < end; i++) {
+    const dt = parseDayKey(from!)
+    dt.setDate(dt.getDate() + i)
+    const k = todayKey(dt)
+    const r = ok(k)
+    if (r) {
+      first ??= k
+      if (++n >= 7) seven ??= k
+    } else if (r === false) n = 0
+  }
+  return { n, first, seven }
+}
 
 export function computeAchievements(d: Input, today: string): Achievement[] {
   const sessions = byDate(Object.values(d.workoutLog).filter((s) => s.completedAt))
@@ -64,6 +83,13 @@ export function computeAchievements(d: Input, today: string): Achievement[] {
   const fats = p ? ms.flatMap((m) => { const f = bodyFat(p.sex, p.heightCm, m); return f === null ? [] : [{ date: m.date, f }] }) : []
   const fatAt = fats.length ? fats.find((x) => fats[0].f - x.f >= 1 - EPS)?.date : undefined
 
+  // dieta: dia livre neutro da semana ('free-ok') é pulado; dia sem registro quebra
+  const dl = d.dietLog ?? {}
+  const wl = d.waterLog ?? {}
+  const diet = dayRun(Object.keys(dl).sort()[0], today, (k) => { const st = dayStatus(dl, k); return st === 'full' ? true : st === 'free-ok' ? null : false })
+  const water = dayRun(Object.keys(wl).sort()[0], today, (k) => waterMet(wl[k]))
+  const hasDiet = !!d.dietPlan?.menus.length || Object.keys(dl).length > 0
+
   const left = (n: number, have: number) => `falta ${n - have}`
   const mk = (id: AchievementId, title: string, earnedAt?: string, progress?: string): Achievement => ({ id, title, earnedAt, progress: earnedAt ? undefined : progress })
   const [s, b] = dir === 'loss' ? ['−1 kg', '−5 kg'] : ['+1 kg', '+3 kg']
@@ -81,5 +107,8 @@ export function computeAchievements(d: Input, today: string): Achievement[] {
     mk('weight-small', s, weightAt(ns), leftKg(ns)),
     mk('weight-big', b, weightAt(nb), leftKg(nb)),
     mk('fat-1', '−1 ponto de gordura', fatAt),
+    ...(hasDiet
+      ? [mk('diet-day', 'Dia no plano', diet.first), mk('diet-7', '7 dias na dieta', diet.seven, left(7, diet.n)), mk('water-7', 'Água 7 dias', water.seven, left(7, water.n))]
+      : []),
   ]
 }

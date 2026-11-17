@@ -1,5 +1,6 @@
-import { parseDayKey, todayKey, weekday } from '../lib/date'
-import type { DayItem, DayMeal, DietDay, DietItem, DietLog, DietPlan, Menu } from '../types'
+import { daysBetween, parseDayKey, todayKey, weekday } from '../lib/date'
+import type { DayItem, DayMeal, DietDay, DietItem, DietLog, DietPlan, Menu, WaterLog } from '../types'
+import { waterMet } from './water'
 
 export const dayFromMenu = (menu: Menu): DietDay => ({
   menuId: menu.id,
@@ -97,6 +98,34 @@ export const dayStatus = (log: DietLog, date: string): 'full' | 'free-ok' | 'off
   const s = daySummary(day)
   if (s.free > allowed) return 'off'
   return s.mealsTotal > 0 && day.meals.every((m) => m.done || m.free) && s.extras === 0 ? 'full' : 'off'
+}
+
+/** números de [from, to] (cartão Dieta e PDF); `days` conta a partir do 1º registro de dieta ou água */
+export function dietStats(log: DietLog, water: WaterLog, from: string, to: string) {
+  const first = [...Object.keys(log), ...Object.keys(water)].sort()[0]
+  const start = first && first > from ? first : from
+  const inRange = (k: string) => k >= start && k <= to
+  const kcal: number[] = []
+  const goals: number[] = []
+  let fullDays = 0, freeUses = 0
+  for (const [k, day] of Object.entries(log)) {
+    if (!inRange(k)) continue
+    if (dayStatus(log, k) === 'full') fullDays++
+    freeUses += day.free ? 1 : day.meals.filter((m) => m.free).length
+    // média ignora dia livre e dia sem refeição comida
+    if (day.free || !day.meals.some((m) => m.done && !m.free)) continue
+    kcal.push(daySummary(day).kcal)
+    if (day.goalKcal) goals.push(day.goalKcal)
+  }
+  const avg = (l: number[]) => (l.length ? Math.round(l.reduce((a, b) => a + b, 0) / l.length) : undefined)
+  return {
+    avgKcal: avg(kcal) ?? 0,
+    avgGoal: avg(goals),
+    fullDays,
+    waterDays: Object.entries(water).filter(([k, w]) => inRange(k) && waterMet(w)).length,
+    freeUses,
+    days: first ? Math.max(0, daysBetween(start, to) + 1) : 0,
+  }
 }
 
 export const sortedMeals = <T extends { time: string }>(meals: T[]): T[] => [...meals].sort((a, b) => a.time.localeCompare(b.time))

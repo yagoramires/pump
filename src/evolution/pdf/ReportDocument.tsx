@@ -99,6 +99,24 @@ function WeightChart({ points }: { points: { date: string; value: number }[] }) 
   )
 }
 
+function Badges({ list }: { list: { title: string; earnedAt: string }[] }) {
+  if (!list.length) return null
+  return (
+    <>
+      <Text style={[s.lb, { marginTop: 22, marginBottom: 13 }]}>Conquistas no período</Text>
+      <View style={[s.grid, { gap: 13 }]}>
+        {list.map((a) => (
+          <View key={a.title} style={{ width: 112, alignItems: 'center', marginBottom: 9 }}>
+            <View style={s.badge}><Trophy /></View>
+            <Text style={{ fontSize: 13, color: '#fff', textAlign: 'center', marginTop: 6 }}>{winAnsi(a.title)}</Text>
+            <Text style={{ fontSize: 12, color: FAINT, marginTop: 2 }}>{formatDayMonth(a.earnedAt)}</Text>
+          </View>
+        ))}
+      </View>
+    </>
+  )
+}
+
 export function ReportDocument({ report: r, photos }: { report: Report; photos: Record<string, string> }) {
   const good = (label: string) => !!r.body?.rows.find((x) => x.label === label)?.good
   const pages: { body: ReactNode; note?: string }[] = []
@@ -191,16 +209,26 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
               <FromTo first={x.first} last={x.max} unit="kg" />
             </View>
           ))}
-          {t.achievements.length > 0 && <Text style={[s.lb, { marginTop: 22, marginBottom: 13 }]}>Conquistas no período</Text>}
-          <View style={[s.grid, { gap: 13 }]}>
-            {t.achievements.map((a) => (
-              <View key={a.title} style={{ width: 112, alignItems: 'center', marginBottom: 9 }}>
-                <View style={s.badge}><Trophy /></View>
-                <Text style={{ fontSize: 13, color: '#fff', textAlign: 'center', marginTop: 6 }}>{winAnsi(a.title)}</Text>
-                <Text style={{ fontSize: 12, color: FAINT, marginTop: 2 }}>{formatDayMonth(a.earnedAt)}</Text>
-              </View>
-            ))}
+          <Badges list={t.achievements} />
+        </>
+      ),
+    })
+  }
+
+  const dt = r.diet
+  if (dt) {
+    pages.push({
+      body: (
+        <>
+          <Text style={s.lb}>Dieta</Text>
+          <Text style={s.h4}>Plano e água</Text>
+          <View style={[s.grid, { marginTop: 9 }]}>
+            <Big label="Média de kcal" value={dt.avgKcal ? formatDec(dt.avgKcal) : '—'} unit={dt.avgKcal && dt.avgGoal ? `/ ${formatDec(dt.avgGoal)}` : undefined} size={44} />
+            <Big label="Dias no plano" value={String(dt.fullDays)} unit={`de ${dt.days}`} size={44} />
+            {dt.waterDays > 0 && <Big label="Água na meta" value={String(dt.waterDays)} unit={`de ${dt.days}`} size={44} />}
+            <Big label="Livres" value={String(dt.freeUses)} size={44} />
           </View>
+          <Badges list={dt.achievements} />
         </>
       ),
     })

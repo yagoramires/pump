@@ -5,6 +5,7 @@ import { load, resetStoreForTests, save } from '../storage/db'
 import { todayKey } from '../lib/date'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
+import { dietDay } from '../../test/helpers'
 import { EvolutionTab } from './EvolutionTab'
 import { generatePdf, sharePdf } from './pdf/generate'
 
@@ -137,4 +138,16 @@ test('PDF offline: avisa que precisa de internet', async () => {
   render(<><EvolutionTab /><Toaster /></>)
   await user.click(await screen.findByRole('button', { name: 'Gerar PDF' }))
   expect(await screen.findByText('Sem internet pra gerar o PDF. Conecte e tente de novo.')).toBeInTheDocument()
+})
+test('Evolução de quem só faz dieta mostra o cartão Dieta', async () => {
+  const today = todayKey()
+  await save('dietLog', { [today]: dietDay([true, true]) })
+  await save('waterLog', { [today]: { ml: 2500, goalMl: 2000 } })
+  render(<EvolutionTab />)
+  expect(await screen.findByText('Dieta · 30 dias')).toBeInTheDocument()
+  expect(screen.queryByRole('heading', { name: 'Sua evolução começa aqui' })).not.toBeInTheDocument()
+  expect(screen.getByText('Média de kcal').parentElement).toHaveTextContent('400 / 2.000')
+  expect(screen.getByText('Dias no plano').parentElement).toHaveTextContent('1 de 1')
+  expect(screen.getByText('Água na meta').parentElement).toHaveTextContent('1 de 1')
+  expect(screen.getByText('Livres no mês').parentElement).toHaveTextContent('0')
 })

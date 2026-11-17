@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 import { usePersisted } from '../storage/db'
-import { DEFAULT_SETTINGS, NO_PROFILE } from '../types'
+import { DEFAULT_SETTINGS, EMPTY_DIET, NO_PROFILE } from '../types'
 import { todayKey } from '../lib/date'
 import { computeAchievements } from './achievements'
 
@@ -17,16 +17,19 @@ export function useAchievementToasts(): void {
   const [photoSets, , d] = usePersisted('photoSets', NONE)
   const [profile, , e] = usePersisted('profile', NO_PROFILE)
   const [settings, setSettings, f] = usePersisted('settings', DEFAULT_SETTINGS)
+  const [dietLog, , g] = usePersisted('dietLog', NO_LOG)
+  const [waterLog, , h] = usePersisted('waterLog', NO_LOG)
+  const [dietPlan, , i] = usePersisted('dietPlan', EMPTY_DIET)
   const shown = useRef(new Set<string>())
-  const ready = a && b && c && d && e && f
+  const ready = a && b && c && d && e && f && g && h && i
 
   useEffect(() => {
     if (!ready) return
-    const ids = computeAchievements({ workoutLog, workoutPlan, measurements, photoSets, profile }, todayKey()).filter((x) => x.earnedAt)
+    const ids = computeAchievements({ workoutLog, workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan }, todayKey()).filter((x) => x.earnedAt)
     const seen = settings.seenAchievements
     const fresh = seen ? ids.filter((x) => !seen.includes(x.id) && !shown.current.has(x.id)) : []
     if (seen && !fresh.length) return
     fresh.forEach((x) => { shown.current.add(x.id); toast(`Conquista: ${x.title}`) })
     setSettings((s) => ({ ...s, seenAchievements: [...new Set([...(s.seenAchievements ?? []), ...ids.map((x) => x.id)])] }))
-  }, [ready, workoutLog, workoutPlan, measurements, photoSets, profile, settings.seenAchievements, setSettings])
+  }, [ready, workoutLog, workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan, settings.seenAchievements, setSettings])
 }

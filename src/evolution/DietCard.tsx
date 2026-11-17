@@ -1,0 +1,36 @@
+import type { DietLog, WaterLog } from '../types'
+import { parseDayKey, todayKey } from '../lib/date'
+import { formatDec } from '@/lib/number'
+import { dietStats } from '../diet/day'
+
+const ROW = 'flex items-center justify-between gap-3 border-t border-line px-3.5 py-2.5 text-sm'
+
+/** últimos 30 dias incluindo hoje (hoje entra ao vivo; as conquistas só olham dias fechados) */
+export function DietCard({ log, water, today }: { log: DietLog; water: WaterLog; today: string }) {
+  const from = parseDayKey(today)
+  from.setDate(from.getDate() - 29)
+  const s = dietStats(log, water, todayKey(from), today)
+  const rows = s.days
+    ? [
+        s.avgKcal > 0 && { label: 'Média de kcal', value: formatDec(s.avgKcal), goal: s.avgGoal && ` / ${formatDec(s.avgGoal)}` },
+        { label: 'Dias no plano', value: `${s.fullDays} de ${s.days}` },
+        Object.keys(water).length > 0 && { label: 'Água na meta', value: `${s.waterDays} de ${s.days}` },
+        { label: 'Livres no mês', value: String(s.freeUses) },
+      ].filter((r) => !!r)
+    : []
+  return (
+    <div className="mb-2.5 overflow-hidden rounded-[14px] border border-border bg-panel">
+      <div className="px-3.5 pt-3 pb-2 text-[15px] font-semibold text-strong">Dieta · 30 dias</div>
+      {!rows.length && <p className="border-t border-line px-3.5 py-2.5 text-sm text-text-2">Marque as refeições na aba Dieta pra ver aqui.</p>}
+      {rows.map(({ label, value, goal }) => (
+        <div key={label} className={ROW}>
+          <span className="text-text-2">{label}</span>
+          <span className="tabular-nums">
+            <b className="font-semibold text-strong">{value}</b>
+            {goal && <span className="text-text-2">{goal}</span>}
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+}

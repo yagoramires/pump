@@ -15,3 +15,13 @@ test('estante mostra ganhas e bloqueadas com progresso', async () => {
   expect(screen.getByText('falta 9')).toBeInTheDocument()
   expect(screen.getByText('16 nov')).toBeInTheDocument()
 })
+test('sem dieta a estante mostra "de 12"; com cardápio "de 15"', async () => {
+  const { unmount } = render(<AchievementsScreen onClose={vi.fn()} />)
+  expect(await screen.findByText('0 de 12')).toBeInTheDocument()
+  unmount()
+  await save('dietPlan', { menus: [{ id: 'm', name: 'Padrão', meals: [] }] })
+  render(<AchievementsScreen onClose={vi.fn()} />)
+  expect(await screen.findByText('0 de 15')).toBeInTheDocument()
+  expect(screen.getByText('Dia no plano')).toBeInTheDocument()
+  expect(screen.getByText('Água 7 dias')).toBeInTheDocument()
+})

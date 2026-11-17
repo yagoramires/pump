@@ -17,8 +17,13 @@ export function bodyFat(sex: Sex, heightCm: number, m: MeasureFields): number | 
   return Number.isFinite(v) ? r1(v) : null
 }
 
-export const goalDirection = (p?: Profile): 'gain' | 'loss' =>
-  p?.anamnesis?.goal === 'hipertrofia' || p?.anamnesis?.goal === 'forca' ? 'gain' : 'loss'
+// objetivo da dieta (perder*/ganhar*) manda; "manter" ou sem dieta cai no do treino
+export const goalDirection = (p?: Profile): 'gain' | 'loss' => {
+  const diet = p?.dietAnamnesis?.goal
+  if (diet?.startsWith('perder')) return 'loss'
+  if (diet?.startsWith('ganhar')) return 'gain'
+  return p?.anamnesis?.goal === 'hipertrofia' || p?.anamnesis?.goal === 'forca' ? 'gain' : 'loss'
+}
 
 export type Metric = keyof MeasureFields | 'fat'
 // o que melhora ao subir (gain) ou ao descer (loss); o resto fica neutro. Gordura descendo é sempre bom

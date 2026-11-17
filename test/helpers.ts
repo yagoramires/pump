@@ -1,4 +1,4 @@
-import type { Exercise, PlanExercise, Workout, WorkoutPlan } from '../src/types'
+import type { DietDay, DietItem, Exercise, PlanExercise, Workout, WorkoutPlan } from '../src/types'
 
 export const pe = (over: Partial<PlanExercise> = {}): PlanExercise => ({
   exerciseId: 'X', name: 'X', muscles: [], images: [], instructions: [], sets: 3, reps: '10', weightKg: 0, restSec: 90, ...over,
@@ -34,3 +34,12 @@ export const fakeCacheStorage = (initial: Record<string, string>, opts: { failOn
 
 export const cachedUrls = async (cs: CacheStorage): Promise<string[]> =>
   (await (await cs.open('pump-previews-v1')).keys()).map((r) => r.url).sort()
+
+export const food = (over: Partial<DietItem> = {}): DietItem => ({ id: 'f', name: 'Arroz', grams: 100, per100: { kcal: 200, p: 5, c: 40, f: 1 }, source: 'taco', ...over })
+
+/** uma refeição de 200 kcal por entrada; true = marcada */
+export const dietDay = (done: boolean[], over: Partial<DietDay> = {}): DietDay => ({
+  menuId: 'm', menuName: 'Padrão', goalKcal: 2000,
+  meals: done.map((d, i) => ({ id: `r${i}`, name: `Refeição ${i + 1}`, time: `0${i}:00`, done: d, items: [food({ id: `i${i}` })] })),
+  ...over,
+})

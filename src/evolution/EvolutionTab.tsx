@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { CalendarDays, Camera, ChevronRight, FileText, Plus, Ruler, Share2, TrendingUp, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
-import { NO_PROFILE, type MeasureFields, type Measurement, type PhotoSet, type WorkoutLog, type WorkoutPlan } from '../types'
+import { EMPTY_DIET, NO_PROFILE, type DietLog, type MeasureFields, type Measurement, type PhotoSet, type WaterLog, type WorkoutLog, type WorkoutPlan } from '../types'
 import { usePersisted } from '../storage/db'
 import { loadPhoto } from '../storage/photos'
 import { daysBetween, formatDayMonth, todayKey } from '../lib/date'
@@ -22,6 +22,7 @@ import { PhotoCapture } from './PhotoCapture'
 import { PhotoCompare } from './PhotoCompare'
 import { AchievementIcon, AchievementsScreen } from './AchievementsScreen'
 import { HistoryScreen } from './HistoryScreen'
+import { DietCard } from './DietCard'
 import { buildReport } from './report'
 import { generatePdf, sharePdf } from './pdf/generate'
 
@@ -31,6 +32,8 @@ const NO_MEASURES: Measurement[] = []
 const NO_PHOTOS: PhotoSet[] = []
 const NO_LOG: WorkoutLog = {}
 const NO_PLAN: WorkoutPlan = { workouts: [] }
+const NO_DIET_LOG: DietLog = {}
+const NO_WATER: WaterLog = {}
 const LABEL = 'text-[10px] font-semibold uppercase tracking-[.05em] text-faint'
 const CARD = 'mb-2.5 overflow-hidden rounded-[14px] border border-border bg-panel'
 const LINK = 'h-11 px-1 text-[13px] font-medium text-accent disabled:text-faint'
@@ -69,6 +72,9 @@ export function EvolutionTab() {
   const [measurements, , c] = usePersisted('measurements', NO_MEASURES)
   const [photoSets, , d] = usePersisted('photoSets', NO_PHOTOS)
   const [profile, , e] = usePersisted('profile', NO_PROFILE)
+  const [dietLog, , f] = usePersisted('dietLog', NO_DIET_LOG)
+  const [waterLog, , g] = usePersisted('waterLog', NO_WATER)
+  const [dietPlan, , h] = usePersisted('dietPlan', EMPTY_DIET)
   const [range, setRange] = useState('90')
   const [choosing, setChoosing] = useState(false)
   const [measuring, setMeasuring] = useState(false)
@@ -77,7 +83,7 @@ export function EvolutionTab() {
   const [pdf, setPdf] = useState<{ blob: Blob; deps: unknown[] }>()
   const today = todayKey()
 
-  if (!(a && b && c && d && e)) return <p className="text-sm text-text-2">Carregando…</p>
+  if (!(a && b && c && d && e && f && g && h)) return <p className="text-sm text-text-2">Carregando…</p>
   if (view === 'capture') return <PhotoCapture date={today} onClose={() => setView(undefined)} />
   if (view === 'compare') return <PhotoCompare onClose={() => setView(undefined)} />
   if (view === 'achievements') return <AchievementsScreen onClose={() => setView(undefined)} />
@@ -102,9 +108,11 @@ export function EvolutionTab() {
   )
 
   // mesmos números do PDF: a aba lê do relatório em vez de recalcular
-  const report = buildReport({ workoutLog: log, workoutPlan: plan, measurements, photoSets, profile }, today)
+  const input = { workoutLog: log, workoutPlan: plan, measurements, photoSets, profile, dietLog, waterLog, dietPlan }
+  const report = buildReport(input, today)
   const { period, summary, training } = report
-  if (!summary.workouts && !measurements.length && !photoSets.length) {
+  const hasDiet = dietPlan.menus.length > 0 || Object.keys(dietLog).length > 0
+  if (!summary.workouts && !measurements.length && !photoSets.length && !hasDiet) {
     return (
       <>
         <EmptyState icon={<TrendingUp size={30} aria-hidden="true" />} title="Sua evolução começa aqui">
@@ -123,10 +131,10 @@ export function EvolutionTab() {
   const points = weights.filter((p) => range === 'all' || daysBetween(p.date, today) <= Number(range))
   const rows = MEASURES.map((x) => ({ ...x, ...firstLast(measurements, x.key) })).filter((x) => x.first && x.last)
   const lastSet = [...photoSets].sort((x, y) => x.date.localeCompare(y.date)).pop()
-  const earned = computeAchievements({ workoutLog: log, workoutPlan: plan, measurements, photoSets, profile }, today).filter((x) => x.earnedAt)
+  const earned = computeAchievements(input, today).filter((x) => x.earnedAt)
 
   // PDF pronto só vale pros dados de quando foi gerado: qualquer registro novo volta pra "Gerar PDF"
-  const deps = [log, plan, measurements, photoSets, profile, today]
+  const deps = [log, plan, measurements, photoSets, profile, dietLog, waterLog, dietPlan, today]
   const blob = pdf?.deps.every((x, i) => x === deps[i]) ? pdf.blob : undefined
   const makePdf = async () => {
     setBusy(true)
@@ -188,6 +196,8 @@ export function EvolutionTab() {
           ))}
         </div>
       )}
+
+      {hasDiet && <DietCard log={dietLog} water={waterLog} today={today} />}
 
       <div className={CARD}>
         <div className="flex items-center justify-between pl-3.5 pr-2">

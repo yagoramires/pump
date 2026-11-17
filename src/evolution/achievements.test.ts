@@ -1,4 +1,5 @@
-import { pe } from '../../test/helpers'
+import { dietDay, pe } from '../../test/helpers'
+import type { DietLog } from '../types'
 import { computeAchievements, type Achievement, type AchievementId } from './achievements'
 
 const done = (date: string, sets: { id: string; kg: number }[] = []) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', completedAt: `${date}T19:00:00.000Z`, exercises: sets.map((s) => ({ ...pe({ exerciseId: s.id, name: s.id }), sets: [{ reps: '10', weightKg: s.kg }] })) })
@@ -43,4 +44,49 @@ test('progresso da sequência parte da sequência atual, não da melhor', () => 
   const log = Object.fromEntries(days.map((k) => [k, done(k)]))
   const a = computeAchievements({ workoutLog: log, workoutPlan: plan([0, 1, 2, 3, 4, 5, 6]), measurements: [], photoSets: [] }, '2026-11-22')
   expect(get(a, 'streak-7').progress).toBe('falta 6')
+})
+
+const base = { workoutLog: {}, workoutPlan: plan([]), measurements: [], photoSets: [] }
+const menu = { menus: [{ id: 'm', name: 'Padrão', meals: [] }] }
+const fullDays = (keys: string[]): DietLog => Object.fromEntries(keys.map((k) => [k, dietDay([true, true])]))
+const nov = (from: number, to: number) => Array.from({ length: to - from + 1 }, (_, i) => `2026-11-${from + i}`)
+
+test('as 3 de dieta só entram com cardápio ou dia de dieta', () => {
+  expect(computeAchievements(base, '2026-11-20')).toHaveLength(12)
+  expect(computeAchievements({ ...base, dietPlan: menu }, '2026-11-20').map((a) => a.id).slice(12)).toEqual(['diet-day', 'diet-7', 'water-7'])
+  expect(computeAchievements({ ...base, dietLog: fullDays(['2026-11-19']) }, '2026-11-20')).toHaveLength(15)
+})
+test('dia no plano só conta dia fechado; hoje 100% não ganha', () => {
+  const today = computeAchievements({ ...base, dietLog: fullDays(['2026-11-20']) }, '2026-11-20')
+  expect(get(today, 'diet-day').earnedAt).toBeUndefined()
+  const log = { '2026-11-18': dietDay([true, false]), '2026-11-19': dietDay([true, true]), '2026-11-20': dietDay([true, true]) }
+  expect(get(computeAchievements({ ...base, dietLog: log }, '2026-11-20'), 'diet-day')).toMatchObject({ title: 'Dia no plano', earnedAt: '2026-11-19' })
+  // extra estraga o 100%
+  const extra = dietDay([true, true])
+  extra.meals[0].items.push({ ...extra.meals[0].items[0], id: 'x', extra: true })
+  expect(get(computeAchievements({ ...base, dietLog: { '2026-11-19': extra } }, '2026-11-20'), 'diet-day').earnedAt).toBeUndefined()
+})
+test('7 dias na dieta quebra com dia sem registro', () => {
+  const seven = computeAchievements({ ...base, dietLog: fullDays(nov(10, 16)) }, '2026-11-20')
+  expect(get(seven, 'diet-7')).toMatchObject({ title: '7 dias na dieta', earnedAt: '2026-11-16' })
+  // falta o dia 13: 3 + 4
+  const gap = computeAchievements({ ...base, dietLog: fullDays([...nov(10, 12), ...nov(14, 17)]) }, '2026-11-18')
+  expect(get(gap, 'diet-7')).toMatchObject({ earnedAt: undefined, progress: 'falta 3' })
+  // hoje não conta: 6 fechados + hoje
+  expect(get(computeAchievements({ ...base, dietLog: fullDays(nov(10, 16)) }, '2026-11-16'), 'diet-7').progress).toBe('falta 1')
+})
+test('dia livre da semana é pulado na sequência; o 2º livre da semana quebra', () => {
+  // 2026-11-15 é domingo; livre na quarta 18 não conta nem quebra
+  const ok = { ...fullDays([...nov(16, 17), ...nov(19, 23)]), '2026-11-18': dietDay([false, false], { free: true }) }
+  expect(get(computeAchievements({ ...base, dietLog: ok }, '2026-11-24'), 'diet-7').earnedAt).toBe('2026-11-23')
+  // 18 livre (neutro), 19 livre de novo (desvio, quebra), depois 6 dias 100%
+  const twice = { ...fullDays([...nov(16, 17), ...nov(20, 25)]), '2026-11-18': dietDay([false, false], { free: true }), '2026-11-19': dietDay([false, false], { free: true }) }
+  expect(get(computeAchievements({ ...base, dietLog: twice }, '2026-11-26'), 'diet-7')).toMatchObject({ earnedAt: undefined, progress: 'falta 1' })
+})
+test('água 7 dias lê o waterLog mesmo com a água desligada', () => {
+  // não há configuração de água no Input: só o que foi registrado em cada dia
+  const water = Object.fromEntries(nov(10, 16).map((k) => [k, { ml: 2500, goalMl: 2500 }]))
+  expect(get(computeAchievements({ ...base, dietPlan: menu, waterLog: water }, '2026-11-20'), 'water-7')).toMatchObject({ title: 'Água 7 dias', earnedAt: '2026-11-16' })
+  const short = { ...water, '2026-11-13': { ml: 2000, goalMl: 2500 } }
+  expect(get(computeAchievements({ ...base, dietPlan: menu, waterLog: short }, '2026-11-20'), 'water-7')).toMatchObject({ earnedAt: undefined, progress: 'falta 7' })
 })

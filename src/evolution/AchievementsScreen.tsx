@@ -1,6 +1,6 @@
 import { createElement } from 'react'
-import { Camera, ChevronLeft, Dumbbell, ListChecks, Percent, Sparkles, Timer, TrendingUp, type LucideIcon } from 'lucide-react'
-import { NO_PROFILE, type Measurement, type PhotoSet, type WorkoutLog, type WorkoutPlan } from '../types'
+import { CalendarCheck, Camera, ChevronLeft, Dumbbell, GlassWater, ListChecks, Percent, Sparkles, Timer, TrendingUp, Utensils, type LucideIcon } from 'lucide-react'
+import { EMPTY_DIET, NO_PROFILE, type DietLog, type Measurement, type PhotoSet, type WaterLog, type WorkoutLog, type WorkoutPlan } from '../types'
 import { usePersisted } from '../storage/db'
 import { formatDayMonth, todayKey } from '../lib/date'
 import { Overlay } from '@/components/Overlay'
@@ -11,6 +11,8 @@ const NO_LOG: WorkoutLog = {}
 const NO_PLAN: WorkoutPlan = { workouts: [] }
 const NO_MEASURES: Measurement[] = []
 const NO_PHOTOS: PhotoSet[] = []
+const NO_DIET_LOG: DietLog = {}
+const NO_WATER: WaterLog = {}
 const ICON: Record<AchievementId, LucideIcon> = {
   'first-workout': Dumbbell,
   'streak-3': Timer,
@@ -24,6 +26,9 @@ const ICON: Record<AchievementId, LucideIcon> = {
   'weight-small': Sparkles,
   'weight-big': Sparkles,
   'fat-1': Percent,
+  'diet-day': Utensils,
+  'diet-7': CalendarCheck,
+  'water-7': GlassWater,
 }
 export const AchievementIcon = ({ id }: { id: AchievementId }) => createElement(ICON[id], { size: 22, 'aria-hidden': true })
 
@@ -33,7 +38,10 @@ export function AchievementsScreen({ onClose }: { onClose: () => void }) {
   const [measurements, , c] = usePersisted('measurements', NO_MEASURES)
   const [photoSets, , d] = usePersisted('photoSets', NO_PHOTOS)
   const [profile, , e] = usePersisted('profile', NO_PROFILE)
-  const list = a && b && c && d && e ? computeAchievements({ workoutLog, workoutPlan, measurements, photoSets, profile }, todayKey()) : undefined
+  const [dietLog, , f] = usePersisted('dietLog', NO_DIET_LOG)
+  const [waterLog, , g] = usePersisted('waterLog', NO_WATER)
+  const [dietPlan, , h] = usePersisted('dietPlan', EMPTY_DIET)
+  const list = a && b && c && d && e && f && g && h ? computeAchievements({ workoutLog, workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan }, todayKey()) : undefined
 
   return (
     <Overlay>

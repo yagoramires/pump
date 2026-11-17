@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from '../storage/db'
 import { loadPhoto, savePhoto } from '../storage/photos'
+import { dietDay, food } from '../../test/helpers'
 import { HistoryScreen } from './HistoryScreen'
 
 beforeEach(async () => {
@@ -61,4 +62,43 @@ test('abre com hoje selecionado e o dia descreve o que tem registrado', async ()
   expect(today).toHaveAttribute('aria-current', 'date')
   expect(today).toHaveAccessibleDescription('com registro')
   expect(screen.getByText('Peso 78,4 kg')).toBeInTheDocument()
+})
+test('Histórico mostra dieta e água do dia e apaga com confirmação', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(2026, 10, 17, 12))
+  // 2 de 3 marcadas (uma com troca) + 1 extra na não marcada: 600 kcal
+  const day = dietDay([true, true, false], { menuName: 'Dia de treino' })
+  day.meals[1].items = [{ ...food({ id: 'b', name: 'Batata' }), swappedFrom: 'Arroz' }]
+  day.meals[2].items.push({ ...food({ id: 'x' }), extra: true })
+  const freeMeal = dietDay([true, true])
+  freeMeal.meals[1].free = true
+  await save('dietLog', { '2026-11-14': freeMeal, '2026-11-15': dietDay([false, false], { free: true }), '2026-11-16': day })
+  await save('waterLog', { '2026-11-16': { ml: 2500, goalMl: 2000 } })
+  // descanso marcado não é treino
+  await save('workoutLog', { '2026-11-16': { date: '2026-11-16', workoutId: 'a', workoutLabel: 'A', workoutName: 'Peito', exercises: [], rest: true } })
+  const user = userEvent.setup()
+  render(<HistoryScreen onClose={vi.fn()} />)
+
+  await user.click(await screen.findByRole('button', { name: '15' }))
+  expect(screen.getByText('Dieta · Dia livre')).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: '14' }))
+  expect(screen.getByText('Padrão · 2 de 2 refeições · 1 refeição livre')).toBeInTheDocument()
+
+  const d16 = screen.getByRole('button', { name: '16' })
+  expect(d16).toHaveAccessibleDescription('com registro')
+  expect(d16).not.toHaveClass('bg-accent-bg')
+  await user.click(d16)
+  expect(screen.getByText('Dieta · 600 kcal')).toBeInTheDocument()
+  expect(screen.getByText('Dia de treino · 2 de 3 refeições · 1 troca · 1 extra')).toBeInTheDocument()
+  expect(screen.getByText('Água · 2,5 L')).toBeInTheDocument()
+  expect(screen.getByText('Descanso')).toBeInTheDocument()
+  expect(screen.queryByText(/Treino A/)).not.toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Apagar dieta' }))
+  expect(await screen.findByText('Apagar dieta?')).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Apagar' }))
+  await waitFor(async () => expect(Object.keys((await load('dietLog'))!)).toEqual(['2026-11-14', '2026-11-15']))
+  await user.click(screen.getByRole('button', { name: 'Apagar água' }))
+  await user.click(await screen.findByRole('button', { name: 'Apagar' }))
+  await waitFor(async () => expect(await load('waterLog')).toEqual({}))
+  expect(screen.queryByText('Dieta · 600 kcal')).not.toBeInTheDocument()
 })

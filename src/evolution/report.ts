@@ -1,7 +1,8 @@
-import type { Angle, Measurement, PhotoSet, Profile, WorkoutLog, WorkoutPlan } from '../types'
+import type { Angle, DietLog, DietPlan, Measurement, PhotoSet, Profile, WaterLog, WorkoutLog, WorkoutPlan } from '../types'
 import { daysBetween } from '../lib/date'
 import { sessionStats } from '../workout/stats'
-import { computeAchievements } from './achievements'
+import { dietStats } from '../diet/day'
+import { computeAchievements, DIET_ACHIEVEMENTS } from './achievements'
 import { bodyFat, goalDirection, isGood, type Metric } from './bodyFat'
 import { FIELDS, firstLast } from './measurements'
 
@@ -12,8 +13,9 @@ export interface Report {
   photoPairs: { angle: Angle; before: { date: string; id: string }; after: { date: string; id: string } }[]
   body: { weight: Pt[]; rows: { label: string; unit: string; first: number; last: number; delta: number; good: boolean }[] } | null
   training: { workouts: number; perWeek: number; topLifts: { name: string; first: number; max: number }[]; achievements: { title: string; earnedAt: string }[] }
+  diet: { avgKcal: number; avgGoal?: number; fullDays: number; waterDays: number; freeUses: number; days: number; achievements: { title: string; earnedAt: string }[] } | null
 }
-interface Input { workoutLog: WorkoutLog; workoutPlan: WorkoutPlan; measurements: Measurement[]; photoSets: PhotoSet[]; profile?: Profile }
+interface Input { workoutLog: WorkoutLog; workoutPlan: WorkoutPlan; measurements: Measurement[]; photoSets: PhotoSet[]; profile?: Profile; dietLog?: DietLog; waterLog?: WaterLog; dietPlan?: DietPlan }
 
 const r1 = (n: number) => Math.round(n * 10) / 10
 const byDate = <T extends { date: string }>(l: T[]) => [...l].sort((a, b) => a.date.localeCompare(b.date))
@@ -24,7 +26,10 @@ export function buildReport(d: Input, today: string): Report {
   const sessions = byDate(Object.values(d.workoutLog).filter((s) => s.completedAt))
   const ms = byDate(d.measurements)
   const sets = byDate(d.photoSets)
-  const start = [sessions[0]?.date, ms[0]?.date, sets[0]?.date].filter((x): x is string => !!x).sort()[0] ?? today
+  const dietLog = d.dietLog ?? {}
+  const waterLog = d.waterLog ?? {}
+  const dietDays = Object.keys(dietLog).sort()
+  const start = [sessions[0]?.date, ms[0]?.date, sets[0]?.date, dietDays[0], Object.keys(waterLog).sort()[0]].filter((x): x is string => !!x).sort()[0] ?? today
   const dir = goalDirection(d.profile)
 
   const p = d.profile
@@ -72,13 +77,15 @@ export function buildReport(d: Input, today: string): Report {
   const now = new Date()
   const volume = sessions.reduce((a, s) => a + sessionStats(s, now).volumeKg, 0)
   const weeks = sessions.length ? Math.max(1, (daysBetween(sessions[0].date, today) + 1) / 7) : 1
-  const achievements = computeAchievements(d, today).flatMap((a) => (a.earnedAt ? [{ title: a.title, earnedAt: a.earnedAt }] : []))
+  const earned = computeAchievements(d, today).filter((a) => a.earnedAt)
+  const titles = (diet: boolean) => earned.filter((a) => DIET_ACHIEVEMENTS.includes(a.id) === diet).map((a) => ({ title: a.title, earnedAt: a.earnedAt! }))
 
   return {
     period: { start, end: today, days: daysBetween(start, today) + 1 },
     summary: { weight: weight.last?.value, weightDelta: diff(weight), fat: fat.last?.value, fatDelta: diff(fat), workouts: sessions.length, volumeTons: r1(volume / 1000) },
     photoPairs,
     body,
-    training: { workouts: sessions.length, perWeek: r1(sessions.length / weeks), topLifts, achievements },
+    training: { workouts: sessions.length, perWeek: r1(sessions.length / weeks), topLifts, achievements: titles(false) },
+    diet: dietDays.length ? { ...dietStats(dietLog, waterLog, start, today), achievements: titles(true) } : null,
   }
 }
