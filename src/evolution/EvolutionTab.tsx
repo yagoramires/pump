@@ -18,6 +18,8 @@ import { Delta } from './Delta'
 import { usePhoto } from './usePhoto'
 import { PhotoCapture } from './PhotoCapture'
 import { PhotoCompare } from './PhotoCompare'
+import { AchievementsScreen } from './AchievementsScreen'
+import { HistoryScreen } from './HistoryScreen'
 
 type View = 'capture' | 'compare' | 'achievements' | 'history'
 type Pt = { date: string; value: number }
@@ -66,13 +68,14 @@ export function EvolutionTab() {
   const [range, setRange] = useState('90')
   const [choosing, setChoosing] = useState(false)
   const [measuring, setMeasuring] = useState(false)
-  // conquistas e histórico: as telas ainda não existem
   const [view, setView] = useState<View>()
   const today = todayKey()
 
   if (!(a && b && c && d && e)) return <p className="text-sm text-text-2">Carregando…</p>
   if (view === 'capture') return <PhotoCapture date={today} onClose={() => setView(undefined)} />
   if (view === 'compare') return <PhotoCompare onClose={() => setView(undefined)} />
+  if (view === 'achievements') return <AchievementsScreen onClose={() => setView(undefined)} />
+  if (view === 'history') return <HistoryScreen onClose={() => setView(undefined)} />
 
   const drawers = (
     <>

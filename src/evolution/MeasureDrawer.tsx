@@ -7,19 +7,10 @@ import { parseDecimal } from '@/lib/number'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { bodyFat } from './bodyFat'
-import { upsertMeasurement } from './measurements'
+import { FIELDS, upsertMeasurement } from './measurements'
 
 type Key = keyof MeasureFields
 const NONE: Measurement[] = []
-const FIELDS: { key: Key; label: string; unit: string }[] = [
-  { key: 'weightKg', label: 'Peso', unit: 'kg' },
-  { key: 'neckCm', label: 'Pescoço', unit: 'cm' },
-  { key: 'waistCm', label: 'Cintura', unit: 'cm' },
-  { key: 'hipCm', label: 'Quadril', unit: 'cm' },
-  { key: 'armCm', label: 'Braço', unit: 'cm' },
-  { key: 'chestCm', label: 'Peito', unit: 'cm' },
-  { key: 'thighCm', label: 'Coxa', unit: 'cm' },
-]
 const select = (e: React.FocusEvent<HTMLInputElement>) => e.currentTarget.select()
 
 export function MeasureDrawer({ open, onClose, date }: { open: boolean; onClose: () => void; date: string }) {

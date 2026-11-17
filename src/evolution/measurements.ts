@@ -1,6 +1,15 @@
 import type { MeasureFields, Measurement } from '../types'
 
 const KEYS = ['weightKg', 'neckCm', 'waistCm', 'hipCm', 'armCm', 'chestCm', 'thighCm'] as const
+export const FIELDS: { key: keyof MeasureFields; label: string; unit: string }[] = [
+  { key: 'weightKg', label: 'Peso', unit: 'kg' },
+  { key: 'neckCm', label: 'Pescoço', unit: 'cm' },
+  { key: 'waistCm', label: 'Cintura', unit: 'cm' },
+  { key: 'hipCm', label: 'Quadril', unit: 'cm' },
+  { key: 'armCm', label: 'Braço', unit: 'cm' },
+  { key: 'chestCm', label: 'Peito', unit: 'cm' },
+  { key: 'thighCm', label: 'Coxa', unit: 'cm' },
+]
 
 export function upsertMeasurement(list: Measurement[], date: string, fields: { [K in keyof MeasureFields]?: number | null }): Measurement[] {
   const cur = list.find((m) => m.date === date)
