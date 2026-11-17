@@ -107,7 +107,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
     <Drawer open onOpenChange={(o) => !o && onClose()}>
       <DrawerContent>
         <div className="flex min-h-0 flex-col px-4 pt-2 pb-5">
-          <DrawerTitle className="truncate pb-2 text-[19px] font-semibold text-strong">{title}</DrawerTitle>
+          <DrawerTitle className="shrink-0 truncate pb-2 text-[19px] font-semibold text-strong">{title}</DrawerTitle>
           <DrawerDescription className="sr-only">Escolha um alimento e a quantidade</DrawerDescription>
           {creating ? (
             <form className="flex flex-col gap-3" onSubmit={(e) => { e.preventDefault(); create() }}>
@@ -128,7 +128,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
             </form>
           ) : (
             <>
-              <div className="relative">
+              <div className="relative shrink-0">
                 <Search size={16} className="absolute top-3.5 left-3 text-faint" />
                 <Input type="search" className="pl-9" placeholder="Buscar alimento" aria-label="Buscar alimento" autoComplete="off" enterKeyHint="search" value={q} onChange={(e) => setQ(e.target.value)} />
               </div>
@@ -148,7 +148,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
                 )}
                 {!shownRecents.length && !results.length && <p className="pt-3 text-[13px] text-text-2">{q.trim() ? 'Nada encontrado' : 'Busque um alimento'}</p>}
               </div>
-              <div className="flex items-center justify-between gap-3 py-2">
+              <div className="flex shrink-0 items-center justify-between gap-3 py-2">
                 <span className="text-sm text-text-2">Quantidade</span>
                 <div className="flex items-center gap-2">
                   <button type="button" className={ROUND} aria-label="Diminuir quantidade" disabled={grams <= 10} onClick={() => setGrams((g) => Math.max(10, g - 10))}><Minus size={16} /></button>
@@ -156,7 +156,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
                   <button type="button" className={ROUND} aria-label="Aumentar quantidade" disabled={grams >= 2000} onClick={() => setGrams((g) => Math.min(2000, g + 10))}><Plus size={16} /></button>
                 </div>
               </div>
-              <Input aria-label="Porção" placeholder="Porção (opcional), ex.: 2 un" autoComplete="off" value={portion} onChange={(e) => setPortion(e.target.value)} />
+              <Input aria-label="Porção" className="shrink-0" placeholder="Porção (opcional), ex.: 2 un" autoComplete="off" value={portion} onChange={(e) => setPortion(e.target.value)} />
               <div className="mt-3 flex gap-2">
                 {extraAction && <Button variant="outline" className="flex-1" onClick={extraAction.onClick}>{extraAction.label}</Button>}
                 <Button className="flex-1" disabled={!sel} onClick={pick}>{confirmLabel}</Button>

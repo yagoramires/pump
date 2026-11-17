@@ -80,7 +80,7 @@ test('casado por palavras com nome diferente mostra "na TACO"', async () => {
   expect(await screen.findByText('na TACO: Pão, trigo, francês')).toBeInTheDocument()
   expect(screen.queryByText('Sem internet: usei os números da IA. Dá pra trocar depois.')).not.toBeInTheDocument()
   expect(screen.getAllByText('estimativa da IA')).toHaveLength(1)
-  expect(screen.getByText('1 itens fora da TACO usam os números da IA. Toque pra trocar.')).toBeInTheDocument()
+  expect(screen.getByText('1 item fora da TACO usa os números da IA. Toque pra trocar.')).toBeInTheDocument()
   // tocar no item estimado troca ele no cardápio em revisão
   await user.click(screen.getByRole('button', { name: /Whey protein/ }))
   await user.type(await screen.findByRole('searchbox', { name: 'Buscar alimento' }), 'arroz')
@@ -89,7 +89,7 @@ test('casado por palavras com nome diferente mostra "na TACO"', async () => {
   await user.click(screen.getByRole('button', { name: 'Trocar' }))
   await vi.waitFor(() => expect(screen.queryByText('estimativa da IA')).not.toBeInTheDocument())
   expect(screen.getAllByText('Arroz, tipo 1, cozido').length).toBeGreaterThan(0)
-  expect(screen.queryByText(/itens fora da TACO/)).not.toBeInTheDocument()
+  expect(screen.queryByText(/fora da TACO/)).not.toBeInTheDocument()
 })
 
 test('JSON inválido lista os erros e não grava', async () => {

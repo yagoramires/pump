@@ -173,7 +173,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
         {outside > 0 && (
           <p className="flex items-start gap-2 rounded-[14px] border border-border bg-panel p-3.5 text-[13px] text-text-2">
             <AlertTriangle size={16} className="mt-px shrink-0 text-c7" aria-hidden="true" />
-            {`${outside} itens fora da TACO usam os números da IA. Toque pra trocar.`}
+            {`${outside} ${outside === 1 ? 'item fora da TACO usa' : 'itens fora da TACO usam'} os números da IA. Toque pra trocar.`}
           </p>
         )}
         <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md gap-2 bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">

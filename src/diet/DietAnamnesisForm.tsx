@@ -31,7 +31,7 @@ export function DietAnamnesisForm({ value, onChange }: { value: Value; onChange:
           </div>
         ))}
       </div>
-      <MultiChips label="Restrições" options={RESTRICTION_LABEL} value={value.restrictions} onChange={(v) => set('restrictions', v)} cols="grid-cols-2 min-[380px]:grid-cols-4" />
+      <MultiChips label="Restrições" options={RESTRICTION_LABEL} value={value.restrictions} onChange={(v) => set('restrictions', v)} cols="grid-cols-2" />
       <div>
         <label htmlFor="dieta-avoid" className={LABEL}>Não como</label>
         <Input id="dieta-avoid" placeholder="Ex.: fígado, jiló" value={value.avoid ?? ''} onChange={(e) => set('avoid', e.target.value || undefined)} />

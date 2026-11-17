@@ -46,8 +46,10 @@ export function MealCard({ meal, plan, menuId, dayFree, open, onOpen, act }: Pro
       <>
         {i.swappedFrom && <ArrowLeftRight size={12} className="shrink-0 text-accent" aria-hidden="true" />}
         {i.extra && <Plus size={12} className="shrink-0 text-accent" aria-hidden="true" />}
-        <span className={cn('min-w-0 flex-1 truncate text-sm', i.skipped ? 'text-faint line-through' : i.swappedFrom ? 'text-accent' : 'text-text')}>{i.name}</span>
-        <span className="shrink-0 text-[12.5px] text-faint">{i.portion ?? `${formatDec(i.grams)} g`}</span>
+        <span className="min-w-0 flex-1 py-1.5">
+          <span className={cn('block truncate text-sm', i.skipped ? 'text-faint line-through' : i.swappedFrom ? 'text-accent' : 'text-text')}>{i.name}</span>
+          <span className="block truncate text-[12.5px] text-faint">{i.portion ?? `${formatDec(i.grams)} g`}</span>
+        </span>
         <span className="w-10 shrink-0 text-right text-[12.5px] tabular-nums text-text-2">{Math.round(itemKcal(i))}</span>
       </>
     )
@@ -116,7 +118,7 @@ export function MealCard({ meal, plan, menuId, dayFree, open, onOpen, act }: Pro
         <Drawer open onOpenChange={(o) => !o && setSwapping(false)}>
           <DrawerContent>
             <div className="flex min-h-0 flex-col overflow-y-auto px-4 pt-2 pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <DrawerTitle className="truncate pb-1 text-[19px] font-semibold text-strong">{`Trocar refeição · ${meal.name}`}</DrawerTitle>
+              <DrawerTitle className="shrink-0 truncate pb-1 text-[19px] font-semibold text-strong">{`Trocar refeição · ${meal.name}`}</DrawerTitle>
               <DrawerDescription className="text-[13px] text-text-2">Só hoje. O cardápio não muda.</DrawerDescription>
               {!groups.length && <p className="pt-3 text-[13px] text-text-2">Sem outras opções. Crie opções no editor do cardápio.</p>}
               {groups.map((g) => (
@@ -127,7 +129,7 @@ export function MealCard({ meal, plan, menuId, dayFree, open, onOpen, act }: Pro
                       <li key={r.id} className="border-t border-line first:border-t-0">
                         <button type="button" className="flex min-h-14 w-full flex-col justify-center px-3 py-2 text-left" onClick={() => { act((d) => swapMeal(d, meal.id, { name: r.name, items: r.items })); setSwapping(false) }}>
                           <span className="text-[15px] font-semibold text-strong">{r.title}</span>
-                          <span className="truncate text-[12.5px] text-text-2">{`${formatDec(kcalOf(r.items))} kcal · ${r.items.map((i) => i.name).join(', ')}`}</span>
+                          <span className="truncate text-[12.5px] text-text-2">{`${formatDec(kcalOf(r.items))} kcal · ${r.items.map((i) => i.name).join(' + ')}`}</span>
                         </button>
                       </li>
                     ))}
