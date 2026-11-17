@@ -1,7 +1,8 @@
 import { clear } from 'idb-keyval'
 import type { Settings } from '../types'
 import { backupDue, buildBackup, importBackupFile, parseBackup } from './backup'
-import { load, resetStoreForTests, save } from './db'
+import { allData, load, replaceAll, resetStoreForTests, save } from './db'
+import { loadPhoto, savePhoto } from './photos'
 
 beforeEach(async () => {
   await clear()
@@ -44,3 +45,17 @@ test('backupDue com 14 dias de calendário', () => {
   expect(backupDue({ ...s, lastBackupAt: '2026-11-10' }, '2026-11-15')).toBe(false)
   expect(backupDue({ lastTab: 'treino', onboardingDone: false }, '2026-11-15')).toBe(false)
 })
+
+test('backup com fotos: ida e volta traz a imagem', async () => {
+  const id = await savePhoto('data:image/jpeg;base64,BBB')
+  await save('photoSets', [{ id: 's', date: '2026-11-17', frente: id }])
+  const b = buildBackup(await allData(), new Date())
+  await replaceAll({})
+  expect(await loadPhoto(id)).toBeUndefined()
+  await importBackupFile(new File([JSON.stringify(b)], 'b.json'))
+  expect(await loadPhoto(id)).toBe('data:image/jpeg;base64,BBB')
+})
+test('backup recusa photo: com valor que não é imagem', () =>
+  expect(() => parseBackup(JSON.stringify({ app: 'pump', version: 1, data: { 'photo:x': 'oi' } }))).toThrow('Backup com conteúdo desconhecido'))
+test('backup recusa measurements que não é lista', () =>
+  expect(() => parseBackup(JSON.stringify({ app: 'pump', version: 1, data: { measurements: {} } }))).toThrow('Backup corrompido'))

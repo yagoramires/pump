@@ -24,16 +24,20 @@ export function parseBackup(text: string): BackupFile {
   if (b.app !== 'pump') throw new Error('Esse arquivo não é um backup do Pump')
   if (b.version !== 1) throw new Error('Backup de uma versão mais nova do app')
   const { data } = b
-  if (!isObj(data) || Object.keys(data).some((k) => !(USER_KEYS as readonly string[]).includes(k))) {
+  const known = (k: string, v: unknown) =>
+    (USER_KEYS as readonly string[]).includes(k) || (k.startsWith('photo:') && typeof v === 'string' && v.startsWith('data:image/'))
+  if (!isObj(data) || Object.entries(data).some(([k, v]) => !known(k, v))) {
     throw new Error('Backup com conteúdo desconhecido')
   }
-  const { workoutPlan: plan, workoutLog: log, settings, profile, customExercises } = data
+  const { workoutPlan: plan, workoutLog: log, settings, profile, customExercises, measurements, photoSets } = data
   const ok =
     (plan === undefined || (isObj(plan) && Array.isArray(plan.workouts))) &&
     (log === undefined || (isObj(log) && Object.values(log).every((d) => isObj(d) && Array.isArray(d.exercises)))) &&
     (settings === undefined || isObj(settings)) &&
     (profile === undefined || isObj(profile)) &&
-    (customExercises === undefined || Array.isArray(customExercises))
+    (customExercises === undefined || Array.isArray(customExercises)) &&
+    (measurements === undefined || Array.isArray(measurements)) &&
+    (photoSets === undefined || Array.isArray(photoSets))
   if (!ok) throw new Error('Backup corrompido')
   return b as unknown as BackupFile
 }

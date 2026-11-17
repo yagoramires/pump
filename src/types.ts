@@ -47,7 +47,12 @@ export type WorkoutLog = Record<string, WorkoutSession>
 /** id 'custom-<uuid>' */
 export interface CustomExercise { id: string; name: string; muscles: string[]; note?: string }
 /** datas = todayKey */
-export interface Settings { lastTab: Tab; onboardingDone: boolean; firstUseAt?: string; lastBackupAt?: string; installDismissed?: boolean }
-export interface UserData { profile: Profile; workoutPlan: WorkoutPlan; workoutLog: WorkoutLog; customExercises: CustomExercise[]; settings: Settings }
-export const USER_KEYS = ['profile', 'workoutPlan', 'workoutLog', 'customExercises', 'settings'] as const
+export interface Settings { lastTab: Tab; onboardingDone: boolean; firstUseAt?: string; lastBackupAt?: string; installDismissed?: boolean; seenAchievements?: string[] }
+export type Angle = 'frente' | 'lado' | 'costas'
+export interface MeasureFields { weightKg?: number; neckCm?: number; waistCm?: number; hipCm?: number; armCm?: number; chestCm?: number; thighCm?: number }
+export interface Measurement extends MeasureFields { id: string; date: string }
+/** valores dos ângulos = id da foto (chave photo:<id>) */
+export interface PhotoSet { id: string; date: string; frente?: string; lado?: string; costas?: string }
+export interface UserData { profile: Profile; workoutPlan: WorkoutPlan; workoutLog: WorkoutLog; customExercises: CustomExercise[]; settings: Settings; measurements: Measurement[]; photoSets: PhotoSet[] }
+export const USER_KEYS = ['profile', 'workoutPlan', 'workoutLog', 'customExercises', 'settings', 'measurements', 'photoSets'] as const
 export const DEFAULT_SETTINGS: Settings = { lastTab: 'treino', onboardingDone: false }
