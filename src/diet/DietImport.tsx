@@ -19,6 +19,7 @@ import { BackHeader } from '@/components/BackHeader'
 import { BottomBar } from '@/components/BottomBar'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { formatDec } from '@/lib/number'
+import { todayKey } from '@/lib/date'
 import { copyText } from '@/lib/share'
 import { cn } from '@/lib/utils'
 
@@ -34,6 +35,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   const [profile, setProfile] = usePersisted('profile')
   const [saved, setPlan] = usePersisted('dietPlan')
   const [foods] = usePersisted('foods')
+  const [measurements] = usePersisted('measurements')
   const [edited, setEdited] = useState<Partial<DietAnamnesis>>()
   const [tab, setTab] = useState(0)
   const [picking, setPicking] = useState<DietItem>()
@@ -48,7 +50,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
 
   const copyPrompt = async () => {
     setProfile((p) => ({ ...p, dietAnamnesis: anamnesis }))
-    toast((await copyText(buildDietPrompt({ ...profile, dietAnamnesis: anamnesis }))) ? 'Prompt copiado' : 'Não consegui copiar. Tente de novo.')
+    toast((await copyText(buildDietPrompt({ ...profile, dietAnamnesis: anamnesis }, measurements, todayKey()))) ? 'Prompt copiado' : 'Não consegui copiar. Tente de novo.')
   }
   const edit = (v: string, now?: boolean) => {
     setTab(0)

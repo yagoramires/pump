@@ -1,6 +1,10 @@
 import type { Profile } from '@/profile/types'
 import type { DietAnamnesis, DietGoal, Restriction } from './types'
 import { HEADER, str } from '@/format/envelope'
+import type { Measurement } from '@/evolution/types'
+import { FIELDS, WEIGHT, fatSeries, series } from '@/evolution/measurements'
+import { addDays, daysBetween } from '@/lib/date'
+import { formatDec, formatKg, formatSigned, plural } from '@/lib/number'
 import { label, names, profileLines } from '@/profile/promptLines'
 import { GOAL_KCAL, GRAMS, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 
@@ -26,10 +30,28 @@ const DIET_GOALS: Record<DietGoal, string> = { 'perder-rapido': 'perder peso rá
 const RESTRICTIONS: Record<Restriction, string> = { lactose: 'sem lactose', gluten: 'sem glúten', vegetariano: 'vegetariano', vegano: 'vegano' }
 const EAT_OUT: Record<NonNullable<DietAnamnesis['eatOut']>, string> = { casa: 'em casa', fora: 'fora de casa', misto: 'misto (em casa e fora)' }
 
-function aboutMe(p?: Profile): string[] {
+function bodyLines(p: Profile | undefined, ms: Measurement[], today: string): string[] {
+  const last = (pts: { value: number }[]) => pts.at(-1)?.value
+  const weights = series(ms, WEIGHT.key)
+  const weight = last(weights)
+  const fat = p ? last(fatSeries(p, ms)) : undefined
+  const measures = FIELDS.filter((f) => f !== WEIGHT).flatMap((f) => { const v = last(series(ms, f.key)); return v === undefined ? [] : [`${f.label.toLowerCase()} ${formatKg(v)} ${f.unit}`] })
+  const recent = weights.filter((w) => w.date >= addDays(today, -28))
+  const days = recent.length ? daysBetween(recent[0].date, recent[recent.length - 1].date) : 0
+  return [
+    weight !== undefined && `Peso: ${formatKg(weight)} kg`,
+    fat !== undefined && `Gordura corporal (estimativa US Navy): ${formatDec(fat, 1)}%`,
+    weight !== undefined && fat !== undefined && `Massa magra (estimativa): ${formatDec(weight * (1 - fat / 100), 1)} kg`,
+    measures.length > 0 && `Medidas: ${measures.join(', ')}`,
+    days > 0 && `Variação do peso: ${formatSigned(recent[recent.length - 1].value - recent[0].value)} kg em ${plural(Math.max(1, Math.round(days / 7)), 'semana', 'semanas')}`,
+  ].filter((l): l is string => !!l).map((l) => `- ${l}`)
+}
+
+function aboutMe(p: Profile | undefined, ms: Measurement[], today: string): string[] {
   const d = (p?.dietAnamnesis ?? {}) as Partial<DietAnamnesis>
   return [
     ...profileLines(p),
+    ...bodyLines(p, ms, today),
     ...[
       p?.daysPerWeek ? `Dias de treino por semana: ${p.daysPerWeek}` : '',
       label(DIET_GOALS, p?.dietGoal) && `Objetivo da dieta: ${label(DIET_GOALS, p?.dietGoal)}`,
@@ -46,8 +68,8 @@ function aboutMe(p?: Profile): string[] {
   ]
 }
 
-export const buildDietPrompt = (profile?: Profile): string => {
-  const me = aboutMe(profile)
+export const buildDietPrompt = (profile: Profile | undefined, measurements: Measurement[], today: string): string => {
+  const me = aboutMe(profile, measurements, today)
   const menus = profile?.daysPerWeek
     ? 'Faça 2 cardápios: "Dia de treino" e "Descanso", cada um com sua meta (no descanso, em geral menos calorias e carboidrato).'
     : 'Faça 1 cardápio.'
