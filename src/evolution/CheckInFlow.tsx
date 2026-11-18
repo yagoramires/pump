@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { usePersisted } from '@/storage/db'
 import { WEEKDAY_LONG, formatDayMonth, todayKey, weekday } from '@/lib/date'
 import { formatKg, formatSigned, plural } from '@/lib/number'
@@ -15,7 +15,6 @@ import { ANGLES } from './types'
 
 type Step = 'measure' | 'photos' | 'summary' | 'compare'
 
-/** passo a passo da atualização semanal: medidas de hoje, fotos (opcional) e resumo */
 export function CheckInFlow({ onClose }: { onClose: () => void }) {
   const today = todayKey()
   const [list] = usePersisted('measurements')
@@ -24,8 +23,6 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
   const [step, setStep] = useState<Step>('measure')
 
   const s = weekSummary(profile, list, sets, today)
-  // sem resumo (sem peso hoje) não há o que mostrar: fecha o fluxo
-  useEffect(() => { if (step === 'summary' && !s) onClose() }, [step, s, onClose])
 
   if (step === 'photos') return <PhotoCapture date={today} onClose={() => setStep('summary')} />
   if (step === 'compare') return <PhotoCompare onClose={() => setStep('summary')} />

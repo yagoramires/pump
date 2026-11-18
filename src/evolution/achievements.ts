@@ -65,7 +65,7 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
     }
   }
 
-  const dir = goalDirection(d.profile) // null (manter/vazio): sem conquistas de peso
+  const dir = goalDirection(d.profile)
   const sign = dir === 'gain' ? -1 : 1
   const weights = series(d.measurements, 'weightKg')
   const w0 = weights[0]?.value

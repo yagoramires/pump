@@ -3,7 +3,7 @@ import { renderLoaded } from '../test/render'
 import userEvent from '@testing-library/user-event'
 import * as idb from 'idb-keyval'
 import { clear } from 'idb-keyval'
-import { load, resetStoreForTests, save } from './storage/db'
+import { load, readCurrent, resetStoreForTests, save } from './storage/db'
 import App from './App'
 import { ErrorBoundary } from './shell/ErrorBoundary'
 import { buildBackup } from './storage/backup'
@@ -37,6 +37,14 @@ test('primeira vez abre a montagem; pular leva à aba Treino; depois abre na úl
   await save('settings', { ...(await load('settings'))!, lastTab: 'dieta' })
   await renderLoaded(<App />)
   expect(await screen.findByRole('heading', { name: 'Monte seu cardápio' })).toBeInTheDocument()
+})
+test('abrir com perfil no formato antigo grava o peso como medição', async () => {
+  await save('settings', { lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01' })
+  await idb.set('profile', { sex: 'M', heightCm: 180, weightKg: 82.4 })
+  resetStoreForTests()
+  await renderLoaded(<App />)
+  await waitFor(async () => expect(await readCurrent('measurements')).toMatchObject([{ date: '2026-11-01', weightKg: 82.4 }]))
+  expect(await readCurrent('profile')).not.toHaveProperty('weightKg')
 })
 test('Configurações: grupo DIETA abre cardápio, IA e a tela da água, e cada uma volta pro menu', async () => {
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))

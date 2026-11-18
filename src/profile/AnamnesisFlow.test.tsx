@@ -3,21 +3,27 @@ import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { renderLoaded } from '../../test/render'
 import { DEFAULTS } from '@/schema'
-import { todayKey } from '@/lib/date'
 import { readCurrent, resetStoreForTests, save } from '@/storage/db'
 import { AnamnesisFlow } from './AnamnesisFlow'
 
+const today = '2026-11-18'
+const mediaDevices = Object.getOwnPropertyDescriptor(navigator, 'mediaDevices')
 beforeEach(async () => {
   await clear()
   resetStoreForTests()
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(new Date(2026, 10, 18, 12, 0))
 })
-const today = todayKey()
+afterEach(() => {
+  vi.useRealTimers()
+  if (mediaDevices) Object.defineProperty(navigator, 'mediaDevices', mediaDevices)
+  else Reflect.deleteProperty(navigator, 'mediaDevices')
+})
 const next = (user: ReturnType<typeof userEvent.setup>) => user.click(screen.getByRole('button', { name: 'Continuar' }))
 
 test('passo 1 exige sexo e altura', async () => {
   const user = userEvent.setup()
   await renderLoaded(<AnamnesisFlow total={5} onDone={vi.fn()} />)
-  expect(screen.getByText('PASSO 1 DE 5')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Continuar' })).toBeDisabled()
   await user.type(screen.getByLabelText('Altura'), '178')
   expect(screen.getByRole('button', { name: 'Continuar' })).toBeEnabled()

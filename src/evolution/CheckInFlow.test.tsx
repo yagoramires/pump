@@ -2,15 +2,18 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { readCurrent, resetStoreForTests, save } from '@/storage/db'
-import { addDays, todayKey, weekday } from '@/lib/date'
+import { addDays, weekday } from '@/lib/date'
 import { renderLoaded } from '../../test/render'
 import { EvolutionTab } from './EvolutionTab'
 
+const today = '2026-11-18'
 beforeEach(async () => {
   await clear()
   resetStoreForTests()
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(new Date(2026, 10, 18, 12))
 })
-const today = todayKey()
+afterEach(() => vi.useRealTimers())
 const settings = (over: object) => save('settings', { lastTab: 'evolucao', onboardingDone: true, anamnesisAt: today, ...over })
 const old = [{ id: 'a', date: addDays(today, -7), weightKg: 82.4 }]
 

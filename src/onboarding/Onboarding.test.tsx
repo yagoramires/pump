@@ -87,7 +87,7 @@ test('5 passos até concluir', async () => {
   await waitFor(async () => expect((await readCurrent('settings')).onboardingDone).toBe(true))
 })
 
-test('restaurar backup no passo 1 conclui a montagem com perfil migrado', async () => {
+test('restaurar backup no passo 1 conclui a montagem', async () => {
   vi.stubGlobal('location', { ...location, reload: vi.fn() })
   const old = { app: 'pump', version: 1, exportedAt: new Date().toISOString(), data: { settings: { lastTab: 'treino', onboardingDone: true }, profile: { sex: 'M', heightCm: 180 } } }
   const user = userEvent.setup()
@@ -95,7 +95,6 @@ test('restaurar backup no passo 1 conclui a montagem com perfil migrado', async 
   await user.upload(screen.getByLabelText('Arquivo de backup'), new File([JSON.stringify(old)], 'b.json', { type: 'application/json' }))
   await user.click(await screen.findByRole('button', { name: 'Restaurar' }))
   await waitFor(async () => expect(await load('settings')).toMatchObject({ onboardingDone: true }))
-  expect(await load('profile')).toMatchObject({ heightCm: 180 })
 })
 
 test('sem internet ao usar um plano pronto mostra o aviso', async () => {

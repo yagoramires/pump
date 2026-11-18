@@ -14,7 +14,6 @@ import { hasProfile, profileDraft } from './profile'
 const TITLES = ['Sobre você', 'Objetivos', 'Dia zero']
 export const ANAMNESIS_STEPS = TITLES.length
 
-/** Passos 1–3 da anamnese. O rascunho do perfil fica aqui; o "Continuar" do passo 3 grava perfil, dia do check-in e anamnese */
 export function AnamnesisFlow({ step: initial = 0, total, onDone, onCancel, footer }: { step?: number; total: number; onDone: () => void; onCancel?: () => void; footer?: ReactNode }) {
   const [saved, setProfile] = usePersisted('profile')
   const [, setSettings] = usePersisted('settings')

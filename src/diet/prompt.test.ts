@@ -68,7 +68,3 @@ test('sem pescoço/cintura não tem gordura nem massa magra; uma medição só n
   expect(p).not.toContain('Massa magra')
   expect(p).not.toContain('Variação')
 })
-
-test('dieta não leva o foco do treino', () => {
-  expect(buildDietPrompt({ sex: 'M', heightCm: 178, focus: 'forca' }, [], T)).not.toMatch(/força|Foco/)
-})

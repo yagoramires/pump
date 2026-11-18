@@ -11,7 +11,6 @@ import { usePhotoSets } from '@/evolution/photoSets'
 import { ANGLE_LABEL, ANGLES } from '@/evolution/types'
 import { CheckInDayChips } from './CheckInDayChips'
 
-/** Passo 3: peso e medidas de hoje, fotos e o dia do check-in semanal. A medição é gravada aqui; o perfil e o dia, por quem recebe o onDone */
 export function DayZero({ profile, onDone }: { profile: Profile; onDone: (checkInDay: number) => void }) {
   const today = todayKey()
   const [settings] = usePersisted('settings')

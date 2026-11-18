@@ -10,7 +10,6 @@ import { ANGLES } from './types'
 /** dia da semana do check-in: o escolhido ou o de hoje */
 export const checkInDayOf = (settings: Settings, today: string): number => settings.checkInDay ?? weekday(today)
 
-/** data do check-in pendente (dia da semana escolhido, na semana atual ou na passada), se ainda não pesou desde então */
 export function checkInDue(settings: Settings, measurements: Measurement[], today: string): string | undefined {
   const day = settings.checkInDay
   const weights = series(measurements, 'weightKg')
@@ -42,7 +41,6 @@ export function weekSummary(profile: Profile, measurements: Measurement[], photo
   const dir = goalDirection(profile)
   const first = weights[0]
   const prev = weights.filter((w) => w.date < today).pop()
-  // delta de hoje contra o ponto anterior da mesma série
   const delta = (pts: Point[]) => {
     const cur = pts.find((p) => p.date === today)
     const before = pts.filter((p) => p.date < today).pop()
