@@ -78,6 +78,7 @@ export function TreinoTab() {
   const finishRest = useCallback(() => patch((s) => (s.restEndsAt === undefined ? s : { ...s, restEndsAt: undefined })), [patch])
   const closePreview = useCallback(() => setPreview(undefined), [])
 
+  const pastLink = <Button variant="ghost" className="h-8 px-1 text-[13px] text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /> Treinos anteriores</Button>
   if (pastOpen) return <Overlay><PastWorkouts onClose={() => setPastOpen(false)} /></Overlay>
   if (editingPlan) return <Overlay><PlanEditor initial={plan} onSave={(p) => { setPlan(p); setEditingPlan(false) }} onCancel={() => setEditingPlan(false)} /></Overlay>
   if (plan.workouts.length === 0) {
@@ -99,7 +100,7 @@ export function TreinoTab() {
   if (rest && !chosenId) {
     return (
       <div>
-        <div className="flex items-center justify-between"><div className="label-caps">{formatDayLabel(today)}</div><Button variant="ghost" className="h-8 px-1 text-[13px] text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /> Treinos anteriores</Button></div>
+        <div className="flex items-center justify-between"><div className="label-caps">{formatDayLabel(today)}</div>{pastLink}</div>
         <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Descanso marcado">
           <p className="max-w-[260px] text-sm text-text-2">Hoje é dia de recuperar. Quer treinar mesmo assim?</p>
           <Button variant="outline" className="h-11 rounded-[13px]" onClick={undoRest}><Undo2 aria-hidden="true" /> Desfazer</Button>
@@ -180,7 +181,7 @@ export function TreinoTab() {
   return (
     <div className="pb-24">
       {unfinished && <UnfinishedCard session={unfinished} setLog={setLog} />}
-      <div className="flex items-center justify-between"><div className="label-caps">{`${formatDayLabel(today)} · TREINO ${view.workoutLabel}`}</div><Button variant="ghost" className="h-8 px-1 text-[13px] text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /> Treinos anteriores</Button></div>
+      <div className="flex items-center justify-between"><div className="label-caps">{`${formatDayLabel(today)} · TREINO ${view.workoutLabel}`}</div>{pastLink}</div>
       <h1 className="mt-0.5 mb-3 text-[26px] font-bold tracking-tight text-strong">{view.workoutName}</h1>
       {!session?.completedAt && plan.workouts.length > 1 && (
         <Button variant="ghost" className="-mt-2 mb-2 h-8 px-1 text-[13px] text-accent" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>

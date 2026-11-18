@@ -29,7 +29,7 @@ export function PastWorkouts({ onClose }: { onClose: () => void }) {
                 <button type="button" aria-expanded={expanded} onClick={() => setOpen(expanded ? undefined : s.date)} className="flex min-h-14 w-full items-center gap-3 px-3.5 py-2.5 text-left">
                   <span className="block min-w-0 flex-1">
                     <span className="label-caps block">{`${formatDayLabel(s.date)} · TREINO ${s.workoutLabel}`}</span>
-                    <WorkoutDayLine session={s} now={now} />
+                    <WorkoutDayLine session={s} now={new Date(s.completedAt!)} />
                   </span>
                   <ChevronDown size={16} className={cn('text-faint transition-transform', expanded && 'rotate-180')} aria-hidden="true" />
                 </button>
