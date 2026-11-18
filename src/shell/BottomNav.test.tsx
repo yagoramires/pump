@@ -10,3 +10,8 @@ test('menu tem 3 abas com rótulo acessível e marca a ativa', async () => {
   expect(onChange).toHaveBeenCalledWith('dieta')
   expect(screen.getByRole('button', { name: 'Evolução' })).toBeInTheDocument()
 })
+
+test('ponto na aba Evolução', () => {
+  render(<BottomNav tab="treino" onChange={vi.fn()} dot="evolucao" />)
+  expect(screen.getByRole('button', { name: 'Evolução, atualização pendente' })).toBeInTheDocument()
+})

@@ -8,19 +8,22 @@ const TABS = [
   { id: 'dieta', label: 'Dieta', Icon: Utensils },
 ] as const
 
-export function BottomNav({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
+export function BottomNav({ tab, onChange, dot }: { tab: Tab; onChange: (t: Tab) => void; dot?: Tab }) {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-(--z-nav) flex h-[calc(var(--nav-h)+env(safe-area-inset-bottom))] border-t border-border bg-panel pb-[env(safe-area-inset-bottom)]">
       {TABS.map(({ id, label, Icon }) => (
         <button
           key={id}
           type="button"
-          aria-label={label}
+          aria-label={dot === id ? `${label}, atualização pendente` : label}
           aria-current={tab === id ? 'page' : undefined}
           onClick={() => onChange(id)}
           className={cn('flex min-h-11 flex-1 flex-col items-center justify-center gap-1 text-[10px] font-medium', tab === id ? 'text-accent' : 'text-faint')}
         >
-          <Icon size={20} aria-hidden="true" />
+          <span className="relative">
+            <Icon size={20} aria-hidden="true" />
+            {dot === id && <span aria-hidden="true" className="absolute -top-0.5 -right-1 size-2 rounded-full bg-accent" />}
+          </span>
           <span aria-hidden="true">{label}</span>
         </button>
       ))}

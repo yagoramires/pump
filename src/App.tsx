@@ -14,6 +14,8 @@ import { backupDue, daysWithoutBackup } from '@/storage/backup'
 import { useBackupExport } from '@/shell/useBackupExport'
 import { onStorageError, readKey, requestPersist, usePersisted } from '@/storage/db'
 import { todayKey } from '@/lib/date'
+import { useToday } from '@/lib/useToday'
+import { checkInDue } from '@/evolution/checkIn'
 import { AchievementToasts } from '@/evolution/AchievementToasts'
 import { EvolutionTab } from '@/evolution/EvolutionTab'
 import { Loading } from '@/components/Loading'
@@ -36,6 +38,8 @@ function Shell() {
   const [settings, setSettings] = usePersisted('settings')
   const [storageError, setStorageError] = useState<string>()
   const [showSettings, setShowSettings] = useState(false)
+  const [measurements] = usePersisted('measurements')
+  const { today } = useToday()
   const backup = useBackupExport(toast.error)
 
   useEffect(() => {
@@ -76,7 +80,7 @@ function Shell() {
           </>
         )}
       </main>
-      <BottomNav tab={tab} onChange={(lastTab) => { setShowSettings(false); setSettings((s) => ({ ...s, lastTab })) }} />
+      <BottomNav tab={tab} dot={checkInDue(settings, measurements, today) ? 'evolucao' : undefined} onChange={(lastTab) => { setShowSettings(false); setSettings((s) => ({ ...s, lastTab })) }} />
       <Toaster />
       <AchievementToasts />
     </>

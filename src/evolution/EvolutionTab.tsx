@@ -23,12 +23,16 @@ import { AchievementIcon } from './AchievementIcon'
 import { AchievementsScreen } from './AchievementsScreen'
 import { HistoryScreen } from './HistoryScreen'
 import { DietCard } from './DietCard'
+import { CheckIn, AnamnesisCard, CheckInCard } from './CheckInFlow'
+import { checkInDue } from './checkIn'
+import { AnamnesisFlow } from '@/onboarding/AnamnesisFlow'
+import { usePersisted } from '@/storage/db'
 import { useEvolution } from './useEvolution'
 import { buildReport, change } from './report'
 import { generatePdf } from './pdf/generate'
 import { shareFile } from '@/lib/share'
 
-type View = 'capture' | 'compare' | 'achievements' | 'history'
+type View = 'checkin' | 'anamnesis' | 'capture' | 'compare' | 'achievements' | 'history'
 const CARD = 'mb-2.5 overflow-hidden card'
 const LINK = 'h-11 px-1 text-[13px] font-medium text-accent disabled:text-faint'
 const RANGES = [{ v: '30', label: '30 d' }, { v: '90', label: '90 d' }, { v: 'all', label: 'Tudo' }]
@@ -51,8 +55,12 @@ export function EvolutionTab() {
   const [view, setView] = useState<View>()
   const [busy, setBusy] = useState(false)
   const [pdf, setPdf] = useState<{ blob: Blob; input: EvolutionInput; today: string }>()
+  const [settings] = usePersisted('settings')
   const today = todayKey()
+  const due = checkInDue(settings, input.measurements, today)
 
+  if (view === 'checkin') return <CheckIn onClose={() => setView(undefined)} />
+  if (view === 'anamnesis') return <AnamnesisFlow total={3} onDone={() => setView(undefined)} onBack={() => setView(undefined)} />
   if (view === 'capture') return <PhotoCapture date={today} onClose={() => setView(undefined)} />
   if (view === 'compare') return <PhotoCompare onClose={() => setView(undefined)} />
   if (view === 'achievements') return <AchievementsScreen onClose={() => setView(undefined)} />
@@ -76,11 +84,16 @@ export function EvolutionTab() {
     </>
   )
 
+  const cards = !settings.anamnesisAt
+    ? <AnamnesisCard onStart={() => setView('anamnesis')} />
+    : due && <CheckInCard due={due} today={today} onStart={() => setView('checkin')} />
+
   const report = buildReport(input, today)
   const { period, training, body, lastSet } = report
   if (!training.workouts && !input.measurements.length && !input.photoSets.length && !report.hasDiet) {
     return (
       <>
+        {cards}
         <EmptyState icon={<TrendingUp size={30} aria-hidden="true" />} title="Sua evolução começa aqui">
           <p className="max-w-[260px] text-sm text-text-2">Registre peso, medidas e fotos pra acompanhar.</p>
           <Button className="mt-2 w-full max-w-xs" onClick={() => setChoosing(true)}>Registrar</Button>
@@ -117,6 +130,7 @@ export function EvolutionTab() {
 
   return (
     <div className="pb-24">
+      {cards}
       <div className="label-caps">{`Desde ${formatDayMonth(period.start)} · ${plural(period.days, 'dia', 'dias')}`}</div>
       <h1 className="mt-0.5 mb-3 text-[26px] font-bold tracking-tight text-strong">Evolução</h1>
 
