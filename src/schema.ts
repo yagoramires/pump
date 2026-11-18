@@ -6,8 +6,8 @@ import type { DietItem, DietLog, DietPlan, WaterLog, WaterSettings } from './die
 import type { Measurement, PhotoSet } from './evolution/types'
 
 /** datas = todayKey */
-interface CoreSettings { lastTab: Tab; onboardingDone: boolean; firstUseAt?: string; lastBackupAt?: string; installDismissed?: boolean; checkInDay?: number; anamnesisAt?: string }
-export type Settings = CoreSettings & { seenAchievements?: string[]; water?: WaterSettings }
+interface CoreSettings { lastTab: Tab; onboardingDone: boolean; firstUseAt?: string; lastBackupAt?: string; installDismissed?: boolean }
+export type Settings = CoreSettings & { seenAchievements?: string[]; water?: WaterSettings; checkInDay?: number; anamnesisAt?: string }
 export interface UserData { profile: Profile; workoutPlan: WorkoutPlan; workoutLog: WorkoutLog; customExercises: CustomExercise[]; settings: Settings; measurements: Measurement[]; photoSets: PhotoSet[]; dietPlan: DietPlan; dietLog: DietLog; waterLog: WaterLog; foods: DietItem[] }
 
 const deepFreeze = <T,>(o: T): T => {

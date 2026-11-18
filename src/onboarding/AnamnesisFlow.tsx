@@ -7,6 +7,7 @@ import { BackHeader } from '@/components/BackHeader'
 import { BottomBar } from '@/components/BottomBar'
 import { Button } from '@/components/ui/button'
 import { DayZero } from './DayZero'
+import { hasProfile, profileDraft } from '@/profile/profile'
 import { Steps } from './Steps'
 
 const TITLES = ['Sobre você', 'Objetivos', 'Dia zero']
@@ -14,7 +15,7 @@ const TITLES = ['Sobre você', 'Objetivos', 'Dia zero']
 /** Passos 1–3 da anamnese. O rascunho do perfil fica aqui; só o "Continuar" do passo 3 grava */
 export function AnamnesisFlow({ total, onDone, onBack, first, start }: { total: 3 | 5; start?: number; onDone: () => void; onBack?: () => void; first?: ReactNode }) {
   const [saved] = usePersisted('profile')
-  const [draft, setDraft] = useState<Profile>({ ...saved, focus: saved.focus ?? 'hipertrofia' })
+  const [draft, setDraft] = useState<Profile>(() => profileDraft(saved))
   const [step, setStep] = useState(start ?? 0)
   const title = TITLES[step]
   // dentro de uma aba (onBack) a barra de abas fica embaixo: o Continuar sobe pra não ficar escondido
@@ -36,7 +37,7 @@ export function AnamnesisFlow({ total, onDone, onBack, first, start }: { total: 
         <>
           <AboutForm value={draft} onChange={setDraft} />
           {first}
-          <BottomBar className={bar}><Button type="button" className="w-full" disabled={!draft.heightCm} onClick={() => setStep(1)}>Continuar</Button></BottomBar>
+          <BottomBar className={bar}><Button type="button" className="w-full" disabled={!hasProfile(draft)} onClick={() => setStep(1)}>Continuar</Button></BottomBar>
         </>
       )}
       {step === 1 && (

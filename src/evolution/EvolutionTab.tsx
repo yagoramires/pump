@@ -3,7 +3,7 @@ import { CalendarDays, Camera, ChevronRight, FileText, Plus, Ruler, Share2, Tren
 import { toast } from 'sonner'
 import type { EvolutionInput } from './types'
 import { loadPhoto } from '@/storage/photos'
-import { daysBetween, formatDayMonth, todayKey } from '@/lib/date'
+import { daysBetween, formatDayMonth } from '@/lib/date'
 import { formatDec, formatKg, plural } from '@/lib/number'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
@@ -24,9 +24,8 @@ import { AchievementsScreen } from './AchievementsScreen'
 import { HistoryScreen } from './HistoryScreen'
 import { DietCard } from './DietCard'
 import { CheckIn, AnamnesisCard, CheckInCard } from './CheckInFlow'
-import { checkInDue } from './checkIn'
+import { useCheckIn } from './useCheckIn'
 import { AnamnesisFlow } from '@/onboarding/AnamnesisFlow'
-import { usePersisted } from '@/storage/db'
 import { useEvolution } from './useEvolution'
 import { buildReport, change } from './report'
 import { generatePdf } from './pdf/generate'
@@ -55,9 +54,7 @@ export function EvolutionTab() {
   const [view, setView] = useState<View>()
   const [busy, setBusy] = useState(false)
   const [pdf, setPdf] = useState<{ blob: Blob; input: EvolutionInput; today: string }>()
-  const [settings] = usePersisted('settings')
-  const today = todayKey()
-  const due = checkInDue(settings, input.measurements, today)
+  const { today, due, anamnesisPending } = useCheckIn()
 
   if (view === 'checkin') return <CheckIn onClose={() => setView(undefined)} />
   if (view === 'anamnesis') return <AnamnesisFlow total={3} onDone={() => setView(undefined)} onBack={() => setView(undefined)} />
@@ -86,7 +83,7 @@ export function EvolutionTab() {
 
   const cards = (
     <>
-      {!settings.anamnesisAt && <AnamnesisCard onStart={() => setView('anamnesis')} />}
+      {anamnesisPending && <AnamnesisCard onStart={() => setView('anamnesis')} />}
       {due && <CheckInCard due={due} today={today} onStart={() => setView('checkin')} />}
     </>
   )

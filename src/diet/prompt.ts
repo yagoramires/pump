@@ -1,9 +1,9 @@
-import type { Profile } from '@/profile/types'
-import type { DietAnamnesis, DietGoal, Restriction } from './types'
+import type { DietGoal, Profile } from '@/profile/types'
+import type { DietAnamnesis, Restriction } from './types'
 import { HEADER, str } from '@/format/envelope'
 import type { Measurement } from '@/evolution/types'
-import { FIELDS, WEIGHT, fatSeries, series } from '@/evolution/measurements'
-import { addDays, daysBetween } from '@/lib/date'
+import { FIELDS, WEIGHT, fatSeries, latestWeight, series } from '@/evolution/measurements'
+import { addDays, daysBetween, weeksBetween } from '@/lib/date'
 import { formatDec, formatKg, formatSigned, plural } from '@/lib/number'
 import { label, names, profileLines } from '@/profile/promptLines'
 import { GOAL_KCAL, GRAMS, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
@@ -33,7 +33,7 @@ const EAT_OUT: Record<NonNullable<DietAnamnesis['eatOut']>, string> = { casa: 'e
 function bodyLines(p: Profile | undefined, ms: Measurement[], today: string): string[] {
   const last = (pts: { value: number }[]) => pts.at(-1)?.value
   const weights = series(ms, WEIGHT.key)
-  const weight = last(weights)
+  const weight = latestWeight(ms)
   const fat = p ? last(fatSeries(p, ms)) : undefined
   const measures = FIELDS.filter((f) => f !== WEIGHT).flatMap((f) => { const v = last(series(ms, f.key)); return v === undefined ? [] : [`${f.label.toLowerCase()} ${formatKg(v)} ${f.unit}`] })
   const recent = weights.filter((w) => w.date >= addDays(today, -28))
@@ -43,12 +43,12 @@ function bodyLines(p: Profile | undefined, ms: Measurement[], today: string): st
     fat !== undefined && `Gordura corporal (estimativa US Navy): ${formatDec(fat, 1)}%`,
     weight !== undefined && fat !== undefined && `Massa magra (estimativa): ${formatDec(weight * (1 - fat / 100), 1)} kg`,
     measures.length > 0 && `Medidas: ${measures.join(', ')}`,
-    days > 0 && `Variação do peso: ${formatSigned(recent[recent.length - 1].value - recent[0].value)} kg em ${plural(Math.max(1, Math.round(days / 7)), 'semana', 'semanas')}`,
+    days > 0 && `Variação do peso: ${formatSigned(recent[recent.length - 1].value - recent[0].value)} kg em ${plural(weeksBetween(recent[0].date, recent[recent.length - 1].date), 'semana', 'semanas')}`,
   ].filter((l): l is string => !!l).map((l) => `- ${l}`)
 }
 
 function aboutMe(p: Profile | undefined, ms: Measurement[], today: string): string[] {
-  const d = (p?.dietAnamnesis ?? {}) as Partial<DietAnamnesis>
+  const d = p?.dietAnamnesis ?? {}
   return [
     ...profileLines(p),
     ...bodyLines(p, ms, today),

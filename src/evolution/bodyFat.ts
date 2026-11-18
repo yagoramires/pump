@@ -1,4 +1,4 @@
-import type { Profile, Sex } from '@/profile/types'
+import type { DietGoal, Profile, Sex } from '@/profile/types'
 import type { MeasureFields } from './types'
 import { round1 } from '@/lib/number'
 
@@ -17,8 +17,8 @@ export function bodyFat(sex: Sex, heightCm: number, m: MeasureFields): number | 
   return Number.isFinite(v) ? round1(v) : null
 }
 
-export const goalDirection = (p: Profile): 'gain' | 'loss' | null =>
-  p.dietGoal?.startsWith('perder') ? 'loss' : p.dietGoal?.startsWith('ganhar') ? 'gain' : null
+const DIRECTION: Record<DietGoal, 'gain' | 'loss' | null> = { 'perder-rapido': 'loss', perder: 'loss', manter: null, ganhar: 'gain', 'ganhar-rapido': 'gain' }
+export const goalDirection = (p: Profile): 'gain' | 'loss' | null => (p.dietGoal ? DIRECTION[p.dietGoal] : null)
 
 export type Metric = keyof MeasureFields | 'fat'
 const GOOD: Record<'gain' | 'loss', Metric[]> = { gain: ['weightKg', 'armCm', 'chestCm', 'thighCm'], loss: ['weightKg', 'waistCm', 'hipCm'] }

@@ -1,10 +1,9 @@
-import type { Angle, PhotoSet } from './types'
+import { ANGLES, type Angle, type PhotoSet } from './types'
 import { usePersisted } from '@/storage/db'
 import { deletePhotos } from '@/storage/photos'
 import { byDate } from './measurements'
 
-export const ANGLES = ['frente', 'lado', 'costas'] as const satisfies readonly Angle[]
-export const ANGLE_LABEL: Record<Angle, string> = { frente: 'Frente', lado: 'Lado', costas: 'Costas' }
+export { ANGLES, ANGLE_LABEL } from './types'
 
 export const hasPhoto = (s: PhotoSet) => ANGLES.some((a) => s[a])
 const photoIds = (s: PhotoSet) => ANGLES.flatMap((a) => s[a] ?? [])

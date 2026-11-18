@@ -36,7 +36,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   const [saved, setPlan] = usePersisted('dietPlan')
   const [foods] = usePersisted('foods')
   const [measurements] = usePersisted('measurements')
-  const [edited, setEdited] = useState<Partial<DietAnamnesis>>()
+  const [edited, setEdited] = useState<DietAnamnesis>()
   const [tab, setTab] = useState(0)
   const [picking, setPicking] = useState<DietItem>()
   const [replacing, setReplacing] = useState<DietPlan>()

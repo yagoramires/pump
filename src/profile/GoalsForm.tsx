@@ -1,5 +1,4 @@
-import type { Profile } from './types'
-import type { DietGoal } from '@/diet/types'
+import type { DietGoal, Profile } from './types'
 import { Chips } from '@/components/Chips'
 
 const DIET_GOALS: Record<DietGoal, string> = { 'perder-rapido': 'Perder rápido', perder: 'Perder peso', manter: 'Manter', ganhar: 'Ganhar peso', 'ganhar-rapido': 'Ganhar rápido' }

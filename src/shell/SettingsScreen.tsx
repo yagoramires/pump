@@ -9,7 +9,7 @@ import { Overlay } from '@/components/Overlay'
 import { BackHeader } from '@/components/BackHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { SettingsRow, SettingsSection } from '@/components/SettingsSection'
-import { series } from '@/evolution/measurements'
+import { latestWeight } from '@/evolution/measurements'
 import { ProfileScreen } from '@/profile/ProfileScreen'
 import { WorkoutSettings } from '@/workout/WorkoutSettings'
 import { DietSettings } from '@/diet/DietSettings'
@@ -22,7 +22,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
   const [confirmRedo, setConfirmRedo] = useState(false)
   const [profile] = usePersisted('profile')
   const [measurements] = usePersisted('measurements')
-  const weight = series(measurements, 'weightKg').at(-1)?.value
+  const weight = latestWeight(measurements)
   const backup = useBackupExport(toast.error)
   const back = () => setView(undefined)
 

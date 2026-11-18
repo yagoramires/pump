@@ -1,7 +1,7 @@
 import type { WaterSettings } from './types'
 import { usePersisted } from '@/storage/db'
 import { useToday } from '@/lib/useToday'
-import { series } from '@/evolution/measurements'
+import { latestWeight } from '@/evolution/measurements'
 import { addWater, turnWaterOn } from './water'
 
 export function useWater() {
@@ -13,7 +13,7 @@ export function useWater() {
 
   const save = (water: WaterSettings) => setSettings((s) => ({ ...s, water }))
   const turnOn = () => {
-    const water = turnWaterOn(settings.water, series(measurements, 'weightKg').at(-1)?.value ?? 0)
+    const water = turnWaterOn(settings.water, latestWeight(measurements) ?? 0)
     save(water)
     return water
   }

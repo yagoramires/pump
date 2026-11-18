@@ -42,4 +42,6 @@ export const series = (ms: Measurement[], key: Key): Point[] => byDate(ms).flatM
 export const fatSeries = (p: Profile, ms: Measurement[]): Point[] =>
   byDate(ms).flatMap((m) => { const value = bodyFat(p.sex, p.heightCm, m); return value === null ? [] : [{ date: m.date, value }] })
 
+export const latestWeight = (ms: Measurement[]): number | undefined => series(ms, 'weightKg').at(-1)?.value
+
 export const pointAt = (points: Point[], date: string) => (points.filter((p) => p.date <= date).pop() ?? points[0])?.value

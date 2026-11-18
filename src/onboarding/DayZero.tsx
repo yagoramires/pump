@@ -3,7 +3,8 @@ import { Camera } from 'lucide-react'
 import type { Profile } from '@/profile/types'
 import type { Angle } from '@/evolution/types'
 import { usePersisted } from '@/storage/db'
-import { todayKey, weekday } from '@/lib/date'
+import { todayKey } from '@/lib/date'
+import { checkInDayOf } from '@/evolution/checkIn'
 import { WeekdayChips } from '@/profile/WeekdayChips'
 import { MeasureForm } from '@/evolution/MeasureDrawer'
 import { PhotoCapture } from '@/evolution/PhotoCapture'
@@ -18,7 +19,7 @@ export function DayZero({ profile, onDone }: { profile: Profile; onDone: () => v
   const [, setProfile] = usePersisted('profile')
   const [settings, setSettings] = usePersisted('settings')
   const { sets } = usePhotoSets()
-  const [day, setDay] = useState(settings.checkInDay ?? weekday(today))
+  const [day, setDay] = useState(checkInDayOf(settings, today))
   const [capturing, setCapturing] = useState(false)
   const todaySet = sets.find((s) => s.date === today)
   // o form fica montado (só escondido) pra não perder o que já foi digitado enquanto a câmera está aberta

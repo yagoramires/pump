@@ -2,7 +2,7 @@ import type { DietAnamnesis, Restriction } from './types'
 import { Chips, MultiChips } from '@/components/Chips'
 import { Input } from '@/components/ui/input'
 
-type Value = Partial<DietAnamnesis>
+type Value = DietAnamnesis
 type EatOut = NonNullable<DietAnamnesis['eatOut']>
 
 const LABEL = 'label-caps mb-1.5 block tracking-[0.08em]'

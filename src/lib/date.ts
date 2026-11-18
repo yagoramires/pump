@@ -50,6 +50,9 @@ export function daysBetween(a: string, b: string): number {
   return Math.round((utc(b) - utc(a)) / 86_400_000)
 }
 
+/** semanas entre duas datas, no mínimo 1 */
+export const weeksBetween = (a: string, b: string): number => Math.max(1, Math.round(daysBetween(a, b) / 7))
+
 export function formatDayLabel(key: string): string {
   const d = parseDayKey(key)
   return `${WEEKDAY_SHORT[d.getDay()]}, ${d.getDate()} ${MESES[d.getMonth()]}`

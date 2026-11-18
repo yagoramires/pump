@@ -62,9 +62,11 @@ test('migrateStored grava o perfil migrado e a medição no store', async () => 
   expect(await readCurrent('profile')).not.toHaveProperty('weightKg')
   expect(await readCurrent('profile')).toMatchObject({ focus: 'forca', dietGoal: 'perder', age: 30 })
 })
-test('importBackupFile migra um backup antigo', async () => {
+test('backup antigo importado fica migrado na abertura seguinte', async () => {
   const data = { profile: { sex: 'F', heightCm: 160, anamnesis: { goal: 'saude' } } }
   await importBackupFile(new File([JSON.stringify({ app: 'pump', version: 1, exportedAt: '2026-11-01T00:00:00Z', data })], 'b.json'))
+  resetStoreForTests() // a importação recarrega a página: a abertura migra
+  await migrateStored()
   expect((await readCurrent('profile')).focus).toBe('condicionamento')
 })
 test('falha ao gravar a migração não rejeita e não apaga o peso do perfil no disco', async () => {
