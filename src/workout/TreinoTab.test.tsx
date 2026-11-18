@@ -16,7 +16,7 @@ vi.mock('idb-keyval', async (orig) => {
 })
 
 const plano: WorkoutPlan = { workouts: [
-  { id: 'a', label: 'A', name: 'Peito e tríceps', weekdays: [1], exercises: [
+  { id: 'a', label: 'A', name: 'Peito e tríceps', exercises: [
     pe({ exerciseId: 'Supino', name: 'Supino reto', sets: 2, reps: '10', weightKg: 40, restSec: 60, images: ['S/0.jpg', 'S/1.jpg'] }),
     pe({ exerciseId: 'custom-1', name: 'Remada X', custom: true, note: 'banco 3' }),
   ] },
@@ -58,11 +58,6 @@ test('editar o plano no meio do treino não muda o que está na tela', async () 
   expect(screen.getByText('3 × 10 · 0 kg')).toBeInTheDocument()
   expect(screen.queryByText('Outro')).not.toBeInTheDocument()
 })
-test('domingo sem treino mostra Dia de descanso', async () => {
-  vi.setSystemTime(new Date(2026, 10, 22, 10, 0))
-  await renderLoaded(<TreinoTab />)
-  expect(await screen.findByText('Dia de descanso')).toBeInTheDocument()
-})
 test('exercício sem foto: ícone na miniatura e preview só com texto', async () => {
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
@@ -87,13 +82,6 @@ test('editar carga inline e marcar; editar série feita grava a partir da guarda
   expect(kg).toHaveValue('45')
   expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]).toEqual({ reps: '8', weightKg: 45 })
 })
-test('voltar do segundo plano num novo dia mostra o treino do novo dia', async () => {
-  await renderLoaded(<TreinoTab />)
-  expect(await screen.findByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
-  vi.setSystemTime(new Date(2026, 10, 17, 7, 0)) // terça, sem treino
-  act(() => { document.dispatchEvent(new Event('visibilitychange')) })
-  expect(await screen.findByText('Dia de descanso')).toBeInTheDocument()
-})
 test('treino em andamento passa da meia-noite e segue no mesmo dia ao voltar', async () => {
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
@@ -102,7 +90,6 @@ test('treino em andamento passa da meia-noite e segue no mesmo dia ao voltar', a
   vi.setSystemTime(new Date(2026, 10, 17, 0, 30))
   await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
   expect(screen.getByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
-  expect(screen.queryByText('Dia de descanso')).not.toBeInTheDocument()
 })
 test('check recém-feito, ainda gravando, segura o dia ao voltar depois da meia-noite', async () => {
   await renderLoaded(<TreinoTab />)
@@ -112,7 +99,6 @@ test('check recém-feito, ainda gravando, segura o dia ao voltar depois da meia-
   vi.setSystemTime(new Date(2026, 10, 17, 0, 30))
   await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
   expect(screen.getByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
-  expect(screen.queryByText('Dia de descanso')).not.toBeInTheDocument()
 })
 test('carga com vírgula na tabela grava decimal', async () => {
   const user = userEvent.setup()

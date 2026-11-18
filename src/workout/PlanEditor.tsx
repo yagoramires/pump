@@ -12,9 +12,6 @@ import { Button } from '@/components/ui/button'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { formatKg } from '@/lib/number'
 import { cn } from '@/lib/utils'
-import { WEEKDAY_SHORT } from '@/lib/date'
-
-const DAY_NAMES = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
 
 type Props = { initial: WorkoutPlan; onSave: (plan: WorkoutPlan) => void; onCancel: () => void }
 
@@ -41,7 +38,7 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
       const used = new Set(p.workouts.map((w) => w.label))
       const label = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].find((l) => !used.has(l))
       if (!label) return p
-      return { workouts: [...p.workouts, { id: crypto.randomUUID(), label, name: `Treino ${label}`, weekdays: [], exercises: [] }] }
+      return { workouts: [...p.workouts, { id: crypto.randomUUID(), label, name: `Treino ${label}`, exercises: [] }] }
     })
 
   const ew = editing && plan.workouts.find((w) => w.id === editing.wid)
@@ -60,20 +57,6 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
             <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-accent-bg text-base font-semibold text-accent">{w.label}</span>
             <input id={`name-${w.id}`} className="h-11 min-w-0 flex-1 rounded-xl bg-transparent px-2 text-base font-semibold text-strong outline-none focus-visible:bg-surface" aria-label={`Nome do treino ${w.label}`} autoComplete="off" enterKeyHint="done" value={w.name} onChange={(e) => patchWorkout(w.id, (x) => ({ ...x, name: e.target.value }))} />
             <button type="button" className="flex size-11 items-center justify-center text-text-2" aria-label={`Mais ações do treino ${w.label}`} onClick={() => setMenuFor(w.id)}><MoreHorizontal size={20} /></button>
-          </div>
-          <div className="grid grid-cols-7 gap-1" role="group" aria-label={`Dias do treino ${w.label}`}>
-            {DAY_NAMES.map((full, d) => (
-              <button
-                key={d}
-                type="button"
-                className={cn('h-11 rounded-[10px] border text-[13px] font-semibold', w.weekdays.includes(d) ? 'border-accent bg-accent text-on-accent' : 'border-border text-text-2')}
-                aria-label={full}
-                aria-pressed={w.weekdays.includes(d)}
-                onClick={() => patchWorkout(w.id, (x) => ({ ...x, weekdays: x.weekdays.includes(d) ? x.weekdays.filter((n) => n !== d) : [...x.weekdays, d].sort() }))}
-              >
-                {WEEKDAY_SHORT[d][0]}
-              </button>
-            ))}
           </div>
           {[false, true].map((cardio) => {
             const items = w.exercises.map((e, i) => ({ e, i })).filter(({ e }) => isCardio(e) === cardio)

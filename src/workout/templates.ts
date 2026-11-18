@@ -5,7 +5,7 @@ export interface PlanTemplate {
   id: string
   name: string
   description: string
-  workouts: { label: string; name: string; weekdays: number[]; exerciseIds: string[] }[]
+  workouts: { label: string; name: string; exerciseIds: string[] }[]
 }
 
 const BENCH = 'Barbell_Bench_Press_-_Medium_Grip'
@@ -31,7 +31,7 @@ export const TEMPLATES: PlanTemplate[] = [
     name: 'Fullbody 3×',
     description: 'Corpo inteiro, 3×/semana',
     workouts: [
-      { label: 'A', name: 'Corpo inteiro', weekdays: [1, 3, 5], exerciseIds: [SQUAT, BENCH, PULLDOWN, OHP, 'Romanian_Deadlift', ROW, 'Plank'] },
+      { label: 'A', name: 'Corpo inteiro', exerciseIds: [SQUAT, BENCH, PULLDOWN, OHP, 'Romanian_Deadlift', ROW, 'Plank'] },
     ],
   },
   {
@@ -39,8 +39,8 @@ export const TEMPLATES: PlanTemplate[] = [
     name: 'AB',
     description: 'Empurrar e puxar + pernas, 4×/semana',
     workouts: [
-      { label: 'A', name: 'Peito, ombro e tríceps', weekdays: [1, 4], exerciseIds: [BENCH, 'Dumbbell_Flyes', OHP, LATERAL, PUSHDOWN] },
-      { label: 'B', name: 'Costas, bíceps e pernas', weekdays: [2, 5], exerciseIds: [PULLDOWN, ROW, BBCURL, SQUAT, LEGPRESS, CURL] },
+      { label: 'A', name: 'Peito, ombro e tríceps', exerciseIds: [BENCH, 'Dumbbell_Flyes', OHP, LATERAL, PUSHDOWN] },
+      { label: 'B', name: 'Costas, bíceps e pernas', exerciseIds: [PULLDOWN, ROW, BBCURL, SQUAT, LEGPRESS, CURL] },
     ],
   },
   {
@@ -48,9 +48,9 @@ export const TEMPLATES: PlanTemplate[] = [
     name: 'ABC',
     description: 'Divisão clássica, 6×/semana',
     workouts: [
-      { label: 'A', name: 'Peito, ombro e tríceps', weekdays: [1, 4], exerciseIds: [BENCH, INCLINE, 'Dumbbell_Flyes', OHP, LATERAL, PUSHDOWN] },
-      { label: 'B', name: 'Costas e bíceps', weekdays: [2, 5], exerciseIds: [PULLDOWN, BBROW, ROW, 'One-Arm_Dumbbell_Row', BBCURL, HAMMER] },
-      { label: 'C', name: 'Pernas', weekdays: [3, 6], exerciseIds: [SQUAT, LEGPRESS, EXT, CURL, 'Stiff-Legged_Barbell_Deadlift', CALF] },
+      { label: 'A', name: 'Peito, ombro e tríceps', exerciseIds: [BENCH, INCLINE, 'Dumbbell_Flyes', OHP, LATERAL, PUSHDOWN] },
+      { label: 'B', name: 'Costas e bíceps', exerciseIds: [PULLDOWN, BBROW, ROW, 'One-Arm_Dumbbell_Row', BBCURL, HAMMER] },
+      { label: 'C', name: 'Pernas', exerciseIds: [SQUAT, LEGPRESS, EXT, CURL, 'Stiff-Legged_Barbell_Deadlift', CALF] },
     ],
   },
   {
@@ -58,10 +58,10 @@ export const TEMPLATES: PlanTemplate[] = [
     name: 'ABCD',
     description: 'Um grupo por dia, 4×/semana',
     workouts: [
-      { label: 'A', name: 'Peito e tríceps', weekdays: [1], exerciseIds: [BENCH, INCLINE, 'Cable_Crossover', PUSHDOWN, 'EZ-Bar_Skullcrusher'] },
-      { label: 'B', name: 'Costas e bíceps', weekdays: [2], exerciseIds: [PULLDOWN, BBROW, ROW, BBCURL, HAMMER] },
-      { label: 'C', name: 'Pernas', weekdays: [4], exerciseIds: [SQUAT, LEGPRESS, EXT, CURL, THRUST, CALF] },
-      { label: 'D', name: 'Ombros e abdômen', weekdays: [5], exerciseIds: [OHP, LATERAL, 'Seated_Bent-Over_Rear_Delt_Raise', 'Dumbbell_Shrug', 'Cable_Crunch', 'Plank'] },
+      { label: 'A', name: 'Peito e tríceps', exerciseIds: [BENCH, INCLINE, 'Cable_Crossover', PUSHDOWN, 'EZ-Bar_Skullcrusher'] },
+      { label: 'B', name: 'Costas e bíceps', exerciseIds: [PULLDOWN, BBROW, ROW, BBCURL, HAMMER] },
+      { label: 'C', name: 'Pernas', exerciseIds: [SQUAT, LEGPRESS, EXT, CURL, THRUST, CALF] },
+      { label: 'D', name: 'Ombros e abdômen', exerciseIds: [OHP, LATERAL, 'Seated_Bent-Over_Rear_Delt_Raise', 'Dumbbell_Shrug', 'Cable_Crunch', 'Plank'] },
     ],
   },
   {
@@ -69,8 +69,8 @@ export const TEMPLATES: PlanTemplate[] = [
     name: 'Superior/Inferior',
     description: 'Superiores e inferiores, 4×/semana',
     workouts: [
-      { label: 'A', name: 'Superior', weekdays: [1, 4], exerciseIds: [BENCH, PULLDOWN, OHP, ROW, BBCURL, PUSHDOWN] },
-      { label: 'B', name: 'Inferior', weekdays: [2, 5], exerciseIds: [SQUAT, LEGPRESS, EXT, CURL, THRUST, CALF] },
+      { label: 'A', name: 'Superior', exerciseIds: [BENCH, PULLDOWN, OHP, ROW, BBCURL, PUSHDOWN] },
+      { label: 'B', name: 'Inferior', exerciseIds: [SQUAT, LEGPRESS, EXT, CURL, THRUST, CALF] },
     ],
   },
 ]
@@ -82,7 +82,6 @@ export function instantiateTemplate(t: PlanTemplate, catalog: Exercise[]): Worko
       id: crypto.randomUUID(),
       label: w.label,
       name: w.name,
-      weekdays: [...w.weekdays],
       exercises: w.exerciseIds.flatMap((id) => (byId.has(id) ? [toPlanExercise(byId.get(id)!)] : [])),
     })),
   }

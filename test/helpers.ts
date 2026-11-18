@@ -9,7 +9,7 @@ export const pe = (over: Partial<PlanExercise> = {}): PlanExercise => ({
 })
 
 export const workoutOf = (exs: Partial<PlanExercise>[], over: Partial<Workout> = {}): Workout => ({
-  id: 'w', label: 'A', name: 'Treino A', weekdays: [1], exercises: exs.map(pe), ...over,
+  id: 'w', label: 'A', name: 'Treino A', exercises: exs.map(pe), ...over,
 })
 
 export const planOf = (ws: Partial<Workout>[]): WorkoutPlan => ({

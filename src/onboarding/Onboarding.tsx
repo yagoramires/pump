@@ -4,7 +4,8 @@ import { DEFAULTS } from '@/schema'
 import type { Exercise, WorkoutPlan } from '@/workout/types'
 import { usePersisted } from '@/storage/db'
 import { fetchExercises } from '@/catalog/catalog'
-import { WEEK_ORDER, todayKey } from '@/lib/date'
+import { todayKey } from '@/lib/date'
+import { plural } from '@/lib/number'
 import { TEMPLATES, instantiateTemplate } from '@/workout/templates'
 import { PlanEditor } from '@/workout/PlanEditor'
 import { PlanImport } from '@/workout/PlanImport'
@@ -90,7 +91,6 @@ export function Onboarding() {
       <BackHeader title="Seu treino" onBack={() => { setAnamneseStep(2); setStep('anamnese') }} className="mb-3 px-0 py-0" />
       <div role="radiogroup" aria-label="Planos" className="overflow-hidden card">
         {TEMPLATES.map((t) => {
-          const days = new Set(t.workouts.flatMap((w) => w.weekdays))
           const on = t.id === picked
           return (
             <button key={t.id} type="button" role="radio" aria-checked={on} aria-label={t.name} onClick={() => setPicked(t.id)} className={cn('flex min-h-14 w-full items-center gap-3 border-t border-line px-3.5 py-2.5 text-left first:border-t-0', on && 'bg-accent-bg')}>
@@ -98,9 +98,7 @@ export function Onboarding() {
                 <span className="block text-[15px] font-semibold text-strong">{t.name}</span>
                 <span className="block text-[13px] text-text-2">{t.description}</span>
               </span>
-              <span className="flex gap-1" aria-hidden="true">
-                {WEEK_ORDER.map((d) => <span key={d} className={cn('size-1.5 rounded-full', days.has(d) ? 'bg-accent' : 'bg-border-strong')} />)}
-              </span>
+              <span className="text-[13px] text-text-2">{plural(t.workouts.length, 'treino', 'treinos')}</span>
             </button>
           )
         })}

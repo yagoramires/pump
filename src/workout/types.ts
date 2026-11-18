@@ -19,7 +19,7 @@ export interface PlanExercise {
   note?: string
 }
 /** label = letra 'A', 'B'… */
-export interface Workout { id: string; label: string; name: string; weekdays: number[]; exercises: PlanExercise[] }
+export interface Workout { id: string; label: string; name: string; exercises: PlanExercise[] }
 export interface WorkoutPlan { workouts: Workout[] }
 export interface SetDone { reps: string; weightKg: number }
 /** sets.length = séries planejadas */

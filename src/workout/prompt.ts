@@ -38,11 +38,12 @@ ${me.length ? me.join('\n') : '- (ainda não contei nada)'}
 Como fazer:
 1. Se eu colar uma ficha pronta junto, só transcreva ela pro formato, sem mudar nada.
 2. Senão, se faltar algo importante pra montar um bom plano (objetivo, dias por semana, tempo por treino, onde treino, nível, lesões), me pergunte primeiro, tudo numa mensagem só, e espere minha resposta. Nessa hora não mande JSON.
-3. Monte o plano pro meu objetivo: escolha séries, repetições e descanso de acordo com ele, use a divisão que prefiro (se eu disse), distribua os treinos nos dias que tenho, dê um pouco mais de volume aos meus pontos fracos e evite exercícios que piorem minhas lesões ou limitações.
+3. Monte o plano pro meu objetivo: escolha séries, repetições e descanso de acordo com ele, use a divisão que prefiro (se eu disse), dê um pouco mais de volume aos meus pontos fracos e evite exercícios que piorem minhas lesões ou limitações.
 4. Cada treino tem que caber no tempo por treino. Some 5 min de aquecimento, o cardio e, pra cada série, uns 40 s de execução mais o descanso. Por exemplo: 60 min com 20 de cardio deixam uns 35 min pra musculação, o que dá umas 12 a 15 séries (4 ou 5 exercícios). Se passar do tempo, corte exercícios ou séries, nunca o descanso.
 5. Cardio, abdômen ou mobilidade entram como exercícios do treino; no cardio use "series": 1 e o tempo em "reps", como "20 min".
 6. Só coloque "cargaKg" se souber quanto eu levanto; senão deixe de fora.
-7. Com o plano pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
+7. Os treinos rodam em sequência, na ordem da lista (A, B, C…), um por dia de treino.
+8. Com o plano pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
 
 Formato:
 - "formato": sempre "${HEADER.formato}".
@@ -50,7 +51,6 @@ Formato:
 - "treinos": lista com pelo menos um treino. Cada treino tem:
   - "letra": identificador curto e único ("A", "B", "C"...).
   - "nome": nome do treino (ex.: "Peito e tríceps").
-  - "dias": lista de dias da semana, entre "seg", "ter", "qua", "qui", "sex", "sab", "dom".
   - "exercicios": lista com pelo menos um exercício. Cada exercício tem:
     - "nome": nome do exercício (obrigatório).
     - "series": número inteiro de ${SETS[0]} a ${SETS[1]} (obrigatório).
@@ -70,7 +70,6 @@ Exemplo:
     {
       "letra": "A",
       "nome": "Peito e tríceps",
-      "dias": ["seg", "qui"],
       "exercicios": [
         { "nome": "supino reto com barra", "series": 4, "reps": "8-10", "cargaKg": 40, "descansoSeg": 90 },
         { "nome": "tríceps corda", "series": 3, "reps": "12", "obs": "segurar 1s embaixo" }

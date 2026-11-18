@@ -14,7 +14,7 @@ beforeEach(async () => {
 test('Salvar entrega o plano editado pro onSave e não grava nada sozinho', async () => {
   const user = userEvent.setup()
   const onSave = vi.fn()
-  await renderLoaded(<PlanEditor initial={{ workouts: [{ id: 'w1', label: 'A', name: 'Treino de pernas', weekdays: [1], exercises: [] }] }} onSave={onSave} onCancel={vi.fn()} />)
+  await renderLoaded(<PlanEditor initial={{ workouts: [{ id: 'w1', label: 'A', name: 'Treino de pernas', exercises: [] }] }} onSave={onSave} onCancel={vi.fn()} />)
   const name = await screen.findByDisplayValue('Treino de pernas')
   await user.clear(name)
   await user.type(name, 'Pernas')

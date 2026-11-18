@@ -21,3 +21,7 @@ test('anamnese inválida vinda de backup não quebra nem gera linha vazia', () =
   expect(p).not.toContain('Pontos fracos')
   expect(p).not.toContain('Lesões, limitações ou observações:')
 })
+test('prompt do treino não pede dias', () => {
+  expect(buildPrompt(undefined)).not.toContain('"dias"')
+  expect(buildPrompt(undefined)).toContain('na ordem da lista')
+})

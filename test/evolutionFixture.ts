@@ -24,7 +24,7 @@ for (const k of eachDay('2026-10-05', '2026-12-19')) {
 }
 delete workoutLog['2026-12-18'].completedAt // aberto e não concluído: não conta
 
-const workoutPlan: WorkoutPlan = { workouts: [{ id: 'a', label: 'A', name: 'Treino A', weekdays: [1, 3, 5], exercises: [] }] }
+const workoutPlan: WorkoutPlan = { workouts: [{ id: 'a', label: 'A', name: 'Treino A', exercises: [] }] }
 
 const measurements: Measurement[] = [
   { id: 'm1', date: '2026-10-05', weightKg: 88, neckCm: 40, waistCm: 98, hipCm: 104, armCm: 36, chestCm: 104 },

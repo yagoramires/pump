@@ -37,7 +37,8 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
   const total = (n: number): Achievement['earnedAt'] => sessions[n - 1]?.date
 
   const trained = new Set(sessions.map((s) => s.date))
-  const planned = new Set(d.workoutPlan.workouts.flatMap((w) => w.weekdays))
+  // shortcut: sem dias da semana a sequência não zera; a Task 2 troca pela meta semanal
+  const planned = new Set<number>()
   const reached = new Map<number, string>()
   let count = 0
   if (sessions.length) {

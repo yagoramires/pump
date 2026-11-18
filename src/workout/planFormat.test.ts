@@ -14,10 +14,9 @@ test('aceita JSON dentro de bloco de código da resposta da IA', () => {
   expect(parsePlanFormat('Aqui está:\n```json\n' + JSON.stringify(ok) + '\n```\nBom treino!').treinos[0].exercicios[0].reps).toBe('10')
 })
 test('lista todos os problemas em pt-BR, na ordem', () => {
-  const bad = { formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'X', dias: ['segunda'], exercicios: [{ nome: '', series: 'quatro', reps: '10' }] }, { letra: 'A', nome: '', dias: [], exercicios: [] }] }
+  const bad = { formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'X', exercicios: [{ nome: '', series: 'quatro', reps: '10' }] }, { letra: 'A', nome: '', dias: [], exercicios: [] }] }
   try { parsePlanFormat(JSON.stringify(bad)); throw new Error('não lançou') }
   catch (e) { expect((e as FormatError).problems).toEqual([
-    'Treino A: dia "segunda" inválido (use seg, ter, qua, qui, sex, sab, dom)',
     'Treino A, exercício 1: "nome" vazio',
     'Treino A, exercício 1: "series" precisa ser um número inteiro de 1 a 20',
     'Treino A: "letra" repetida',
@@ -30,14 +29,14 @@ test('recusa texto sem JSON, outro formato ou versão mais nova', () => {
   expect(() => parsePlanFormat('{"formato":"x","versao":1,"treinos":[]}')).toThrow()
   expect(() => parsePlanFormat('{"formato":"pump-plano","versao":2,"treinos":[]}')).toThrow('Versão 2 não suportada (este app lê a versão 1)')
 })
-test('aceita sáb e valida carga e descanso', () => {
-  const t = { letra: 'A', nome: 'X', dias: ['sáb'], exercicios: [{ nome: 'a', series: 3, reps: '8', cargaKg: -1, descansoSeg: 1.5 }] }
+test('valida carga e descanso', () => {
+  const t = { letra: 'A', nome: 'X', exercicios: [{ nome: 'a', series: 3, reps: '8', cargaKg: -1, descansoSeg: 1.5 }] }
   try { parsePlanFormat(JSON.stringify({ ...ok, treinos: [t] })); throw new Error('não lançou') }
   catch (e) { expect((e as FormatError).problems).toEqual([
     'Treino A, exercício 1: "cargaKg" precisa ser um número maior ou igual a 0',
     'Treino A, exercício 1: "descansoSeg" precisa ser um número inteiro maior ou igual a 0',
   ]) }
-  expect(parsePlanFormat(JSON.stringify({ ...ok, treinos: [{ ...t, exercicios: [{ nome: 'a', series: 3, reps: '8' }] }] })).treinos[0].dias).toEqual(['sab'])
+  expect(parsePlanFormat(JSON.stringify({ ...ok, treinos: [{ ...t, exercicios: [{ nome: 'a', series: 3, reps: '8' }] }] })).treinos).toHaveLength(1)
 })
 test('recusa carga infinita (1e999 no JSON)', () => {
   const t = { letra: 'A', nome: 'X', dias: ['seg'], exercicios: [{ nome: 'a', series: 3, reps: '8', cargaKg: 0 }] }
@@ -55,7 +54,7 @@ test('os nomes de exemplo do prompt existem no catálogo', () => {
 test('casa com o catálogo ignorando acento/caixa; o resto vira exercício seu', () => {
   const r = planFromFormat(parsePlanFormat(JSON.stringify(ok)), catalog, [])
   const [w] = r.plan.workouts
-  expect(w).toMatchObject({ label: 'A', name: 'Peito', weekdays: [1, 4] })
+  expect(w).toMatchObject({ label: 'A', name: 'Peito' })
   expect(w.exercises[0]).toMatchObject({ exerciseId: 'Barbell_Bench_Press_-_Medium_Grip', sets: 4, reps: '10', weightKg: 40, restSec: 90 })
   expect(w.exercises[1]).toMatchObject({ custom: true, name: 'Remada na máquina do Zé', weightKg: 0, note: 'banco 3' })
   expect(r.unmatched).toEqual(['Remada na máquina do Zé'])
@@ -75,3 +74,8 @@ test('arquivo só com dieta no import de treino dá a mensagem da aba Dieta', ()
   expect(() => parsePlanFormat('{"formato":"pump-plano","versao":1,"dieta":{"refeicoes":[]}}')).toThrow('Este arquivo só tem dieta. Importe na aba Dieta.'))
 test('dieta junto com treinos gera o aviso da aba Dieta', () =>
   expect(planFromFormat({ ...parsePlanFormat(JSON.stringify(ok)), dieta: {} }, catalog, []).ignoredDiet).toBe(true))
+test('importa arquivo com dias e exporta sem dias', () => {
+  const r = planFromFormat(parsePlanFormat(JSON.stringify(ok)), catalog, [])
+  expect(r.plan.workouts[0]).not.toHaveProperty('weekdays')
+  expect(exportPlanFormat(r.plan)).not.toContain('dias')
+})

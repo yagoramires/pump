@@ -853,7 +853,7 @@ exports[`golden female @ 2026-11-30 1`] = `
     {
       "earnedAt": undefined,
       "id": "streak-30",
-      "progress": "falta 23",
+      "progress": "falta 7",
       "title": "30 treinos seguidos",
     },
     {
@@ -1138,9 +1138,9 @@ exports[`golden female @ 2026-12-20 1`] = `
       "title": "7 treinos seguidos",
     },
     {
-      "earnedAt": undefined,
+      "earnedAt": "2026-12-16",
       "id": "streak-30",
-      "progress": "falta 30",
+      "progress": undefined,
       "title": "30 treinos seguidos",
     },
     {
@@ -1371,6 +1371,10 @@ exports[`golden female @ 2026-12-20 1`] = `
           "title": "7 treinos seguidos",
         },
         {
+          "earnedAt": "2026-12-16",
+          "title": "30 treinos seguidos",
+        },
+        {
           "earnedAt": "2026-10-26",
           "title": "10 treinos",
         },
@@ -1433,9 +1437,9 @@ exports[`golden female @ 2027-01-29 1`] = `
       "title": "7 treinos seguidos",
     },
     {
-      "earnedAt": undefined,
+      "earnedAt": "2026-12-16",
       "id": "streak-30",
-      "progress": "falta 30",
+      "progress": undefined,
       "title": "30 treinos seguidos",
     },
     {
@@ -1664,6 +1668,10 @@ exports[`golden female @ 2027-01-29 1`] = `
         {
           "earnedAt": "2026-10-19",
           "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-12-16",
+          "title": "30 treinos seguidos",
         },
         {
           "earnedAt": "2026-10-26",
@@ -2012,7 +2020,7 @@ exports[`golden gain @ 2026-11-30 1`] = `
     {
       "earnedAt": undefined,
       "id": "streak-30",
-      "progress": "falta 23",
+      "progress": "falta 7",
       "title": "30 treinos seguidos",
     },
     {
@@ -2297,9 +2305,9 @@ exports[`golden gain @ 2026-12-20 1`] = `
       "title": "7 treinos seguidos",
     },
     {
-      "earnedAt": undefined,
+      "earnedAt": "2026-12-16",
       "id": "streak-30",
-      "progress": "falta 30",
+      "progress": undefined,
       "title": "30 treinos seguidos",
     },
     {
@@ -2530,6 +2538,10 @@ exports[`golden gain @ 2026-12-20 1`] = `
           "title": "7 treinos seguidos",
         },
         {
+          "earnedAt": "2026-12-16",
+          "title": "30 treinos seguidos",
+        },
+        {
           "earnedAt": "2026-10-26",
           "title": "10 treinos",
         },
@@ -2592,9 +2604,9 @@ exports[`golden gain @ 2027-01-29 1`] = `
       "title": "7 treinos seguidos",
     },
     {
-      "earnedAt": undefined,
+      "earnedAt": "2026-12-16",
       "id": "streak-30",
-      "progress": "falta 30",
+      "progress": undefined,
       "title": "30 treinos seguidos",
     },
     {
@@ -2823,6 +2835,10 @@ exports[`golden gain @ 2027-01-29 1`] = `
         {
           "earnedAt": "2026-10-19",
           "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-12-16",
+          "title": "30 treinos seguidos",
         },
         {
           "earnedAt": "2026-10-26",
@@ -3175,7 +3191,7 @@ exports[`golden loss @ 2026-11-30 1`] = `
     {
       "earnedAt": undefined,
       "id": "streak-30",
-      "progress": "falta 23",
+      "progress": "falta 7",
       "title": "30 treinos seguidos",
     },
     {
@@ -3464,9 +3480,9 @@ exports[`golden loss @ 2026-12-20 1`] = `
       "title": "7 treinos seguidos",
     },
     {
-      "earnedAt": undefined,
+      "earnedAt": "2026-12-16",
       "id": "streak-30",
-      "progress": "falta 30",
+      "progress": undefined,
       "title": "30 treinos seguidos",
     },
     {
@@ -3697,6 +3713,10 @@ exports[`golden loss @ 2026-12-20 1`] = `
           "title": "7 treinos seguidos",
         },
         {
+          "earnedAt": "2026-12-16",
+          "title": "30 treinos seguidos",
+        },
+        {
           "earnedAt": "2026-10-26",
           "title": "10 treinos",
         },
@@ -3763,9 +3783,9 @@ exports[`golden loss @ 2027-01-29 1`] = `
       "title": "7 treinos seguidos",
     },
     {
-      "earnedAt": undefined,
+      "earnedAt": "2026-12-16",
       "id": "streak-30",
-      "progress": "falta 30",
+      "progress": undefined,
       "title": "30 treinos seguidos",
     },
     {
@@ -3994,6 +4014,10 @@ exports[`golden loss @ 2027-01-29 1`] = `
         {
           "earnedAt": "2026-10-19",
           "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-12-16",
+          "title": "30 treinos seguidos",
         },
         {
           "earnedAt": "2026-10-26",
@@ -4334,7 +4358,7 @@ exports[`golden neutral @ 2026-11-30 1`] = `
     {
       "earnedAt": undefined,
       "id": "streak-30",
-      "progress": "falta 23",
+      "progress": "falta 7",
       "title": "30 treinos seguidos",
     },
     {
@@ -4607,9 +4631,9 @@ exports[`golden neutral @ 2026-12-20 1`] = `
       "title": "7 treinos seguidos",
     },
     {
-      "earnedAt": undefined,
+      "earnedAt": "2026-12-16",
       "id": "streak-30",
-      "progress": "falta 30",
+      "progress": undefined,
       "title": "30 treinos seguidos",
     },
     {
@@ -4828,6 +4852,10 @@ exports[`golden neutral @ 2026-12-20 1`] = `
           "title": "7 treinos seguidos",
         },
         {
+          "earnedAt": "2026-12-16",
+          "title": "30 treinos seguidos",
+        },
+        {
           "earnedAt": "2026-10-26",
           "title": "10 treinos",
         },
@@ -4890,9 +4918,9 @@ exports[`golden neutral @ 2027-01-29 1`] = `
       "title": "7 treinos seguidos",
     },
     {
-      "earnedAt": undefined,
+      "earnedAt": "2026-12-16",
       "id": "streak-30",
-      "progress": "falta 30",
+      "progress": undefined,
       "title": "30 treinos seguidos",
     },
     {
@@ -5109,6 +5137,10 @@ exports[`golden neutral @ 2027-01-29 1`] = `
         {
           "earnedAt": "2026-10-19",
           "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-12-16",
+          "title": "30 treinos seguidos",
         },
         {
           "earnedAt": "2026-10-26",
@@ -5435,7 +5467,7 @@ exports[`golden noDiet @ 2026-11-30 1`] = `
     {
       "earnedAt": undefined,
       "id": "streak-30",
-      "progress": "falta 23",
+      "progress": "falta 7",
       "title": "30 treinos seguidos",
     },
     {
@@ -5693,9 +5725,9 @@ exports[`golden noDiet @ 2026-12-20 1`] = `
       "title": "7 treinos seguidos",
     },
     {
-      "earnedAt": undefined,
+      "earnedAt": "2026-12-16",
       "id": "streak-30",
-      "progress": "falta 30",
+      "progress": undefined,
       "title": "30 treinos seguidos",
     },
     {
@@ -5887,6 +5919,10 @@ exports[`golden noDiet @ 2026-12-20 1`] = `
           "title": "7 treinos seguidos",
         },
         {
+          "earnedAt": "2026-12-16",
+          "title": "30 treinos seguidos",
+        },
+        {
           "earnedAt": "2026-10-26",
           "title": "10 treinos",
         },
@@ -5953,9 +5989,9 @@ exports[`golden noDiet @ 2027-01-29 1`] = `
       "title": "7 treinos seguidos",
     },
     {
-      "earnedAt": undefined,
+      "earnedAt": "2026-12-16",
       "id": "streak-30",
-      "progress": "falta 30",
+      "progress": undefined,
       "title": "30 treinos seguidos",
     },
     {
@@ -6145,6 +6181,10 @@ exports[`golden noDiet @ 2027-01-29 1`] = `
         {
           "earnedAt": "2026-10-19",
           "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-12-16",
+          "title": "30 treinos seguidos",
         },
         {
           "earnedAt": "2026-10-26",
@@ -6489,7 +6529,7 @@ exports[`golden noHeight @ 2026-11-30 1`] = `
     {
       "earnedAt": undefined,
       "id": "streak-30",
-      "progress": "falta 23",
+      "progress": "falta 7",
       "title": "30 treinos seguidos",
     },
     {
@@ -6766,9 +6806,9 @@ exports[`golden noHeight @ 2026-12-20 1`] = `
       "title": "7 treinos seguidos",
     },
     {
-      "earnedAt": undefined,
+      "earnedAt": "2026-12-16",
       "id": "streak-30",
-      "progress": "falta 30",
+      "progress": undefined,
       "title": "30 treinos seguidos",
     },
     {
@@ -6991,6 +7031,10 @@ exports[`golden noHeight @ 2026-12-20 1`] = `
           "title": "7 treinos seguidos",
         },
         {
+          "earnedAt": "2026-12-16",
+          "title": "30 treinos seguidos",
+        },
+        {
           "earnedAt": "2026-10-26",
           "title": "10 treinos",
         },
@@ -7053,9 +7097,9 @@ exports[`golden noHeight @ 2027-01-29 1`] = `
       "title": "7 treinos seguidos",
     },
     {
-      "earnedAt": undefined,
+      "earnedAt": "2026-12-16",
       "id": "streak-30",
-      "progress": "falta 30",
+      "progress": undefined,
       "title": "30 treinos seguidos",
     },
     {
@@ -7276,6 +7320,10 @@ exports[`golden noHeight @ 2027-01-29 1`] = `
         {
           "earnedAt": "2026-10-19",
           "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-12-16",
+          "title": "30 treinos seguidos",
         },
         {
           "earnedAt": "2026-10-26",
@@ -7628,7 +7676,7 @@ exports[`golden waterOutsideDiet @ 2026-11-30 1`] = `
     {
       "earnedAt": undefined,
       "id": "streak-30",
-      "progress": "falta 23",
+      "progress": "falta 7",
       "title": "30 treinos seguidos",
     },
     {
@@ -7917,9 +7965,9 @@ exports[`golden waterOutsideDiet @ 2026-12-20 1`] = `
       "title": "7 treinos seguidos",
     },
     {
-      "earnedAt": undefined,
+      "earnedAt": "2026-12-16",
       "id": "streak-30",
-      "progress": "falta 30",
+      "progress": undefined,
       "title": "30 treinos seguidos",
     },
     {
@@ -8146,6 +8194,10 @@ exports[`golden waterOutsideDiet @ 2026-12-20 1`] = `
           "title": "7 treinos seguidos",
         },
         {
+          "earnedAt": "2026-12-16",
+          "title": "30 treinos seguidos",
+        },
+        {
           "earnedAt": "2026-10-26",
           "title": "10 treinos",
         },
@@ -8212,9 +8264,9 @@ exports[`golden waterOutsideDiet @ 2027-01-29 1`] = `
       "title": "7 treinos seguidos",
     },
     {
-      "earnedAt": undefined,
+      "earnedAt": "2026-12-16",
       "id": "streak-30",
-      "progress": "falta 30",
+      "progress": undefined,
       "title": "30 treinos seguidos",
     },
     {
@@ -8439,6 +8491,10 @@ exports[`golden waterOutsideDiet @ 2027-01-29 1`] = `
         {
           "earnedAt": "2026-10-19",
           "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-12-16",
+          "title": "30 treinos seguidos",
         },
         {
           "earnedAt": "2026-10-26",

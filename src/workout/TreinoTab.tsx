@@ -16,7 +16,7 @@ import { ExerciseCard } from './ExerciseCard'
 import { ExercisePreview } from './ExercisePreview'
 import { SetTable } from './SetTable'
 import { RestCard } from './RestCard'
-import { workoutForDate } from './schedule'
+import { nextWorkout } from './schedule'
 import { completeSession, setDone, startSession } from './session'
 import { previousSets, sessionStats } from './stats'
 import { isRest, restRecord } from './rest'
@@ -56,7 +56,7 @@ export function TreinoTab() {
 
   const rest = isRest(log[today])
   const session = rest ? undefined : log[today]
-  const workout = plan.workouts.find((w) => w.id === chosenId) ?? workoutForDate(plan, today)
+  const workout = plan.workouts.find((w) => w.id === chosenId) ?? nextWorkout(plan, log)
 
   const patch = useCallback(
     (f: (s: NonNullable<typeof session>) => NonNullable<typeof session>) =>
@@ -86,20 +86,14 @@ export function TreinoTab() {
       return others
     })
 
-  if ((rest && !chosenId) || (!session && !workout)) {
+  if (rest && !chosenId) {
     return (
       <div>
         <div className="label-caps">{formatDayLabel(today)}</div>
-        {rest ? (
-          <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Descanso marcado">
-            <p className="max-w-[260px] text-sm text-text-2">Hoje é dia de recuperar. Quer treinar mesmo assim?</p>
-            <Button variant="outline" className="h-11 rounded-[13px]" onClick={undoRest}><Undo2 aria-hidden="true" /> Desfazer</Button>
-          </EmptyState>
-        ) : (
-          <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Dia de descanso">
-            <p className="max-w-[260px] text-sm text-text-2">Seu plano não tem treino hoje. Quer treinar mesmo assim?</p>
-          </EmptyState>
-        )}
+        <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Descanso marcado">
+          <p className="max-w-[260px] text-sm text-text-2">Hoje é dia de recuperar. Quer treinar mesmo assim?</p>
+          <Button variant="outline" className="h-11 rounded-[13px]" onClick={undoRest}><Undo2 aria-hidden="true" /> Desfazer</Button>
+        </EmptyState>
         <div className="label-caps mx-0.5 mb-1.5">Escolher um treino</div>
         <div className="overflow-hidden card">
           {plan.workouts.map((w) => (
@@ -182,7 +176,7 @@ export function TreinoTab() {
           <div className="mt-1 text-[13px] text-text-2">{minutes === null ? plural(view.exercises.length, 'exercício', 'exercícios') : `${minutes} min · ${plural(view.exercises.length, 'exercício', 'exercícios')}`}</div>
         </div>
       </div>
-      {!log[today] && workoutForDate(plan, today) && (
+      {!log[today] && workout && (
         <Button variant="outline" className="mb-2.5 h-11 w-full rounded-[13px]" onClick={markRest}><Moon aria-hidden="true" /> Descansar hoje</Button>
       )}
 

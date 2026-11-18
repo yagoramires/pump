@@ -13,7 +13,7 @@ test('instanciar copia dados do catálogo e aplica padrões', () => {
   const pe = p.workouts[0].exercises[0]
   expect(pe).toMatchObject(PLAN_DEFAULTS)
   expect(pe.name).toBe(catalog.find(e => e.id === pe.exerciseId)!.name)
-  expect(p.workouts[0]).toMatchObject({ label: 'A', weekdays: [1, 3, 5] })
+  expect(p.workouts[0]).toMatchObject({ label: 'A' })
 })
 test('exercício criado vira PlanExercise sem fotos e com observação', () =>
   expect(toPlanExercise({ id: 'custom-1', name: 'Remada na máquina X', muscles: ['dorsais'], note: 'banco 3' }))

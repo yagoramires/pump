@@ -7,12 +7,10 @@ import { PLAN_DEFAULTS, newCustomExercise, toPlanExercise } from './exercises'
 
 export const PLAN_NOT_FOUND = 'Não encontrei um plano em JSON no texto'
 
-type Dia = 'dom' | 'seg' | 'ter' | 'qua' | 'qui' | 'sex' | 'sab'
 interface PumpExercicio { nome: string; series: number; reps: string; cargaKg?: number; descansoSeg?: number; obs?: string }
-interface PumpTreino { letra: string; nome: string; dias: Dia[]; exercicios: PumpExercicio[] }
+interface PumpTreino { letra: string; nome: string; exercicios: PumpExercicio[] }
 export type PumpPlanoFile = typeof HEADER & { treinos: PumpTreino[]; dieta?: unknown }
 
-const DIAS: Dia[] = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab']
 export function parsePlanFormat(text: string): PumpPlanoFile {
   const raw = readEnvelope(text, PLAN_NOT_FOUND)
   if (raw.dieta !== undefined && raw.treinos === undefined) throw new FormatError(['Este arquivo só tem dieta. Importe na aba Dieta.'])
@@ -31,12 +29,6 @@ export function parsePlanFormat(text: string): PumpPlanoFile {
     seen.add(letra)
     const nome = str(o.nome)
     if (!nome) problems.push(`${tag}: "nome" vazio`)
-    const dias: Dia[] = []
-    for (const d of Array.isArray(o.dias) ? o.dias : []) {
-      const k = (typeof d === 'string' ? d.trim().toLowerCase().replace('sáb', 'sab') : '') as Dia
-      if (DIAS.includes(k)) dias.push(k)
-      else problems.push(`${tag}: dia "${String(d)}" inválido (use seg, ter, qua, qui, sex, sab, dom)`)
-    }
     const exs = Array.isArray(o.exercicios) ? o.exercicios : []
     if (exs.length === 0) problems.push(`${tag}: precisa ter pelo menos um exercício`)
     const exercicios = exs.map((e: unknown, i): PumpExercicio => {
@@ -55,7 +47,7 @@ export function parsePlanFormat(text: string): PumpPlanoFile {
       const obs = str(x.obs)
       return { nome, series, reps, ...(carga != null && { cargaKg: carga }), ...(desc != null && { descansoSeg: desc }), ...(obs && { obs }) }
     })
-    return { letra, nome, dias, exercicios }
+    return { letra, nome, exercicios }
   })
 
   if (problems.length) throw new FormatError(problems)
@@ -77,7 +69,6 @@ export function planFromFormat(
       id: crypto.randomUUID(),
       label: t.letra,
       name: t.nome,
-      weekdays: t.dias.map((d) => DIAS.indexOf(d)),
       exercises: t.exercicios.map((x): PlanExercise => {
         const key = normalize(x.nome)
         let found = known.get(key)
@@ -106,7 +97,6 @@ export function exportPlanFormat(plan: WorkoutPlan): string {
     treinos: plan.workouts.map((w) => ({
       letra: w.label,
       nome: w.name,
-      dias: w.weekdays.map((d) => DIAS[d]),
       exercicios: w.exercises.map((e) => ({
         nome: e.name,
         series: e.sets,
