@@ -90,11 +90,9 @@ function NumField({ value, onChange, label, className, placeholder }: { value?: 
   )
 }
 
-// sem `initial`, espera o cardápio salvo carregar: senão a cópia local nasceria vazia e o Salvar apagaria o cardápio
 export function DietEditor(props: Props) {
-  const [saved, savePlan, loaded] = usePersisted('dietPlan', DEFAULTS.dietPlan)
-  const [, setLog, logLoaded] = usePersisted('dietLog', DEFAULTS.dietLog)
-  if (!loaded || !logLoaded) return <p className="p-4 text-sm text-text-2">Carregando…</p>
+  const [saved, savePlan] = usePersisted('dietPlan')
+  const [, setLog] = usePersisted('dietLog')
   return <DietForm {...props} start={props.initial ?? saved} replacing={!!props.confirmReplace && saved.menus.length > 0} savePlan={savePlan} setLog={setLog} />
 }
 

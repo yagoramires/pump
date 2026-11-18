@@ -1,9 +1,11 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
+import { renderLoaded } from '../test/render'
 import userEvent from '@testing-library/user-event'
 import * as idb from 'idb-keyval'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from './storage/db'
 import App from './App'
+import { ErrorBoundary } from './shell/ErrorBoundary'
 
 vi.mock('idb-keyval', async (orig) => {
   const m = await orig<typeof import('idb-keyval')>()
@@ -17,7 +19,7 @@ beforeEach(async () => {
 
 test('primeira vez abre a montagem; pular leva à aba Treino; depois abre na última aba', async () => {
   const user = userEvent.setup()
-  const { unmount } = render(<App />)
+  const { unmount } = await renderLoaded(<App />)
   expect(await screen.findByRole('heading', { name: 'Sobre você' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Pular' })) // perfil
   await user.click(screen.getByRole('button', { name: 'Pular' })) // treino
@@ -26,7 +28,7 @@ test('primeira vez abre a montagem; pular leva à aba Treino; depois abre na úl
   unmount()
   resetStoreForTests()
   await save('settings', { ...(await load('settings'))!, lastTab: 'dieta' })
-  render(<App />)
+  await renderLoaded(<App />)
   expect(await screen.findByRole('heading', { name: 'Monte seu cardápio' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Evolução' }))
   expect(await screen.findByRole('heading', { name: 'Sua evolução começa aqui' })).toBeInTheDocument()
@@ -37,7 +39,7 @@ test('Configurações: grupo DIETA abre cardápio, IA e a tela da água', async 
   await save('profile', { sex: 'M', heightCm: 180, weightKg: 80 })
   resetStoreForTests()
   const user = userEvent.setup()
-  render(<App />)
+  await renderLoaded(<App />)
   await user.click(await screen.findByRole('button', { name: 'Configurações' }))
   expect(screen.getByText('DIETA')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: /Cardápio/ }))
@@ -69,7 +71,7 @@ test('dados ilegíveis: tela de erro em vez da montagem, sem gravar nada', async
   await save('settings', settings)
   resetStoreForTests()
   vi.mocked(idb.get).mockRejectedValueOnce(new Error('boom'))
-  render(<App />)
+  await renderLoaded(<ErrorBoundary><App /></ErrorBoundary>)
   expect(await screen.findByRole('heading', { name: 'Não consegui ler seus dados' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument()
   expect(screen.queryByRole('heading', { name: 'Sobre você' })).not.toBeInTheDocument()

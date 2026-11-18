@@ -3,8 +3,9 @@ import { AlertTriangle } from 'lucide-react'
 import { EmptyState } from '@/components/EmptyState'
 import { Button } from '@/components/ui/button'
 import { useBackupExport } from './useBackupExport'
+import { StorageReadError } from '../storage/db'
 
-export function FatalScreen({ title, text, children }: { title: string; text: string; children: ReactNode }) {
+function FatalScreen({ title, text, children }: { title: string; text: string; children: ReactNode }) {
   return (
     <main role="alert" className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4">
       <EmptyState icon={<AlertTriangle size={30} aria-hidden="true" />} title={title} tone="negative">
@@ -26,12 +27,24 @@ function CrashScreen() {
   )
 }
 
-export class ErrorBoundary extends Component<{ children: ReactNode }, { crashed: boolean }> {
-  state = { crashed: false }
-  static getDerivedStateFromError() {
-    return { crashed: true }
+// qualquer chave ilegível bloqueia o app: seguir com dados vazios levaria a montagem a gravar por cima
+function ReadFailedScreen() {
+  return (
+    <FatalScreen title="Não consegui ler seus dados" text="Eles continuam guardados neste aparelho. Feche e abra o app ou tente de novo.">
+      <Button type="button" onClick={() => location.reload()}>Tentar de novo</Button>
+    </FatalScreen>
+  )
+}
+
+type State = { error?: unknown; crashed: boolean }
+
+export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
+  state: State = { crashed: false }
+  static getDerivedStateFromError(error: unknown) {
+    return { error, crashed: true }
   }
   render() {
-    return this.state.crashed ? <CrashScreen /> : this.props.children
+    if (!this.state.crashed) return this.props.children
+    return this.state.error instanceof StorageReadError ? <ReadFailedScreen /> : <CrashScreen />
   }
 }

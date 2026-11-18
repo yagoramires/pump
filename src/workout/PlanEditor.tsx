@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Dumbbell, HeartPulse, MoreHorizontal, Plus } from 'lucide-react'
-import { DEFAULTS } from '../schema'
 import type { PlanExercise, Workout, WorkoutPlan } from './types'
 import { usePersisted } from '../storage/db'
 import { CatalogPicker } from '../catalog/CatalogPicker'
@@ -20,16 +19,9 @@ const DAYS = [
 
 type Props = { initial?: WorkoutPlan; onDone: (plan: WorkoutPlan) => void; onCancel?: () => void }
 
-// sem `initial`, espera o plano salvo carregar: senão a cópia local nasceria vazia e o Salvar apagaria o plano
-export function PlanEditor(props: Props) {
-  const [saved, , loaded] = usePersisted('workoutPlan', DEFAULTS.workoutPlan)
-  if (!props.initial && !loaded) return <p className="p-4 text-sm text-text-2">Carregando…</p>
-  return <PlanForm {...props} start={props.initial ?? saved} />
-}
-
-function PlanForm({ start, onDone, onCancel }: Props & { start: WorkoutPlan }) {
-  const [, savePlan] = usePersisted('workoutPlan', DEFAULTS.workoutPlan)
-  const [plan, setPlan] = useState<WorkoutPlan>(() => structuredClone(start))
+export function PlanEditor({ initial, onDone, onCancel }: Props) {
+  const [saved, savePlan] = usePersisted('workoutPlan')
+  const [plan, setPlan] = useState<WorkoutPlan>(() => structuredClone(initial ?? saved))
   const [picking, setPicking] = useState<string>() // id do treino que recebe o exercício
   const [editing, setEditing] = useState<{ wid: string; i: number }>()
   const [menuFor, setMenuFor] = useState<string>() // id do treino com o menu ⋯ aberto

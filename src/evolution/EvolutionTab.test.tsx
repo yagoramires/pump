@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from '../storage/db'
@@ -6,6 +6,7 @@ import { todayKey } from '../lib/date'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
 import { dietDay } from '../../test/helpers'
+import { renderLoaded } from '../../test/render'
 import { EvolutionTab } from './EvolutionTab'
 import { generatePdf, sharePdf } from './pdf/generate'
 
@@ -18,14 +19,14 @@ beforeEach(async () => {
 })
 
 test('sem dados: estado vazio com Registrar', async () => {
-  render(<EvolutionTab />)
+  await renderLoaded(<EvolutionTab />)
   expect(await screen.findByRole('heading', { name: 'Sua evolução começa aqui' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Registrar' })).toBeInTheDocument()
 })
 test('registrar medidas com vírgula atualiza peso, gordura e perfil', async () => {
   const user = userEvent.setup()
   await save('profile', { sex: 'M', heightCm: 178, weightKg: 80 })
-  render(<EvolutionTab />)
+  await renderLoaded(<EvolutionTab />)
   await user.click(await screen.findByRole('button', { name: 'Registrar' }))
   await user.click(await screen.findByRole('button', { name: 'Medidas' }))
   await user.type(await screen.findByLabelText('Peso'), '78,4')
@@ -39,13 +40,13 @@ test('registrar medidas com vírgula atualiza peso, gordura e perfil', async () 
 test('perfil sem altura: gordura mostra —', async () => {
   await save('profile', { sex: 'M', heightCm: 0, weightKg: 0 })
   await save('measurements', [{ id: 'a', date: '2026-11-17', neckCm: 38, waistCm: 85, weightKg: 80 }])
-  render(<EvolutionTab />)
+  await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText('Gordura')).toBeInTheDocument()
   expect(screen.getAllByText('—').length).toBeGreaterThan(0)
 })
 test('diferença de peso verde quando o objetivo é emagrecer e o peso caiu', async () => {
   await save('measurements', [{ id: 'a', date: '2026-11-01', weightKg: 80 }, { id: 'b', date: '2026-11-17', weightKg: 78.4 }])
-  render(<EvolutionTab />)
+  await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText('−1,6 kg')).toHaveClass('text-accent')
 })
 
@@ -57,7 +58,7 @@ test('mesmo dia: reabre preenchida e limpar um campo tira ele do registro', asyn
   const user = userEvent.setup()
   await save('profile', { sex: 'M', heightCm: 178, weightKg: 80 })
   await save('measurements', [{ id: 'a', date: todayKey(), weightKg: 80, neckCm: 38, waistCm: 85 }])
-  render(<EvolutionTab />)
+  await renderLoaded(<EvolutionTab />)
   await openMeasures(user)
   expect(await screen.findByLabelText('Peso')).toHaveValue('80')
   expect(screen.getByLabelText('Cintura')).toHaveValue('85')
@@ -70,7 +71,7 @@ test('0 apaga o campo em vez de virar medida', async () => {
   const user = userEvent.setup()
   await save('profile', { sex: 'M', heightCm: 178, weightKg: 80 })
   await save('measurements', [{ id: 'a', date: todayKey(), weightKg: 80, waistCm: 85 }])
-  render(<EvolutionTab />)
+  await renderLoaded(<EvolutionTab />)
   await openMeasures(user)
   await user.clear(await screen.findByLabelText('Peso'))
   await user.type(screen.getByLabelText('Peso'), '0')
@@ -82,7 +83,7 @@ test('0 apaga o campo em vez de virar medida', async () => {
 })
 test('salvar sem mudar nada não grava nem diz que salvou', async () => {
   const user = userEvent.setup()
-  render(<><EvolutionTab /><Toaster /></>)
+  await renderLoaded(<><EvolutionTab /><Toaster /></>)
   await openMeasures(user)
   await user.click(await screen.findByRole('button', { name: 'Salvar' }))
   expect(await screen.findByText('Nada mudou')).toBeInTheDocument()
@@ -93,7 +94,7 @@ test('salvar sem mudar nada não grava nem diz que salvou', async () => {
 test('Gerar PDF vira Compartilhar PDF e compartilha pump-evolucao-<dia>.pdf', async () => {
   const user = userEvent.setup()
   await save('measurements', [{ id: 'a', date: '2026-11-01', weightKg: 80 }])
-  render(<EvolutionTab />)
+  await renderLoaded(<EvolutionTab />)
   await user.click(await screen.findByRole('button', { name: 'Gerar PDF' }))
   await user.click(await screen.findByRole('button', { name: 'Compartilhar PDF' }))
   expect(vi.mocked(sharePdf)).toHaveBeenCalledWith(expect.any(Blob), expect.stringMatching(/^pump-evolucao-/))
@@ -102,7 +103,7 @@ test('erro ao gerar o PDF mostra toast', async () => {
   const user = userEvent.setup()
   vi.mocked(generatePdf).mockRejectedValueOnce(new Error('boom'))
   await save('measurements', [{ id: 'a', date: '2026-11-01', weightKg: 80 }])
-  render(<><EvolutionTab /><Toaster /></>)
+  await renderLoaded(<><EvolutionTab /><Toaster /></>)
   await user.click(await screen.findByRole('button', { name: 'Gerar PDF' }))
   expect(await screen.findByText('Não consegui gerar o PDF')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Gerar PDF' })).toBeEnabled()
@@ -110,7 +111,7 @@ test('erro ao gerar o PDF mostra toast', async () => {
 test('registro novo depois de gerar volta pra Gerar PDF', async () => {
   const user = userEvent.setup()
   await save('measurements', [{ id: 'a', date: '2026-11-01', weightKg: 80 }])
-  render(<EvolutionTab />)
+  await renderLoaded(<EvolutionTab />)
   await user.click(await screen.findByRole('button', { name: 'Gerar PDF' }))
   expect(await screen.findByRole('button', { name: 'Compartilhar PDF' })).toBeInTheDocument()
   await act(() => save('measurements', [{ id: 'a', date: '2026-11-01', weightKg: 79 }]))
@@ -118,14 +119,14 @@ test('registro novo depois de gerar volta pra Gerar PDF', async () => {
 })
 test('contagem de dias é inclusiva como no PDF: no primeiro dia diz 1 dia', async () => {
   await save('measurements', [{ id: 'a', date: todayKey(), weightKg: 80 }])
-  render(<EvolutionTab />)
+  await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText(/· 1 dia$/)).toBeInTheDocument()
 })
 test('gráfico: filtro de período com menos de 2 pesos avisa que é o período, não falta de registro', async () => {
   const user = userEvent.setup()
   const old = (n: number) => { const d = new Date(); d.setDate(d.getDate() - n); return todayKey(d) }
   await save('measurements', [{ id: 'a', date: old(200), weightKg: 82 }, { id: 'b', date: old(100), weightKg: 80 }])
-  render(<EvolutionTab />)
+  await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText('Poucos registros nesse período')).toBeInTheDocument()
   await user.click(screen.getByRole('radio', { name: 'Tudo' }))
   expect(screen.getByRole('img', { name: 'Gráfico de peso' })).toBeInTheDocument()
@@ -135,7 +136,7 @@ test('PDF offline: avisa que precisa de internet', async () => {
   vi.mocked(generatePdf).mockRejectedValueOnce(new TypeError('Failed to fetch dynamically imported module: /assets/x.js'))
   vi.spyOn(console, 'error').mockImplementation(() => {})
   await save('measurements', [{ id: 'a', date: '2026-11-01', weightKg: 80 }])
-  render(<><EvolutionTab /><Toaster /></>)
+  await renderLoaded(<><EvolutionTab /><Toaster /></>)
   await user.click(await screen.findByRole('button', { name: 'Gerar PDF' }))
   expect(await screen.findByText('Sem internet pra gerar o PDF. Conecte e tente de novo.')).toBeInTheDocument()
 })
@@ -143,7 +144,7 @@ test('Evolução de quem só faz dieta mostra o cartão Dieta', async () => {
   const today = todayKey()
   await save('dietLog', { [today]: dietDay([true, true]) })
   await save('waterLog', { [today]: { ml: 2500, goalMl: 2000 } })
-  render(<EvolutionTab />)
+  await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText('Dieta · 30 dias')).toBeInTheDocument()
   expect(screen.queryByRole('heading', { name: 'Sua evolução começa aqui' })).not.toBeInTheDocument()
   expect(screen.getByText('Média de kcal').parentElement).toHaveTextContent('400 / 2.000')

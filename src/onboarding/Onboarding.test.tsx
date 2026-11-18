@@ -1,4 +1,5 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
+import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from '../storage/db'
@@ -26,7 +27,7 @@ test('primeiro passo restaura um backup depois de confirmar e recarrega o app', 
   await save('profile', { sex: 'F', heightCm: 1, weightKg: 1 })
   const { settings, file } = backupFile()
   const user = userEvent.setup()
-  render(<Onboarding setSettings={vi.fn()} />)
+  await renderLoaded(<Onboarding setSettings={vi.fn()} />)
   await user.click(screen.getByRole('button', { name: 'Restaurar backup' }))
   await user.upload(screen.getByLabelText('Arquivo de backup'), file)
   expect(await screen.findByText('Isso substitui todos os seus dados. Continuar?')).toBeInTheDocument()
@@ -39,7 +40,7 @@ test('primeiro passo restaura um backup depois de confirmar e recarrega o app', 
 test('cancelar no diálogo não importa nada', async () => {
   const spy = vi.spyOn(backup, 'importBackupFile')
   const user = userEvent.setup()
-  render(<Onboarding setSettings={vi.fn()} />)
+  await renderLoaded(<Onboarding setSettings={vi.fn()} />)
   await user.upload(screen.getByLabelText('Arquivo de backup'), backupFile().file)
   await user.click(await screen.findByRole('button', { name: 'Cancelar' }))
   await waitFor(() => expect(screen.queryByText('Restaurar backup?')).not.toBeInTheDocument())
@@ -48,7 +49,7 @@ test('cancelar no diálogo não importa nada', async () => {
 
 test('peso com vírgula é salvo como decimal', async () => {
   const user = userEvent.setup()
-  render(<Onboarding setSettings={vi.fn()} />)
+  await renderLoaded(<Onboarding setSettings={vi.fn()} />)
   await user.type(await screen.findByLabelText('Altura'), '178')
   await user.type(screen.getByLabelText('Peso'), '80,5')
   await user.click(screen.getByRole('button', { name: 'Continuar' }))
@@ -58,7 +59,7 @@ test('peso com vírgula é salvo como decimal', async () => {
 test('sem internet ao usar um plano pronto mostra o aviso', async () => {
   vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('offline'))
   const user = userEvent.setup()
-  render(<Onboarding setSettings={vi.fn()} />)
+  await renderLoaded(<Onboarding setSettings={vi.fn()} />)
   await user.click(screen.getByRole('button', { name: 'Pular' })) // perfil
   await user.click(screen.getByRole('radio', { name: 'ABC' }))
   await user.click(screen.getByRole('button', { name: 'Usar ABC' }))

@@ -1,8 +1,10 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
+import { createElement, Suspense, type ReactNode } from 'react'
 import * as idb from 'idb-keyval'
 import { clear } from 'idb-keyval'
-import { DEFAULTS } from '../schema'
-import { allData, load, replaceAll, resetStoreForTests, save, usePersisted } from './db'
+import { DEFAULTS, type UserData } from '../schema'
+import { renderHookLoaded } from '../../test/render'
+import { allData, load, onStorageError, readKey, replaceAll, resetStoreForTests, save, StorageReadError, usePersisted } from './db'
 
 vi.mock('idb-keyval', async (orig) => {
   const m = await orig<typeof import('idb-keyval')>()
@@ -14,6 +16,15 @@ beforeEach(async () => {
   resetStoreForTests()
 })
 
+const wrapper = ({ children }: { children: ReactNode }) => createElement(Suspense, { fallback: null }, children)
+const persisted = <K extends keyof UserData>(k: K) => renderHookLoaded(() => usePersisted(k))
+const session = (d: string) => ({ date: d, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [] })
+function deferred<T = void>() {
+  let resolve!: (v: T) => void
+  const promise = new Promise<T>((r) => (resolve = r))
+  return { promise, resolve }
+}
+
 test('save/load ida e volta; replaceAll grava e remove sobras', async () => {
   await save('profile', { sex: 'M', heightCm: 178, weightKg: 80 })
   expect(await load('profile')).toEqual({ sex: 'M', heightCm: 178, weightKg: 80 })
@@ -21,86 +32,99 @@ test('save/load ida e volta; replaceAll grava e remove sobras', async () => {
   expect(await load('profile')).toBeUndefined()
   expect(Object.keys(await allData())).toEqual(['settings'])
 })
-test('duas cópias da mesma chave: gravar por uma atualiza a outra', async () => {
-  const a = renderHook(() => usePersisted('settings', DEFAULTS.settings))
-  const b = renderHook(() => usePersisted('settings', DEFAULTS.settings))
-  await waitFor(() => expect(a.result.current[2]).toBe(true))
-  act(() => a.result.current[1]({ ...DEFAULTS.settings, lastTab: 'dieta' }))
-  await waitFor(() => expect(b.result.current[0].lastTab).toBe('dieta'))
-  await act(() => save('settings', { ...b.result.current[0], lastBackupAt: '2026-11-16' })) // escrita fora do hook
-  await waitFor(() => expect(a.result.current[0].lastBackupAt).toBe('2026-11-16'))
+test('chave nunca gravada lê DEFAULTS', async () => {
+  const h = await persisted('workoutLog')
+  expect(h.result.current[0]).toEqual(DEFAULTS.workoutLog)
+})
+test('duas cópias da mesma chave: o setter devolve o valor e a outra cópia vê na hora', async () => {
+  const a = await persisted('settings')
+  const b = await persisted('settings')
+  let returned
+  act(() => { returned = a.result.current[1]({ ...DEFAULTS.settings, lastTab: 'dieta' }) })
+  expect(returned).toEqual({ ...DEFAULTS.settings, lastTab: 'dieta' })
+  expect(b.result.current[0].lastTab).toBe('dieta') // sem esperar o banco
+  act(() => void save('settings', { ...b.result.current[0], lastBackupAt: '2026-11-16' })) // escrita fora do hook
+  expect(a.result.current[0].lastBackupAt).toBe('2026-11-16')
+  await waitFor(async () => expect((await idb.get('settings'))?.lastBackupAt).toBe('2026-11-16'))
 })
 test('replaceAll avisa as cópias abertas', async () => {
-  const h = renderHook(() => usePersisted('workoutLog', {}))
-  await waitFor(() => expect(h.result.current[2]).toBe(true))
-  await act(() => replaceAll({ workoutLog: { '2026-11-10': { date: '2026-11-10', workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [] } } }))
-  await waitFor(() => expect(Object.keys(h.result.current[0])).toEqual(['2026-11-10']))
+  const h = await persisted('workoutLog')
+  await act(() => replaceAll({ workoutLog: { '2026-11-10': session('2026-11-10') } }))
+  expect(Object.keys(h.result.current[0])).toEqual(['2026-11-10'])
 })
-test('load lento não sobrescreve um save que terminou antes', async () => {
+test('leitura lenta não sobrescreve um save que terminou antes', async () => {
   await save('settings', { ...DEFAULTS.settings, lastTab: 'evolucao' })
   resetStoreForTests()
-  const real = await vi.mocked(idb.get).getMockImplementation()!
+  const real = vi.mocked(idb.get).getMockImplementation()!
+  const slow = deferred()
   vi.mocked(idb.get).mockImplementationOnce(async (k) => {
     const old = await real(k)
-    await new Promise((r) => setTimeout(r, 30)) // o get demora, o save abaixo termina antes
+    await slow.promise // o get demora, o save abaixo termina antes
     return old
   })
-  const h = renderHook(() => usePersisted('settings', DEFAULTS.settings))
-  await act(() => save('settings', { ...DEFAULTS.settings, lastTab: 'dieta' }))
-  await waitFor(() => expect(h.result.current[2]).toBe(true))
+  let h!: ReturnType<typeof renderHook<ReturnType<typeof usePersisted<'settings'>>, unknown>>
+  const rendering = act(async () => { h = renderHook(() => usePersisted('settings'), { wrapper }) })
+  await save('settings', { ...DEFAULTS.settings, lastTab: 'dieta' })
+  expect(h.result.current).toBeNull() // ainda lendo
+  slow.resolve()
+  await rendering
   expect(h.result.current[0].lastTab).toBe('dieta')
   expect((await load('settings'))?.lastTab).toBe('dieta')
 })
-test('dois updaters no mesmo act se acumulam', async () => {
-  const h = renderHook(() => usePersisted('workoutLog', {}))
-  await waitFor(() => expect(h.result.current[2]).toBe(true))
-  const s = (d: string) => ({ date: d, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [] })
-  await act(async () => {
-    h.result.current[1]((p) => ({ ...p, '2026-11-01': s('2026-11-01') }))
-    h.result.current[1]((p) => ({ ...p, '2026-11-02': s('2026-11-02') }))
+test('dois updaters seguidos se acumulam e cada um devolve o próprio resultado', async () => {
+  const h = await persisted('workoutLog')
+  const out: string[][] = []
+  act(() => {
+    out.push(Object.keys(h.result.current[1]((p) => ({ ...p, '2026-11-01': session('2026-11-01') }))))
+    out.push(Object.keys(h.result.current[1]((p) => ({ ...p, '2026-11-02': session('2026-11-02') }))))
   })
-  await waitFor(() => expect(Object.keys(h.result.current[0]).sort()).toEqual(['2026-11-01', '2026-11-02']))
+  expect(out).toEqual([['2026-11-01'], ['2026-11-01', '2026-11-02']])
+  expect(Object.keys(h.result.current[0]).sort()).toEqual(['2026-11-01', '2026-11-02'])
 })
-test('falha no load: marca loaded, avisa e não deixa gravar por cima do que está salvo', async () => {
-  const s = (d: string) => ({ date: d, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [] })
-  await save('workoutLog', { '2026-11-01': s('2026-11-01'), '2026-11-02': s('2026-11-02') })
+test('falha na leitura: StorageReadError, sem aviso de gravação e sem mexer no que está salvo', async () => {
+  await save('workoutLog', { '2026-11-01': session('2026-11-01') })
   resetStoreForTests()
-  const errors: unknown[] = []
-  const onError = (e: Event) => errors.push((e as CustomEvent).detail)
-  window.addEventListener('pump:storage-error', onError)
+  const errors: string[] = []
+  const off = onStorageError((m) => errors.push(m))
   vi.mocked(idb.get).mockRejectedValueOnce(new Error('boom'))
-  const h = renderHook(() => usePersisted('workoutLog', {}))
-  await waitFor(() => expect(h.result.current[2]).toBe(true))
-  act(() => h.result.current[1]((p) => ({ ...p, '2026-11-16': s('2026-11-16') })))
-  await new Promise((r) => setTimeout(r, 20))
-  window.removeEventListener('pump:storage-error', onError)
+  const read = readKey('workoutLog')
+  await expect(read).rejects.toBeInstanceOf(StorageReadError)
+  await expect(read).rejects.toThrow('boom')
+  expect(readKey('workoutLog')).toBe(read) // a mesma leitura falha: só recarregar tenta de novo
+  off()
+  expect(errors).toEqual([])
   resetStoreForTests()
-  expect(Object.keys((await load('workoutLog'))!).sort()).toEqual(['2026-11-01', '2026-11-02'])
-  expect(errors[0]).toEqual({ message: 'boom', read: true })
-  expect(errors).toHaveLength(2) // a tentativa de gravar também avisa
+  expect(await load('workoutLog')).toEqual({ '2026-11-01': session('2026-11-01') })
 })
-test('saves sobrepostos: um save que termina depois não desfaz o update seguinte', async () => {
-  const h = renderHook(() => usePersisted('workoutLog', {}))
-  await waitFor(() => expect(h.result.current[2]).toBe(true))
+test('falha ao gravar: a tela já mudou e o aviso sai uma vez só', async () => {
+  const h = await persisted('workoutLog')
+  const errors: string[] = []
+  const off = onStorageError((m) => errors.push(m))
+  vi.mocked(idb.set).mockRejectedValueOnce(new Error('cheio'))
+  act(() => void h.result.current[1]((p) => ({ ...p, a: session('a') })))
+  expect(Object.keys(h.result.current[0])).toEqual(['a'])
+  await waitFor(() => expect(errors).toEqual(['cheio']))
+  await new Promise((r) => setTimeout(r)) // toda a cadeia de promises já rodou: um segundo aviso teria saído antes disso
+  off()
+  expect(errors).toEqual(['cheio'])
+})
+test('save lento não desfaz o update seguinte', async () => {
+  const h = await persisted('workoutLog')
   const real = vi.mocked(idb.set).getMockImplementation()!
-  vi.mocked(idb.set)
-    .mockImplementationOnce(real)
-    .mockImplementationOnce(async (k, v) => {
-      await real(k, v)
-      await new Promise((r) => setTimeout(r, 40)) // o segundo save demora pra terminar
-    })
-  const s = (d: string) => ({ date: d, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [] })
-  const add = (d: string) => act(() => h.result.current[1]((p) => ({ ...p, [d]: s(d) })))
+  const slow = deferred()
+  vi.mocked(idb.set).mockImplementationOnce(async (k, v) => {
+    await real(k, v)
+    await slow.promise // o save de a demora pra terminar
+  })
+  const add = (d: string) => act(() => void h.result.current[1]((p) => ({ ...p, [d]: session(d) })))
   add('a')
   add('b')
-  await new Promise((r) => setTimeout(r, 15)) // o save de a já terminou, o de b ainda não
-  add('c')
-  await new Promise((r) => setTimeout(r, 60))
-  expect(Object.keys(h.result.current[0]).sort()).toEqual(['a', 'b', 'c'])
-  resetStoreForTests()
-  expect(Object.keys((await load('workoutLog'))!).sort()).toEqual(['a', 'b', 'c'])
+  expect(Object.keys(h.result.current[0]).sort()).toEqual(['a', 'b'])
+  await act(async () => slow.resolve())
+  expect(Object.keys(h.result.current[0]).sort()).toEqual(['a', 'b'])
+  await waitFor(async () => expect(Object.keys((await idb.get('workoutLog'))!).sort()).toEqual(['a', 'b']))
 })
-test('replaceAll não guarda fotos no cache em memória (loadPhoto lê direto do banco)', async () => {
+test('chave fora do schema não fica no cache em memória (loadPhoto lê direto do banco)', async () => {
   await replaceAll({ 'photo:a': 'data:image/jpeg;base64,AAA', settings: { lastTab: 'treino', onboardingDone: true } })
   await idb.del('photo:a')
   expect(await load('photo:a' as never)).toBeUndefined()

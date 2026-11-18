@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { AlertTriangle, ChevronLeft, Copy, FileUp } from 'lucide-react'
 import { toast } from 'sonner'
-import { DEFAULTS } from '../schema'
 import type { DietAnamnesis, DietItem, DietPlan } from './types'
 import { usePersisted } from '../storage/db'
 import { fetchTaco } from '../catalog/catalog'
@@ -34,10 +33,10 @@ const replaceItem = (plan: DietPlan, id: string, next: DietItem): DietPlan => ({
 })
 
 export function DietImport({ mode, onDone, onBack }: Props) {
-  const [profile, setProfile, profileLoaded] = usePersisted('profile', DEFAULTS.profile)
-  const [saved, setPlan, planLoaded] = usePersisted('dietPlan', DEFAULTS.dietPlan)
-  const [, setLog, logLoaded] = usePersisted('dietLog', DEFAULTS.dietLog)
-  const [foods, , foodsLoaded] = usePersisted('foods', DEFAULTS.foods)
+  const [profile, setProfile] = usePersisted('profile')
+  const [saved, setPlan] = usePersisted('dietPlan')
+  const [, setLog] = usePersisted('dietLog')
+  const [foods] = usePersisted('foods')
   const [edited, setEdited] = useState<Partial<DietAnamnesis>>()
   const [text, setText] = useState('')
   const [problems, setProblems] = useState<string[]>([])
@@ -48,7 +47,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   const [editing, setEditing] = useState(false)
   const [checking, setChecking] = useState(false)
   const instant = useRef(false) // arquivo escolhido revisa na hora; digitar espera 400 ms
-  // até a pessoa mexer, a anamnese é a do perfil (só aparece depois do perfil carregar)
+  // até a pessoa mexer, a anamnese é a do perfil
   const anamnesis = edited ?? profile.dietAnamnesis ?? {}
 
   const copyPrompt = async () => {
@@ -71,7 +70,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
 
   useEffect(() => {
     // em revisão, um alimento criado no FoodPicker muda `foods` e rever perderia as trocas
-    if (!foodsLoaded || review || !text.trim()) return
+    if (review || !text.trim()) return
     let stale = false
     const run = async () => {
       let file
@@ -94,7 +93,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
     const t = setTimeout(() => void run(), instant.current ? 0 : 400)
     instant.current = false
     return () => { stale = true; clearTimeout(t) }
-  }, [text, foodsLoaded, foods, review])
+  }, [text, foods, review])
 
   const use = () => {
     if (!review) return
@@ -179,7 +178,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
         )}
         <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md gap-2 bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <Button type="button" variant="outline" className="flex-1 bg-transparent" onClick={() => setEditing(true)}>Editar</Button>
-          <Button type="button" className="flex-1" disabled={!planLoaded || !logLoaded} onClick={() => (saved.menus.length ? setConfirming(true) : use())}>Usar cardápios</Button>
+          <Button type="button" className="flex-1" onClick={() => (saved.menus.length ? setConfirming(true) : use())}>Usar cardápios</Button>
         </div>
         {picking && (
           <FoodPicker
@@ -215,7 +214,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
         <button type="button" className="icon-btn" aria-label="Voltar" onClick={onBack}><ChevronLeft size={18} /></button>
         <h1 className="flex-1 text-[19px] font-semibold text-strong">{mode === 'ia' ? 'Gerar com IA' : 'Importar cardápio'}</h1>
       </header>
-      {mode === 'ia' && profileLoaded && <DietAnamnesisForm value={anamnesis} onChange={setEdited} />}
+      {mode === 'ia' && <DietAnamnesisForm value={anamnesis} onChange={setEdited} />}
       <div className="overflow-hidden rounded-[14px] border border-border bg-panel">
         {mode === 'ia' && <Step n={1} title="Copie o prompt" sub="Botão lá embaixo; cole no ChatGPT" />}
         <Step n={mode === 'ia' ? 2 : 1} title="Cole a resposta aqui" sub="Pode colar o texto todo ou escolher o arquivo" />
@@ -245,7 +244,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
       )}
       {mode === 'ia' && (
         <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
-          <Button type="button" className="w-full" disabled={!profileLoaded || !anamnesis.goal} onClick={copyPrompt}><Copy size={16} aria-hidden="true" />Copiar prompt pra IA</Button>
+          <Button type="button" className="w-full" disabled={!anamnesis.goal} onClick={copyPrompt}><Copy size={16} aria-hidden="true" />Copiar prompt pra IA</Button>
         </div>
       )}
     </div>

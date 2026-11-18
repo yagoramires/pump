@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import type { Anamnesis, Extra, Goal, Level, Muscle, Place, Split } from './types'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -41,14 +40,8 @@ export function MultiChips<T extends string>({ label, options, value, onChange, 
 
 const toInt = (v: string) => parseInt(v, 10) || undefined
 
-// estado local: o valor persistido só volta depois do IndexedDB gravar e perderia letras digitadas rápido
-export function AnamnesisForm({ initial, onChange }: { initial: Anamnesis; onChange: (a: Anamnesis) => void }) {
-  const [value, setValue] = useState(initial)
-  const set = <K extends keyof Anamnesis>(k: K, v: Anamnesis[K]) => {
-    const next = { ...value, [k]: v }
-    setValue(next)
-    onChange(next)
-  }
+export function AnamnesisForm({ value, onChange }: { value: Anamnesis; onChange: (a: Anamnesis) => void }) {
+  const set = <K extends keyof Anamnesis>(k: K, v: Anamnesis[K]) => onChange({ ...value, [k]: v })
   return (
     <section aria-labelledby="anamnese" className="flex flex-col gap-3.5 rounded-[14px] border border-border bg-panel p-3.5">
       <div>

@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Check, ChevronRight, Dumbbell, HeartPulse, Moon, Undo2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { DEFAULTS } from '../schema'
 import type { SetDone, WorkoutLog } from './types'
-import { load, usePersisted } from '../storage/db'
+import { usePersisted } from '../storage/db'
 import { formatDayLabel, todayKey } from '../lib/date'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/EmptyState'
@@ -27,8 +26,8 @@ const exCount = (n: number) => `${n} exercício${n === 1 ? '' : 's'}`
 
 export function TreinoTab() {
   const [today, setToday] = useState(() => todayKey()) // treino que passa da meia-noite segue no mesmo dia
-  const [plan, , planLoaded] = usePersisted('workoutPlan', DEFAULTS.workoutPlan)
-  const [log, setLog, logLoaded] = usePersisted('workoutLog', DEFAULTS.workoutLog)
+  const [plan] = usePersisted('workoutPlan')
+  const [log, setLog] = usePersisted('workoutLog')
   const [chosenId, setChosenId] = useState<string>()
   const [editingPlan, setEditingPlan] = useState(false)
   const [preview, setPreview] = useState<number>()
@@ -46,10 +45,9 @@ export function TreinoTab() {
 
   // o PWA volta do segundo plano sem remontar: troca de dia, menos com treino em andamento
   useEffect(() => {
-    const onVisible = async () => {
+    const onVisible = () => {
       if (document.visibilityState !== 'visible' || todayKey() === today) return
-      // lê o salvo, não o render: um check recém-feito pode ainda não ter chegado na tela
-      const s = (await load('workoutLog').catch(() => undefined))?.[today]
+      const s = log[today]
       if (s && !s.completedAt && !s.rest) return
       setToday(todayKey())
       setChosenId(undefined)
@@ -57,7 +55,7 @@ export function TreinoTab() {
     }
     document.addEventListener('visibilitychange', onVisible)
     return () => document.removeEventListener('visibilitychange', onVisible)
-  }, [today])
+  }, [today, log])
   const workout = plan.workouts.find((w) => w.id === chosenId) ?? workoutForDate(plan, today)
 
   // mesma gravação sempre via updater: toques rápidos não perdem atualização
@@ -71,8 +69,6 @@ export function TreinoTab() {
   )
   const finishRest = useCallback(() => patch((s) => (s.restEndsAt === undefined ? s : setRestEnd(s, undefined))), [patch])
   const closePreview = useCallback(() => setPreview(undefined), [])
-
-  if (!planLoaded || !logLoaded) return <p className="text-sm text-text-2">Carregando…</p>
 
   if (editingPlan) return <Overlay><PlanEditor onDone={() => setEditingPlan(false)} onCancel={() => setEditingPlan(false)} /></Overlay>
   if (plan.workouts.length === 0) {
@@ -139,14 +135,13 @@ export function TreinoTab() {
   const check = (exIdx: number, setIdx: number, v: SetDone) => {
     unlockAudio() // dentro do toque: o iOS só libera áudio num gesto
     const restSec = view.exercises[exIdx].restSec
-    let marked = false // o updater do usePersisted roda na hora, então dá pra ler depois
-    setLog((prev) => {
+    const saved = setLog((prev) => {
       const s = current(prev)
-      marked = !s.exercises[exIdx].sets[setIdx] // decide no último valor salvo: dois toques rápidos desmarcam
+      const marked = !s.exercises[exIdx].sets[setIdx] // decide no último valor salvo: dois toques rápidos desmarcam
       const next = setDone(s, exIdx, setIdx, marked ? v : null)
       return { ...prev, [today]: marked ? setRestEnd(next, Date.now() + restSec * 1000) : next }
     })
-    if (!marked) return
+    if (!saved[today]?.exercises[exIdx].sets[setIdx]) return
     setRestTotal(restSec)
     if (view.exercises[exIdx].sets.every((d, j) => j === setIdx || d)) setOpenIdx(undefined) // completou: vai pro próximo incompleto
   }

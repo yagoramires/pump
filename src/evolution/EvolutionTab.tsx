@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { CalendarDays, Camera, ChevronRight, FileText, Plus, Ruler, Share2, TrendingUp, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
-import { DEFAULTS } from '../schema'
 import type { MeasureFields } from './types'
 import { usePersisted } from '../storage/db'
 import { loadPhoto } from '../storage/photos'
@@ -62,14 +61,14 @@ function Thumb({ id, label }: { id?: string; label: string }) {
 }
 
 export function EvolutionTab() {
-  const [log, , a] = usePersisted('workoutLog', DEFAULTS.workoutLog)
-  const [plan, , b] = usePersisted('workoutPlan', DEFAULTS.workoutPlan)
-  const [measurements, , c] = usePersisted('measurements', DEFAULTS.measurements)
-  const [photoSets, , d] = usePersisted('photoSets', DEFAULTS.photoSets)
-  const [profile, , e] = usePersisted('profile', DEFAULTS.profile)
-  const [dietLog, , f] = usePersisted('dietLog', DEFAULTS.dietLog)
-  const [waterLog, , g] = usePersisted('waterLog', DEFAULTS.waterLog)
-  const [dietPlan, , h] = usePersisted('dietPlan', DEFAULTS.dietPlan)
+  const [log] = usePersisted('workoutLog')
+  const [plan] = usePersisted('workoutPlan')
+  const [measurements] = usePersisted('measurements')
+  const [photoSets] = usePersisted('photoSets')
+  const [profile] = usePersisted('profile')
+  const [dietLog] = usePersisted('dietLog')
+  const [waterLog] = usePersisted('waterLog')
+  const [dietPlan] = usePersisted('dietPlan')
   const [range, setRange] = useState('90')
   const [choosing, setChoosing] = useState(false)
   const [measuring, setMeasuring] = useState(false)
@@ -78,7 +77,6 @@ export function EvolutionTab() {
   const [pdf, setPdf] = useState<{ blob: Blob; deps: unknown[] }>()
   const today = todayKey()
 
-  if (!(a && b && c && d && e && f && g && h)) return <p className="text-sm text-text-2">Carregando…</p>
   if (view === 'capture') return <PhotoCapture date={today} onClose={() => setView(undefined)} />
   if (view === 'compare') return <PhotoCompare onClose={() => setView(undefined)} />
   if (view === 'achievements') return <AchievementsScreen onClose={() => setView(undefined)} />

@@ -1,6 +1,7 @@
 import { daysBetween, todayKey } from '../lib/date'
 import { DEFAULTS, USER_KEYS, VALID, isObj, type Settings, type UserData } from '../schema'
 import { allData, load, replaceAll, save } from './db'
+import { isPhotoKey } from './photos'
 import { shareFile } from '../lib/share'
 
 export interface BackupFile { app: 'pump'; version: 1; exportedAt: string; data: Record<string, unknown> }
@@ -25,7 +26,7 @@ export function parseBackup(text: string): BackupFile {
   const { data } = b
   const isUserKey = (k: string): k is keyof UserData => (USER_KEYS as readonly string[]).includes(k)
   const known = (k: string, v: unknown) =>
-    isUserKey(k) || (k.startsWith('photo:') && typeof v === 'string' && v.startsWith('data:image/'))
+    isUserKey(k) || (isPhotoKey(k) && typeof v === 'string' && v.startsWith('data:image/'))
   if (!isObj(data) || Object.entries(data).some(([k, v]) => !known(k, v))) {
     throw new Error('Backup com conteúdo desconhecido')
   }

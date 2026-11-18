@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronLeft, Dumbbell, Plus, Search } from 'lucide-react'
-import { DEFAULTS } from '../schema'
 import type { CustomExercise, Exercise } from '../workout/types'
 import { usePersisted } from '../storage/db'
 import { fetchCatalog, imageUrl } from './catalog'
@@ -51,7 +50,7 @@ const LABEL = 'px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-[.04e
 export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | CustomExercise) => void; onClose: () => void }) {
   const [catalog, setCatalog] = useState<Exercise[]>([])
   const [offline, setOffline] = useState(false)
-  const [custom, setCustom] = usePersisted('customExercises', DEFAULTS.customExercises)
+  const [custom, setCustom] = usePersisted('customExercises')
   const [q, setQ] = useState('')
   const [muscle, setMuscle] = useState<string>()
   const [equipment, setEquipment] = useState<string>()

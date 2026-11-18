@@ -1,9 +1,10 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from '../storage/db'
 import { loadPhoto, savePhoto } from '../storage/photos'
 import { dietDay, food } from '../../test/helpers'
+import { renderLoaded } from '../../test/render'
 import { HistoryScreen } from './HistoryScreen'
 
 beforeEach(async () => {
@@ -17,7 +18,7 @@ test('apagar fotos do dia remove o registro e as fotos', async () => {
   const id = await savePhoto('data:image/jpeg;base64,AAA')
   await save('photoSets', [{ id: 's', date: '2026-11-17', frente: id }])
   const user = userEvent.setup()
-  render(<HistoryScreen onClose={vi.fn()} />)
+  await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: '17' }))
   await user.click(screen.getByRole('button', { name: 'Apagar fotos' }))
   await user.click(await screen.findByRole('button', { name: 'Apagar' }))
@@ -35,7 +36,7 @@ test('detalhe do dia mostra o treino concluído', async () => {
     },
   } as never)
   const user = userEvent.setup()
-  render(<HistoryScreen onClose={vi.fn()} />)
+  await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
   const day = await screen.findByRole('button', { name: '16' })
   expect(day).toHaveClass('bg-accent-bg')
   await user.click(day)
@@ -46,7 +47,7 @@ test('apagar medidas do dia remove o registro', async () => {
   vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(2026, 10, 17, 12))
   await save('measurements', [{ id: 'm', date: '2026-11-17', weightKg: 78.4, waistCm: 81 }, { id: 'n', date: '2026-11-10', weightKg: 79 }])
   const user = userEvent.setup()
-  render(<HistoryScreen onClose={vi.fn()} />)
+  await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: '17' }))
   expect(screen.getByText('Peso 78,4 kg · Cintura 81 cm')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Apagar medidas' }))
@@ -56,7 +57,7 @@ test('apagar medidas do dia remove o registro', async () => {
 test('abre com hoje selecionado e o dia descreve o que tem registrado', async () => {
   vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(2026, 10, 17, 12))
   await save('measurements', [{ id: 'm', date: '2026-11-17', weightKg: 78.4 }])
-  render(<HistoryScreen onClose={vi.fn()} />)
+  await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
   const today = await screen.findByRole('button', { name: '17' })
   expect(today).toHaveAttribute('aria-pressed', 'true')
   expect(today).toHaveAttribute('aria-current', 'date')
@@ -76,7 +77,7 @@ test('Histórico mostra dieta e água do dia e apaga com confirmação', async (
   // descanso marcado não é treino
   await save('workoutLog', { '2026-11-16': { date: '2026-11-16', workoutId: 'a', workoutLabel: 'A', workoutName: 'Peito', exercises: [], rest: true } })
   const user = userEvent.setup()
-  render(<HistoryScreen onClose={vi.fn()} />)
+  await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
 
   await user.click(await screen.findByRole('button', { name: '15' }))
   expect(screen.getByText('Dieta · Dia livre')).toBeInTheDocument()
@@ -106,7 +107,7 @@ test('Histórico mostra Descanso no dia', async () => {
   vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(2026, 10, 17, 12))
   await save('workoutLog', { '2026-11-16': { date: '2026-11-16', workoutId: '', workoutLabel: '', workoutName: 'Descanso', exercises: [], rest: true } })
   const user = userEvent.setup()
-  render(<HistoryScreen onClose={vi.fn()} />)
+  await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
   const d16 = await screen.findByRole('button', { name: '16' })
   expect(d16).toHaveAccessibleDescription('com registro') // descanso: ponto de registro, não de treino
   expect(d16).not.toHaveClass('bg-accent-bg')

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Check, ChevronDown, ChevronLeft, ImageOff } from 'lucide-react'
-import { DEFAULTS } from '../schema'
 import type { Angle } from './types'
 import { usePersisted } from '../storage/db'
 import { formatDayMonth } from '../lib/date'
@@ -31,9 +30,9 @@ function Pane({ id, date, now }: { id?: string; date: string; now: boolean }) {
 }
 
 export function PhotoCompare({ onClose }: { onClose: () => void }) {
-  const [sets, , a] = usePersisted('photoSets', DEFAULTS.photoSets)
-  const [ms, , b] = usePersisted('measurements', DEFAULTS.measurements)
-  const [profile, , c] = usePersisted('profile', DEFAULTS.profile)
+  const [sets] = usePersisted('photoSets')
+  const [ms] = usePersisted('measurements')
+  const [profile] = usePersisted('profile')
   const [angle, setAngle] = useState<Angle>('frente')
   const [chosen, setChosen] = useState<{ before?: string; after?: string }>({})
   const [picking, setPicking] = useState<'before' | 'after'>()
@@ -48,7 +47,6 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
       <h1 className="flex-1 text-[19px] font-semibold text-strong">Comparar</h1>
     </header>
   )
-  if (!(a && b && c)) return <Overlay>{header}<p className="text-sm text-text-2">Carregando…</p></Overlay>
   if (!before || !after) return <Overlay>{header}<p className="text-sm text-text-2">Nenhuma foto ainda.</p></Overlay>
 
   const dir = goalDirection(profile)

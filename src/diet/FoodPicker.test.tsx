@@ -1,5 +1,6 @@
 import type { DayItem, DietItem, DietPlan } from './types'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
+import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from '../storage/db'
@@ -31,7 +32,7 @@ test('FoodPicker offline mostra recentes e aviso; escolher devolve item com gram
   resetStoreForTests()
   const onPick = vi.fn()
   const user = userEvent.setup()
-  render(<FoodPicker title="Adicionar · Almoço" confirmLabel="Usar" onPick={onPick} onClose={vi.fn()} />)
+  await renderLoaded(<FoodPicker title="Adicionar · Almoço" confirmLabel="Usar" onPick={onPick} onClose={vi.fn()} />)
   expect(await screen.findByText('Sem internet para buscar na TACO')).toBeInTheDocument()
   expect(await screen.findByRole('button', { name: /Meu shake/ })).toBeInTheDocument()
   expect(screen.getAllByRole('button', { name: /Arroz/ })).toHaveLength(1)
@@ -48,7 +49,7 @@ test('FoodPicker cria alimento próprio e grava em foods', async () => {
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
   const onPick = vi.fn()
   const user = userEvent.setup()
-  render(<FoodPicker title="Adicionar" confirmLabel="Adicionar" onPick={onPick} onClose={vi.fn()} />)
+  await renderLoaded(<FoodPicker title="Adicionar" confirmLabel="Adicionar" onPick={onPick} onClose={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Criar alimento próprio' }))
   await user.type(screen.getByRole('textbox', { name: 'Nome do alimento' }), 'Pasta de amendoim')
   await user.type(screen.getByRole('textbox', { name: 'kcal por 100 g' }), '588')
@@ -79,7 +80,7 @@ test('FoodPicker busca na TACO e mostra a fonte', async () => {
   const onPick = vi.fn()
   const onSkip = vi.fn()
   const user = userEvent.setup()
-  render(<FoodPicker title="Trocar · Frango" initialGrams={150} confirmLabel="Trocar" onPick={onPick} onClose={vi.fn()} extraAction={{ label: 'Pular hoje', onClick: onSkip }} />)
+  await renderLoaded(<FoodPicker title="Trocar · Frango" initialGrams={150} confirmLabel="Trocar" onPick={onPick} onClose={vi.fn()} extraAction={{ label: 'Pular hoje', onClick: onSkip }} />)
   expect(screen.getByText(/TACO 4ª ed\./)).toBeInTheDocument()
   await user.type(screen.getByRole('searchbox', { name: 'Buscar alimento' }), 'arroz')
   const results = await screen.findByRole('list', { name: 'Resultados da TACO' })

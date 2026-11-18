@@ -1,4 +1,5 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor } from '@testing-library/react'
+import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests } from '../storage/db'
@@ -16,7 +17,7 @@ beforeEach(async () => {
 test('sem câmera: só galeria com aviso; foto da galeria salva frente e avança pra lado', async () => {
   Object.defineProperty(navigator, 'mediaDevices', { value: undefined, configurable: true })
   const user = userEvent.setup()
-  render(<PhotoCapture date="2026-11-17" onClose={vi.fn()} />)
+  await renderLoaded(<PhotoCapture date="2026-11-17" onClose={vi.fn()} />)
   expect(await screen.findByText('Câmera indisponível — escolha da galeria.')).toBeInTheDocument()
   await user.upload(screen.getByLabelText('Escolher da galeria'), new File(['x'], 'a.jpg', { type: 'image/jpeg' }))
   await user.click(await screen.findByRole('button', { name: 'Usar' }))
@@ -27,7 +28,7 @@ test('falha ao salvar a foto não cria registro', async () => {
   Object.defineProperty(navigator, 'mediaDevices', { value: undefined, configurable: true })
   vi.spyOn(photos, 'savePhoto').mockRejectedValue(new Error('quota'))
   const user = userEvent.setup()
-  render(<PhotoCapture date="2026-11-17" onClose={vi.fn()} />)
+  await renderLoaded(<PhotoCapture date="2026-11-17" onClose={vi.fn()} />)
   await user.upload(await screen.findByLabelText('Escolher da galeria'), new File(['x'], 'a.jpg', { type: 'image/jpeg' }))
   await user.click(await screen.findByRole('button', { name: 'Usar' }))
   await waitFor(() => expect(photos.savePhoto).toHaveBeenCalled())
@@ -39,7 +40,7 @@ test('fechar para as tracks da câmera; Tirar foto só liga com o vídeo pronto'
   Object.defineProperty(navigator, 'mediaDevices', { value: { getUserMedia }, configurable: true })
   const onClose = vi.fn()
   const user = userEvent.setup()
-  render(<PhotoCapture date="2026-11-17" onClose={onClose} />)
+  await renderLoaded(<PhotoCapture date="2026-11-17" onClose={onClose} />)
   await waitFor(() => expect(getUserMedia).toHaveBeenCalledWith({ video: { facingMode: 'user' } }))
   expect(screen.getByRole('button', { name: 'Tirar foto' })).toBeDisabled()
   await user.click(screen.getByRole('button', { name: 'Voltar' }))
@@ -53,7 +54,7 @@ test('escolher da galeria durante a contagem cancela o disparo', async () => {
     const getUserMedia = vi.fn().mockResolvedValue({ getTracks: () => [{ stop() {} }] })
     Object.defineProperty(navigator, 'mediaDevices', { value: { getUserMedia }, configurable: true })
     const user = userEvent.setup()
-    const { container } = render(<PhotoCapture date="2026-11-17" onClose={vi.fn()} />)
+    const { container } = await renderLoaded(<PhotoCapture date="2026-11-17" onClose={vi.fn()} />)
     await waitFor(() => expect(getUserMedia).toHaveBeenCalled())
     fireEvent.loadedData(container.querySelector('video')!)
     await user.click(screen.getByRole('button', { name: 'Temporizador 5 s' }))
@@ -72,7 +73,7 @@ test('sem câmera traseira: volta pra frontal em vez de cair na galeria', async 
     c.video.facingMode === 'environment' ? Promise.reject(new Error('NotFound')) : Promise.resolve({ getTracks: () => [{ stop() {} }] }))
   Object.defineProperty(navigator, 'mediaDevices', { value: { getUserMedia }, configurable: true })
   const user = userEvent.setup()
-  render(<PhotoCapture date="2026-11-17" onClose={vi.fn()} />)
+  await renderLoaded(<PhotoCapture date="2026-11-17" onClose={vi.fn()} />)
   await waitFor(() => expect(getUserMedia).toHaveBeenCalledTimes(1))
   await user.click(screen.getByRole('button', { name: 'Trocar câmera' }))
   await waitFor(() => expect(getUserMedia).toHaveBeenLastCalledWith({ video: { facingMode: 'user' } }))
@@ -80,6 +81,6 @@ test('sem câmera traseira: volta pra frontal em vez de cair na galeria', async 
 })
 test('mediaDevices sem getUserMedia: aviso da galeria', async () => {
   Object.defineProperty(navigator, 'mediaDevices', { value: {}, configurable: true })
-  render(<PhotoCapture date="2026-11-17" onClose={vi.fn()} />)
+  await renderLoaded(<PhotoCapture date="2026-11-17" onClose={vi.fn()} />)
   expect(await screen.findByText('Câmera indisponível — escolha da galeria.')).toBeInTheDocument()
 })

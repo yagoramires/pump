@@ -1,5 +1,6 @@
 import type { DietLog, DietPlan, TacoFood } from './types'
-import { render, screen, within } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
+import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear, get } from 'idb-keyval'
 import { resetStoreForTests, save } from '../storage/db'
@@ -36,7 +37,7 @@ test('gerar com IA: copiar prompt exige objetivo e grava a anamnese', async () =
   const user = userEvent.setup()
   const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
   Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
-  const { unmount } = render(<DietImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
+  const { unmount } = await renderLoaded(<DietImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
   const copy = await screen.findByRole('button', { name: 'Copiar prompt pra IA' })
   expect(copy).toBeDisabled()
   await user.click(await screen.findByRole('radio', { name: 'Perder peso' }))
@@ -50,14 +51,14 @@ test('gerar com IA: copiar prompt exige objetivo e grava a anamnese', async () =
   expect(writeText.mock.calls[0][0]).toContain('- Não como: fígado')
   await vi.waitFor(async () => expect((await get('profile'))?.dietAnamnesis).toEqual({ goal: 'perder', meals: 5, restrictions: ['lactose'], avoid: 'fígado' }))
   unmount()
-  render(<DietImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
+  await renderLoaded(<DietImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
   expect(await screen.findByRole('radio', { name: 'Perder peso' })).toHaveAttribute('aria-checked', 'true')
   expect(screen.getByLabelText('Não como')).toHaveValue('fígado')
 })
 
 test('import offline: tudo vira estimativa com aviso e dá pra usar', async () => {
   const onDone = vi.fn()
-  render(<DietImport mode="import" onDone={onDone} onBack={vi.fn()} />)
+  await renderLoaded(<DietImport mode="import" onDone={onDone} onBack={vi.fn()} />)
   expect(screen.queryByRole('button', { name: 'Copiar prompt pra IA' })).not.toBeInTheDocument()
   const user = await paste(json([WHEY, PAO]))
   expect(await screen.findByText('Sem internet: usei os números da IA. Dá pra trocar depois.')).toBeInTheDocument()
@@ -75,7 +76,7 @@ test('import offline: tudo vira estimativa com aviso e dá pra usar', async () =
 
 test('casado por palavras com nome diferente mostra "na TACO"', async () => {
   vi.mocked(fetchTaco).mockResolvedValue(TACO)
-  render(<DietImport mode="import" onDone={vi.fn()} onBack={vi.fn()} />)
+  await renderLoaded(<DietImport mode="import" onDone={vi.fn()} onBack={vi.fn()} />)
   const user = await paste(json([PAO, WHEY]))
   expect(await screen.findByText('na TACO: Pão, trigo, francês')).toBeInTheDocument()
   expect(screen.queryByText('Sem internet: usei os números da IA. Dá pra trocar depois.')).not.toBeInTheDocument()
@@ -93,7 +94,7 @@ test('casado por palavras com nome diferente mostra "na TACO"', async () => {
 })
 
 test('JSON inválido lista os erros e não grava', async () => {
-  render(<DietImport mode="import" onDone={vi.fn()} onBack={vi.fn()} />)
+  await renderLoaded(<DietImport mode="import" onDone={vi.fn()} onBack={vi.fn()} />)
   await paste(JSON.stringify({ formato: 'pump-plano', versao: 1, dieta: { refeicoes: [{ nome: '', horario: '7h', alimentos: [{ nome: 'Ovo', gramas: 50 }] }] } }))
   const alert = await screen.findByRole('alert')
   expect(within(alert).getByText('Refeição 1: falta o nome')).toBeInTheDocument()
@@ -109,7 +110,7 @@ test('substituir cardápio pede confirmação e preserva o que foi marcado hoje'
   await save('dietLog', log)
   resetStoreForTests()
   const onDone = vi.fn()
-  render(<DietImport mode="import" onDone={onDone} onBack={vi.fn()} />)
+  await renderLoaded(<DietImport mode="import" onDone={onDone} onBack={vi.fn()} />)
   const user = await paste(json([PAO]))
   await user.click(await screen.findByRole('button', { name: 'Usar cardápios' }))
   const dialog = await screen.findByRole('alertdialog')
@@ -127,7 +128,7 @@ test('substituir cardápio pede confirmação e preserva o que foi marcado hoje'
 test('enquanto a TACO carrega mostra "Conferindo na TACO…"', async () => {
   let resolve!: (t: TacoFood[]) => void
   vi.mocked(fetchTaco).mockReturnValue(new Promise((r) => { resolve = r }))
-  render(<DietImport mode="import" onDone={vi.fn()} onBack={vi.fn()} />)
+  await renderLoaded(<DietImport mode="import" onDone={vi.fn()} onBack={vi.fn()} />)
   await paste(json([PAO]))
   expect(await screen.findByRole('status')).toHaveTextContent('Conferindo na TACO…')
   resolve(TACO)

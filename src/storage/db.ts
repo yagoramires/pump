@@ -1,51 +1,77 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { use, useCallback, useSyncExternalStore } from 'react'
 import { delMany, entries, get, keys, set, setMany } from 'idb-keyval'
-import type { UserData } from '../schema'
+import { DEFAULTS, USER_KEYS, type UserData } from '../schema'
 
-type Listener = (v: unknown) => void
-const cache = new Map<string, unknown>()
-const listeners = new Map<string, Set<Listener>>()
-// chaves lidas (ou gravadas) com sucesso: só nelas um update pode gravar sem apagar o que está no banco
-const known = new Set<string>()
+type Key = keyof UserData
+type Value<K extends Key> = UserData[K]
+
+// só chaves do schema: fotos não passam pelo cache, loadPhoto lê direto do banco e o base64 aqui só gastaria memória
+const cache = new Map<Key, unknown>()
+// uma leitura por chave
+const reads = new Map<Key, Promise<unknown>>()
+const listeners = new Map<Key, Set<() => void>>()
+const errorListeners = new Set<(message: string) => void>()
+
+export class StorageReadError extends Error {}
 
 export const resetStoreForTests = () => {
   cache.clear()
-  known.clear()
+  reads.clear()
 }
 
-const storageError = (message: string, read = false) =>
-  window.dispatchEvent(new CustomEvent('pump:storage-error', { detail: read ? { message, read } : { message } }))
+const isKey = (k: string): k is Key => (USER_KEYS as readonly string[]).includes(k)
+const current = <K extends Key>(k: K): Value<K> => (cache.has(k) ? cache.get(k) : DEFAULTS[k]) as Value<K>
+const notify = (k: Key) => listeners.get(k)?.forEach((fn) => fn())
+const message = (e: unknown) => (e instanceof Error ? e.message : String(e))
 
-const notify = (k: string) => listeners.get(k)?.forEach((fn) => fn(cache.get(k)))
+export function onStorageError(fn: (message: string) => void): () => void {
+  errorListeners.add(fn)
+  return () => errorListeners.delete(fn)
+}
 
-async function guarded<T>(fn: () => Promise<T>, read = false): Promise<T> {
+export async function guarded<T>(fn: () => Promise<T>): Promise<T> {
   try {
     return await fn()
   } catch (e) {
-    storageError(e instanceof Error ? e.message : String(e), read)
+    errorListeners.forEach((fn) => fn(message(e)))
     throw e
   }
 }
 
-export async function load<K extends keyof UserData>(k: K): Promise<UserData[K] | undefined> {
-  if (cache.has(k)) return cache.get(k) as UserData[K]
-  const v = await guarded(() => get<UserData[K]>(k), true)
-  known.add(k)
-  // um save/replaceAll pode ter terminado enquanto o get rodava: o cache é mais novo
-  if (cache.has(k)) return cache.get(k) as UserData[K]
-  if (v !== undefined) cache.set(k, v)
-  return v
+/** lê a chave uma vez; o que falta vira DEFAULTS[k]. Falha = StorageReadError (o ErrorBoundary mostra a tela de erro) */
+export function readKey<K extends Key>(k: K): Promise<Value<K>> {
+  const cached = reads.get(k)
+  if (cached) return cached as Promise<Value<K>>
+  const p = get<Value<K>>(k).then(
+    (v) => {
+      // um save/replaceAll pode ter terminado enquanto o get rodava: o cache é mais novo
+      if (!cache.has(k) && v !== undefined) cache.set(k, v)
+      return current(k)
+    },
+    (e) => {
+      throw new StorageReadError(message(e), { cause: e })
+    },
+  )
+  // o use() do React lê status/value: chave já lida não suspende nem num componente que monta depois
+  p.then(
+    (value) => void Object.assign(p, { status: 'fulfilled', value }),
+    (reason) => void Object.assign(p, { status: 'rejected', reason }),
+  )
+  reads.set(k, p)
+  return p
 }
 
-// cache antes do await: um save antigo que termina depois nunca volta o cache pra um valor velho
-export async function save<K extends keyof UserData>(k: K, v: UserData[K]): Promise<void> {
+/** valor guardado, ou undefined se a chave nunca foi gravada */
+export async function load<K extends Key>(k: K): Promise<Value<K> | undefined> {
+  await readKey(k)
+  return cache.get(k) as Value<K> | undefined
+}
+
+// cache e aviso antes do await: a tela muda na hora e um save antigo que termina depois nunca volta o valor
+export function save<K extends Key>(k: K, v: Value<K>): Promise<void> {
   cache.set(k, v)
-  try {
-    await guarded(() => set(k, v))
-    known.add(k)
-  } finally {
-    notify(k) // manda o valor mais novo do cache, não necessariamente v
-  }
+  notify(k)
+  return guarded(() => set(k, v))
 }
 
 export async function allData(): Promise<Record<string, unknown>> {
@@ -59,11 +85,9 @@ export async function replaceAll(data: Record<string, unknown>): Promise<void> {
     await setMany(Object.entries(data))
     await delMany(old)
   })
-  const touched = new Set([...Object.keys(data), ...old, ...cache.keys()])
+  const touched = new Set([...cache.keys(), ...Object.keys(data).filter(isKey), ...old.filter(isKey)])
   cache.clear()
-  // fotos não passam pelo cache: loadPhoto lê direto do banco e guardar o base64 aqui só gasta memória
-  Object.entries(data).forEach(([k, v]) => !k.startsWith('photo:') && cache.set(k, v))
-  touched.forEach((k) => known.add(k))
+  Object.entries(data).forEach(([k, v]) => isKey(k) && cache.set(k, v))
   touched.forEach(notify)
 }
 
@@ -71,40 +95,28 @@ export async function requestPersist(): Promise<boolean> {
   return (await navigator.storage?.persist?.()) ?? false
 }
 
-export function usePersisted<K extends keyof UserData>(
-  k: K,
-  initial: UserData[K],
-): [value: UserData[K], set: (v: UserData[K] | ((prev: UserData[K]) => UserData[K])) => void, loaded: boolean] {
-  const initialRef = useRef(initial)
-  const [value, setValue] = useState(initial)
-  const [loaded, setLoaded] = useState(false)
+type Update<K extends Key> = Value<K> | ((prev: Value<K>) => Value<K>)
 
-  useEffect(() => {
-    const fn: Listener = (v) => setValue((v as UserData[K] | undefined) ?? initialRef.current)
-    if (!listeners.has(k)) listeners.set(k, new Set())
-    listeners.get(k)!.add(fn)
-    let alive = true
-    load(k)
-      .then((v) => alive && v !== undefined && setValue(v))
-      .catch(() => {}) // o erro já virou pump:storage-error (read); update fica bloqueado
-      .finally(() => alive && setLoaded(true))
-    return () => {
-      alive = false
-      listeners.get(k)!.delete(fn)
-    }
-  }, [k])
-
-  // o erro já virou o evento pump:storage-error dentro de save
-  const update = useCallback(
-    (v: UserData[K] | ((prev: UserData[K]) => UserData[K])) => {
-      // sem ter lido a chave, gravar a partir de initial apagaria o que está no banco
-      if (!known.has(k)) return storageError('seus dados ainda não foram lidos')
-      // prev vem do cache (não do render), então dois updaters seguidos se acumulam
-      const next = typeof v === 'function' ? v(cache.has(k) ? (cache.get(k) as UserData[K]) : initialRef.current) : v
-      cache.set(k, next) // síncrono pro próximo updater enxergar; save regrava e avisa
-      void save(k, next).catch(() => {})
+/** suspende até a chave ser lida; o setter grava na hora (a gravação no banco segue em segundo plano) e devolve o valor novo */
+export function usePersisted<K extends Key>(k: K): [value: Value<K>, set: (v: Update<K>) => Value<K>] {
+  use(readKey(k))
+  const subscribe = useCallback(
+    (fn: () => void) => {
+      if (!listeners.has(k)) listeners.set(k, new Set())
+      listeners.get(k)!.add(fn)
+      return () => void listeners.get(k)!.delete(fn)
     },
     [k],
   )
-  return [value, update, loaded]
+  const value = useSyncExternalStore(subscribe, () => current(k))
+  const update = useCallback(
+    (v: Update<K>) => {
+      // prev vem do cache (não do render), então dois updaters seguidos se acumulam
+      const next = typeof v === 'function' ? (v as (prev: Value<K>) => Value<K>)(current(k)) : v
+      void save(k, next).catch(() => {}) // guarded já avisou onStorageError
+      return next
+    },
+    [k],
+  )
+  return [value, update]
 }

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { DEFAULTS } from '../schema'
 import type { Profile } from '../profile/types'
 import type { MeasureFields, Measurement } from './types'
 import { usePersisted } from '../storage/db'
@@ -15,8 +14,8 @@ type Key = keyof MeasureFields
 const select = (e: React.FocusEvent<HTMLInputElement>) => e.currentTarget.select()
 
 export function MeasureDrawer({ open, onClose, date }: { open: boolean; onClose: () => void; date: string }) {
-  const [list, setList, listLoaded] = usePersisted('measurements', DEFAULTS.measurements)
-  const [profile, setProfile, profileLoaded] = usePersisted('profile', DEFAULTS.profile)
+  const [list, setList] = usePersisted('measurements')
+  const [profile, setProfile] = usePersisted('profile')
 
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
@@ -27,24 +26,19 @@ export function MeasureDrawer({ open, onClose, date }: { open: boolean; onClose:
             {date === todayKey() && <span className="rounded-md border border-border px-1.5 py-0.5 text-[11px] text-text-2">hoje</span>}
           </div>
           <DrawerDescription className="sr-only">Peso e medidas do dia</DrawerDescription>
-          {/* o formulário só monta depois de ler: o pré-preenchimento nunca parte de dado vazio */}
-          {listLoaded && profileLoaded ? (
-            <Form
-              profile={profile}
-              initial={list.find((m) => m.date === date)}
-              onSave={(fields) => {
-                onClose()
-                const cur = list.find((m) => m.date === date)
-                if (!Object.entries(fields).some(([k, v]) => (v ?? undefined) !== cur?.[k as Key])) return void toast('Nada mudou')
-                setList((prev) => upsertMeasurement(prev, date, fields))
-                const w = fields.weightKg
-                if (w) setProfile((p) => ({ ...p, weightKg: w }))
-                toast(upsertMeasurement(list, date, fields).some((m) => m.date === date) ? 'Medidas salvas' : 'Medidas apagadas')
-              }}
-            />
-          ) : (
-            <p className="py-6 text-sm text-text-2">Carregando…</p>
-          )}
+          <Form
+            profile={profile}
+            initial={list.find((m) => m.date === date)}
+            onSave={(fields) => {
+              onClose()
+              const cur = list.find((m) => m.date === date)
+              if (!Object.entries(fields).some(([k, v]) => (v ?? undefined) !== cur?.[k as Key])) return void toast('Nada mudou')
+              setList((prev) => upsertMeasurement(prev, date, fields))
+              const w = fields.weightKg
+              if (w) setProfile((p) => ({ ...p, weightKg: w }))
+              toast(upsertMeasurement(list, date, fields).some((m) => m.date === date) ? 'Medidas salvas' : 'Medidas apagadas')
+            }}
+          />
         </div>
       </DrawerContent>
     </Drawer>

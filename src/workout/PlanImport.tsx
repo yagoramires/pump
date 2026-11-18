@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Check, ChevronLeft, Copy, FileUp } from 'lucide-react'
-import { DEFAULTS } from '../schema'
 import type { CustomExercise, WorkoutPlan } from './types'
 import { usePersisted } from '../storage/db'
 import { fetchCatalog } from '../catalog/catalog'
@@ -26,16 +25,15 @@ export function Step({ n, title, sub, children }: { n: number; title: string; su
 }
 
 export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: () => void }) {
-  const [plan, , planLoaded] = usePersisted('workoutPlan', DEFAULTS.workoutPlan)
-  const [customs, setCustoms, customsLoaded] = usePersisted('customExercises', DEFAULTS.customExercises)
-  const [profile, setProfile, profileLoaded] = usePersisted('profile', DEFAULTS.profile)
+  const [plan] = usePersisted('workoutPlan')
+  const [customs, setCustoms] = usePersisted('customExercises')
+  const [profile, setProfile] = usePersisted('profile')
   const [text, setText] = useState('')
   const [notice, setNotice] = useState('')
   const [problems, setProblems] = useState<string[]>([])
   const [review, setReview] = useState<Review>()
   const [editing, setEditing] = useState(false)
   const instant = useRef(false) // arquivo escolhido revisa na hora; digitar espera 400 ms
-  const ready = planLoaded && customsLoaded
 
   const copy = async (value: string, ok: string) => {
     try {
@@ -55,7 +53,7 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
 
   useEffect(() => {
     // editando: um exercício criado no editor muda customs, e rever geraria ids novos pros exercícios do plano
-    if (!ready || editing || !text.trim()) return
+    if (editing || !text.trim()) return
     let stale = false
     const run = async () => {
       let file
@@ -75,7 +73,7 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
     const t = setTimeout(() => void run(), instant.current ? 0 : 400)
     instant.current = false
     return () => { stale = true; clearTimeout(t) }
-  }, [text, ready, customs, editing])
+  }, [text, customs, editing])
 
   // o PlanEditor grava o plano no Salvar; aqui só entram os exercícios novos que ficaram no plano
   const doImport = (saved: WorkoutPlan) => {
@@ -94,10 +92,10 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
         {onBack && <button type="button" className="icon-btn" aria-label="Voltar" onClick={onBack}><ChevronLeft size={18} /></button>}
         <h1 className="flex-1 text-[19px] font-semibold text-strong">Importar de uma IA</h1>
       </header>
-      {profileLoaded && <AnamnesisForm initial={profile.anamnesis ?? {}} onChange={(anamnesis) => setProfile((p) => ({ ...p, anamnesis }))} />}
+      <AnamnesisForm value={profile.anamnesis ?? {}} onChange={(anamnesis) => setProfile((p) => ({ ...p, anamnesis }))} />
       <div className="overflow-hidden rounded-[14px] border border-border bg-panel">
         <Step n={1} title="Copie o prompt" sub="Cole no ChatGPT (e sua ficha, se tiver)">
-          <Button type="button" variant="outline" size="sm" className="h-9 bg-transparent" disabled={!profileLoaded} onClick={() => copy(buildPrompt(profile), 'Prompt copiado. Cole na sua IA.')}><Copy size={14} aria-hidden="true" />Copiar</Button>
+          <Button type="button" variant="outline" size="sm" className="h-9 bg-transparent" onClick={() => copy(buildPrompt(profile), 'Prompt copiado. Cole na sua IA.')}><Copy size={14} aria-hidden="true" />Copiar</Button>
         </Step>
         <Step n={2} title="Cole a resposta aqui" sub="Pode colar o texto todo" />
       </div>
@@ -134,7 +132,7 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
         </div>
       )}
       {review?.ignoredDiet && <p className="text-[13px] text-text-2">A dieta deste arquivo pode ser importada na aba Dieta</p>}
-      <p className="text-[13px] text-text-2">Ou ajuste seu plano atual: <button type="button" className="min-h-11 font-semibold text-accent disabled:opacity-50" disabled={!ready} onClick={() => copy(JSON.stringify(exportPlanFormat(plan), null, 2), 'Plano copiado.')}>copiar meu plano</button></p>
+      <p className="text-[13px] text-text-2">Ou ajuste seu plano atual: <button type="button" className="min-h-11 font-semibold text-accent" onClick={() => copy(JSON.stringify(exportPlanFormat(plan), null, 2), 'Plano copiado.')}>copiar meu plano</button></p>
       <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <Button type="button" className="w-full" disabled={!review} onClick={() => setEditing(true)}>Revisar plano</Button>
       </div>

@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Check, Minus, Plus, Search } from 'lucide-react'
-import { DEFAULTS } from '../schema'
 import type { DietItem, Per100, TacoFood } from './types'
 import { usePersisted } from '../storage/db'
 import { fetchTaco } from '../catalog/catalog'
@@ -55,9 +54,9 @@ function Rows({ label, foods, selected, onSelect }: { label: string; foods: Food
 export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, onClose, extraAction }: Props) {
   const [taco, setTaco] = useState<TacoFood[]>([])
   const [offline, setOffline] = useState(false)
-  const [plan] = usePersisted('dietPlan', DEFAULTS.dietPlan)
-  const [log] = usePersisted('dietLog', DEFAULTS.dietLog)
-  const [foods, setFoods] = usePersisted('foods', DEFAULTS.foods)
+  const [plan] = usePersisted('dietPlan')
+  const [log] = usePersisted('dietLog')
+  const [foods, setFoods] = usePersisted('foods')
   const [q, setQ] = useState('')
   const [sel, setSel] = useState<Food>()
   const [grams, setGrams] = useState(initialGrams)

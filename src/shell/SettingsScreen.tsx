@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, type ReactNode } from 'react'
 import { ChevronLeft, ChevronRight, Droplet, List, RotateCcw, Share2, Sparkles, User, Utensils } from 'lucide-react'
 import { toast } from 'sonner'
-import { DEFAULTS, type Settings } from '../schema'
+import { type Settings } from '../schema'
 import type { WaterSettings } from '../diet/types'
 import { useBackupExport } from './useBackupExport'
 import { usePersisted } from '../storage/db'
@@ -9,6 +9,7 @@ import { daysBetween, todayKey } from '../lib/date'
 import { formatDec, formatKg, parseDecimal } from '../lib/number'
 import { IconDot } from '@/components/IconDot'
 import { Overlay } from '@/components/Overlay'
+import { Loading } from '@/components/Loading'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { ImportBackupButton } from './ImportBackupButton'
 import { PlanEditor } from '../workout/PlanEditor'
@@ -49,17 +50,17 @@ function BackHeader({ title, onBack, label = 'Voltar' }: { title: string; onBack
   )
 }
 
+type SetSettings = (f: (s: Settings) => Settings) => Settings
+
 const LIMITS = { goalMl: [250, 10000], cupMl: [50, 1000] } as const
 
-function WaterForm({ water, ready, weightKg, setSettings }: { water?: WaterSettings; ready: boolean; weightKg: number; setSettings: (f: (s: Settings) => Settings) => void }) {
+function WaterForm({ water, weightKg, setSettings }: { water?: WaterSettings; weightKg: number; setSettings: SetSettings }) {
   const on = !!water?.enabled
   const [draft, setDraft] = useState(() => ({ goalMl: String(water?.goalMl ?? ''), cupMl: String(water?.cupMl ?? '') }))
-  const toggle = () =>
-    setSettings((s) => {
-      const next = s.water?.enabled ? { ...s.water, enabled: false } : turnWaterOn(s.water, weightKg)
-      setDraft({ goalMl: String(next.goalMl), cupMl: String(next.cupMl) })
-      return { ...s, water: next }
-    })
+  const toggle = () => {
+    const next = setSettings((s) => ({ ...s, water: s.water?.enabled ? { ...s.water, enabled: false } : turnWaterOn(s.water, weightKg) })).water!
+    setDraft({ goalMl: String(next.goalMl), cupMl: String(next.cupMl) })
+  }
   const field = (k: keyof typeof LIMITS, label: string) => {
     const [min, max] = LIMITS[k]
     const n = parseDecimal(draft[k])
@@ -83,7 +84,7 @@ function WaterForm({ water, ready, weightKg, setSettings }: { water?: WaterSetti
   return (
     <div className="mt-3 flex flex-col gap-4">
       <Group>
-        <button type="button" role="switch" aria-checked={on} disabled={!ready} onClick={toggle} className="flex min-h-14 w-full items-center gap-3 px-3.5 py-2 text-left disabled:opacity-40">
+        <button type="button" role="switch" aria-checked={on} onClick={toggle} className="flex min-h-14 w-full items-center gap-3 px-3.5 py-2 text-left">
           <span className="flex-1 text-[15px] font-semibold text-strong">Contador de água</span>
           <span aria-hidden="true" className={cn('relative h-8 w-13 shrink-0 rounded-full border transition-colors', on ? 'border-accent bg-accent' : 'border-border bg-surface')}>
             <span className={cn('absolute top-0.5 left-0.5 size-6 rounded-full transition-transform', on ? 'translate-x-5 bg-on-accent' : 'bg-text-2')} />
@@ -101,18 +102,18 @@ function WaterForm({ water, ready, weightKg, setSettings }: { water?: WaterSetti
   )
 }
 
-export function SettingsScreen({ settings, onClose, setSettings }: { settings: Settings; onClose: () => void; setSettings: (f: (s: Settings) => Settings) => void }) {
+export function SettingsScreen({ settings, onClose, setSettings }: { settings: Settings; onClose: () => void; setSettings: SetSettings }) {
   const [view, setView] = useState<View>('menu')
   const [confirmRedo, setConfirmRedo] = useState(false)
-  const [profile, , profileLoaded] = usePersisted('profile', DEFAULTS.profile)
+  const [profile] = usePersisted('profile')
   const backup = useBackupExport(toast.error)
   const back = () => setView('menu')
 
   if (view === 'plan') return <Overlay><PlanEditor onDone={back} onCancel={back} /></Overlay>
   if (view === 'import') return <Overlay><PlanImport onDone={back} onBack={back} /></Overlay>
-  if (view === 'diet') return <Overlay><Suspense fallback={<p className="text-sm text-text-2">Carregando…</p>}><DietEditor onDone={back} onCancel={back} /></Suspense></Overlay>
-  if (view === 'diet-ia') return <Overlay><Suspense fallback={<p className="text-sm text-text-2">Carregando…</p>}><DietImport mode="ia" onDone={back} onBack={back} /></Suspense></Overlay>
-  if (view === 'water') return <Overlay><BackHeader title="Água" onBack={back} /><WaterForm water={settings.water} ready={profileLoaded} weightKg={profile.weightKg} setSettings={setSettings} /></Overlay>
+  if (view === 'diet') return <Overlay><Suspense fallback={<Loading />}><DietEditor onDone={back} onCancel={back} /></Suspense></Overlay>
+  if (view === 'diet-ia') return <Overlay><Suspense fallback={<Loading />}><DietImport mode="ia" onDone={back} onBack={back} /></Suspense></Overlay>
+  if (view === 'water') return <Overlay><BackHeader title="Água" onBack={back} /><WaterForm water={settings.water} weightKg={profile.weightKg} setSettings={setSettings} /></Overlay>
   if (view === 'profile') return <Overlay><BackHeader title="Perfil" onBack={back} /><div className="mt-3"><ProfileForm submitLabel="Salvar" onDone={back} /></div></Overlay>
 
   const days = settings.lastBackupAt ? daysBetween(settings.lastBackupAt, todayKey()) : undefined

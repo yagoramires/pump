@@ -1,11 +1,10 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, use, useEffect, useState } from 'react'
 import { Settings as SettingsIcon, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
 import { BottomNav } from './shell/BottomNav'
 import { InstallGate } from './shell/InstallGate'
-import { FatalScreen } from './shell/ErrorBoundary'
 import { SettingsScreen } from './shell/SettingsScreen'
 import { isIOS, isStandalone } from './shell/platform'
 import { Onboarding } from './onboarding/Onboarding'
@@ -13,11 +12,12 @@ import { TreinoTab } from './workout/TreinoTab'
 import { syncPreviewCache } from './workout/previews'
 import { backupDue, daysWithoutBackup } from './storage/backup'
 import { useBackupExport } from './shell/useBackupExport'
-import { requestPersist, usePersisted } from './storage/db'
+import { onStorageError, readKey, requestPersist, usePersisted } from './storage/db'
 import { todayKey } from './lib/date'
 import { useAchievementToasts } from './evolution/useAchievementToasts'
 import { EvolutionTab } from './evolution/EvolutionTab'
-import { DEFAULTS } from './schema'
+import { Loading } from './components/Loading'
+import { USER_KEYS } from './schema'
 
 // dieta fora do chunk principal (orçamento de bundle); continua no precache
 const DietTab = lazy(() => import('./diet/DietTab').then((m) => ({ default: m.DietTab })))
@@ -31,38 +31,29 @@ function AchievementToasts() {
 }
 
 export default function App() {
-  const [settings, setSettings, loaded] = usePersisted('settings', DEFAULTS.settings)
-  const [workoutPlan, , planLoaded] = usePersisted('workoutPlan', DEFAULTS.workoutPlan)
+  return <Suspense fallback={<main className={MAIN}><Loading /></main>}><Shell /></Suspense>
+}
+
+function Shell() {
+  // todas as chaves antes do primeiro quadro: um carregando só, e nenhuma tela ou overlay abre suspenso depois
+  const reads = USER_KEYS.map((k) => readKey(k))
+  for (const r of reads) use(r)
+  const [settings, setSettings] = usePersisted('settings')
+  const [workoutPlan] = usePersisted('workoutPlan')
   const [storageError, setStorageError] = useState<string>()
-  const [readFailed, setReadFailed] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const backup = useBackupExport(toast.error)
 
   useEffect(() => {
     void requestPersist()
-    const onError = (e: Event) => {
-      const { message, read } = (e as CustomEvent<{ message: string; read?: boolean }>).detail
-      if (read) setReadFailed(true)
-      else setStorageError(message)
-    }
-    window.addEventListener('pump:storage-error', onError)
-    return () => window.removeEventListener('pump:storage-error', onError)
+    return onStorageError(setStorageError)
   }, [])
 
   // único lugar que sincroniza as fotos: cobre editar, importar plano, restaurar backup e montagem
   useEffect(() => {
-    if (planLoaded) void syncPreviewCache(workoutPlan).catch(() => {})
-  }, [workoutPlan, planLoaded])
+    void syncPreviewCache(workoutPlan).catch(() => {})
+  }, [workoutPlan])
 
-  // qualquer chave ilegível bloqueia o app: seguir com dados vazios levaria a montagem a gravar por cima
-  if (readFailed) {
-    return (
-      <FatalScreen title="Não consegui ler seus dados" text="Eles continuam guardados neste aparelho. Feche e abra o app ou tente de novo.">
-        <Button type="button" onClick={() => location.reload()}>Tentar de novo</Button>
-      </FatalScreen>
-    )
-  }
-  if (!loaded) return null
   const banner = storageError && (
     <div role="alert" className="fixed inset-x-2 top-[max(0.5rem,env(safe-area-inset-top))] z-40 mx-auto flex max-w-md items-center gap-2 rounded-[14px] border border-negative/30 bg-panel py-1 pr-1 pl-4 text-[13px] text-negative">
       <span className="flex-1">Não consegui salvar: {storageError}</span>
@@ -91,7 +82,7 @@ export default function App() {
         ) : (
           <>
             <button type="button" className="icon-btn float-right -mt-1.5" aria-label="Configurações" onClick={() => setShowSettings(true)}><SettingsIcon size={17} /></button>
-            {tab === 'treino' ? <TreinoTab /> : tab === 'evolucao' ? <EvolutionTab /> : <Suspense fallback={<p className="text-sm text-text-2">Carregando…</p>}><DietTab /></Suspense>}
+            {tab === 'treino' ? <TreinoTab /> : tab === 'evolucao' ? <EvolutionTab /> : <Suspense fallback={<Loading />}><DietTab /></Suspense>}
           </>
         )}
       </main>

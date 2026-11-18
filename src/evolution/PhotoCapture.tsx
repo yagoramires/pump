@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { CameraOff, ChevronLeft, SwitchCamera, Timer } from 'lucide-react'
 import { toast } from 'sonner'
-import { DEFAULTS } from '../schema'
 import type { Angle } from './types'
 import { usePersisted } from '../storage/db'
 import { deletePhotos, savePhoto } from '../storage/photos'
@@ -42,7 +41,7 @@ const Silhouette = () => (
 )
 
 export function PhotoCapture({ date, onClose }: { date: string; onClose: () => void }) {
-  const [, setSets, loaded] = usePersisted('photoSets', DEFAULTS.photoSets)
+  const [, setSets] = usePersisted('photoSets')
   const [i, setI] = useState(0)
   const [facing, setFacing] = useState<'user' | 'environment'>('user')
   // sem contexto seguro (http) ou navegador antigo, navigator.mediaDevices/getUserMedia não existe
@@ -130,7 +129,7 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
       setSaving(false)
       return void toast.error('Não consegui salvar a foto')
     }
-    // o updater roda na hora (usePersisted), então replaced já vem preenchido na linha seguinte
+    // o setter roda o updater na hora (é assim que devolve o valor novo), então replaced já vem preenchido na linha seguinte
     const out: { replaced?: string } = {}
     setSets((prev) => {
       const r = setAngle(prev, date, ANGLES[i].v, id)
@@ -189,7 +188,7 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
       {preview ? (
         <div className="grid grid-cols-2 gap-2">
           <Button variant="outline" className="h-11 rounded-[13px] font-bold" onClick={() => setPreview(undefined)}>Refazer</Button>
-          <Button className="h-11 rounded-[13px] font-bold" disabled={!loaded || saving} onClick={() => void use()}>Usar</Button>
+          <Button className="h-11 rounded-[13px] font-bold" disabled={saving} onClick={() => void use()}>Usar</Button>
         </div>
       ) : (
         <div className="grid grid-cols-3 items-center">

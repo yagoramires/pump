@@ -1,5 +1,6 @@
 import type { PlanExercise, Workout } from './types'
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
+import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from '../storage/db'
@@ -14,7 +15,7 @@ test('sem initial, abre o plano salvo e o Salvar não o apaga', async () => {
   await save('workoutPlan', { workouts: [{ id: 'w1', label: 'A', name: 'Treino de pernas', weekdays: [1], exercises: [] }] })
   resetStoreForTests() // força o carregamento assíncrono a partir do banco
   const onDone = vi.fn()
-  render(<PlanEditor onDone={onDone} />)
+  await renderLoaded(<PlanEditor onDone={onDone} />)
   expect(await screen.findByDisplayValue('Treino de pernas')).toBeInTheDocument()
   await userEvent.click(screen.getByRole('button', { name: 'Salvar' }))
   await waitFor(() => expect(onDone).toHaveBeenCalled())
@@ -29,7 +30,7 @@ const supino = { name: 'Supino reto', sets: 3, reps: '10-12', weightKg: 40, rest
 
 test('tocar no exercício abre a gaveta; +2,5 kg e Pronto atualiza o resumo', async () => {
   const user = userEvent.setup()
-  render(<PlanEditor initial={{ workouts: [workoutOf([supino])] }} onDone={vi.fn()} />)
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([supino])] }} onDone={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: /Supino reto/ }))
   await user.click(screen.getByRole('button', { name: 'Aumentar carga' }))
   await user.click(screen.getByRole('button', { name: 'Pronto' }))
@@ -38,7 +39,7 @@ test('tocar no exercício abre a gaveta; +2,5 kg e Pronto atualiza o resumo', as
 
 test('carga digitada com vírgula na gaveta', async () => {
   const user = userEvent.setup()
-  render(<PlanEditor initial={{ workouts: [workoutOf([supino])] }} onDone={vi.fn()} />)
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([supino])] }} onDone={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: /Supino reto/ }))
   const kg = screen.getByRole('textbox', { name: 'Carga em kg' })
   await user.clear(kg)

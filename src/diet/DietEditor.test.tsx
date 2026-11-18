@@ -1,6 +1,7 @@
 import { DEFAULTS } from '../schema'
 import type { DietItem, DietPlan } from './types'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from '../storage/db'
@@ -29,7 +30,7 @@ test('DietEditor salva refeição com horário e item; Apagar cardápio volta a 
   resetStoreForTests()
   const onDone = vi.fn()
   const user = userEvent.setup()
-  const { unmount } = render(<DietEditor onDone={onDone} onCancel={vi.fn()} />)
+  const { unmount } = await renderLoaded(<DietEditor onDone={onDone} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Refeição' }))
   const name = screen.getByRole('textbox', { name: 'Nome da refeição 1' })
   await user.clear(name)
@@ -52,7 +53,7 @@ test('DietEditor salva refeição com horário e item; Apagar cardápio volta a 
   await waitFor(async () => expect((await load('dietLog'))?.[todayKey()]?.meals.map((m) => m.name)).toEqual(['Café da manhã']))
 
   unmount()
-  render(<DietEditor onDone={onDone} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor onDone={onDone} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Apagar todos os cardápios' }))
   await user.click(await screen.findByRole('button', { name: 'Apagar' }))
   await waitFor(async () => expect(await load('dietPlan')).toEqual(DEFAULTS.dietPlan))
@@ -62,7 +63,7 @@ test('DietEditor salva refeição com horário e item; Apagar cardápio volta a 
 test('DietEditor exige horário HH:MM pra salvar', async () => {
   const onDone = vi.fn()
   const user = userEvent.setup()
-  render(<DietEditor initial={plan('')} onDone={onDone} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor initial={plan('')} onDone={onDone} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Salvar' }))
   expect(screen.getByRole('alert')).toHaveTextContent('Dia de treino: preencha nome e horário (HH:MM) de cada refeição')
   expect(onDone).not.toHaveBeenCalled()
@@ -78,7 +79,7 @@ test('DietEditor duplica e apaga cardápios, edita opções e mantém lastMenuId
   await save('foods', [shake])
   resetStoreForTests()
   const user = userEvent.setup()
-  render(<DietEditor initial={plan()} onDone={vi.fn()} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor initial={plan()} onDone={vi.fn()} onCancel={vi.fn()} />)
   // abre no último cardápio usado
   expect(await screen.findByRole('textbox', { name: 'Nome do cardápio' })).toHaveValue('Descanso')
   await user.click(screen.getByRole('button', { name: 'Dia de treino' }))
@@ -116,7 +117,7 @@ test('DietEditor duplica e apaga cardápios, edita opções e mantém lastMenuId
 })
 
 test('DietEditor não apaga o último cardápio', async () => {
-  render(<DietEditor initial={{ menus: [plan().menus[0]] }} onDone={vi.fn()} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor initial={{ menus: [plan().menus[0]] }} onDone={vi.fn()} onCancel={vi.fn()} />)
   expect(await screen.findByRole('button', { name: 'Apagar cardápio' })).toBeDisabled()
 })
 
@@ -129,7 +130,7 @@ test('DietEditor recusa opção vazia e meta fora da faixa; Salvar apara os text
       meals: [{ id: 'm1', name: ' Café ', time: '07:00', options: [{ id: 'o1', name: '  ', items: [{ ...pao, portion: ' 1 un ' }] }, { id: 'o2', items: [] }] }],
     }],
   }
-  render(<DietEditor initial={initial} onDone={onDone} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor initial={initial} onDone={onDone} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Salvar' }))
   expect(screen.getByRole('alert')).toHaveTextContent('Dia de treino: cada opção precisa de ao menos 1 alimento')
   await user.click(screen.getByRole('button', { name: 'Opção B' }))
@@ -152,7 +153,7 @@ test('DietEditor recusa opção vazia e meta fora da faixa; Salvar apara os text
 
 test('DietEditor trava novos cardápios no limite do formato', async () => {
   const five = Array.from({ length: 5 }, (_, i) => ({ ...plan().menus[0], id: `M${i}`, name: `C${i}` }))
-  render(<DietEditor initial={{ menus: five }} onDone={vi.fn()} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor initial={{ menus: five }} onDone={vi.fn()} onCancel={vi.fn()} />)
   expect(await screen.findByRole('button', { name: 'Novo cardápio' })).toBeDisabled()
   expect(screen.getByRole('button', { name: 'Duplicar cardápio' })).toBeDisabled()
 })
@@ -160,7 +161,7 @@ test('DietEditor trava novos cardápios no limite do formato', async () => {
 test('DietEditor recusa meta de macro acima de 600 g', async () => {
   const onDone = vi.fn()
   const user = userEvent.setup()
-  render(<DietEditor initial={plan()} onDone={onDone} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor initial={plan()} onDone={onDone} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Dia de treino' }))
   await user.type(screen.getByRole('textbox', { name: 'Meta de proteína em g' }), '700')
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
@@ -173,7 +174,7 @@ test('DietEditor com confirmReplace pede confirmação antes de substituir o car
   resetStoreForTests()
   const onDone = vi.fn()
   const user = userEvent.setup()
-  render(<DietEditor initial={plan()} confirmReplace onDone={onDone} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor initial={plan()} confirmReplace onDone={onDone} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Salvar' }))
   expect(await screen.findByRole('alertdialog')).toHaveTextContent('O cardápio atual será substituído. O que você já marcou hoje continua.')
   expect((await load('dietPlan'))?.menus[0].id).toBe('X')
@@ -186,7 +187,7 @@ test('DietEditor com confirmReplace pede confirmação antes de substituir o car
 test('DietEditor com confirmReplace e nada salvo salva direto', async () => {
   const onDone = vi.fn()
   const user = userEvent.setup()
-  render(<DietEditor initial={plan()} confirmReplace onDone={onDone} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor initial={plan()} confirmReplace onDone={onDone} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Salvar' }))
   await waitFor(() => expect(onDone).toHaveBeenCalled())
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()

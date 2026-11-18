@@ -1,6 +1,5 @@
 import { Fragment, useEffect, useState, type ReactNode } from 'react'
 import { Check, Droplet, ListChecks, MoreHorizontal, Pencil, Plus, Sparkles, Upload, Utensils } from 'lucide-react'
-import { DEFAULTS } from '../schema'
 import type { DietDay, DietPlan } from './types'
 import { usePersisted } from '../storage/db'
 import { formatDayLabel, todayKey } from '../lib/date'
@@ -30,11 +29,11 @@ const fromScratch = (): DietPlan => ({
 export function DietTab() {
   const [now, setNow] = useState(() => new Date()) // relógio da tela: dia mostrado e refeição destacada
   const today = todayKey(now)
-  const [plan, setPlan, planLoaded] = usePersisted('dietPlan', DEFAULTS.dietPlan)
-  const [log, setLog, logLoaded] = usePersisted('dietLog', DEFAULTS.dietLog)
-  const [water, setWater, waterLoaded] = usePersisted('waterLog', DEFAULTS.waterLog)
-  const [settings, setSettings, settingsLoaded] = usePersisted('settings', DEFAULTS.settings)
-  const [profile, , profileLoaded] = usePersisted('profile', DEFAULTS.profile)
+  const [plan, setPlan] = usePersisted('dietPlan')
+  const [log, setLog] = usePersisted('dietLog')
+  const [water, setWater] = usePersisted('waterLog')
+  const [settings, setSettings] = usePersisted('settings')
+  const [profile] = usePersisted('profile')
   const [view, setView] = useState<{ kind: 'edit'; initial?: DietPlan } | { kind: 'ia' | 'import' }>()
   const [openId, setOpenId] = useState<string>()
   const [confirmMenu, setConfirmMenu] = useState<string>()
@@ -50,8 +49,6 @@ export function DietTab() {
     document.addEventListener('visibilitychange', onVisible)
     return () => document.removeEventListener('visibilitychange', onVisible)
   }, [])
-
-  if (!planLoaded || !logLoaded || !waterLoaded || !settingsLoaded) return <p className="text-sm text-text-2">Carregando…</p>
 
   const close = () => setView(undefined)
   if (view?.kind === 'edit') return <Overlay><DietEditor initial={view.initial} onDone={close} onCancel={close} /></Overlay>
@@ -200,7 +197,7 @@ export function DietTab() {
 
       {!waterOn && (
         <Button
-          variant="ghost" className="mt-3 h-11 w-full text-accent" disabled={!profileLoaded}
+          variant="ghost" className="mt-3 h-11 w-full text-accent"
           onClick={() => setSettings((st) => ({ ...st, water: turnWaterOn(st.water, profile.weightKg) }))}
         >
           Ligar contador de água

@@ -20,12 +20,6 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 const LABEL = 'text-[10px] font-semibold tracking-[0.08em] text-faint uppercase'
 const WEEK = [1, 2, 3, 4, 5, 6, 0] // seg..dom
 
-export function ProfileForm({ submitLabel, onDone }: { submitLabel: string; onDone: () => void }) {
-  const [saved, setProfile, loaded] = usePersisted('profile', DEFAULTS.profile)
-  if (!loaded) return <p className="text-sm text-text-2">Carregando…</p>
-  return <ProfileFields start={saved} setProfile={setProfile} submitLabel={submitLabel} onDone={onDone} />
-}
-
 function Field({ id, label, unit, value, onChange }: { id: string; label: string; unit: string; value: string; onChange: (v: string) => void }) {
   return (
     <div>
@@ -38,7 +32,8 @@ function Field({ id, label, unit, value, onChange }: { id: string; label: string
   )
 }
 
-function ProfileFields({ start, setProfile, submitLabel, onDone }: { start: Profile; setProfile: (p: Profile) => void; submitLabel: string; onDone: () => void }) {
+export function ProfileForm({ submitLabel, onDone }: { submitLabel: string; onDone: () => void }) {
+  const [start, setProfile] = usePersisted('profile')
   const [sex, setSex] = useState(start.sex)
   const [h, setH] = useState(start.heightCm ? String(start.heightCm).replace('.', ',') : '')
   const [w, setW] = useState(start.weightKg ? String(start.weightKg).replace('.', ',') : '')
@@ -105,7 +100,6 @@ export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => 
           <h1 className="text-[26px] font-bold tracking-tight text-strong">Sobre você</h1>
         </div>
         <ProfileForm submitLabel="Continuar" onDone={() => setStep('treino')} />
-        {/* fora do form: aparece mesmo enquanto o perfil salvo carrega */}
         <div className="-mt-2 flex flex-wrap items-center justify-between">
           {/* quem instalou o app no iPhone traz aqui os dados que usava no Safari */}
           <ImportBackupButton label="Restaurar backup" />
