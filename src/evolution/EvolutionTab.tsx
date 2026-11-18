@@ -1,8 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { CalendarDays, Camera, ChevronRight, FileText, Plus, Ruler, Share2, TrendingUp, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
-import type { MeasureFields } from './types'
-import { usePersisted } from '../storage/db'
+import type { EvolutionInput } from './types'
 import { loadPhoto } from '../storage/photos'
 import { daysBetween, formatDayMonth, todayKey } from '../lib/date'
 import { formatDec, formatKg, plural } from '@/lib/number'
@@ -11,35 +10,29 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/compone
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { EmptyState } from '@/components/EmptyState'
 import { IconDot } from '@/components/IconDot'
-import { goalDirection } from './bodyFat'
-import { firstLast } from './measurements'
-import { computeAchievements } from './achievements'
-import { LineChart } from './LineChart'
+import type { Metric } from './bodyFat'
+import { WeightChart } from './WeightChart'
 import { MeasureDrawer } from './MeasureDrawer'
 import { Delta } from './Delta'
-import { usePhoto } from './usePhoto'
+import { PhotoThumb } from './PhotoThumb'
+import { ANGLES } from './photoSets'
 import { PhotoCapture } from './PhotoCapture'
 import { PhotoCompare } from './PhotoCompare'
-import { AchievementIcon, AchievementsScreen } from './AchievementsScreen'
+import { AchievementIcon } from './AchievementIcon'
+import { AchievementsScreen } from './AchievementsScreen'
 import { HistoryScreen } from './HistoryScreen'
 import { DietCard } from './DietCard'
-import { buildReport } from './report'
+import { useEvolution } from './useEvolution'
+import { buildReport, change } from './report'
 import { generatePdf, sharePdf } from './pdf/generate'
 
 type View = 'capture' | 'compare' | 'achievements' | 'history'
-type Pt = { date: string; value: number }
 const LABEL = 'text-[10px] font-semibold uppercase tracking-[.05em] text-faint'
 const CARD = 'mb-2.5 overflow-hidden rounded-[14px] border border-border bg-panel'
 const LINK = 'h-11 px-1 text-[13px] font-medium text-accent disabled:text-faint'
 const RANGES = [{ v: '30', label: '30 d' }, { v: '90', label: '90 d' }, { v: 'all', label: 'Tudo' }]
-const MEASURES: { key: keyof MeasureFields; label: string }[] = [
-  { key: 'neckCm', label: 'Pescoço' },
-  { key: 'waistCm', label: 'Cintura' },
-  { key: 'hipCm', label: 'Quadril' },
-  { key: 'armCm', label: 'Braço' },
-  { key: 'chestCm', label: 'Peito' },
-  { key: 'thighCm', label: 'Coxa' },
-]
+// peso e gordura vão nos KPIs; o cartão Medidas mostra o resto
+const KPI: Metric[] = ['weightKg', 'fat']
 function Kpi({ label, value, children }: { label: string; value: string; children: ReactNode }) {
   return (
     <div className="min-w-0 rounded-xl border border-border bg-panel px-3 py-2.5">
@@ -50,31 +43,14 @@ function Kpi({ label, value, children }: { label: string; value: string; childre
   )
 }
 
-function Thumb({ id, label }: { id?: string; label: string }) {
-  const src = usePhoto(id)
-  return (
-    <div className="relative flex aspect-[3/4] items-end justify-center overflow-hidden rounded-[10px] bg-surface pb-1.5 text-xs text-text-2">
-      {src && <img src={src} alt={`Foto de ${label}`} className="absolute inset-0 size-full object-cover" />}
-      <span className="relative">{label}</span>
-    </div>
-  )
-}
-
 export function EvolutionTab() {
-  const [log] = usePersisted('workoutLog')
-  const [plan] = usePersisted('workoutPlan')
-  const [measurements] = usePersisted('measurements')
-  const [photoSets] = usePersisted('photoSets')
-  const [profile] = usePersisted('profile')
-  const [dietLog] = usePersisted('dietLog')
-  const [waterLog] = usePersisted('waterLog')
-  const [dietPlan] = usePersisted('dietPlan')
+  const input = useEvolution()
   const [range, setRange] = useState('90')
   const [choosing, setChoosing] = useState(false)
   const [measuring, setMeasuring] = useState(false)
   const [view, setView] = useState<View>()
   const [busy, setBusy] = useState(false)
-  const [pdf, setPdf] = useState<{ blob: Blob; deps: unknown[] }>()
+  const [pdf, setPdf] = useState<{ blob: Blob; input: EvolutionInput; today: string }>()
   const today = todayKey()
 
   if (view === 'capture') return <PhotoCapture date={today} onClose={() => setView(undefined)} />
@@ -101,11 +77,9 @@ export function EvolutionTab() {
   )
 
   // mesmos números do PDF: a aba lê do relatório em vez de recalcular
-  const input = { workoutLog: log, workoutPlan: plan, measurements, photoSets, profile, dietLog, waterLog, dietPlan }
   const report = buildReport(input, today)
-  const { period, summary, training } = report
-  const hasDiet = dietPlan.menus.length > 0 || Object.keys(dietLog).length > 0
-  if (!summary.workouts && !measurements.length && !photoSets.length && !hasDiet) {
+  const { period, training, body, lastSet } = report
+  if (!training.workouts && !input.measurements.length && !input.photoSets.length && !report.hasDiet) {
     return (
       <>
         <EmptyState icon={<TrendingUp size={30} aria-hidden="true" />} title="Sua evolução começa aqui">
@@ -117,25 +91,22 @@ export function EvolutionTab() {
     )
   }
 
-  const dir = goalDirection(profile)
-  const diff = ({ first, last }: { first?: Pt; last?: Pt }) => (first && last && first.date !== last.date ? last.value - first.value : undefined)
-
-  const weights = report.body?.weight ?? []
+  const weights = body?.weight ?? []
   const points = weights.filter((p) => range === 'all' || daysBetween(p.date, today) <= Number(range))
-  const rows = MEASURES.map((x) => ({ ...x, ...firstLast(measurements, x.key) })).filter((x) => x.first && x.last)
-  const lastSet = [...photoSets].sort((x, y) => x.date.localeCompare(y.date)).pop()
-  const earned = computeAchievements(input, today).filter((x) => x.earnedAt)
+  const weight = body?.rows.find((r) => r.key === 'weightKg')
+  const fat = body?.rows.find((r) => r.key === 'fat')
+  const rows = body?.rows.filter((r) => !KPI.includes(r.key)) ?? []
+  const earned = report.achievements.filter((x) => x.earnedAt)
 
   // PDF pronto só vale pros dados de quando foi gerado: qualquer registro novo volta pra "Gerar PDF"
-  const deps = [log, plan, measurements, photoSets, profile, dietLog, waterLog, dietPlan, today]
-  const blob = pdf?.deps.every((x, i) => x === deps[i]) ? pdf.blob : undefined
+  const blob = pdf?.input === input && pdf.today === today ? pdf.blob : undefined
   const makePdf = async () => {
     setBusy(true)
     try {
       const ids = report.photoPairs.flatMap((p) => [p.before.id, p.after.id])
       const photos: Record<string, string> = {}
       await Promise.all(ids.map(async (id) => { const src = await loadPhoto(id); if (src) photos[id] = src }))
-      setPdf({ blob: await generatePdf(report, photos), deps })
+      setPdf({ blob: await generatePdf(report, photos), input, today })
     } catch (e) {
       console.error(e)
       // o react-pdf é baixado na hora: sem rede o import dinâmico falha
@@ -152,14 +123,14 @@ export function EvolutionTab() {
       <h1 className="mt-0.5 mb-3 text-[26px] font-bold tracking-tight text-strong">Evolução</h1>
 
       <div className="mb-2.5 grid grid-cols-3 gap-2">
-        <Kpi label="Peso" value={summary.weight !== undefined ? `${formatKg(summary.weight)} kg` : '—'}>
-          <Delta d={summary.weightDelta} unit="kg" metric="weightKg" dir={dir} />
+        <Kpi label="Peso" value={weight ? `${formatKg(weight.last.value)} kg` : '—'}>
+          <Delta value={change(weight)} good={!!weight?.good} unit="kg" />
         </Kpi>
-        <Kpi label="Gordura" value={summary.fat !== undefined ? `${formatDec(summary.fat)}%` : '—'}>
-          <Delta d={summary.fatDelta} unit="pt" metric="fat" dir={dir} />
+        <Kpi label="Gordura" value={fat ? `${formatDec(fat.last.value)}%` : '—'}>
+          <Delta value={change(fat)} good={!!fat?.good} unit="pt" />
         </Kpi>
-        <Kpi label="Treinos" value={String(summary.workouts)}>
-          <span className={summary.workouts ? 'text-accent' : 'text-text-2'}>{summary.workouts ? `${formatDec(training.perWeek, 1)}/sem` : '—'}</span>
+        <Kpi label="Treinos" value={String(training.workouts)}>
+          <span className={training.workouts ? 'text-accent' : 'text-text-2'}>{training.workouts ? `${formatDec(training.perWeek, 1)}/sem` : '—'}</span>
         </Kpi>
       </div>
 
@@ -172,7 +143,7 @@ export function EvolutionTab() {
             ))}
           </ToggleGroup>
         </div>
-        <div className="px-3.5 pb-3"><LineChart points={points} empty={weights.length >= 2 ? 'Poucos registros nesse período' : undefined} /></div>
+        <div className="px-3.5 pb-3"><WeightChart points={points} empty={weights.length >= 2 ? 'Poucos registros nesse período' : undefined} /></div>
       </div>
 
       {rows.length > 0 && (
@@ -182,26 +153,30 @@ export function EvolutionTab() {
             <div key={r.key} className="flex items-center justify-between gap-3 border-t border-line px-3.5 py-2.5 text-sm">
               <span className="text-text-2">{r.label}</span>
               <span className="tabular-nums">
-                <b className="font-semibold text-strong">{`${formatKg(r.first!.value)} → ${formatKg(r.last!.value)} cm`}</b>
-                <Delta d={diff(r)} unit="cm" metric={r.key} dir={dir} className="ml-2 text-[13px]" />
+                <b className="font-semibold text-strong">{`${formatKg(r.first.value)} → ${formatKg(r.last.value)} ${r.unit}`}</b>
+                <Delta value={change(r)} good={r.good} unit={r.unit} className="ml-2 text-[13px]" />
               </span>
             </div>
           ))}
         </div>
       )}
 
-      {hasDiet && <DietCard log={dietLog} water={waterLog} today={today} />}
+      {report.hasDiet && <DietCard log={input.dietLog} water={input.waterLog} today={today} />}
 
       <div className={CARD}>
         <div className="flex items-center justify-between pl-3.5 pr-2">
           <span className="text-[15px] font-semibold text-strong">Fotos</span>
           <span className="flex gap-2">
             <button type="button" className={LINK} onClick={() => setView('capture')}>Nova foto</button>
-            <button type="button" className={LINK} disabled={photoSets.length < 2} onClick={() => setView('compare')}>Comparar</button>
+            <button type="button" className={LINK} disabled={input.photoSets.length < 2} onClick={() => setView('compare')}>Comparar</button>
           </span>
         </div>
         <div className="grid grid-cols-3 gap-2 px-3.5 pb-3.5">
-          {(['frente', 'lado', 'costas'] as const).map((angle) => <Thumb key={angle} id={lastSet?.[angle]} label={angle} />)}
+          {ANGLES.map((angle) => (
+            <PhotoThumb key={angle} id={lastSet?.[angle]} alt={`Foto de ${angle}`} className="flex items-end justify-center rounded-[10px] pb-1.5 text-xs text-text-2">
+              <span className="relative">{angle}</span>
+            </PhotoThumb>
+          ))}
         </div>
       </div>
 

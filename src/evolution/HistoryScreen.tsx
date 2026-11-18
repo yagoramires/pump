@@ -1,22 +1,21 @@
 import { useId, useState } from 'react'
 import { Camera, ChevronLeft, ChevronRight, Dumbbell, GlassWater, Moon, Ruler, Utensils } from 'lucide-react'
 import { usePersisted } from '../storage/db'
-import { deletePhotos } from '../storage/photos'
 import { WEEKDAY_SHORT, formatDayMonth, todayKey } from '../lib/date'
 import { useToday } from '../lib/useToday'
-import { formatDec, formatKg, plural } from '@/lib/number'
+import { formatDec, formatKg } from '@/lib/number'
 import { Overlay } from '@/components/Overlay'
 import { IconDot } from '@/components/IconDot'
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { cn } from '@/lib/utils'
-import { sessionStats } from '../workout/stats'
-import { isRest } from '../workout/rest'
-import { daySummary, touched } from '../diet/day'
-import { FIELDS, upsertMeasurement } from './measurements'
-import { removeSet } from './photoSets'
-import { usePhoto } from './usePhoto'
+import { cn, omitKey } from '@/lib/utils'
+import { WorkoutDayLine } from '../workout/WorkoutDayLine'
+import { DietDayLine } from '../diet/DietDayLine'
+import { FIELDS, removeMeasurement } from './measurements'
+import { ANGLES, hasPhoto, usePhotoSets } from './photoSets'
+import { dayRecords } from './dayRecords'
+import { PhotoThumb } from './PhotoThumb'
 
 const ROW = 'flex items-center gap-3 border-t border-line px-3.5 py-2.5 first:border-t-0'
 const DEL = 'h-11 shrink-0 px-1 text-[13px] font-medium text-destructive'
@@ -26,24 +25,11 @@ const CONFIRM = {
   diet: { title: 'Apagar dieta?', text: 'O que foi marcado na dieta deste dia some do histórico.' },
   water: { title: 'Apagar água?', text: 'A água registrada neste dia some do histórico.' },
 }
-const without = <T,>(log: Record<string, T>, key: string) => {
-  const { [key]: _gone, ...rest } = log
-  return rest
-}
-
-function Thumb({ id, label }: { id: string; label: string }) {
-  const src = usePhoto(id)
-  return (
-    <div className="aspect-[3/4] overflow-hidden rounded-[10px] bg-surface">
-      {src && <img src={src} alt={`Foto de ${label}`} className="size-full object-cover" />}
-    </div>
-  )
-}
 
 export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const [log] = usePersisted('workoutLog')
   const [measures, setMeasures] = usePersisted('measurements')
-  const [sets, setSets] = usePersisted('photoSets')
+  const { sets, removeSet } = usePhotoSets()
   const [diet, setDiet] = usePersisted('dietLog')
   const [water, setWater] = usePersisted('waterLog')
   const { now, today } = useToday()
@@ -59,27 +45,15 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const title = month.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
   const go = (n: number) => { setMonth(new Date(y, m + n, 1)); setDay(undefined) }
 
-  const session = day ? log[day] : undefined
-  const done = session?.completedAt ? session : undefined
-  const rest = isRest(session) && !done
-  // cópia do dia aberta sem nada marcado não é registro
-  const meals = day && diet[day] && touched(diet[day]) ? diet[day] : undefined
-  const ml = (day && water[day]?.ml) || 0
-  const measure = measures.find((x) => x.date === day)
-  const photos = sets.find((x) => x.date === day)
-  const photoIds = photos ? (['frente', 'lado', 'costas'] as const).filter((k) => photos[k]) : []
+  const records = (k: string) => dayRecords({ workoutLog: log, dietLog: diet, waterLog: water, measurements: measures, photoSets: sets }, k)
+  const { session: done, rest, diet: meals, water: drank, measurement: measure, photos } = day ? records(day) : {}
 
   const remove = () => {
     if (!day) return
-    if (confirm === 'diet') setDiet((prev) => without(prev, day))
-    if (confirm === 'water') setWater((prev) => without(prev, day))
-    if (confirm === 'measures') setMeasures((prev) => upsertMeasurement(prev, day, Object.fromEntries(FIELDS.map((f) => [f.key, null]))))
-    if (confirm === 'photos' && photos) {
-      const r = removeSet(sets, photos.id)
-      setSets(r.sets)
-      // falhar aqui só deixa as fotos órfãs no banco; o registro já sumiu
-      void deletePhotos(r.photoIds).catch(() => {})
-    }
+    if (confirm === 'diet') setDiet((prev) => omitKey(prev, day))
+    if (confirm === 'water') setWater((prev) => omitKey(prev, day))
+    if (confirm === 'measures') setMeasures((prev) => removeMeasurement(prev, day))
+    if (confirm === 'photos' && photos) removeSet(photos.id)
   }
 
   return (
@@ -99,8 +73,9 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
         {WEEKDAY_SHORT.map((w, i) => <span key={i} aria-hidden="true" className="pb-1 text-[11px] font-semibold text-faint">{w[0]}</span>)}
         {Array.from({ length: month.getDay() }, (_, i) => <span key={`x${i}`} />)}
         {keys.map((k, i) => {
-          const trained = !!log[k]?.completedAt
-          const dot = isRest(log[k]) || measures.some((x) => x.date === k) || sets.some((x) => x.date === k) || (!!diet[k] && touched(diet[k])) || (water[k]?.ml ?? 0) > 0
+          const r = records(k)
+          const trained = !!r.session
+          const dot = r.rest || !!(r.diet || r.water || r.measurement || r.photos)
           return (
             <button
               key={k}
@@ -128,52 +103,33 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
           <div className="mx-0.5 mt-4 mb-1.5 text-[10px] font-semibold uppercase tracking-[.05em] text-faint">
             {done ? `${formatDayMonth(day)} · Treino ${done.workoutLabel}` : formatDayMonth(day)}
           </div>
-          {!done && !rest && !meals && !ml && !measure && !photos ? (
+          {!done && !rest && !meals && !drank && !measure && !photos ? (
             <p className="px-0.5 text-sm text-text-2">Nada registrado neste dia.</p>
           ) : (
             <div className="overflow-hidden rounded-[14px] border border-border bg-panel">
-              {done && (() => {
-                const s = sessionStats(done, now)
-                return (
-                  <div className={ROW}>
-                    <IconDot size={32} color="var(--c2)"><Dumbbell size={16} aria-hidden="true" /></IconDot>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[15px] font-semibold text-strong">{done.workoutName}</div>
-                      <div className="text-[13px] text-text-2 tabular-nums">{[`${s.done} séries`, `${formatKg(s.volumeKg)} kg`, s.minutes !== null && `${s.minutes} min`].filter(Boolean).join(' · ')}</div>
-                    </div>
-                  </div>
-                )
-              })()}
+              {done && (
+                <div className={ROW}>
+                  <IconDot size={32} color="var(--c2)"><Dumbbell size={16} aria-hidden="true" /></IconDot>
+                  <WorkoutDayLine session={done} now={now} />
+                </div>
+              )}
               {rest && (
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c2)"><Moon size={16} aria-hidden="true" /></IconDot>
                   <div className="min-w-0 flex-1 text-[15px] font-semibold text-strong">Descanso</div>
                 </div>
               )}
-              {meals && (() => {
-                const s = daySummary(meals)
-                const sub = [
-                  meals.menuName,
-                  !s.dayFree && `${s.mealsDone} de ${s.mealsTotal} refeições`,
-                  s.swaps > 0 && plural(s.swaps, 'troca', 'trocas'),
-                  s.extras > 0 && plural(s.extras, 'extra', 'extras'),
-                  !s.dayFree && s.free > 0 && plural(s.free, 'refeição livre', 'refeições livres'),
-                ]
-                return (
-                  <div className={ROW}>
-                    <IconDot size={32} color="var(--c1)"><Utensils size={16} aria-hidden="true" /></IconDot>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[15px] font-semibold text-strong">{s.dayFree ? 'Dieta · Dia livre' : `Dieta · ${formatDec(s.kcal)} kcal`}</div>
-                      <div className="text-[13px] text-text-2 tabular-nums">{sub.filter(Boolean).join(' · ')}</div>
-                    </div>
-                    <button type="button" className={DEL} onClick={() => setConfirm('diet')}>Apagar dieta</button>
-                  </div>
-                )
-              })()}
-              {ml > 0 && (
+              {meals && (
+                <div className={ROW}>
+                  <IconDot size={32} color="var(--c1)"><Utensils size={16} aria-hidden="true" /></IconDot>
+                  <DietDayLine day={meals} />
+                  <button type="button" className={DEL} onClick={() => setConfirm('diet')}>Apagar dieta</button>
+                </div>
+              )}
+              {drank && (
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c6)"><GlassWater size={16} aria-hidden="true" /></IconDot>
-                  <div className="min-w-0 flex-1 text-[15px] font-semibold text-strong tabular-nums">{`Água · ${formatDec(ml / 1000)} L`}</div>
+                  <div className="min-w-0 flex-1 text-[15px] font-semibold text-strong tabular-nums">{`Água · ${formatDec(drank.ml / 1000)} L`}</div>
                   <button type="button" className={DEL} onClick={() => setConfirm('water')}>Apagar água</button>
                 </div>
               )}
@@ -196,9 +152,9 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                     <span className="flex-1 text-[15px] font-semibold text-strong">Fotos</span>
                     <button type="button" className={DEL} onClick={() => setConfirm('photos')}>Apagar fotos</button>
                   </div>
-                  {photoIds.length > 0 && (
+                  {hasPhoto(photos) && (
                     <div className="mt-2 grid grid-cols-3 gap-2">
-                      {photoIds.map((k) => <Thumb key={k} id={photos[k]!} label={k} />)}
+                      {ANGLES.filter((k) => photos[k]).map((k) => <PhotoThumb key={k} id={photos[k]} alt={`Foto de ${k}`} className="rounded-[10px]" />)}
                     </div>
                   )}
                 </div>

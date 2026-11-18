@@ -1,0 +1,47 @@
+import { render, screen } from '@testing-library/react'
+import { dietDay, food } from '../../test/helpers'
+import { DietCard } from './DietCard'
+import { dietStats, hasDiet } from './dietStats'
+
+const value = (label: string) => screen.getByText(label).parentElement
+
+test('cartão: média, dias no plano, água e livres nos 30 dias', () => {
+  render(<DietCard log={{ '2026-12-10': dietDay([true, true]) }} water={{ '2026-12-10': { ml: 2500, goalMl: 2000 } }} today="2026-12-12" />)
+  expect(value('Média de kcal')).toHaveTextContent('400 / 2.000')
+  expect(value('Dias no plano')).toHaveTextContent('1 de 3')
+  expect(value('Água na meta')).toHaveTextContent('1 de 3')
+  expect(value('Livres no mês')).toHaveTextContent('0')
+})
+test('Q1: água só fora da janela de 30 dias não mostra a linha; dentro, mostra mesmo com 0', () => {
+  const log = { '2026-12-10': dietDay([true]) }
+  const { unmount } = render(<DietCard log={log} water={{ '2026-10-01': { ml: 2500, goalMl: 2000 } }} today="2026-12-12" />)
+  expect(screen.getByText('Dias no plano')).toBeInTheDocument()
+  expect(screen.queryByText('Água na meta')).not.toBeInTheDocument()
+  unmount()
+  render(<DietCard log={log} water={{ '2026-12-11': { ml: 500, goalMl: 2000 } }} today="2026-12-12" />)
+  expect(value('Água na meta')).toHaveTextContent('0 de 3')
+})
+test('sem refeição marcada não tem média; sem registro, o convite', () => {
+  const { unmount } = render(<DietCard log={{ '2026-12-10': dietDay([false]) }} water={{}} today="2026-12-12" />)
+  expect(screen.queryByText('Média de kcal')).not.toBeInTheDocument()
+  unmount()
+  render(<DietCard log={{}} water={{}} today="2026-12-12" />)
+  expect(screen.getByText('Marque as refeições na aba Dieta pra ver aqui.')).toBeInTheDocument()
+})
+test('dia marcado só com itens de 0 kcal: a média é 0, não falta de dado', () => {
+  const day = dietDay([true])
+  day.meals[0].items = [food({ id: 'agua', name: 'Água', per100: { kcal: 0, p: 0, c: 0, f: 0 } })]
+  expect(dietStats({ '2026-12-10': day }, {}, '2026-11-13', '2026-12-12').avgKcal).toBe(0)
+  render(<DietCard log={{ '2026-12-10': day }} water={{}} today="2026-12-12" />)
+  expect(value('Média de kcal')).toHaveTextContent('0 / 2.000')
+})
+test('dietStats: dias contam do 1º registro de dieta ou água; sem dado a média é undefined', () => {
+  const s = dietStats({ '2026-12-05': dietDay([false]) }, { '2026-12-03': { ml: 2000, goalMl: 2000 } }, '2026-11-13', '2026-12-12')
+  expect(s).toEqual({ avgKcal: undefined, avgGoal: undefined, fullDays: 0, waterDays: 1, freeUses: 0, days: 10 })
+  expect(dietStats({}, {}, '2026-11-13', '2026-12-12')).toMatchObject({ days: 0, waterDays: undefined })
+})
+test('hasDiet: cardápio ou algum dia registrado', () => {
+  expect(hasDiet({ menus: [] }, {})).toBe(false)
+  expect(hasDiet({ menus: [{ id: 'm', name: 'M', meals: [] }] }, {})).toBe(true)
+  expect(hasDiet({ menus: [] }, { '2026-12-01': dietDay([false]) })).toBe(true)
+})

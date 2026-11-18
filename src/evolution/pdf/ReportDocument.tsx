@@ -1,9 +1,12 @@
 import type { ReactNode } from 'react'
 import { Document, Font, Image, Page, Path, Polyline, StyleSheet, Svg, Text, View } from '@react-pdf/renderer'
-import type { Angle } from '../types'
-import { daysBetween, formatDayMonth, parseDayKey } from '../../lib/date'
+import { formatDayMonth, parseDayKey } from '../../lib/date'
 import { formatDec, formatSigned, plural } from '../../lib/number'
-import type { Report } from '../report'
+import type { Metric } from '../bodyFat'
+import type { Point } from '../measurements'
+import { ANGLE_LABEL } from '../photoSets'
+import { scalePoints } from '../chart'
+import { change, type BodyRow, type Report } from '../report'
 
 // cores do mockup (docs/design/evolucao-e-pdf.html); medidas = mockup × 2,2 pra virar A4 (595 × 842 pt)
 const BG = '#0b0c0d'
@@ -37,7 +40,6 @@ const s = StyleSheet.create({
   foot: { position: 'absolute', left: 40, right: 40, bottom: 26, flexDirection: 'row', justifyContent: 'space-between', color: FAINT, fontSize: 15 },
 })
 
-const ANGLE: Record<Angle, string> = { frente: 'Frente', lado: 'Lado', costas: 'Costas' }
 // Helvetica padrão (WinAnsi) não tem "−" nem "→": o sinal vira "–" e a seta é desenhada
 // shortcut: outros caracteres fora do WinAnsi (emoji em nome de exercício) somem; registrar uma fonte se aparecer
 const winAnsi = (t: string) => t.replace(/−/g, '–')
@@ -73,29 +75,30 @@ function Big({ label, value, unit, accent, size = 57 }: { label: string; value: 
   )
 }
 
-function FromTo({ first, last, unit, digits = 0 }: { first: number; last: number; unit: string; digits?: number }) {
+function FromTo({ first, last, unit, digits = 0, spaced = true }: { first: number; last: number; unit: string; digits?: number; spaced?: boolean }) {
   return (
     <View style={s.val}>
       <Text>{formatDec(first, digits)}</Text>
       <Arrow />
-      <Text style={s.strong}>{`${formatDec(last, digits)}${unit === '%' ? '%' : ` ${unit}`}`}</Text>
+      <Text style={s.strong}>{`${formatDec(last, digits)}${spaced ? ' ' : ''}${unit}`}</Text>
     </View>
   )
 }
 
-function WeightChart({ points }: { points: { date: string; value: number }[] }) {
+function WeightChart({ points }: { points: Point[] }) {
   const W = 515
   const H = 154
-  const span = Math.max(1, daysBetween(points[0].date, points[points.length - 1].date))
-  const vals = points.map((p) => p.value)
-  const min = Math.min(...vals)
-  const range = Math.max(...vals) - min || 1
-  const pts = points.map((p) => `${(daysBetween(points[0].date, p.date) / span) * W},${8 + (1 - (p.value - min) / range) * (H - 16)}`).join(' ')
+  const pts = scalePoints(points, W, H, 8).map(([x, y]) => `${x},${y}`).join(' ')
   return (
     <Svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ marginTop: 13, marginBottom: 18 }}>
       <Polyline points={pts} stroke={ACC} strokeWidth={4.4} fill="none" strokeLinejoin="round" strokeLinecap="round" />
     </Svg>
   )
+}
+
+function Change({ label, unit, row }: { label: string; unit: string; row?: BodyRow }) {
+  const d = change(row)
+  return <Big label={label} value={d === undefined ? '—' : formatSigned(d, '–')} unit={d === undefined ? undefined : unit} accent={d !== undefined && row?.good} />
 }
 
 function Badges({ list }: { list: { title: string; earnedAt: string }[] }) {
@@ -117,7 +120,7 @@ function Badges({ list }: { list: { title: string; earnedAt: string }[] }) {
 }
 
 export function ReportDocument({ report: r, photos }: { report: Report; photos: Record<string, string> }) {
-  const good = (label: string) => !!r.body?.rows.find((x) => x.label === label)?.good
+  const row = (m: Metric) => r.body?.rows.find((x) => x.key === m)
   const pages: { body: ReactNode; note?: string }[] = []
 
   pages.push({
@@ -134,10 +137,10 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
         </View>
         <Text style={[s.lb, { marginTop: 4 }]}>{`${plural(r.period.days, 'dia', 'dias')} de acompanhamento`}</Text>
         <View style={[s.grid, { marginTop: 62 }]}>
-          <Big label="Peso" value={r.summary.weightDelta === undefined ? '—' : formatSigned(r.summary.weightDelta, '–')} unit={r.summary.weightDelta === undefined ? undefined : 'kg'} accent={r.summary.weightDelta !== undefined && good('Peso')} />
-          <Big label="Gordura" value={r.summary.fatDelta === undefined ? '—' : formatSigned(r.summary.fatDelta, '–')} unit={r.summary.fatDelta === undefined ? undefined : 'pt'} accent={r.summary.fatDelta !== undefined && good('Gordura')} />
-          <Big label="Treinos" value={String(r.summary.workouts)} />
-          <Big label="Volume" value={formatDec(r.summary.volumeTons)} unit="t" />
+          <Change label="Peso" unit="kg" row={row('weightKg')} />
+          <Change label="Gordura" unit="pt" row={row('fat')} />
+          <Big label="Treinos" value={String(r.training.workouts)} />
+          <Big label="Volume" value={formatDec(r.training.volumeTons)} unit="t" />
         </View>
       </>
     ),
@@ -146,13 +149,13 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
   for (let i = 0; i < r.photoPairs.length; i += 2) {
     const next = r.photoPairs[i + 2]
     pages.push({
-      note: next && `${ANGLE[next.angle]} na próxima página`,
+      note: next && `${ANGLE_LABEL[next.angle]} na próxima página`,
       body: (
         <>
           <Text style={s.lb}>Antes e depois</Text>
           {r.photoPairs.slice(i, i + 2).map((p) => (
             <View key={p.angle}>
-              <Text style={[s.h4, { marginTop: 4 }]}>{ANGLE[p.angle]}</Text>
+              <Text style={[s.h4, { marginTop: 4 }]}>{ANGLE_LABEL[p.angle]}</Text>
               <View style={s.pair}>
                 {[p.before, p.after].map((x) => (
                   <View key={x.id} style={s.photo}>
@@ -170,17 +173,17 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
 
   if (r.body) {
     pages.push({
-      note: r.body.rows.some((x) => x.label === 'Gordura') ? '% de gordura: estimativa (US Navy)' : undefined,
+      note: row('fat') ? '% de gordura: estimativa (US Navy)' : undefined,
       body: (
         <>
           <Text style={s.lb}>Corpo</Text>
           <Text style={s.h4}>Peso e medidas</Text>
           {r.body.weight.length > 1 && <WeightChart points={r.body.weight} />}
           {r.body.rows.map((x) => (
-            <View key={x.label} style={s.row}>
+            <View key={x.key} style={s.row}>
               <Text>{x.label}</Text>
               <View style={s.val}>
-                <FromTo first={x.first} last={x.last} unit={x.unit} digits={x.unit === 'cm' ? 0 : 1} />
+                <FromTo first={x.first.value} last={x.last.value} unit={x.unit} digits={x.digits} spaced={x.spaced} />
                 <Text style={{ marginLeft: 11, color: x.good ? ACC : T2 }}>{formatSigned(x.delta, '–')}</Text>
               </View>
             </View>
@@ -222,7 +225,7 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
           <Text style={s.lb}>Dieta</Text>
           <Text style={s.h4}>Plano e água</Text>
           <View style={[s.grid, { marginTop: 9 }]}>
-            <Big label="Média de kcal" value={dt.avgKcal ? formatDec(dt.avgKcal) : '—'} unit={dt.avgKcal && dt.avgGoal ? `/ ${formatDec(dt.avgGoal)}` : undefined} size={44} />
+            <Big label="Média de kcal" value={dt.avgKcal === undefined ? '—' : formatDec(dt.avgKcal)} unit={dt.avgKcal !== undefined && dt.avgGoal ? `/ ${formatDec(dt.avgGoal)}` : undefined} size={44} />
             <Big label="Dias no plano" value={String(dt.fullDays)} unit={`de ${dt.days}`} size={44} />
             {dt.waterDays !== undefined && <Big label="Água na meta" value={String(dt.waterDays)} unit={`de ${dt.days}`} size={44} />}
             <Big label="Livres" value={String(dt.freeUses)} size={44} />

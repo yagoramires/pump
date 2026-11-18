@@ -21,3 +21,4 @@ export const cupsShown = (ml: number, s: WaterSettings) => {
 }
 
 export const waterMet = (d?: WaterDay) => !!d && d.goalMl > 0 && d.ml >= d.goalMl
+export const hasWater = (d?: WaterDay) => (d?.ml ?? 0) > 0

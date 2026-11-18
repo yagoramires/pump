@@ -1,6 +1,8 @@
 import type { DietDay, DietItem } from '../src/diet/types'
 import type { Exercise, PlanExercise, Workout, WorkoutPlan } from '../src/workout/types'
+import type { EvolutionInput } from '../src/evolution/types'
 import { PREVIEW_CACHE } from '../src/catalog/urls'
+import { DEFAULTS } from '../src/schema'
 
 export const pe = (over: Partial<PlanExercise> = {}): PlanExercise => ({
   exerciseId: 'X', name: 'X', muscles: [], images: [], instructions: [], sets: 3, reps: '10', weightKg: 0, restSec: 90, ...over,
@@ -44,4 +46,10 @@ export const dietDay = (done: boolean[], over: Partial<DietDay> = {}): DietDay =
   menuId: 'm', menuName: 'Padrão', goalKcal: 2000,
   meals: done.map((d, i) => ({ id: `r${i}`, name: `Refeição ${i + 1}`, time: `0${i}:00`, done: d, items: [food({ id: `i${i}` })] })),
   ...over,
+})
+
+/** entrada da Evolução com as chaves vazias do schema e só o que o teste precisa */
+export const evolutionInput = (over: Partial<EvolutionInput> = {}): EvolutionInput => ({
+  workoutLog: DEFAULTS.workoutLog, workoutPlan: DEFAULTS.workoutPlan, measurements: DEFAULTS.measurements, photoSets: DEFAULTS.photoSets,
+  profile: DEFAULTS.profile, dietLog: DEFAULTS.dietLog, waterLog: DEFAULTS.waterLog, dietPlan: DEFAULTS.dietPlan, ...over,
 })

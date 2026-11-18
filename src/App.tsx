@@ -14,7 +14,7 @@ import { backupDue, daysWithoutBackup } from './storage/backup'
 import { useBackupExport } from './shell/useBackupExport'
 import { onStorageError, readKey, requestPersist, usePersisted } from './storage/db'
 import { todayKey } from './lib/date'
-import { useAchievementToasts } from './evolution/useAchievementToasts'
+import { AchievementToasts } from './evolution/AchievementToasts'
 import { EvolutionTab } from './evolution/EvolutionTab'
 import { Loading } from './components/Loading'
 import { USER_KEYS } from './schema'
@@ -23,12 +23,6 @@ import { USER_KEYS } from './schema'
 const DietTab = lazy(() => import('./diet/DietTab').then((m) => ({ default: m.DietTab })))
 
 const MAIN = 'mx-auto max-w-md px-4 pt-4 pb-[calc(96px+env(safe-area-inset-bottom))]'
-
-// componente à parte: o hook só pode rodar no layout principal, depois dos retornos antecipados
-function AchievementToasts() {
-  useAchievementToasts()
-  return null
-}
 
 export default function App() {
   return <Suspense fallback={<main className={MAIN}><Loading /></main>}><Shell /></Suspense>

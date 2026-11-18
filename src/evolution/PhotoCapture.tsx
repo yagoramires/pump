@@ -1,37 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import { CameraOff, ChevronLeft, SwitchCamera, Timer } from 'lucide-react'
 import { toast } from 'sonner'
-import type { Angle } from './types'
-import { usePersisted } from '../storage/db'
-import { deletePhotos, savePhoto } from '../storage/photos'
+import { savePhoto } from '../storage/photos'
 import { formatDayMonth } from '../lib/date'
 import { Button } from '@/components/ui/button'
 import { Overlay } from '@/components/Overlay'
 import { cn } from '@/lib/utils'
-import { setAngle } from './photoSets'
+import { ANGLE_LABEL, ANGLES, usePhotoSets } from './photoSets'
+import { AngleTabs } from './AngleTabs'
 import { fileToJpeg, videoToJpeg } from './resize'
 
-const ANGLES: { v: Angle; label: string }[] = [{ v: 'frente', label: 'Frente' }, { v: 'lado', label: 'Lado' }, { v: 'costas', label: 'Costas' }]
 const PILL = 'flex h-11 items-center justify-self-start rounded-[10px] border border-border px-3.5 text-[13px] font-medium text-text'
-
-export function AngleTabs({ value, onChange }: { value: Angle; onChange: (a: Angle) => void }) {
-  return (
-    <div role="tablist" aria-label="Ângulo" className="mb-2.5 flex gap-[3px] rounded-[11px] border border-border bg-panel p-[3px]">
-      {ANGLES.map((a) => (
-        <button
-          key={a.v}
-          type="button"
-          role="tab"
-          aria-selected={a.v === value}
-          className="h-11 flex-1 rounded-lg text-[13px] font-semibold text-text-2 aria-selected:bg-surface aria-selected:text-strong aria-selected:shadow-[inset_0_0_0_1px_var(--color-border-strong)]"
-          onClick={() => onChange(a.v)}
-        >
-          {a.label}
-        </button>
-      ))}
-    </div>
-  )
-}
+const COUNTDOWN_S = 5
+// sem contexto seguro (http) ou navegador antigo, navigator.mediaDevices/getUserMedia não existe
+const hasCamera = () => typeof navigator.mediaDevices?.getUserMedia === 'function'
 
 const Silhouette = () => (
   <svg viewBox="0 0 100 200" aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-[8%] mx-auto h-[84%] fill-none stroke-accent/40" strokeWidth="1.5" strokeDasharray="4 3" strokeLinejoin="round">
@@ -41,11 +23,10 @@ const Silhouette = () => (
 )
 
 export function PhotoCapture({ date, onClose }: { date: string; onClose: () => void }) {
-  const [, setSets] = usePersisted('photoSets')
+  const { setAngle } = usePhotoSets()
   const [i, setI] = useState(0)
   const [facing, setFacing] = useState<'user' | 'environment'>('user')
-  // sem contexto seguro (http) ou navegador antigo, navigator.mediaDevices/getUserMedia não existe
-  const [camOk, setCamOk] = useState<boolean | undefined>(() => (typeof navigator.mediaDevices?.getUserMedia === 'function' ? undefined : false))
+  const [camOk, setCamOk] = useState<boolean | undefined>(() => (hasCamera() ? undefined : false))
   const [ready, setReady] = useState(false)
   const [timer, setTimer] = useState(false)
   const [count, setCount] = useState<number>()
@@ -57,11 +38,10 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
 
   // um stream por facingMode: trocar ou desmontar para as tracks do anterior
   useEffect(() => {
-    const md = navigator.mediaDevices as MediaDevices | undefined
-    if (typeof md?.getUserMedia !== 'function') return
+    if (!hasCamera()) return
     let alive = true
     let s: MediaStream | undefined
-    md.getUserMedia({ video: { facingMode: facing } })
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: facing } })
       .then((got) => {
         s = got
         if (!alive) return got.getTracks().forEach((t) => t.stop())
@@ -99,7 +79,7 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
   }
   const shutter = () => {
     if (!timer) return shoot()
-    let n = 5
+    let n = COUNTDOWN_S
     setCount(n)
     tick.current = window.setInterval(() => {
       n -= 1
@@ -129,15 +109,7 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
       setSaving(false)
       return void toast.error('Não consegui salvar a foto')
     }
-    // o setter roda o updater na hora (é assim que devolve o valor novo), então replaced já vem preenchido na linha seguinte
-    const out: { replaced?: string } = {}
-    setSets((prev) => {
-      const r = setAngle(prev, date, ANGLES[i].v, id)
-      out.replaced = r.replaced
-      return r.sets
-    })
-    // falhar aqui só deixa a foto antiga órfã no banco; o registro já aponta pra nova
-    if (out.replaced) void deletePhotos([out.replaced]).catch(() => {})
+    setAngle(date, ANGLES[i], id)
     setSaving(false)
     goTo(i + 1)
   }
@@ -149,7 +121,7 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
         <h1 className="flex-1 text-[19px] font-semibold text-strong">{`Fotos · ${formatDayMonth(date)}`}</h1>
       </header>
       <div className="mt-2">
-        <AngleTabs value={ANGLES[i].v} onChange={(a) => goTo(ANGLES.findIndex((x) => x.v === a))} />
+        <AngleTabs value={ANGLES[i]} onChange={(a) => goTo(ANGLES.indexOf(a))} />
       </div>
 
       {camOk === false && !preview ? (
@@ -163,14 +135,14 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
             <video ref={video} playsInline muted autoPlay onLoadedData={() => setReady(true)} className={cn('absolute inset-0 size-full object-cover', facing === 'user' && '-scale-x-100')} />
           )}
           {preview ? (
-            <img src={preview} alt={`Prévia: ${ANGLES[i].label}`} className="absolute inset-0 size-full object-cover" />
+            <img src={preview} alt={`Prévia: ${ANGLE_LABEL[ANGLES[i]]}`} className="absolute inset-0 size-full object-cover" />
           ) : (
             <>
               <Silhouette />
               {count !== undefined && <span aria-live="polite" className="absolute inset-0 flex items-center justify-center text-7xl font-bold text-strong tabular-nums">{count}</span>}
               <button
                 type="button"
-                aria-label="Temporizador 5 s"
+                aria-label={`Temporizador ${COUNTDOWN_S} s`}
                 aria-pressed={timer}
                 className={cn('absolute top-2 left-2 flex size-11 items-center justify-center rounded-full bg-black/50', timer ? 'text-accent' : 'text-white')}
                 onClick={() => { cancelCount(); setTimer((t) => !t) }}

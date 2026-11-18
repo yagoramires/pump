@@ -3,29 +3,26 @@ import { Check, ChevronDown, ChevronLeft, ImageOff } from 'lucide-react'
 import type { Angle } from './types'
 import { usePersisted } from '../storage/db'
 import { formatDayMonth } from '../lib/date'
-import { formatDec, formatKg, plural } from '@/lib/number'
+import { formatDec, formatKg, plural, round1 } from '@/lib/number'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Overlay } from '@/components/Overlay'
 import { cn } from '@/lib/utils'
-import { bodyFat, goalDirection, type Metric } from './bodyFat'
+import { goalDirection, isGood, type Metric } from './bodyFat'
 import { Delta } from './Delta'
-import { nearest } from './measurements'
-import { AngleTabs } from './PhotoCapture'
-import { usePhoto } from './usePhoto'
+import { byDate, fatSeries, pointAt, series, type Point } from './measurements'
+import { ANGLES } from './photoSets'
+import { AngleTabs } from './AngleTabs'
+import { PhotoThumb } from './PhotoThumb'
 
 const CHIP = 'flex h-11 items-center gap-1 rounded-[10px] border border-border px-3 text-[13px] text-text'
 
+const UNAVAILABLE = <div role="img" aria-label="Foto indisponível" className="absolute inset-0 flex items-center justify-center text-faint"><ImageOff size={28} aria-hidden="true" /></div>
+
 function Pane({ id, date, now }: { id?: string; date: string; now: boolean }) {
-  const src = usePhoto(id)
   return (
-    <div className="relative aspect-[3/4] overflow-hidden rounded-[14px] bg-surface">
-      {src ? (
-        <img src={src} alt={`Foto de ${formatDayMonth(date)}`} className="absolute inset-0 size-full object-cover" />
-      ) : (
-        <div role="img" aria-label="Foto indisponível" className="absolute inset-0 flex items-center justify-center text-faint"><ImageOff size={28} aria-hidden="true" /></div>
-      )}
+    <PhotoThumb id={id} alt={`Foto de ${formatDayMonth(date)}`} className="rounded-[14px]" empty={UNAVAILABLE}>
       <span className={cn('absolute top-2 left-2 rounded-md px-1.5 py-0.5 text-[11px]', now ? 'bg-accent font-bold text-on-accent' : 'bg-black/60 text-white')}>{formatDayMonth(date)}</span>
-    </div>
+    </PhotoThumb>
   )
 }
 
@@ -37,7 +34,7 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
   const [chosen, setChosen] = useState<{ before?: string; after?: string }>({})
   const [picking, setPicking] = useState<'before' | 'after'>()
 
-  const sorted = [...sets].sort((x, y) => x.date.localeCompare(y.date))
+  const sorted = byDate(sets)
   const before = sorted.find((s) => s.id === chosen.before) ?? sorted[0]
   const after = sorted.find((s) => s.id === chosen.after) ?? sorted[sorted.length - 1]
 
@@ -50,18 +47,13 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
   if (!before || !after) return <Overlay>{header}<p className="text-sm text-text-2">Nenhuma foto ainda.</p></Overlay>
 
   const dir = goalDirection(profile)
-  // como na aba e no PDF: gordura de um registro só, nunca pescoço de um dia com cintura de outro
-  const fats = [...ms].sort((x, y) => x.date.localeCompare(y.date)).flatMap((m) => {
-    const value = bodyFat(profile.sex, profile.heightCm, m)
-    return value === null ? [] : [{ date: m.date, value }]
-  })
-  const fatAt = (date: string) => (fats.filter((f) => f.date <= date).pop() ?? fats[0])?.value
+  const at = (points: Point[]) => ({ from: pointAt(points, before.date), to: pointAt(points, after.date) })
   const rows: { label: string; metric: Metric; unit: string; delta: string; from?: number; to?: number; fmt: (n: number) => string }[] = [
-    { label: 'Peso', metric: 'weightKg', unit: ' kg', delta: 'kg', from: nearest(ms, before.date, 'weightKg'), to: nearest(ms, after.date, 'weightKg'), fmt: formatKg },
-    { label: 'Cintura', metric: 'waistCm', unit: ' cm', delta: 'cm', from: nearest(ms, before.date, 'waistCm'), to: nearest(ms, after.date, 'waistCm'), fmt: formatKg },
-    { label: 'Gordura', metric: 'fat', unit: '%', delta: 'pt', from: fatAt(before.date), to: fatAt(after.date), fmt: (n) => formatDec(n) },
+    { label: 'Peso', metric: 'weightKg', unit: ' kg', delta: 'kg', ...at(series(ms, 'weightKg')), fmt: formatKg },
+    { label: 'Cintura', metric: 'waistCm', unit: ' cm', delta: 'cm', ...at(series(ms, 'waistCm')), fmt: formatKg },
+    { label: 'Gordura', metric: 'fat', unit: '%', delta: 'pt', ...at(fatSeries(profile, ms)), fmt: (n) => formatDec(n) },
   ]
-  const shown = rows.filter((r) => r.from !== undefined && r.to !== undefined)
+  const shown = rows.flatMap((r) => (r.from !== undefined && r.to !== undefined ? [{ ...r, from: r.from, to: r.to, d: round1(r.to - r.from) }] : []))
 
   return (
     <Overlay>
@@ -84,8 +76,8 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
             <div key={r.metric} className={cn('flex items-center justify-between gap-3 px-3.5 py-2.5 text-sm', k > 0 && 'border-t border-line')}>
               <span className="text-text-2">{r.label}</span>
               <span className="tabular-nums">
-                <b className="font-semibold text-strong">{`${r.fmt(r.from!)} → ${r.fmt(r.to!)}${r.unit}`}</b>
-                <Delta d={r.to! - r.from!} unit={r.delta} metric={r.metric} dir={dir} className="ml-2 text-[13px]" />
+                <b className="font-semibold text-strong">{`${r.fmt(r.from)} → ${r.fmt(r.to)}${r.unit}`}</b>
+                <Delta value={r.d} good={isGood(r.metric, dir, r.d)} unit={r.delta} className="ml-2 text-[13px]" />
               </span>
             </div>
           ))}
@@ -99,7 +91,7 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
             <DrawerDescription className="sr-only">Escolha o registro de fotos</DrawerDescription>
             {sorted.map((s) => {
               const on = s.id === (picking === 'before' ? before : after).id
-              const n = (['frente', 'lado', 'costas'] as const).filter((x) => s[x]).length
+              const n = ANGLES.filter((x) => s[x]).length
               return (
                 <button
                   key={s.id}

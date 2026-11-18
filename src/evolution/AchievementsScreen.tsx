@@ -1,40 +1,13 @@
-import { createElement } from 'react'
-import { CalendarCheck, Camera, ChevronLeft, Dumbbell, GlassWater, ListChecks, Percent, Sparkles, Timer, TrendingUp, Utensils, type LucideIcon } from 'lucide-react'
-import { usePersisted } from '../storage/db'
+import { ChevronLeft } from 'lucide-react'
 import { formatDayMonth, todayKey } from '../lib/date'
 import { Overlay } from '@/components/Overlay'
 import { cn } from '@/lib/utils'
-import { computeAchievements, type AchievementId } from './achievements'
-
-const ICON: Record<AchievementId, LucideIcon> = {
-  'first-workout': Dumbbell,
-  'streak-3': Timer,
-  'streak-7': Timer,
-  'streak-30': Timer,
-  'workouts-10': ListChecks,
-  'workouts-50': ListChecks,
-  'workouts-100': ListChecks,
-  record: TrendingUp,
-  'first-photo': Camera,
-  'weight-small': Sparkles,
-  'weight-big': Sparkles,
-  'fat-1': Percent,
-  'diet-day': Utensils,
-  'diet-7': CalendarCheck,
-  'water-7': GlassWater,
-}
-export const AchievementIcon = ({ id }: { id: AchievementId }) => createElement(ICON[id], { size: 22, 'aria-hidden': true })
+import { computeAchievements } from './achievements'
+import { AchievementIcon } from './AchievementIcon'
+import { useEvolution } from './useEvolution'
 
 export function AchievementsScreen({ onClose }: { onClose: () => void }) {
-  const [workoutLog] = usePersisted('workoutLog')
-  const [workoutPlan] = usePersisted('workoutPlan')
-  const [measurements] = usePersisted('measurements')
-  const [photoSets] = usePersisted('photoSets')
-  const [profile] = usePersisted('profile')
-  const [dietLog] = usePersisted('dietLog')
-  const [waterLog] = usePersisted('waterLog')
-  const [dietPlan] = usePersisted('dietPlan')
-  const list = computeAchievements({ workoutLog, workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan }, todayKey())
+  const list = computeAchievements(useEvolution(), todayKey())
 
   return (
     <Overlay>

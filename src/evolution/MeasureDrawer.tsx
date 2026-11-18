@@ -31,12 +31,12 @@ export function MeasureDrawer({ open, onClose, date }: { open: boolean; onClose:
             initial={list.find((m) => m.date === date)}
             onSave={(fields) => {
               onClose()
-              const cur = list.find((m) => m.date === date)
-              if (!Object.entries(fields).some(([k, v]) => (v ?? undefined) !== cur?.[k as Key])) return void toast('Nada mudou')
-              setList((prev) => upsertMeasurement(prev, date, fields))
+              const { list: next, status } = upsertMeasurement(list, date, fields)
+              if (status === 'same') return void toast('Nada mudou')
+              setList(next)
               const w = fields.weightKg
               if (w) setProfile((p) => ({ ...p, weightKg: w }))
-              toast(upsertMeasurement(list, date, fields).some((m) => m.date === date) ? 'Medidas salvas' : 'Medidas apagadas')
+              toast(status === 'saved' ? 'Medidas salvas' : 'Medidas apagadas')
             }}
           />
         </div>

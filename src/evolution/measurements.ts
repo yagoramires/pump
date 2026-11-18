@@ -1,40 +1,46 @@
+import type { Profile } from '../profile/types'
 import type { MeasureFields, Measurement } from './types'
+import { bodyFat, type Metric } from './bodyFat'
 
-const KEYS = ['weightKg', 'neckCm', 'waistCm', 'hipCm', 'armCm', 'chestCm', 'thighCm'] as const
-export const FIELDS: { key: keyof MeasureFields; label: string; unit: string }[] = [
-  { key: 'weightKg', label: 'Peso', unit: 'kg' },
-  { key: 'neckCm', label: 'Pescoço', unit: 'cm' },
-  { key: 'waistCm', label: 'Cintura', unit: 'cm' },
-  { key: 'hipCm', label: 'Quadril', unit: 'cm' },
-  { key: 'armCm', label: 'Braço', unit: 'cm' },
-  { key: 'chestCm', label: 'Peito', unit: 'cm' },
-  { key: 'thighCm', label: 'Coxa', unit: 'cm' },
+export type Point = { date: string; value: number }
+type Key = keyof MeasureFields
+/** `digits` = casas no PDF; `spaced: false` cola a unidade no número ("22,9%") */
+export interface Field { key: Metric; label: string; unit: string; digits: number; spaced?: false }
+
+export const FIELDS: (Field & { key: Key })[] = [
+  { key: 'weightKg', label: 'Peso', unit: 'kg', digits: 1 },
+  { key: 'neckCm', label: 'Pescoço', unit: 'cm', digits: 0 },
+  { key: 'waistCm', label: 'Cintura', unit: 'cm', digits: 0 },
+  { key: 'hipCm', label: 'Quadril', unit: 'cm', digits: 0 },
+  { key: 'armCm', label: 'Braço', unit: 'cm', digits: 0 },
+  { key: 'chestCm', label: 'Peito', unit: 'cm', digits: 0 },
+  { key: 'thighCm', label: 'Coxa', unit: 'cm', digits: 0 },
 ]
+export const FAT: Field = { key: 'fat', label: 'Gordura', unit: '%', digits: 1, spaced: false }
 
-export function upsertMeasurement(list: Measurement[], date: string, fields: { [K in keyof MeasureFields]?: number | null }): Measurement[] {
+export const byDate = <T extends { date: string }>(l: T[]) => [...l].sort((a, b) => a.date.localeCompare(b.date))
+
+export function upsertMeasurement(list: Measurement[], date: string, fields: { [K in Key]?: number | null }): { list: Measurement[]; status: 'same' | 'saved' | 'removed' } {
   const cur = list.find((m) => m.date === date)
   const next: Measurement = { ...(cur ?? { id: crypto.randomUUID(), date }) }
-  for (const k of KEYS) {
-    const v = fields[k]
-    if (v === null) delete next[k]
-    else if (v !== undefined) next[k] = v
+  for (const { key } of FIELDS) {
+    const v = fields[key]
+    if (v === null) delete next[key]
+    else if (v !== undefined) next[key] = v
   }
-  const rest = list.filter((m) => m.date !== date)
-  const out = KEYS.some((k) => next[k] !== undefined) ? [...rest, next] : rest
-  return out.sort((a, b) => a.date.localeCompare(b.date))
+  if (FIELDS.every(({ key }) => next[key] === cur?.[key])) return { list, status: 'same' }
+  const kept = FIELDS.some(({ key }) => next[key] !== undefined)
+  return { list: byDate(kept ? [...removeMeasurement(list, date), next] : removeMeasurement(list, date)), status: kept ? 'saved' : 'removed' }
 }
 
-type Point = { date: string; value: number }
+export const removeMeasurement = (list: Measurement[], date: string) => list.filter((m) => m.date !== date)
 
-export function firstLast(list: Measurement[], key: keyof MeasureFields): { first?: Point; last?: Point } {
-  const pts = list.filter((m) => m[key] !== undefined).sort((a, b) => a.date.localeCompare(b.date))
-  const pt = (m?: Measurement): Point | undefined => (m ? { date: m.date, value: m[key] as number } : undefined)
-  return { first: pt(pts[0]), last: pt(pts[pts.length - 1]) }
-}
+/** registros com o campo, por data */
+export const series = (ms: Measurement[], key: Key): Point[] => byDate(ms).flatMap((m) => (m[key] === undefined ? [] : [{ date: m.date, value: m[key] }]))
 
-/** valor da última medida em/antes de `date`; sem nenhuma antes, a mais próxima depois */
-export function nearest(list: Measurement[], date: string, key: keyof MeasureFields): number | undefined {
-  const has = list.filter((m) => m[key] !== undefined).sort((a, b) => a.date.localeCompare(b.date))
-  const before = has.filter((m) => m.date <= date)
-  return (before.length ? before[before.length - 1] : has[0])?.[key]
-}
+/** % de gordura de cada registro que tem o que a fórmula pede (nunca pescoço de um dia com cintura de outro) */
+export const fatSeries = (p: Profile, ms: Measurement[]): Point[] =>
+  byDate(ms).flatMap((m) => { const value = bodyFat(p.sex, p.heightCm, m); return value === null ? [] : [{ date: m.date, value }] })
+
+/** valor do último ponto em/antes de `date`; sem nenhum antes, o primeiro depois */
+export const pointAt = (points: Point[], date: string) => (points.filter((p) => p.date <= date).pop() ?? points[0])?.value
