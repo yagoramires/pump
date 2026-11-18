@@ -14,7 +14,7 @@ const MUSCLE_LABEL: Record<Muscle, string> = { peito: 'Peito', costas: 'Costas',
 export function AnamnesisForm({ value, onChange }: { value: Anamnesis; onChange: (a: Anamnesis) => void }) {
   const set = <K extends keyof Anamnesis>(k: K, v: Anamnesis[K]) => onChange({ ...value, [k]: v })
   return (
-    <section aria-labelledby="anamnese" className="flex flex-col gap-3.5 rounded-[14px] border border-border bg-panel p-3.5">
+    <section aria-labelledby="anamnese" className="flex flex-col gap-3.5 card p-3.5">
       <div>
         <h2 id="anamnese" className="text-[15px] font-semibold text-strong">Sobre seu treino</h2>
         <p className="text-[13px] text-text-2">Opcional. Vai junto no prompt com seu perfil; o que faltar a IA pergunta.</p>

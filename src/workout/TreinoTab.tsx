@@ -101,7 +101,7 @@ export function TreinoTab() {
           </EmptyState>
         )}
         <div className="label-caps mx-0.5 mb-1.5">Escolher um treino</div>
-        <div className="overflow-hidden rounded-[14px] border border-border bg-panel">
+        <div className="overflow-hidden card">
           {plan.workouts.map((w) => (
             <button key={w.id} type="button" onClick={() => setChosenId(w.id)} className="flex min-h-14 w-full items-center gap-3 border-t border-line px-3.5 py-2.5 text-left first:border-t-0">
               <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-accent-line bg-accent-bg text-sm font-bold text-accent">{w.label}</span>
@@ -166,7 +166,7 @@ export function TreinoTab() {
       <div className="label-caps">{`${formatDayLabel(today)} · TREINO ${view.workoutLabel}`}</div>
       <h1 className="mt-0.5 mb-3 text-[26px] font-bold tracking-tight text-strong">{view.workoutName}</h1>
 
-      <div className="mb-2.5 flex items-center gap-3.5 rounded-[14px] border border-border bg-panel p-3.5">
+      <div className="mb-2.5 flex items-center gap-3.5 card p-3.5">
         <div
           className="flex size-[72px] shrink-0 items-center justify-center rounded-full"
           style={{ background: `conic-gradient(var(--color-accent) 0 ${stats.total ? (stats.done / stats.total) * 100 : 0}%, var(--color-line) 0)` }}
@@ -193,7 +193,7 @@ export function TreinoTab() {
       ))}
       {view.exercises.some(isCardio) && <div className="label-caps mt-4 mb-2">Cardio</div>}
       {view.exercises.map((e, i) => isCardio(e) && (
-        <div key={i} className="mb-2.5 flex items-center gap-1.5 rounded-[14px] border border-border bg-panel py-1.5 pr-2 pl-1.5">
+        <div key={i} className="mb-2.5 flex items-center gap-1.5 card py-1.5 pr-2 pl-1.5">
           <button type="button" aria-label={`Ver ${e.name}`} onClick={() => setPreview(i)} className="flex size-11 shrink-0 items-center justify-center">
             <IconDot color="var(--c1)" size={32}><HeartPulse size={16} aria-hidden="true" /></IconDot>
           </button>

@@ -17,7 +17,7 @@ export function DietCard({ log, water, today }: { log: DietLog; water: WaterLog;
       ].filter((r) => !!r)
     : []
   return (
-    <div className="mb-2.5 overflow-hidden rounded-[14px] border border-border bg-panel">
+    <div className="mb-2.5 overflow-hidden card">
       <div className="px-3.5 pt-3 pb-2 text-[15px] font-semibold text-strong">Dieta · 30 dias</div>
       {!rows.length && <p className="border-t border-line px-3.5 py-2.5 text-sm text-text-2">Marque as refeições na aba Dieta pra ver aqui.</p>}
       {rows.map(({ label, value, goal }) => (

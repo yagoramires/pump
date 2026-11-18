@@ -29,7 +29,7 @@ import { generatePdf } from './pdf/generate'
 import { shareFile } from '@/lib/share'
 
 type View = 'capture' | 'compare' | 'achievements' | 'history'
-const CARD = 'mb-2.5 overflow-hidden rounded-[14px] border border-border bg-panel'
+const CARD = 'mb-2.5 overflow-hidden card'
 const LINK = 'h-11 px-1 text-[13px] font-medium text-accent disabled:text-faint'
 const RANGES = [{ v: '30', label: '30 d' }, { v: '90', label: '90 d' }, { v: 'all', label: 'Tudo' }]
 const KPI: Metric[] = ['weightKg', 'fat']

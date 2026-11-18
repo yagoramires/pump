@@ -16,7 +16,7 @@ const AREA = 'w-full resize-none rounded-[11px] border border-border bg-surface 
 export function DietAnamnesisForm({ value, onChange }: { value: Value; onChange: (v: Value) => void }) {
   const set = <K extends keyof Value>(k: K, v: Value[K]) => onChange({ ...value, [k]: v })
   return (
-    <section aria-labelledby="anamnese-dieta" className="flex flex-col gap-3.5 rounded-[14px] border border-border bg-panel p-3.5">
+    <section aria-labelledby="anamnese-dieta" className="flex flex-col gap-3.5 card p-3.5">
       <div>
         <h2 id="anamnese-dieta" className="text-[15px] font-semibold text-strong">Sobre sua dieta</h2>
         <p className="text-[13px] text-text-2">Só o objetivo é obrigatório; o que faltar a IA pergunta.</p>

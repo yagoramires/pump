@@ -71,7 +71,7 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
       </div>
 
       {shown.length > 0 && (
-        <div className="mt-3 overflow-hidden rounded-[14px] border border-border bg-panel">
+        <div className="mt-3 overflow-hidden card">
           {shown.map((r, k) => (
             <div key={r.metric} className={cn('flex items-center justify-between gap-3 px-3.5 py-2.5 text-sm', k > 0 && 'border-t border-line')}>
               <span className="text-text-2">{r.label}</span>

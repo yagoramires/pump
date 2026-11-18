@@ -81,7 +81,7 @@ export function Onboarding() {
         <Button type="button" variant="ghost" className="-mt-2 text-text-2" onClick={finish}>Pular</Button>
       </div>
       <h1 className="mb-3 text-[26px] font-bold tracking-tight text-strong">Seu treino</h1>
-      <div role="radiogroup" aria-label="Planos" className="overflow-hidden rounded-[14px] border border-border bg-panel">
+      <div role="radiogroup" aria-label="Planos" className="overflow-hidden card">
         {TEMPLATES.map((t) => {
           const days = new Set(t.workouts.flatMap((w) => w.weekdays))
           const on = t.id === picked

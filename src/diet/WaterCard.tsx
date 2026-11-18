@@ -9,7 +9,7 @@ const CUP = 'flex size-11 items-center justify-center rounded-xl border'
 export function WaterCard({ ml, settings, onAdd, onRemove }: { ml: number; settings: WaterSettings; onAdd: () => void; onRemove: () => void }) {
   const { full, total } = cupsShown(ml, settings)
   return (
-    <div className="mb-2.5 rounded-[14px] border border-border bg-panel p-3.5">
+    <div className="mb-2.5 card p-3.5">
       <div className="text-[15px] font-semibold text-strong">{`Água · ${formatDec(ml / 1000)} de ${formatDec(settings.goalMl / 1000)} L`}</div>
       <div className="mt-2.5 flex flex-wrap gap-1.5">
         {Array.from({ length: total }, (_, i) =>

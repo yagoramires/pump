@@ -9,7 +9,7 @@ export function SettingsSection({ title, children }: { title: string; children: 
   return (
     <>
       <div className="label-caps px-1 pt-4 pb-1.5 tracking-[.08em]">{title}</div>
-      <div className="overflow-hidden rounded-[14px] border border-border bg-panel">{children}</div>
+      <div className="overflow-hidden card">{children}</div>
     </>
   )
 }

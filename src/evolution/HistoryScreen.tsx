@@ -64,7 +64,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
 
       <span id={`${descId}t`} hidden>treino</span>
       <span id={`${descId}r`} hidden>com registro</span>
-      <div className="mt-2 grid grid-cols-7 gap-1 rounded-[14px] border border-border bg-panel p-2.5 text-center">
+      <div className="mt-2 grid grid-cols-7 gap-1 card p-2.5 text-center">
         {WEEKDAY_SHORT.map((w, i) => <span key={i} aria-hidden="true" className="pb-1 text-[11px] font-semibold text-faint">{w[0]}</span>)}
         {Array.from({ length: month.getDay() }, (_, i) => <span key={`x${i}`} />)}
         {keys.map((k, i) => {
@@ -101,7 +101,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
           {!done && !rest && !meals && !drank && !measure && !photos ? (
             <p className="px-0.5 text-sm text-text-2">Nada registrado neste dia.</p>
           ) : (
-            <div className="overflow-hidden rounded-[14px] border border-border bg-panel">
+            <div className="overflow-hidden card">
               {done && (
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c2)"><Dumbbell size={16} aria-hidden="true" /></IconDot>

@@ -87,7 +87,7 @@ export function DietTab() {
       </div>
       <h1 className="mt-0.5 mb-2.5 text-[26px] font-bold tracking-tight text-strong">Dieta</h1>
 
-      <div role="group" aria-label="Calorias" className="mb-2.5 flex items-center gap-2.5 rounded-[14px] border border-border bg-panel px-3 py-2.5">
+      <div role="group" aria-label="Calorias" className="mb-2.5 flex items-center gap-2.5 card px-3 py-2.5">
         {!!goal && (
           <svg role="img" aria-label={`${pct}% da meta`} viewBox="0 0 44 44" className="size-11 shrink-0 -rotate-90">
             <circle cx="22" cy="22" r={RING_R} fill="none" strokeWidth="4" className="stroke-line" />
@@ -112,7 +112,7 @@ export function DietTab() {
         )}
       </div>
 
-      <ul aria-label="Refeições" className={cn('overflow-hidden rounded-[14px] border border-border bg-panel', day.free && 'opacity-50')}>
+      <ul aria-label="Refeições" className={cn('overflow-hidden card', day.free && 'opacity-50')}>
         {sortedMeals(day.meals).map((m) => {
           const { options, index, canToggle: many } = mealOptions(plan, day, m.id)
           const sub = m.free ? 'livre' : !m.done && many ? `${options.length} opções` : `${formatDec(kcalOf(m.items.filter((i) => !i.skipped)))} kcal`

@@ -22,7 +22,7 @@ export function PasteBox({ text, onText, onFile, problems, placeholder, children
       <textarea
         aria-label="Resposta da IA"
         rows={8}
-        className="w-full resize-none rounded-[14px] border border-border bg-panel p-3.5 text-base text-text outline-none placeholder:text-faint focus-visible:border-accent-line"
+        className="w-full resize-none card p-3.5 text-base text-text outline-none placeholder:text-faint focus-visible:border-accent-line"
         placeholder={placeholder}
         value={text}
         onChange={(e) => onText(e.target.value)}
@@ -38,7 +38,7 @@ export function PasteBox({ text, onText, onFile, problems, placeholder, children
       </label>
       {children}
       {problems.length > 0 && (
-        <ul role="alert" className="flex flex-col gap-1 rounded-[14px] border border-border bg-panel p-3.5 text-[13px] text-negative">
+        <ul role="alert" className="flex flex-col gap-1 card p-3.5 text-[13px] text-negative">
           {problems.map((p) => <li key={p}>{p}</li>)}
         </ul>
       )}

@@ -46,7 +46,7 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack: () 
     <div className="flex flex-col gap-3 pb-28">
       <BackHeader title="Importar de uma IA" onBack={onBack} className="min-h-11" />
       <AnamnesisForm value={profile.anamnesis ?? {}} onChange={(anamnesis) => setProfile((p) => ({ ...p, anamnesis }))} />
-      <div className="overflow-hidden rounded-[14px] border border-border bg-panel">
+      <div className="overflow-hidden card">
         <Step n={1} title="Copie o prompt" sub="Cole no ChatGPT (e sua ficha, se tiver)">
           <Button type="button" variant="outline" size="sm" className="h-9 bg-transparent" onClick={() => copy(buildPrompt(profile), 'Prompt copiado. Cole na sua IA.')}><Copy size={14} aria-hidden="true" />Copiar</Button>
         </Step>

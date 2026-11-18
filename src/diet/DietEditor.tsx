@@ -126,7 +126,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
         <button type="button" className="flex h-11 shrink-0 items-center gap-1 rounded-[10px] border border-dashed border-border-strong px-3 text-[13px] text-text-2 disabled:opacity-40" disabled={plan.menus.length >= MAX_MENUS} onClick={() => addMenu(newMenu(plan.menus.length + 1))}><Plus size={16} /> Novo cardápio</button>
       </div>
 
-      <section className="flex flex-col gap-2 rounded-[14px] border border-border bg-panel p-3">
+      <section className="flex flex-col gap-2 card p-3">
         <div className="flex items-center gap-2">
           <Input className="min-w-0 flex-1 font-semibold" aria-label="Nome do cardápio" autoComplete="off" enterKeyHint="done" value={menu.name} onChange={(e) => patchMenu((m) => ({ ...m, name: e.target.value }))} />
           <button type="button" className="icon-btn disabled:opacity-40" aria-label="Duplicar cardápio" disabled={plan.menus.length >= MAX_MENUS} onClick={() => addMenu(copyMenu(menu))}><Copy size={16} /></button>
@@ -151,7 +151,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
         const opt = meal.options[oi]
         const kcal = kcalOf(opt.items)
         return (
-          <section key={meal.id} className="flex flex-col gap-2 rounded-[14px] border border-border bg-panel p-3">
+          <section key={meal.id} className="flex flex-col gap-2 card p-3">
             <div className="flex items-center gap-2">
               <Input className="min-w-0 flex-1 font-semibold" aria-label={`Nome da refeição ${mi + 1}`} autoComplete="off" enterKeyHint="done" value={meal.name} onChange={(e) => patchMeal(meal.id, (m) => ({ ...m, name: e.target.value }))} />
               <Input type="time" className="w-28" aria-label={`Horário da refeição ${mi + 1}`} value={meal.time} onChange={(e) => patchMeal(meal.id, (m) => ({ ...m, time: e.target.value }))} />

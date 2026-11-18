@@ -83,13 +83,13 @@ export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | Cust
         {shownMine.length > 0 && (
           <>
             <h2 className={LABEL}>Seus exercícios</h2>
-            <ul className="mx-4 overflow-hidden rounded-[14px] border border-border bg-panel">{shownMine.map((e) => <Row key={e.id} e={e} mine onPick={() => onPick(e)} />)}</ul>
+            <ul className="mx-4 overflow-hidden card">{shownMine.map((e) => <Row key={e.id} e={e} mine onPick={() => onPick(e)} />)}</ul>
           </>
         )}
         {list.length > 0 && (
           <>
             <h2 className={LABEL}>Catálogo</h2>
-            <ul className="mx-4 overflow-hidden rounded-[14px] border border-border bg-panel">{list.map((e) => <Row key={e.id} e={e} onPick={() => onPick(e)} />)}</ul>
+            <ul className="mx-4 overflow-hidden card">{list.map((e) => <Row key={e.id} e={e} onPick={() => onPick(e)} />)}</ul>
           </>
         )}
       </div>

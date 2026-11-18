@@ -46,7 +46,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         <RestoreRow />
       </SettingsSection>
       <p className="mt-2.5 rounded-[11px] border border-border bg-surface px-3 py-2.5 text-[13px] text-text-2">Seus dados ficam só neste aparelho. Envie um backup de vez em quando.</p>
-      <div className="mt-2.5 overflow-hidden rounded-[14px] border border-border bg-panel">
+      <div className="mt-2.5 overflow-hidden card">
         <button type="button" className="flex min-h-14 w-full items-center gap-3 px-3.5 py-2 text-left" onClick={() => setConfirmRedo(true)}>
           <IconDot size={36} color="var(--color-negative)"><RotateCcw size={18} aria-hidden="true" /></IconDot>
           <span className="text-[15px] font-semibold text-negative">Refazer montagem</span>

@@ -35,7 +35,7 @@ export function WaterSettings() {
   }
   return (
     <div className="mt-3 flex flex-col gap-4">
-      <div className="overflow-hidden rounded-[14px] border border-border bg-panel">
+      <div className="overflow-hidden card">
         <button type="button" role="switch" aria-checked={!!on} onClick={toggle} className="flex min-h-14 w-full items-center gap-3 px-3.5 py-2 text-left">
           <span className="flex-1 text-[15px] font-semibold text-strong">Contador de água</span>
           <span aria-hidden="true" className={cn('relative h-8 w-13 shrink-0 rounded-full border transition-colors', on ? 'border-accent bg-accent' : 'border-border bg-surface')}>

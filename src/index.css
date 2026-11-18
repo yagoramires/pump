@@ -102,6 +102,11 @@ body { background: var(--color-bg); color: var(--color-text); font-family: var(-
   font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--color-faint);
 }
 
+/* superfície de cartão (painel com borda) */
+@utility card {
+  @apply rounded-[14px] border border-border bg-panel;
+}
+
 @layer base {
   *, ::before, ::after { border-color: var(--color-border); }
 }

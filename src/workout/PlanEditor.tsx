@@ -55,7 +55,7 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
         <Button size="sm" onClick={() => onSave(plan)}>Salvar</Button>
       </BackHeader>
       {plan.workouts.map((w) => (
-        <section key={w.id} className="flex flex-col gap-2 rounded-[14px] border border-border bg-panel p-3">
+        <section key={w.id} className="flex flex-col gap-2 card p-3">
           <div className="flex items-center gap-2">
             <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-accent-bg text-base font-semibold text-accent">{w.label}</span>
             <input id={`name-${w.id}`} className="h-11 min-w-0 flex-1 rounded-xl bg-transparent px-2 text-base font-semibold text-strong outline-none focus-visible:bg-surface" aria-label={`Nome do treino ${w.label}`} autoComplete="off" enterKeyHint="done" value={w.name} onChange={(e) => patchWorkout(w.id, (x) => ({ ...x, name: e.target.value }))} />

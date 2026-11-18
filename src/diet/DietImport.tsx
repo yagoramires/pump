@@ -79,7 +79,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
     return (
       <div className="flex flex-col gap-3 pb-28">
         <BackHeader title="Revisar cardápio" onBack={() => edit('')} className="min-h-11" />
-        {review.offline && <p role="status" className="rounded-[14px] border border-border bg-panel p-3.5 text-[13px] text-text-2">Sem internet: usei os números da IA. Dá pra trocar depois.</p>}
+        {review.offline && <p role="status" className="card p-3.5 text-[13px] text-text-2">Sem internet: usei os números da IA. Dá pra trocar depois.</p>}
         {review.plan.menus.length > 1 && (
           <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Cardápios">
             {review.plan.menus.map((m, n) => (
@@ -90,13 +90,13 @@ export function DietImport({ mode, onDone, onBack }: Props) {
           </div>
         )}
         {(menu.goalKcal !== undefined || menu.goalMacros) && (
-          <div className="flex justify-between gap-3 rounded-[14px] border border-border bg-panel px-3.5 py-2.5 text-[13px] tabular-nums text-text-2">
+          <div className="flex justify-between gap-3 card px-3.5 py-2.5 text-[13px] tabular-nums text-text-2">
             <span>{menu.goalKcal !== undefined ? `Meta · ${formatDec(menu.goalKcal)} kcal` : 'Meta'}</span>
             {menu.goalMacros && <span>{macroText(menu.goalMacros)}</span>}
           </div>
         )}
         {menu.meals.map((meal) => (
-          <section key={meal.id} aria-label={meal.name} className="overflow-hidden rounded-[14px] border border-border bg-panel">
+          <section key={meal.id} aria-label={meal.name} className="overflow-hidden card">
             <div className="px-3.5 pt-3 pb-1">
               <div className="text-[15px] font-semibold text-strong">{meal.name}</div>
               <div className="text-[12.5px] text-text-2">{meal.time}</div>
@@ -131,7 +131,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
           </section>
         ))}
         {outside > 0 && (
-          <p className="flex items-start gap-2 rounded-[14px] border border-border bg-panel p-3.5 text-[13px] text-text-2">
+          <p className="flex items-start gap-2 card p-3.5 text-[13px] text-text-2">
             <AlertTriangle size={16} className="mt-px shrink-0 text-c7" aria-hidden="true" />
             {`${outside} ${outside === 1 ? 'item fora da TACO usa' : 'itens fora da TACO usam'} os números da IA. Toque pra trocar.`}
           </p>
@@ -161,7 +161,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
     <div className="flex flex-col gap-3 pb-28">
       <BackHeader title={mode === 'ia' ? 'Gerar com IA' : 'Importar cardápio'} onBack={onBack} className="min-h-11" />
       {mode === 'ia' && <DietAnamnesisForm value={anamnesis} onChange={setEdited} />}
-      <div className="overflow-hidden rounded-[14px] border border-border bg-panel">
+      <div className="overflow-hidden card">
         {mode === 'ia' && <Step n={1} title="Copie o prompt" sub="Botão lá embaixo; cole no ChatGPT" />}
         <Step n={mode === 'ia' ? 2 : 1} title="Cole a resposta aqui" sub="Pode colar o texto todo ou escolher o arquivo" />
       </div>
