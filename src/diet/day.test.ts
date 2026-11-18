@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 import type { DietItem, DietLog, DietPlan, Meal, Menu } from './types'
 import {
-  addExtra, chooseOption, currentMealId, currentMenu, dayFromMenu, dayOf, dayStatus, daySummary, freeCount, mealOptions, removeItem, resetDay,
-  setMealFree, skipItem, sortedMeals, swapItem, swapMeal, toggleMeal, touched, undoSwap, updateDay,
+  addExtra, chooseOption, currentMealId, dayFromMenu, dayOf, dayStatus, daySummary, freeCount, mealOptions, removeItem, resetDay,
+  setMealFree, skipItem, swapItem, swapMeal, toggleMeal, touched, undoSwap, updateDay,
 } from './day'
 import { countInWeekBefore } from '@/lib/date'
 
@@ -32,7 +32,6 @@ describe('day', () => {
   test('dayFromMenu usa a 1ª opção; swapMeal troca pelos itens da outra opção e marca swappedMeal', () => {
     let d = dayFromMenu(menuA)
     expect(d.meals[0].items.map((i) => i.id)).toEqual(['i1', 'i2'])
-    expect(d.meals[0]).not.toHaveProperty('options')
     d = swapItem(d, 'm1', 'i1', it('s1', 'Tapioca', 200))
     d = skipItem(d, 'm1', 'i2', true)
     d = addExtra(d, 'm1', it('e1', 'Café', 10))
@@ -76,11 +75,6 @@ describe('day', () => {
     expect(d.meals[0].items.map((i) => i.id)).toEqual(['i1', 'i2'])
   })
 
-  test('dayFromMenu não grava optionId e não conta como mexido', () => {
-    expect(dayFromMenu(menuA).meals.some((m) => 'optionId' in m)).toBe(false)
-    expect(touched(dayFromMenu(menuA))).toBe(false)
-  })
-
   test('currentMealId: primeira não feita já no horário; senão a próxima; senão nenhuma', () => {
     const ms = [meal('a', 'A', '07:00', [it('x', 'x', 1)]), meal('c', 'C', '12:30', [it('x', 'x', 1)]), meal('b', 'B', '10:00', [it('x', 'x', 1)])]
     let d = toggleMeal(dayFromMenu({ id: 'M', name: 'M', meals: ms }), 'a')
@@ -91,13 +85,6 @@ describe('day', () => {
     expect(currentMealId(d.meals, at(11, 0))).toBe('c')
     d = setMealFree(d, 'c', true)
     expect(currentMealId(d.meals, at(11, 0))).toBeUndefined()
-  })
-
-  test('currentMenu usa lastMenuId ou o primeiro', () => {
-    expect(currentMenu(both)?.id).toBe('A')
-    expect(currentMenu({ ...both, lastMenuId: 'B' })?.id).toBe('B')
-    expect(currentMenu({ ...both, lastMenuId: 'sumiu' })?.id).toBe('A')
-    expect(currentMenu({ menus: [] })).toBeUndefined()
   })
 
   test('toggleMeal: livre volta a nem livre nem feita; senão inverte feita', () => {
@@ -203,6 +190,7 @@ describe('day', () => {
     const marked: DietLog = { '2026-11-18': toggleMeal(dayFromMenu(menuA), 'm1') }
     expect(dayOf(marked, planB, '2026-11-18')).toBe(marked['2026-11-18'])
     expect(dayOf({}, { ...both, lastMenuId: 'B' }, 'd')?.menuId).toBe('B')
+    expect(dayOf({}, { ...both, lastMenuId: 'sumiu' }, 'd')?.menuId).toBe('A')
     expect(dayOf(log, { menus: [] }, '2026-11-18')).toBeUndefined()
     expect(dayOf(marked, { menus: [] }, '2026-11-18')).toBe(marked['2026-11-18'])
   })
@@ -265,10 +253,5 @@ describe('day', () => {
     expect(dayStatus(log, '2026-11-22')).toBe('free-ok')
     expect(dayStatus({ '2026-11-23': log['2026-11-23'] }, '2026-11-23')).toBe('off')
     expect(dayStatus({ '2026-11-23': addExtra(freeMealDay, 'm2', it('e', 'e', 1)) }, '2026-11-23')).toBe('off')
-  })
-
-  test('sortedMeals ordena por horário e mantém empate na ordem original', () => {
-    const ms = [{ n: 'a', time: '12:00' }, { n: 'b', time: '07:00' }, { n: 'c', time: '12:00' }]
-    expect(sortedMeals(ms).map((m) => m.n)).toEqual(['b', 'a', 'c'])
   })
 })

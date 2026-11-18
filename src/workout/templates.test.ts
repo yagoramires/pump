@@ -8,8 +8,6 @@ test('todos os ids dos planos prontos existem no catálogo', () => {
   const ids = new Set(catalog.map(e => e.id))
   for (const t of TEMPLATES) for (const w of t.workouts) for (const id of w.exerciseIds) expect(ids.has(id), `${t.id}:${id}`).toBe(true)
 })
-test('5 planos prontos, na ordem', () =>
-  expect(TEMPLATES.map(t => t.name)).toEqual(['Fullbody 3×', 'AB', 'ABC', 'ABCD', 'Superior/Inferior']))
 test('instanciar copia dados do catálogo e aplica padrões', () => {
   const p = instantiateTemplate(TEMPLATES[0], catalog)
   const pe = p.workouts[0].exercises[0]

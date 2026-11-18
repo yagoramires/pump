@@ -2,8 +2,6 @@ import { act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { resetStoreForTests, save } from '@/storage/db'
-import { todayKey } from '@/lib/date'
-import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
 import { dietDay } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
@@ -17,7 +15,12 @@ vi.mock('@/lib/share', () => ({ shareFile: vi.fn().mockResolvedValue('shared') }
 beforeEach(async () => {
   await clear()
   resetStoreForTests()
-  toast.dismiss() // a fila do sonner é global: toasts de testes anteriores apareceriam no Toaster
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(new Date(2026, 10, 18, 12))
+})
+afterEach(() => {
+  vi.useRealTimers()
+  vi.restoreAllMocks()
 })
 
 test('sem dados: estado vazio com Registrar', async () => {
@@ -45,11 +48,12 @@ test('Gerar PDF vira Compartilhar PDF e compartilha pump-evolucao-<dia>.pdf', as
   await renderLoaded(<EvolutionTab />)
   await user.click(await screen.findByRole('button', { name: 'Gerar PDF' }))
   await user.click(await screen.findByRole('button', { name: 'Compartilhar PDF' }))
-  expect(vi.mocked(shareFile)).toHaveBeenCalledWith(expect.objectContaining({ name: expect.stringMatching(/^pump-evolucao-.*\.pdf$/), type: 'application/pdf' }))
+  expect(vi.mocked(shareFile)).toHaveBeenCalledWith(expect.objectContaining({ name: 'pump-evolucao-2026-11-18.pdf', type: 'application/pdf' }))
 })
 test('erro ao gerar o PDF mostra toast', async () => {
   const user = userEvent.setup()
   vi.mocked(generatePdf).mockRejectedValueOnce(new Error('boom'))
+  vi.spyOn(console, 'error').mockImplementation(() => {})
   await save('measurements', [{ id: 'a', date: '2026-11-01', weightKg: 80 }])
   await renderLoaded(<><EvolutionTab /><Toaster /></>)
   await user.click(await screen.findByRole('button', { name: 'Gerar PDF' }))
@@ -66,14 +70,13 @@ test('registro novo depois de gerar volta pra Gerar PDF', async () => {
   expect(await screen.findByRole('button', { name: 'Gerar PDF' })).toBeInTheDocument()
 })
 test('contagem de dias é inclusiva como no PDF: no primeiro dia diz 1 dia', async () => {
-  await save('measurements', [{ id: 'a', date: todayKey(), weightKg: 80 }])
+  await save('measurements', [{ id: 'a', date: '2026-11-18', weightKg: 80 }])
   await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText(/· 1 dia$/)).toBeInTheDocument()
 })
 test('gráfico: filtro de período com menos de 2 pesos avisa que é o período, não falta de registro', async () => {
   const user = userEvent.setup()
-  const old = (n: number) => { const d = new Date(); d.setDate(d.getDate() - n); return todayKey(d) }
-  await save('measurements', [{ id: 'a', date: old(200), weightKg: 82 }, { id: 'b', date: old(100), weightKg: 80 }])
+  await save('measurements', [{ id: 'a', date: '2026-05-02', weightKg: 82 }, { id: 'b', date: '2026-08-10', weightKg: 80 }])
   await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText('Poucos registros nesse período')).toBeInTheDocument()
   await user.click(screen.getByRole('radio', { name: 'Tudo' }))
@@ -89,7 +92,7 @@ test('PDF offline: avisa que precisa de internet', async () => {
   expect(await screen.findByText('Sem internet pra gerar o PDF. Conecte e tente de novo.')).toBeInTheDocument()
 })
 test('Evolução de quem só faz dieta mostra o cartão Dieta', async () => {
-  const today = todayKey()
+  const today = '2026-11-18'
   await save('dietLog', { [today]: dietDay([true, true]) })
   await save('waterLog', { [today]: { ml: 2500, goalMl: 2000 } })
   await renderLoaded(<EvolutionTab />)

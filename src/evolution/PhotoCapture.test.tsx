@@ -1,17 +1,26 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
-import { clear } from 'idb-keyval'
+import { clear, set } from 'idb-keyval'
 import { load, resetStoreForTests } from '@/storage/db'
-import * as photos from '@/storage/photos'
-import * as resize from './resize'
+import { isPhotoKey, loadPhoto } from '@/storage/photos'
+import { Toaster } from '@/components/ui/sonner'
 import { PhotoCapture } from './PhotoCapture'
+
+// o jsdom não decodifica imagem nem desenha vídeo no canvas
+vi.mock('./resize', () => ({ fileToJpeg: async () => 'data:image/jpeg;base64,FAKE', videoToJpeg: async () => 'data:image/jpeg;base64,CAM' }))
+vi.mock('idb-keyval', async (orig) => {
+  const m = await orig<typeof import('idb-keyval')>()
+  return { ...m, set: vi.fn(m.set) }
+})
 
 beforeEach(async () => {
   await clear()
   resetStoreForTests()
-  vi.restoreAllMocks()
-  vi.spyOn(resize, 'fileToJpeg').mockResolvedValue('data:image/jpeg;base64,FAKE')
+})
+afterEach(() => {
+  delete (navigator as { mediaDevices?: unknown }).mediaDevices
+  vi.mocked(set).mockReset()
 })
 
 test('sem câmera: só galeria com aviso; foto da galeria salva frente e avança pra lado', async () => {
@@ -22,16 +31,18 @@ test('sem câmera: só galeria com aviso; foto da galeria salva frente e avança
   await user.upload(screen.getByLabelText('Escolher da galeria'), new File(['x'], 'a.jpg', { type: 'image/jpeg' }))
   await user.click(await screen.findByRole('button', { name: 'Usar' }))
   await waitFor(async () => expect((await load('photoSets'))?.[0].frente).toBeTruthy())
+  expect(await loadPhoto((await load('photoSets'))![0].frente!)).toBe('data:image/jpeg;base64,FAKE')
   expect(screen.getByRole('tab', { name: 'Lado', selected: true })).toBeInTheDocument()
 })
 test('falha ao salvar a foto não cria registro', async () => {
   Object.defineProperty(navigator, 'mediaDevices', { value: undefined, configurable: true })
-  vi.spyOn(photos, 'savePhoto').mockRejectedValue(new Error('quota'))
+  const realSet = vi.mocked(set).getMockImplementation()!
+  vi.mocked(set).mockImplementation((k, v) => (isPhotoKey(String(k)) ? Promise.reject(new Error('quota')) : realSet(k, v)))
   const user = userEvent.setup()
-  await renderLoaded(<PhotoCapture date="2026-11-17" onClose={vi.fn()} />)
+  await renderLoaded(<><PhotoCapture date="2026-11-17" onClose={vi.fn()} /><Toaster /></>)
   await user.upload(await screen.findByLabelText('Escolher da galeria'), new File(['x'], 'a.jpg', { type: 'image/jpeg' }))
   await user.click(await screen.findByRole('button', { name: 'Usar' }))
-  await waitFor(() => expect(photos.savePhoto).toHaveBeenCalled())
+  expect(await screen.findByText('Não consegui salvar a foto')).toBeInTheDocument()
   expect((await load('photoSets')) ?? []).toHaveLength(0)
 })
 test('fechar para as tracks da câmera; Tirar foto só liga com o vídeo pronto', async () => {
@@ -50,7 +61,6 @@ test('fechar para as tracks da câmera; Tirar foto só liga com o vídeo pronto'
 test('escolher da galeria durante a contagem cancela o disparo', async () => {
   vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
   try {
-    vi.spyOn(resize, 'videoToJpeg').mockResolvedValue('data:image/jpeg;base64,CAM')
     const getUserMedia = vi.fn().mockResolvedValue({ getTracks: () => [{ stop() {} }] })
     Object.defineProperty(navigator, 'mediaDevices', { value: { getUserMedia }, configurable: true })
     const user = userEvent.setup()
@@ -62,7 +72,6 @@ test('escolher da galeria durante a contagem cancela o disparo', async () => {
     await user.upload(screen.getByLabelText('Escolher da galeria'), new File(['x'], 'a.jpg', { type: 'image/jpeg' }))
     expect(await screen.findByRole('img', { name: 'Prévia: Frente' })).toHaveAttribute('src', 'data:image/jpeg;base64,FAKE')
     await act(async () => { vi.advanceTimersByTime(6000) })
-    expect(resize.videoToJpeg).not.toHaveBeenCalled()
     expect(screen.getByRole('img', { name: 'Prévia: Frente' })).toHaveAttribute('src', 'data:image/jpeg;base64,FAKE')
   } finally {
     vi.useRealTimers()

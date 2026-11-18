@@ -17,8 +17,9 @@ test('setDone marca e desmarca sem mutar; o mesmo exercício duas vezes fica sep
   expect(setDone(s1, 1, 0, null).exercises[1].sets[0]).toBeNull()
 })
 test('completeSession marca a hora e encerra o descanso', () => {
-  const c = completeSession({ ...startSession(workoutOf([{}]), '2026-11-16'), restEndsAt: 123 }, new Date(2026, 10, 16, 19))
-  expect(c.completedAt).toBeDefined(); expect(c.restEndsAt).toBeUndefined()
+  const now = new Date(2026, 10, 16, 19)
+  const c = completeSession({ ...startSession(workoutOf([{}]), '2026-11-16'), restEndsAt: 123 }, now)
+  expect(c.completedAt).toBe(now.toISOString()); expect(c.restEndsAt).toBeUndefined()
 })
 test('startSession grava startedAt', () => {
   const now = new Date(2026, 10, 16, 18, 0)

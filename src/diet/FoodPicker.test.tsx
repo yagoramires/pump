@@ -4,31 +4,31 @@ import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from '@/storage/db'
-import { todayKey } from '@/lib/date'
+import { fetchTaco } from '@/catalog/catalog'
 import { FoodPicker } from './FoodPicker'
+
+// fetchTaco guarda a promessa no módulo; mockado, cada teste escolhe online ou offline
+vi.mock('@/catalog/catalog', async (orig) => ({ ...(await orig<typeof import('@/catalog/catalog')>()), fetchTaco: vi.fn() }))
 
 const food = (name: string, kcal = 100): DietItem => ({ id: `id-${name}`, name, grams: 50, per100: { kcal, p: 10, c: 5, f: 2 }, source: 'custom' })
 const planWith = (items: DietItem[]): DietPlan => ({
   menus: [{ id: 'A', name: 'Treino', meals: [{ id: 'm1', name: 'Almoço', time: '12:00', options: [{ id: 'o1', items: [] }, { id: 'o2', items }] }] }],
 })
-const daysAgo = (n: number) => {
-  const d = new Date()
-  d.setDate(d.getDate() - n)
-  return todayKey(d)
-}
 const dayWith = (items: DayItem[]) => ({ menuId: 'A', menuName: 'Treino', meals: [{ id: 'm1', name: 'Almoço', time: '12:00', done: true, items }] })
 
 beforeEach(async () => {
   await clear()
   resetStoreForTests()
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(new Date(2026, 10, 18, 12, 0))
+  vi.mocked(fetchTaco).mockRejectedValue(new Error('offline'))
 })
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => vi.useRealTimers())
 
 test('FoodPicker offline mostra recentes e aviso; escolher devolve item com gramas', async () => {
-  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
   await save('foods', [food('Meu shake', 120)])
   await save('dietPlan', planWith([food('Arroz')]))
-  await save('dietLog', { [daysAgo(1)]: dayWith([{ ...food('Arroz'), skipped: true }, food('Feijão')]), [daysAgo(20)]: dayWith([food('Coisa velha')]) })
+  await save('dietLog', { ['2026-11-17']: dayWith([{ ...food('Arroz'), skipped: true }, food('Feijão')]), ['2026-10-29']: dayWith([food('Coisa velha')]) })
   resetStoreForTests()
   const onPick = vi.fn()
   const user = userEvent.setup()
@@ -46,7 +46,6 @@ test('FoodPicker offline mostra recentes e aviso; escolher devolve item com gram
 })
 
 test('FoodPicker cria alimento próprio e grava em foods', async () => {
-  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
   const onPick = vi.fn()
   const user = userEvent.setup()
   await renderLoaded(<FoodPicker title="Adicionar" confirmLabel="Adicionar" onPick={onPick} onClose={vi.fn()} />)
@@ -74,7 +73,7 @@ test('FoodPicker busca na TACO e mostra a fonte', async () => {
     { id: 1, name: 'Arroz, tipo 1, cozido', kcal: 128, p: 2.5, c: 28.1, f: 0.2 },
     { id: 2, name: 'Feijão, carioca, cozido', kcal: 76, p: 4.8, c: 13.6, f: 0.5 },
   ]
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => taco }))
+  vi.mocked(fetchTaco).mockResolvedValue(taco)
   const onPick = vi.fn()
   const onSkip = vi.fn()
   const user = userEvent.setup()
@@ -94,7 +93,6 @@ test('FoodPicker busca na TACO e mostra a fonte', async () => {
 })
 
 test('FoodPicker não cria alimento que o import trataria como o mesmo (B5)', async () => {
-  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
   await save('foods', [food('Bolo, da vó')])
   resetStoreForTests()
   const user = userEvent.setup()

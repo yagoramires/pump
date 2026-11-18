@@ -19,7 +19,7 @@ test('comparar: primeiro × último e foto ausente vira espaço vazio', async ()
   expect(await screen.findByLabelText('Foto indisponível')).toBeInTheDocument()
 })
 test('medidas: diferença de peso entre as datas', async () => {
-  await save('profile', { sex: 'M', heightCm: 178, weightKg: 80, anamnesis: { goal: 'emagrecer' } } as never)
+  await save('profile', { sex: 'M', heightCm: 178, weightKg: 80, anamnesis: { goal: 'emagrecer' } })
   await save('measurements', [{ id: 'a', date: '2026-10-30', weightKg: 80 }, { id: 'b', date: '2026-11-16', weightKg: 78.4 }])
   await save('photoSets', [{ id: 's1', date: '2026-11-01' }, { id: 's2', date: '2026-11-17' }])
   await renderLoaded(<PhotoCompare onClose={vi.fn()} />)

@@ -18,7 +18,6 @@ test('colar JSON válido mostra o resumo sozinho e libera Revisar plano', async 
   await user.click(await screen.findByRole('textbox', { name: 'Resposta da IA' }))
   await user.paste(JSON.stringify({ formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'Peito', dias: ['seg'], exercicios: [{ nome: 'Remada X', series: 3, reps: '10' }] }] }))
   expect(await screen.findByText('1 treino · 1 exercício')).toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Revisar' })).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Revisar plano' })).toBeEnabled()
 })
 

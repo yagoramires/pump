@@ -4,7 +4,11 @@ import { ex } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
 import { clear } from 'idb-keyval'
 import { resetStoreForTests, save } from '@/storage/db'
+import { fetchExercises } from './catalog'
 import { CatalogPicker } from './CatalogPicker'
+
+// fetchExercises guarda a promessa no módulo; mockado, cada teste escolhe online ou offline
+vi.mock('./catalog', async (orig) => ({ ...(await orig<typeof import('./catalog')>()), fetchExercises: vi.fn() }))
 
 beforeEach(async () => {
   await clear()
@@ -12,19 +16,18 @@ beforeEach(async () => {
 })
 
 test('offline: avisa e lista o exercício próprio salvo', async () => {
-  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
+  vi.mocked(fetchExercises).mockRejectedValue(new Error('offline'))
   await save('customExercises', [{ id: 'custom-1', name: 'Remada do Yago', muscles: ['dorsais'] }])
   resetStoreForTests()
   await renderLoaded(<CatalogPicker onPick={vi.fn()} onClose={vi.fn()} />)
   expect(await screen.findByText('Sem internet: só seus exercícios aparecem')).toBeInTheDocument()
   expect(await screen.findByText('Remada do Yago')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Adicionar Remada do Yago' })).toBeInTheDocument()
-  vi.unstubAllGlobals()
 })
 
 test('filtro de músculo inclui secundários; com aparelho, os exercícios próprios somem', async () => {
   const list = [ex('Remada', { muscles: ['dorsais', 'bíceps'], equipment: 'barra' }), ex('Rosca', { muscles: ['bíceps'], equipment: 'halter' }), ex('Agachamento', { muscles: ['quadríceps'], equipment: 'barra' })]
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => list }))
+  vi.mocked(fetchExercises).mockResolvedValue(list)
   await save('customExercises', [{ id: 'custom-1', name: 'Rosca do Yago', muscles: ['bíceps'] }])
   resetStoreForTests()
   const user = userEvent.setup()
@@ -34,5 +37,4 @@ test('filtro de músculo inclui secundários; com aparelho, os exercícios próp
   expect(names()).toEqual(['Adicionar Rosca do Yago', 'Adicionar Remada', 'Adicionar Rosca'])
   await user.click(within(screen.getByRole('group', { name: 'Aparelho' })).getByRole('button', { name: 'halter' }))
   expect(names()).toEqual(['Adicionar Rosca'])
-  vi.unstubAllGlobals()
 })

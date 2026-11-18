@@ -13,9 +13,8 @@ test('bodyFat sem dado ou inválido é null', () => {
   expect(bodyFat('M', 178, { neckCm: 90, waistCm: 85 })).toBeNull()
   expect(bodyFat('F', 165, { neckCm: 32, waistCm: 70 })).toBeNull()
 })
-test('goalDirection', () => {
-  expect(goalDirection({ sex: 'M', heightCm: 1, weightKg: 1, anamnesis: { goal: 'hipertrofia' } })).toBe('gain')
-  expect(goalDirection({ sex: 'M', heightCm: 1, weightKg: 1 })).toBe('loss')
+test('goalDirection sem objetivo é perder', () => {
+  expect(goalDirection(p)).toBe('loss')
 })
 test('goalDirection: objetivo da dieta manda em perder/ganhar; manter cai no do treino', () => {
   expect(goalDirection({ ...p, anamnesis: { goal: 'hipertrofia' }, dietAnamnesis: { goal: 'perder' } })).toBe('loss')

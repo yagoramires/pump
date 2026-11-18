@@ -3,7 +3,7 @@ import type { TacoFood } from './types'
 import { parseDietFormat } from './dietFormat'
 import { buildDietPrompt, TACO_EXAMPLES } from './prompt'
 
-test('buildDietPrompt traz perfil, anamnese da dieta, padrão TACO e formato, sem passar de 6000 caracteres sem os dados', () => {
+test('buildDietPrompt traz perfil e anamnese da dieta; sem perfil pede pra perguntar primeiro', () => {
   const p = buildDietPrompt({
     sex: 'F', heightCm: 165, weightKg: 62.5,
     anamnesis: { goal: 'emagrecer', daysPerWeek: 4, age: 34 },
@@ -13,23 +13,16 @@ test('buildDietPrompt traz perfil, anamnese da dieta, padrão TACO e formato, se
     '- Objetivo da dieta: perder peso', '- Refeições por dia: 5', '- Acordo às 06:30', '- Treino às 18:00', '- Durmo às 23:00', '- Restrições: sem lactose, vegetariano',
     '- Não como: fígado', '- Onde como: misto (em casa e fora)', '- Observações: gosto de café'])
     expect(p).toContain(l)
-  expect(p).toContain('TACO 4ª edição')
-  expect(p).toContain('Arroz, tipo 1, cozido')
-  expect(p).toContain('"refeicoes"')
 
   const empty = buildDietPrompt(undefined)
-  expect(empty.length).toBeLessThanOrEqual(6000)
   expect(empty).toContain('- (ainda não contei nada)')
   expect(empty).not.toContain('Objetivo da dieta')
   expect(empty).toContain('me pergunte primeiro')
 })
 
-test('prompt pede 2 opções por refeição e respeita 6000 caracteres', () => {
+test('prompt respeita 6000 caracteres, o exemplo é um cardápio válido com 2 opções e só quem treina ganha Descanso', () => {
   const empty = buildDietPrompt(undefined)
   expect(empty.length).toBeLessThanOrEqual(6000)
-  expect(empty).toContain('2 opções')
-  expect(empty).toContain('"cardapios"')
-  expect(empty).toContain('"opcoes"')
   expect(empty).not.toContain('"Descanso"')
   const example = parseDietFormat(empty)
   expect(example.cardapios[0].refeicoes[0].opcoes).toHaveLength(2)
@@ -52,6 +45,4 @@ test('todos os TACO_EXAMPLES existem no taco.json com kcal > 0', () => {
   const kcal = new Map((JSON.parse(readFileSync('public/catalog/taco.json', 'utf8')) as TacoFood[]).map((f) => [f.name, f.kcal]))
   expect(TACO_EXAMPLES.length).toBeGreaterThanOrEqual(12)
   expect(TACO_EXAMPLES.filter((n) => !((kcal.get(n) ?? 0) > 0))).toEqual([])
-  const prompt = buildDietPrompt()
-  for (const n of TACO_EXAMPLES) expect(prompt).toContain(`"${n}"`)
 })

@@ -121,7 +121,6 @@ test('dietFromFormat: casados guardam o nome da TACO; sem casamento vira ia com 
   const m = menu.meals[0]
   expect(m).toMatchObject({ name: 'Almoço', time: '12:00' })
   const items = m.options[0].items
-  expect(m.options[0]).not.toHaveProperty('name')
   expect(items[0]).toEqual({ id: expect.any(String), name: 'Arroz, integral, cozido', grams: 100, portion: '4 colheres', per100: { kcal: 124, p: 2.6, c: 25.8, f: 1 }, source: 'taco', tacoId: 1 })
   expect(items[1]).toEqual({ id: expect.any(String), name: 'Whey protein', grams: 30, per100: { kcal: 400, p: 80, c: 10, f: 0 }, source: 'ia' })
   expect(new Set([menu.id, m.id, m.options[0].id, items[0].id, items[1].id]).size).toBe(5)
@@ -172,7 +171,6 @@ test('exportar e importar de novo mantém alimento criado como custom', () => {
     ] },
     { alimentos: [{ nome: 'Bolo da vó', gramas: 100, kcal: 350, proteinaG: 5, carboG: 50, gorduraG: 14 }] },
   ] }] }] } })
-  expect(text).toContain('\n  "versao"')
   const r = dietFromFormat(parseDietFormat(text), T, [bolo])
   expect(Object.values(r.reports).map((i) => i.match)).toEqual(['custom', 'exact', 'custom'])
   const opts = r.plan.menus[0].meals[0].options

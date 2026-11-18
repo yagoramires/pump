@@ -1,5 +1,5 @@
 import { clear } from 'idb-keyval'
-import type { Settings } from '@/schema'
+import type { Settings, UserData } from '@/schema'
 import { backupDue, buildBackup, daysWithoutBackup, exportBackup, importBackupFile, parseBackup } from './backup'
 import { allData, load, replaceAll, resetStoreForTests, save } from './db'
 import { loadPhoto, savePhoto } from './photos'
@@ -7,6 +7,10 @@ import { loadPhoto, savePhoto } from './photos'
 beforeEach(async () => {
   await clear()
   resetStoreForTests()
+})
+afterEach(() => {
+  vi.restoreAllMocks()
+  Object.assign(navigator, { canShare: undefined, share: undefined })
 })
 
 test('ida e volta', () => {
@@ -63,8 +67,6 @@ test('erro ao enviar o backup vira mensagem em pt-BR', async () => {
   Object.assign(navigator, { canShare: () => true, share: vi.fn().mockRejectedValue(new TypeError('Failed to execute share')) })
   vi.spyOn(console, 'error').mockImplementation(() => {})
   await expect(exportBackup()).rejects.toThrow('Não consegui enviar o backup')
-  vi.restoreAllMocks()
-  Object.assign(navigator, { canShare: undefined, share: undefined })
 })
 test('daysWithoutBackup conta desde o último backup ou o primeiro uso', () => {
   expect(daysWithoutBackup({ lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01' }, '2026-11-17')).toBe(16)
@@ -73,17 +75,18 @@ test('daysWithoutBackup conta desde o último backup ou o primeiro uso', () => {
 })
 
 test('backup com dieta: ida e volta', async () => {
-  const saved = {
+  const saved: Partial<UserData> = {
     dietPlan: { menus: [{ id: 'A', name: 'Cardápio', meals: [{ id: 'm1', name: 'Café', time: '07:00', options: [{ id: 'o1', items: [] }] }] }], lastMenuId: 'A' },
     dietLog: { '2026-11-18': { menuId: 'A', menuName: 'Cardápio', meals: [], free: true } },
     waterLog: { '2026-11-18': { ml: 500, goalMl: 2500 } },
     foods: [],
   }
-  for (const [k, v] of Object.entries(saved)) await save(k as keyof typeof saved, v as never)
+  const keys = Object.keys(saved) as (keyof UserData)[]
+  for (const k of keys) await save(k, saved[k]!)
   const b = buildBackup(await allData(), new Date(2026, 10, 18))
   await replaceAll({})
   await importBackupFile(new File([JSON.stringify(b)], 'b.json'))
-  for (const [k, v] of Object.entries(saved)) expect(await load(k as keyof typeof saved)).toEqual(v)
+  for (const k of keys) expect(await load(k)).toEqual(saved[k])
 })
 test('backup recusa dietPlan sem menus', () => {
   for (const dietPlan of [{}, { meals: [] }, { menus: {} }, []])

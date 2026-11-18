@@ -17,6 +17,7 @@ beforeEach(async () => {
   await clear()
   resetStoreForTests()
 })
+afterEach(() => vi.unstubAllGlobals())
 
 test('primeira vez abre a montagem; pular leva à aba Treino; depois abre na última aba', async () => {
   const user = userEvent.setup()
@@ -53,7 +54,6 @@ test('Configurações: grupo DIETA abre cardápio, IA e a tela da água, e cada 
   expect(await screen.findByRole('switch', { name: 'Contador de água' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Voltar' }))
   expect(await screen.findByRole('heading', { name: 'Configurações' })).toBeInTheDocument()
-  vi.unstubAllGlobals()
 })
 test('dados ilegíveis: tela de erro em vez da montagem, sem gravar nada', async () => {
   const settings = { lastTab: 'treino' as const, onboardingDone: true }
@@ -88,5 +88,4 @@ test('Configurações: restaurar backup confirma, troca os dados e recarrega; ar
   await user.click(screen.getByRole('button', { name: 'Restaurar' }))
   await waitFor(() => expect(reload).toHaveBeenCalled())
   expect(await load('settings')).toMatchObject(settings)
-  vi.unstubAllGlobals()
 })

@@ -183,7 +183,7 @@ test('desfazer o toast de concluir limpa completedAt', async () => {
   await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
   await user.click(screen.getByRole('button', { name: 'Concluir treino' }))
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].completedAt).toBeDefined())
-  await user.click((await screen.findAllByRole('button', { name: 'Desfazer' }))[0]) // toasts de outros testes ficam na fila global
+  await user.click(await screen.findByRole('button', { name: 'Desfazer' }))
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].completedAt).toBeUndefined())
 })
 test('carga acima de 500 kg numa série feita é rejeitada e mantém a anterior', async () => {
@@ -214,11 +214,10 @@ test('descansar hoje grava o registro e mostra Desfazer', async () => {
   await renderLoaded(<><TreinoTab /><Toaster /></>)
   await user.click(await screen.findByRole('button', { name: 'Descansar hoje' }))
   expect(await screen.findByRole('heading', { name: 'Descanso marcado' })).toBeInTheDocument()
-  expect(await screen.findByText('Descanso marcado', { selector: '[data-title]' })).toBeInTheDocument()
+  expect(await within(screen.getByRole('region', { name: /Notifications/ })).findByText('Descanso marcado')).toBeInTheDocument()
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16']).toEqual({ date: '2026-11-16', workoutId: '', workoutLabel: '', workoutName: 'Descanso', exercises: [], rest: true }))
   expect(screen.getByRole('button', { name: /Peito e tríceps/ })).toBeInTheDocument()
-  // toasts de testes anteriores também têm "Desfazer": procura dentro do estado de descanso
-  await user.click(within(screen.getByRole('heading', { name: 'Descanso marcado' }).parentElement!).getByRole('button', { name: 'Desfazer' }))
+  await user.click(screen.getByRole('button', { name: 'Desfazer' }))
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16']).toBeUndefined())
   expect(await screen.findByRole('button', { name: 'Descansar hoje' })).toBeInTheDocument()
 })

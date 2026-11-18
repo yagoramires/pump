@@ -3,6 +3,7 @@ import { shareFile } from './share'
 afterEach(() => {
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
+  Object.assign(navigator, { canShare: undefined, share: undefined })
 })
 
 const stubShare = (err: DOMException) => {
@@ -12,7 +13,7 @@ const stubShare = (err: DOMException) => {
 test('iOS sem gesto do usuário (NotAllowedError): baixa o arquivo em vez de falhar', async () => {
   stubShare(new DOMException('not allowed', 'NotAllowedError'))
   const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
-  vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: () => 'blob:x', revokeObjectURL: () => {} }))
+  vi.stubGlobal('URL', class extends URL { static createObjectURL = () => 'blob:x'; static revokeObjectURL = () => {} })
   await expect(shareFile(new File(['{}'], 'a.json'))).resolves.toBe('downloaded')
   expect(click).toHaveBeenCalled()
 })

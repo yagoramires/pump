@@ -1,6 +1,6 @@
-import type { PlanExercise, Workout } from './types'
 import { screen, waitFor } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
+import { workoutOf } from '../../test/helpers'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests } from '@/storage/db'
@@ -23,15 +23,11 @@ test('Salvar entrega o plano editado pro onSave e não grava nada sozinho', asyn
   expect(await load('workoutPlan')).toBeUndefined()
 })
 
-const workoutOf = (exercises: Partial<PlanExercise>[]): Workout => ({
-  id: 'w1', label: 'A', name: 'Peito', weekdays: [1],
-  exercises: exercises.map((e) => ({ exerciseId: 'x', muscles: ['peito'], images: [], instructions: [], ...e }) as PlanExercise),
-})
 const supino = { name: 'Supino reto', sets: 3, reps: '10-12', weightKg: 40, restSec: 90 }
 
 test('tocar no exercício abre a gaveta; +2,5 kg e Pronto atualiza o resumo', async () => {
   const user = userEvent.setup()
-  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([supino])] }} onSave={vi.fn()} onCancel={vi.fn()} />)
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([supino], { name: 'Peito' })] }} onSave={vi.fn()} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: /Supino reto/ }))
   await user.click(screen.getByRole('button', { name: 'Aumentar carga' }))
   await user.click(screen.getByRole('button', { name: 'Pronto' }))
@@ -40,7 +36,7 @@ test('tocar no exercício abre a gaveta; +2,5 kg e Pronto atualiza o resumo', as
 
 test('carga digitada com vírgula na gaveta', async () => {
   const user = userEvent.setup()
-  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([supino])] }} onSave={vi.fn()} onCancel={vi.fn()} />)
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([supino], { name: 'Peito' })] }} onSave={vi.fn()} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: /Supino reto/ }))
   const kg = screen.getByRole('textbox', { name: 'Carga em kg' })
   await user.clear(kg)
@@ -50,7 +46,7 @@ test('carga digitada com vírgula na gaveta', async () => {
 })
 test('Renomear fecha o menu e põe o foco no nome do treino depois da animação', async () => {
   const user = userEvent.setup()
-  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([])] }} onSave={vi.fn()} onCancel={vi.fn()} />)
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([], { name: 'Peito' })] }} onSave={vi.fn()} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Mais ações do treino A' }))
   await user.click(await screen.findByRole('button', { name: 'Renomear' }))
   await waitFor(() => expect(screen.getByDisplayValue('Peito')).toHaveFocus(), { timeout: 2000 })

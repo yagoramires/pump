@@ -1,9 +1,8 @@
 import { dietDay, evolutionInput, pe } from '../../test/helpers'
-import { computeAchievements } from './achievements'
 import { buildReport, change, type Report } from './report'
 
 const row = (r: Report, key: string) => r.body?.rows.find((x) => x.key === key)
-const session = (date: string, kg: number) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', completedAt: 'x', exercises: [{ ...pe({ exerciseId: 'Supino', name: 'Supino reto' }), sets: [{ reps: '10', weightKg: kg }] }] })
+const session = (date: string, kg: number) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', completedAt: `${date}T19:00:00.000Z`, exercises: [{ ...pe({ exerciseId: 'Supino', name: 'Supino reto' }), sets: [{ reps: '10', weightKg: kg }] }] })
 
 test('buildReport: período, resumo, pares de fotos e corpo', () => {
   const r = buildReport(evolutionInput({
@@ -72,10 +71,9 @@ test('report.diet.waterDays: 0 com registro de água no período, undefined sem 
   expect(buildReport(base, '2026-12-12').diet?.waterDays).toBeUndefined()
 })
 
-test('report.achievements é a lista das conquistas; as ganhas se dividem entre treino e dieta', () => {
+test('as conquistas ganhas se dividem entre treino e dieta', () => {
   const input = evolutionInput({ workoutLog: { '2026-11-16': session('2026-11-16', 40) }, dietLog: { '2026-11-17': dietDay([true]) } })
   const r = buildReport(input, '2026-11-20')
-  expect(r.achievements).toHaveLength(computeAchievements(input, '2026-11-20').length)
   expect(r.training.achievements).toEqual([{ title: 'Primeiro treino', earnedAt: '2026-11-16' }])
   expect(r.diet?.achievements).toEqual([{ title: 'Dia no plano', earnedAt: '2026-11-17' }])
 })

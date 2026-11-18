@@ -38,5 +38,6 @@ export default defineConfig({
   ],
   base: BASE,
   resolve: { alias: { '@': path.resolve(import.meta.dirname, 'src') } },
-  test: { environment: 'jsdom', globals: true, setupFiles: ['test/setup.ts'] },
+  // os testes de data (horário de verão, virada do dia) assumem o fuso do app
+  test: { environment: 'jsdom', globals: true, setupFiles: ['test/setup.ts'], env: { TZ: 'America/Sao_Paulo' } },
 })

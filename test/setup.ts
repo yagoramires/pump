@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/vitest'
 import 'fake-indexeddb/auto'
-import { vi } from 'vitest'
+import { afterEach, vi } from 'vitest'
+import { toast } from 'sonner'
 import { fakeCacheStorage } from './helpers'
 
 window.matchMedia = vi.fn(() => ({ matches: false, addEventListener() {}, removeEventListener() {} })) as unknown as typeof window.matchMedia
@@ -11,3 +12,5 @@ HTMLElement.prototype.releasePointerCapture ??= () => {}
 HTMLElement.prototype.hasPointerCapture ??= () => false
 // o File do jsdom pode não ter .text()
 Blob.prototype.text ??= function (this: Blob) { return new Response(this).text() }
+// a fila do sonner é global: sem isso um <Toaster/> novo mostra os toasts do teste anterior
+afterEach(() => { toast.dismiss() })

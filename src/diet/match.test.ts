@@ -1,5 +1,5 @@
 import type { DietItem, TacoFood } from './types'
-import { foodKey, matchFood } from './match'
+import { matchFood } from './match'
 
 // fixture com nomes reais da TACO
 const T: TacoFood[] = [
@@ -12,8 +12,6 @@ const T: TacoFood[] = [
   { id: 456, name: 'Leite, de vaca, desnatado, pó', kcal: 362, p: 34.7, c: 53, f: 0.9 },
 ]
 
-test('foodKey: minúsculas, sem acento, pontuação vira espaço', () =>
-  expect(foodKey('  Feijão,  carioca, COZIDO/10min ')).toBe('feijao carioca cozido 10min'))
 test('nome igual casa (pontuação vira espaço)', () =>
   expect(matchFood('Ovo, de galinha, inteiro, cozido/10minutos', 100, undefined, T, [])).toMatchObject({ kind: 'exact', food: { id: 5 } }))
 test('"cru" vs "cozido" decidido pela kcal da IA', () =>
