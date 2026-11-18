@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from '../storage/db'
@@ -6,6 +6,7 @@ import { loadPhoto, savePhoto } from '../storage/photos'
 import { dietDay, food } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
 import { HistoryScreen } from './HistoryScreen'
+import { restRecord } from '../workout/rest'
 
 beforeEach(async () => {
   await clear()
@@ -105,7 +106,7 @@ test('Histórico mostra dieta e água do dia e apaga com confirmação', async (
 })
 test('Histórico mostra Descanso no dia', async () => {
   vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(2026, 10, 17, 12))
-  await save('workoutLog', { '2026-11-16': { date: '2026-11-16', workoutId: '', workoutLabel: '', workoutName: 'Descanso', exercises: [], rest: true } })
+  await save('workoutLog', { '2026-11-16': restRecord('2026-11-16') })
   const user = userEvent.setup()
   await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
   const d16 = await screen.findByRole('button', { name: '16' })
@@ -114,4 +115,13 @@ test('Histórico mostra Descanso no dia', async () => {
   await user.click(d16)
   expect(screen.getByText('Descanso')).toBeInTheDocument()
   expect(screen.queryByText('Nada registrado neste dia.')).not.toBeInTheDocument()
+})
+test('aberto na virada do dia, "hoje" segue o relógio ao voltar do segundo plano', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(2026, 10, 17, 23, 50))
+  await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
+  expect(await screen.findByRole('button', { name: '17' })).toHaveAttribute('aria-current', 'date')
+  vi.setSystemTime(new Date(2026, 10, 18, 0, 10))
+  act(() => { document.dispatchEvent(new Event('visibilitychange')) })
+  expect(screen.getByRole('button', { name: '18' })).toHaveAttribute('aria-current', 'date')
+  expect(screen.getByRole('button', { name: '17' })).not.toHaveAttribute('aria-current')
 })

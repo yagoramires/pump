@@ -12,7 +12,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { todayKey } from '@/lib/date'
-import { parseDecimal } from '@/lib/number'
+import { formatInput, parseDecimal } from '@/lib/number'
 import { cn } from '@/lib/utils'
 
 /** `confirmReplace`: pede confirmação antes de salvar por cima de cardápios já salvos (vindo da importação) */
@@ -70,7 +70,7 @@ const tidyPlan = (plan: DietPlan): DietPlan => ({
 
 /** texto livre com vírgula; vazio = sem valor. Usar com `key` pra reiniciar quando o valor muda por fora */
 function NumField({ value, onChange, label, className, placeholder }: { value?: number; onChange: (n?: number) => void; label: string; className?: string; placeholder?: string }) {
-  const [text, setText] = useState(value === undefined ? '' : String(value).replace('.', ','))
+  const [text, setText] = useState(value === undefined ? '' : formatInput(value))
   return (
     <Input
       className={className}

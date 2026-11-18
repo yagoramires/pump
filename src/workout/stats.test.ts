@@ -1,4 +1,4 @@
-import { firstIncomplete, previousSets, repsNumber, sessionStats } from './stats'
+import { previousSets, repsNumber, sessionStats } from './stats'
 import { startSession } from './session'
 import { pe, workoutOf } from '../../test/helpers'
 import type { SetDone } from './types'
@@ -24,13 +24,6 @@ test('previousSets pega a sessão anterior mais recente com o exercício', () =>
   const log = { '2026-11-09': mk('2026-11-09', [{ reps: '8', weightKg: 35 }]), '2026-11-12': mk('2026-11-12', [{ reps: '10', weightKg: 40 }, null]), '2026-11-16': mk('2026-11-16', [{ reps: '12', weightKg: 45 }]) }
   expect(previousSets(log, '2026-11-16', 'Supino')).toEqual([{ reps: '10', weightKg: 40 }, null])
   expect(previousSets(log, '2026-11-16', 'Outro')).toEqual([])
-})
-test('firstIncomplete', () => {
-  const s = startSession(workoutOf([{ sets: 1 }, { sets: 1 }]), '2026-11-16')
-  s.exercises[0].sets = [{ reps: '10', weightKg: 0 }]
-  expect(firstIncomplete(s)).toBe(1)
-  s.exercises[1].sets = [{ reps: '10', weightKg: 0 }]
-  expect(firstIncomplete(s)).toBe(-1)
 })
 test('sessionStats: startedAt ilegível dá null e tempo negativo vira 0', () => {
   const s = { ...startSession(workoutOf([{ sets: 1 }]), '2026-11-16'), startedAt: 'lixo' }

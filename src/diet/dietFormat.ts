@@ -1,6 +1,7 @@
 import type { DietItem, DietPlan, Menu, TacoFood } from './types'
 import { extractJson, PlanFormatError } from '../workout/planFormat'
 import { matchFood } from './match'
+import { round1 } from '../lib/number'
 
 export interface PumpAlimento { nome: string; gramas: number; porcao?: string; kcal?: number; proteinaG?: number; carboG?: number; gorduraG?: number }
 export interface PumpOpcao { nome?: string; alimentos: PumpAlimento[] }
@@ -142,7 +143,6 @@ export function dietFromFormat(
   return { plan: { menus }, items, offline: taco === null }
 }
 
-const r1 = (v: number) => Math.round(v * 10) / 10
 
 const exportFood = (i: DietItem) => {
   const q = i.grams / 100
@@ -154,9 +154,9 @@ const exportFood = (i: DietItem) => {
     ...(i.portion && { porcao: i.portion }),
     ...(!noValues && {
       kcal: Math.round(i.per100.kcal * q),
-      proteinaG: r1(i.per100.p * q),
-      carboG: r1(i.per100.c * q),
-      gorduraG: r1(i.per100.f * q),
+      proteinaG: round1(i.per100.p * q),
+      carboG: round1(i.per100.c * q),
+      gorduraG: round1(i.per100.f * q),
     }),
   }
 }

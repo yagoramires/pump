@@ -8,6 +8,7 @@ import { pe } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
 import { TreinoTab } from './TreinoTab'
 import { Toaster } from '@/components/ui/sonner'
+import { restRecord } from './rest'
 
 vi.mock('idb-keyval', async (orig) => {
   const m = await orig<typeof import('idb-keyval')>()
@@ -222,7 +223,7 @@ test('descansar hoje grava o registro e mostra Desfazer', async () => {
   expect(await screen.findByRole('button', { name: 'Descansar hoje' })).toBeInTheDocument()
 })
 test('iniciar treino depois de marcar descanso substitui o registro', async () => {
-  await save('workoutLog', { '2026-11-16': { date: '2026-11-16', workoutId: '', workoutLabel: '', workoutName: 'Descanso', exercises: [], rest: true } })
+  await save('workoutLog', { '2026-11-16': restRecord('2026-11-16') })
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
   await user.click(await screen.findByRole('button', { name: /Peito e tríceps/ }))

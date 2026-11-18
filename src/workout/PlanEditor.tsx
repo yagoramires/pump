@@ -12,10 +12,9 @@ import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { formatKg } from '@/lib/number'
 import { cn } from '@/lib/utils'
+import { WEEKDAY_SHORT } from '@/lib/date'
 
-const DAYS = [
-  ['D', 'Domingo'], ['S', 'Segunda'], ['T', 'Terça'], ['Q', 'Quarta'], ['Q', 'Quinta'], ['S', 'Sexta'], ['S', 'Sábado'],
-]
+const DAY_NAMES = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
 
 type Props = { initial?: WorkoutPlan; onDone: (plan: WorkoutPlan) => void; onCancel?: () => void }
 
@@ -70,7 +69,7 @@ export function PlanEditor({ initial, onDone, onCancel }: Props) {
             <button type="button" className="flex size-11 items-center justify-center text-text-2" aria-label={`Mais ações do treino ${w.label}`} onClick={() => setMenuFor(w.id)}><MoreHorizontal size={20} /></button>
           </div>
           <div className="grid grid-cols-7 gap-1" role="group" aria-label={`Dias do treino ${w.label}`}>
-            {DAYS.map(([short, full], d) => (
+            {DAY_NAMES.map((full, d) => (
               <button
                 key={d}
                 type="button"
@@ -79,7 +78,7 @@ export function PlanEditor({ initial, onDone, onCancel }: Props) {
                 aria-pressed={w.weekdays.includes(d)}
                 onClick={() => patchWorkout(w.id, (x) => ({ ...x, weekdays: x.weekdays.includes(d) ? x.weekdays.filter((n) => n !== d) : [...x.weekdays, d].sort() }))}
               >
-                {short}
+                {WEEKDAY_SHORT[d][0]}
               </button>
             ))}
           </div>

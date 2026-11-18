@@ -3,7 +3,8 @@ import type { WorkoutLog, WorkoutPlan } from '../workout/types'
 import type { DietLog, DietPlan, WaterLog } from '../diet/types'
 import type { Angle, Measurement, PhotoSet } from './types'
 import { daysBetween } from '../lib/date'
-import { sessionStats } from '../workout/stats'
+import { round1 } from '../lib/number'
+import { completedSessions, maxLoad, sessionVolume } from '../workout/stats'
 import { dietStats } from '../diet/day'
 import { computeAchievements, DIET_ACHIEVEMENTS } from './achievements'
 import { bodyFat, goalDirection, isGood, type Metric } from './bodyFat'
@@ -20,13 +21,12 @@ export interface Report {
 }
 interface Input { workoutLog: WorkoutLog; workoutPlan: WorkoutPlan; measurements: Measurement[]; photoSets: PhotoSet[]; profile?: Profile; dietLog?: DietLog; waterLog?: WaterLog; dietPlan?: DietPlan }
 
-const r1 = (n: number) => Math.round(n * 10) / 10
 const byDate = <T extends { date: string }>(l: T[]) => [...l].sort((a, b) => a.date.localeCompare(b.date))
 // diferença só entre dois registros de dias diferentes
-const diff = ({ first, last }: { first?: Pt; last?: Pt }) => (first && last && first.date !== last.date ? r1(last.value - first.value) : undefined)
+const diff = ({ first, last }: { first?: Pt; last?: Pt }) => (first && last && first.date !== last.date ? round1(last.value - first.value) : undefined)
 
 export function buildReport(d: Input, today: string): Report {
-  const sessions = byDate(Object.values(d.workoutLog).filter((s) => s.completedAt))
+  const sessions = completedSessions(d.workoutLog)
   const ms = byDate(d.measurements)
   const sets = byDate(d.photoSets)
   const dietLog = d.dietLog ?? {}
@@ -42,7 +42,7 @@ export function buildReport(d: Input, today: string): Report {
 
   const row = (label: string, unit: string, metric: Metric, { first, last }: { first?: Pt; last?: Pt }) => {
     if (!first || !last) return []
-    const delta = r1(last.value - first.value)
+    const delta = round1(last.value - first.value)
     return [{ label, unit, first: first.value, last: last.value, delta, good: delta !== 0 && isGood(metric, dir, delta) }]
   }
   const body = ms.length
@@ -69,7 +69,7 @@ export function buildReport(d: Input, today: string): Report {
   const lifts = new Map<string, { name: string; first: number; max: number }>()
   for (const s of sessions) {
     for (const e of s.exercises) {
-      const kg = Math.max(0, ...e.sets.map((x) => x?.weightKg ?? 0))
+      const kg = maxLoad(e)
       const cur = lifts.get(e.exerciseId)
       if (cur) cur.max = Math.max(cur.max, kg)
       else lifts.set(e.exerciseId, { name: e.name, first: kg, max: kg })
@@ -77,18 +77,17 @@ export function buildReport(d: Input, today: string): Report {
   }
   const topLifts = [...lifts.values()].filter((l) => l.max > l.first).sort((a, b) => b.max - b.first - (a.max - a.first)).slice(0, 5)
 
-  const now = new Date()
-  const volume = sessions.reduce((a, s) => a + sessionStats(s, now).volumeKg, 0)
+  const volume = sessions.reduce((a, s) => a + sessionVolume(s), 0)
   const weeks = sessions.length ? Math.max(1, (daysBetween(sessions[0].date, today) + 1) / 7) : 1
   const earned = computeAchievements(d, today).filter((a) => a.earnedAt)
   const titles = (diet: boolean) => earned.filter((a) => DIET_ACHIEVEMENTS.includes(a.id) === diet).map((a) => ({ title: a.title, earnedAt: a.earnedAt! }))
 
   return {
     period: { start, end: today, days: daysBetween(start, today) + 1 },
-    summary: { weight: weight.last?.value, weightDelta: diff(weight), fat: fat.last?.value, fatDelta: diff(fat), workouts: sessions.length, volumeTons: r1(volume / 1000) },
+    summary: { weight: weight.last?.value, weightDelta: diff(weight), fat: fat.last?.value, fatDelta: diff(fat), workouts: sessions.length, volumeTons: round1(volume / 1000) },
     photoPairs,
     body,
-    training: { workouts: sessions.length, perWeek: r1(sessions.length / weeks), topLifts, achievements: titles(false) },
+    training: { workouts: sessions.length, perWeek: round1(sessions.length / weeks), topLifts, achievements: titles(false) },
     // waterDays some só sem registro de água no período; 0 com registro também aparece
     diet: dietDays.length ? { ...dietStats(dietLog, waterLog, start, today), ...(!Object.keys(waterLog).some((k) => k >= start && k <= today) && { waterDays: undefined }), achievements: titles(true) } : null,
   }

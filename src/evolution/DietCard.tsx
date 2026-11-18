@@ -1,5 +1,5 @@
 import type { DietLog, WaterLog } from '../diet/types'
-import { parseDayKey, todayKey } from '../lib/date'
+import { addDays } from '../lib/date'
 import { formatDec } from '@/lib/number'
 import { dietStats } from '../diet/day'
 
@@ -7,9 +7,7 @@ const ROW = 'flex items-center justify-between gap-3 border-t border-line px-3.5
 
 /** últimos 30 dias incluindo hoje (hoje entra ao vivo; as conquistas só olham dias fechados) */
 export function DietCard({ log, water, today }: { log: DietLog; water: WaterLog; today: string }) {
-  const from = parseDayKey(today)
-  from.setDate(from.getDate() - 29)
-  const s = dietStats(log, water, todayKey(from), today)
+  const s = dietStats(log, water, addDays(today, -29), today)
   const rows = s.days
     ? [
         s.avgKcal > 0 && { label: 'Média de kcal', value: formatDec(s.avgKcal), goal: s.avgGoal && ` / ${formatDec(s.avgGoal)}` },

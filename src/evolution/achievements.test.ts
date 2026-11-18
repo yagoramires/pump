@@ -1,6 +1,7 @@
 import { dietDay, pe } from '../../test/helpers'
 import type { DietLog } from '../diet/types'
 import { computeAchievements, type Achievement, type AchievementId } from './achievements'
+import { restRecord } from '../workout/rest'
 
 const done = (date: string, sets: { id: string; kg: number }[] = []) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', completedAt: `${date}T19:00:00.000Z`, exercises: sets.map((s) => ({ ...pe({ exerciseId: s.id, name: s.id }), sets: [{ reps: '10', weightKg: s.kg }] })) })
 const plan = (weekdays: number[]) => ({ workouts: [{ id: 'a', label: 'A', name: 'A', weekdays, exercises: [] }] })
@@ -92,7 +93,7 @@ test('água 7 dias lê o waterLog mesmo com a água desligada', () => {
 })
 test('1º descanso da semana não quebra a sequência; o 2º quebra', () => {
   // plano todo dia; semana de dom 15 a sáb 21
-  const rest = (date: string) => ({ date, workoutId: '', workoutLabel: '', workoutName: 'Descanso', exercises: [], rest: true })
+  const rest = restRecord
   const every = plan([0, 1, 2, 3, 4, 5, 6])
   const one = { '2026-11-16': done('2026-11-16'), '2026-11-17': rest('2026-11-17'), '2026-11-18': done('2026-11-18'), '2026-11-19': done('2026-11-19') }
   const a = computeAchievements({ workoutLog: one, workoutPlan: every, measurements: [], photoSets: [] }, '2026-11-20')

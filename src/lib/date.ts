@@ -1,4 +1,6 @@
-const DIAS = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB']
+export const WEEKDAY_SHORT = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB']
+/** seg..dom, como `getDay()` */
+export const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0]
 const MESES = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ']
 const p2 = (n: number) => String(n).padStart(2, '0')
 
@@ -11,11 +13,33 @@ export function parseDayKey(key: string): Date {
 
 export const weekday = (key: string) => parseDayKey(key).getDay()
 
+export const hhmm = (d: Date) => `${p2(d.getHours())}:${p2(d.getMinutes())}`
+
+export function addDays(key: string, n: number): string {
+  const d = parseDayKey(key)
+  d.setDate(d.getDate() + n)
+  return todayKey(d)
+}
+
+export function eachDay(from: string, toExclusive: string): string[] {
+  const out: string[] = []
+  for (let k = from; k < toExclusive; k = addDays(k, 1)) out.push(k)
+  return out
+}
+
 /** domingo da semana de `key` */
 export function weekStart(key: string): string {
   const d = parseDayKey(key)
   d.setDate(d.getDate() - d.getDay())
   return todayKey(d)
+}
+
+/** quanto foi usado na semana (domingo a sábado) de `date`, antes dele */
+export function countInWeekBefore<T>(log: Record<string, T>, date: string, count: (v: T) => number): number {
+  const from = weekStart(date)
+  let n = 0
+  for (const [k, v] of Object.entries(log)) if (k >= from && k < date) n += count(v)
+  return n
 }
 
 // UTC evita que a virada do horário de verão distorça a contagem de dias
@@ -29,7 +53,7 @@ export function daysBetween(a: string, b: string): number {
 
 export function formatDayLabel(key: string): string {
   const d = parseDayKey(key)
-  return `${DIAS[d.getDay()]}, ${d.getDate()} ${MESES[d.getMonth()]}`
+  return `${WEEKDAY_SHORT[d.getDay()]}, ${d.getDate()} ${MESES[d.getMonth()]}`
 }
 
 /** '16 nov' */

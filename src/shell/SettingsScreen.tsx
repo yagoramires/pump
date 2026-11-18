@@ -6,7 +6,7 @@ import type { WaterSettings } from '../diet/types'
 import { useBackupExport } from './useBackupExport'
 import { usePersisted } from '../storage/db'
 import { daysBetween, todayKey } from '../lib/date'
-import { formatDec, formatKg, parseDecimal } from '../lib/number'
+import { formatDec, formatKg, parseDecimal, plural } from '../lib/number'
 import { IconDot } from '@/components/IconDot'
 import { Overlay } from '@/components/Overlay'
 import { Loading } from '@/components/Loading'
@@ -117,7 +117,7 @@ export function SettingsScreen({ settings, onClose, setSettings }: { settings: S
   if (view === 'profile') return <Overlay><BackHeader title="Perfil" onBack={back} /><div className="mt-3"><ProfileForm submitLabel="Salvar" onDone={back} /></div></Overlay>
 
   const days = settings.lastBackupAt ? daysBetween(settings.lastBackupAt, todayKey()) : undefined
-  const last = days === undefined ? 'Nunca' : days === 0 ? 'Último: hoje' : `Último: há ${days} ${days === 1 ? 'dia' : 'dias'}`
+  const last = days === undefined ? 'Nunca' : days === 0 ? 'Último: hoje' : `Último: há ${plural(days, 'dia', 'dias')}`
 
   return (
     <Overlay>

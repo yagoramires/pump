@@ -5,7 +5,7 @@ import type { Profile } from '../profile/types'
 import type { Exercise, WorkoutPlan } from '../workout/types'
 import { usePersisted } from '../storage/db'
 import { fetchCatalog } from '../catalog/catalog'
-import { todayKey } from '../lib/date'
+import { WEEK_ORDER, todayKey } from '../lib/date'
 import { TEMPLATES, instantiateTemplate } from '../workout/templates'
 import { PlanEditor } from '../workout/PlanEditor'
 import { PlanImport } from '../workout/PlanImport'
@@ -18,7 +18,6 @@ import { Input } from '@/components/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 const LABEL = 'text-[10px] font-semibold tracking-[0.08em] text-faint uppercase'
-const WEEK = [1, 2, 3, 4, 5, 6, 0] // seg..dom
 
 function Field({ id, label, unit, value, onChange }: { id: string; label: string; unit: string; value: string; onChange: (v: string) => void }) {
   return (
@@ -126,7 +125,7 @@ export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => 
                 <span className="block text-[13px] text-text-2">{t.description}</span>
               </span>
               <span className="flex gap-1" aria-hidden="true">
-                {WEEK.map((d) => <span key={d} className={cn('size-1.5 rounded-full', days.has(d) ? 'bg-accent' : 'bg-border-strong')} />)}
+                {WEEK_ORDER.map((d) => <span key={d} className={cn('size-1.5 rounded-full', days.has(d) ? 'bg-accent' : 'bg-border-strong')} />)}
               </span>
             </button>
           )

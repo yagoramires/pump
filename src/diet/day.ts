@@ -1,6 +1,6 @@
-import { daysBetween, weekStart } from '../lib/date'
+import { countInWeekBefore, daysBetween, hhmm } from '../lib/date'
 import type { DayItem, DayMeal, DietDay, DietItem, DietLog, DietPlan, MealOption, Menu, WaterLog } from './types'
-import { formatDec } from '@/lib/number'
+import { formatDec, round1 } from '@/lib/number'
 import { waterMet } from './water'
 
 export type Act = (f: (d: DietDay) => DietDay) => void
@@ -64,8 +64,6 @@ export const iaLabel = (i: Pick<DietItem, 'source' | 'per100'>) => (i.source ===
 export const portionText = (i: Pick<DietItem, 'portion' | 'grams'>) => (i.portion ? `${i.portion} · ${formatDec(i.grams)} g` : `${formatDec(i.grams)} g`)
 export const itemMacros = (i: DietItem) => ({ p: (i.per100.p * i.grams) / 100, c: (i.per100.c * i.grams) / 100, f: (i.per100.f * i.grams) / 100 })
 
-const r1 = (n: number) => Math.round(n * 10) / 10
-
 export const daySummary = (day: DietDay) => {
   let kcal = 0, p = 0, c = 0, f = 0, swaps = 0, extras = 0, skipped = 0
   for (const m of day.meals)
@@ -78,25 +76,22 @@ export const daySummary = (day: DietDay) => {
       kcal += itemKcal(i); p += x.p; c += x.c; f += x.f
     }
   return {
-    kcal: Math.round(kcal), p: r1(p), c: r1(c), f: r1(f),
+    kcal: Math.round(kcal), p: round1(p), c: round1(c), f: round1(f),
     mealsDone: day.meals.filter((m) => m.done).length, mealsTotal: day.meals.length,
     swaps, extras, skipped, free: day.meals.filter((m) => m.free).length, dayFree: !!day.free,
   }
 }
 
-/** usos de "livre" na semana (domingo a sábado) de `date`, antes dele; dia livre vale 1, senão cada refeição livre vale 1 */
-export const freeUses = (log: DietLog, date: string): number => {
-  const from = weekStart(date)
-  let n = 0
-  for (const [k, d] of Object.entries(log))
-    if (k >= from && k < date) n += d.free ? 1 : d.meals.filter((m) => m.free).length
-  return n
-}
+/** usos de "livre" no dia: dia livre vale 1, senão cada refeição livre vale 1 */
+export const freeCount = (d: DietDay) => (d.free ? 1 : d.meals.filter((m) => m.free).length)
+
+/** o 1º livre da semana (domingo a sábado) é permitido */
+export const firstFreeOfWeek = (log: DietLog, date: string) => countInWeekBefore(log, date, freeCount) === 0
 
 export const dayStatus = (log: DietLog, date: string): 'full' | 'free-ok' | 'off' | 'none' => {
   const day = log[date]
   if (!day) return 'none'
-  const allowed = freeUses(log, date) === 0 ? 1 : 0
+  const allowed = firstFreeOfWeek(log, date) ? 1 : 0
   if (day.free) return allowed ? 'free-ok' : 'off'
   const s = daySummary(day)
   if (s.free > allowed) return 'off'
@@ -114,7 +109,7 @@ export function dietStats(log: DietLog, water: WaterLog, from: string, to: strin
   for (const [k, day] of Object.entries(log)) {
     if (!inRange(k)) continue
     if (dayStatus(log, k) === 'full') fullDays++
-    frees += day.free ? 1 : day.meals.filter((m) => m.free).length
+    frees += freeCount(day)
     // média ignora dia livre e dia sem refeição comida
     if (day.free || !day.meals.some((m) => m.done && !m.free)) continue
     kcal.push(daySummary(day).kcal)
@@ -135,7 +130,7 @@ export const sortedMeals = <T extends { time: string }>(meals: T[]): T[] => [...
 
 /** refeição "da vez": 1ª não feita já no horário; senão a próxima; senão nenhuma */
 export const currentMealId = (meals: DayMeal[], now: Date): string | undefined => {
-  const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+  const t = hhmm(now)
   const open = sortedMeals(meals).filter((m) => !m.done && !m.free)
-  return (open.find((m) => m.time && m.time <= hhmm) ?? open[0])?.id
+  return (open.find((m) => m.time && m.time <= t) ?? open[0])?.id
 }

@@ -2,8 +2,9 @@ import { useId, useState } from 'react'
 import { Camera, ChevronLeft, ChevronRight, Dumbbell, GlassWater, Moon, Ruler, Utensils } from 'lucide-react'
 import { usePersisted } from '../storage/db'
 import { deletePhotos } from '../storage/photos'
-import { formatDayMonth, todayKey } from '../lib/date'
-import { formatDec, formatKg } from '@/lib/number'
+import { WEEKDAY_SHORT, formatDayMonth, todayKey } from '../lib/date'
+import { useToday } from '../lib/useToday'
+import { formatDec, formatKg, plural } from '@/lib/number'
 import { Overlay } from '@/components/Overlay'
 import { IconDot } from '@/components/IconDot'
 import {
@@ -11,12 +12,12 @@ import {
 } from '@/components/ui/alert-dialog'
 import { cn } from '@/lib/utils'
 import { sessionStats } from '../workout/stats'
+import { isRest } from '../workout/rest'
 import { daySummary, touched } from '../diet/day'
 import { FIELDS, upsertMeasurement } from './measurements'
 import { removeSet } from './photoSets'
 import { usePhoto } from './usePhoto'
 
-const WEEK = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']
 const ROW = 'flex items-center gap-3 border-t border-line px-3.5 py-2.5 first:border-t-0'
 const DEL = 'h-11 shrink-0 px-1 text-[13px] font-medium text-destructive'
 const CONFIRM = {
@@ -25,7 +26,6 @@ const CONFIRM = {
   diet: { title: 'Apagar dieta?', text: 'O que foi marcado na dieta deste dia some do histórico.' },
   water: { title: 'Apagar água?', text: 'A água registrada neste dia some do histórico.' },
 }
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
 const without = <T,>(log: Record<string, T>, key: string) => {
   const { [key]: _gone, ...rest } = log
   return rest
@@ -46,8 +46,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const [sets, setSets] = usePersisted('photoSets')
   const [diet, setDiet] = usePersisted('dietLog')
   const [water, setWater] = usePersisted('waterLog')
-  const [now] = useState(() => new Date()) // fixo enquanto a tela está aberta
-  const today = todayKey(now)
+  const { now, today } = useToday()
   const [month, setMonth] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1))
   const [day, setDay] = useState<string | undefined>(today)
   const [confirm, setConfirm] = useState<keyof typeof CONFIRM>()
@@ -62,7 +61,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
 
   const session = day ? log[day] : undefined
   const done = session?.completedAt ? session : undefined
-  const rest = session?.rest && !done
+  const rest = isRest(session) && !done
   // cópia do dia aberta sem nada marcado não é registro
   const meals = day && diet[day] && touched(diet[day]) ? diet[day] : undefined
   const ml = (day && water[day]?.ml) || 0
@@ -97,11 +96,11 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
       <span id={`${descId}t`} hidden>treino</span>
       <span id={`${descId}r`} hidden>com registro</span>
       <div className="mt-2 grid grid-cols-7 gap-1 rounded-[14px] border border-border bg-panel p-2.5 text-center">
-        {WEEK.map((w, i) => <span key={i} aria-hidden="true" className="pb-1 text-[11px] font-semibold text-faint">{w}</span>)}
+        {WEEKDAY_SHORT.map((w, i) => <span key={i} aria-hidden="true" className="pb-1 text-[11px] font-semibold text-faint">{w[0]}</span>)}
         {Array.from({ length: month.getDay() }, (_, i) => <span key={`x${i}`} />)}
         {keys.map((k, i) => {
           const trained = !!log[k]?.completedAt
-          const dot = !!log[k]?.rest || measures.some((x) => x.date === k) || sets.some((x) => x.date === k) || (!!diet[k] && touched(diet[k])) || (water[k]?.ml ?? 0) > 0
+          const dot = isRest(log[k]) || measures.some((x) => x.date === k) || sets.some((x) => x.date === k) || (!!diet[k] && touched(diet[k])) || (water[k]?.ml ?? 0) > 0
           return (
             <button
               key={k}

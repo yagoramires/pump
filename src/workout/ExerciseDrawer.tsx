@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, Minus, MoreHorizontal, Plus } from 'lucide-react'
 import type { PlanExercise } from './types'
-import { parseDecimal } from '@/lib/number'
+import { formatInput, parseDecimal } from '@/lib/number'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 
@@ -73,7 +73,7 @@ export function ExerciseDrawer({ open, ex, onChange, onRemove, onMoveUp, onMoveD
               className={`${FIELD} w-20`}
               inputMode="decimal"
               aria-label="Carga em kg"
-              value={kg ?? String(ex.weightKg).replace('.', ',')} // sem milhar: "1.240" voltaria como 1,24
+              value={kg ?? formatInput(ex.weightKg)}
               onChange={(e) => {
                 setKg(e.target.value)
                 const n = parseDecimal(e.target.value)

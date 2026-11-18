@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Check, ChevronRight, Dumbbell, HeartPulse, Moon, Undo2 } from 'lucide-react'
 import { toast } from 'sonner'
-import type { SetDone, WorkoutLog } from './types'
+import type { SetDone, WorkoutLog, WorkoutSession } from './types'
 import { usePersisted } from '../storage/db'
-import { formatDayLabel, todayKey } from '../lib/date'
+import { formatDayLabel } from '../lib/date'
+import { useToday } from '../lib/useToday'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/EmptyState'
-import { formatKg } from '@/lib/number'
+import { formatKg, plural } from '@/lib/number'
 import { IconDot } from '@/components/IconDot'
 import { cn } from '@/lib/utils'
 import { PlanEditor } from './PlanEditor'
@@ -17,21 +18,26 @@ import { SetTable } from './SetTable'
 import { RestCard } from './RestCard'
 import { workoutForDate } from './schedule'
 import { completeSession, setDone, setRestEnd, startSession } from './session'
-import { firstIncomplete, previousSets, sessionStats } from './stats'
+import { previousSets, sessionStats } from './stats'
+import { isRest, restRecord } from './rest'
 import { unlockAudio } from './restTimer'
 import { isCardio } from './cardio'
 
 const LABEL = 'text-[10px] font-semibold uppercase tracking-[.05em] text-faint'
-const exCount = (n: number) => `${n} exercício${n === 1 ? '' : 's'}`
+
+// cardio fica num bloco à parte, sem acordeão: abre o primeiro exercício de força incompleto
+const firstIncomplete = (s: WorkoutSession): number => s.exercises.findIndex((e) => !isCardio(e) && e.sets.includes(null))
 
 export function TreinoTab() {
-  const [today, setToday] = useState(() => todayKey()) // treino que passa da meia-noite segue no mesmo dia
+  const clock = useToday()
+  const [today, setToday] = useState(clock.today) // treino que passa da meia-noite segue no mesmo dia
+  const [seenAt, setSeenAt] = useState(clock.now)
   const [plan] = usePersisted('workoutPlan')
   const [log, setLog] = usePersisted('workoutLog')
   const [chosenId, setChosenId] = useState<string>()
   const [editingPlan, setEditingPlan] = useState(false)
   const [preview, setPreview] = useState<number>()
-  const [openIdx, setOpenIdx] = useState<number>() // undefined = primeiro incompleto
+  const [openIdx, setOpenIdx] = useState<'auto' | number | null>('auto') // auto = primeiro incompleto
   const [restTotal, setRestTotal] = useState<number>()
   const [now, setNow] = useState(() => new Date())
 
@@ -40,22 +46,19 @@ export function TreinoTab() {
     return () => clearInterval(id)
   }, [])
 
-  const rest = log[today]?.rest
-  const session = rest ? undefined : log[today] // descanso marcado não é sessão
-
-  // o PWA volta do segundo plano sem remontar: troca de dia, menos com treino em andamento
-  useEffect(() => {
-    const onVisible = () => {
-      if (document.visibilityState !== 'visible' || todayKey() === today) return
-      const s = log[today]
-      if (s && !s.completedAt && !s.rest) return
-      setToday(todayKey())
+  // voltou do segundo plano: troca de dia, menos com treino em andamento
+  if (seenAt !== clock.now) {
+    setSeenAt(clock.now)
+    const s = log[today]
+    if (clock.today !== today && !(s && !s.completedAt && !isRest(s))) {
+      setToday(clock.today)
       setChosenId(undefined)
-      setOpenIdx(undefined)
+      setOpenIdx('auto')
     }
-    document.addEventListener('visibilitychange', onVisible)
-    return () => document.removeEventListener('visibilitychange', onVisible)
-  }, [today, log])
+  }
+
+  const rest = isRest(log[today])
+  const session = rest ? undefined : log[today] // descanso marcado não é sessão
   const workout = plan.workouts.find((w) => w.id === chosenId) ?? workoutForDate(plan, today)
 
   // mesma gravação sempre via updater: toques rápidos não perdem atualização
@@ -63,7 +66,7 @@ export function TreinoTab() {
     (f: (s: NonNullable<typeof session>) => NonNullable<typeof session>) =>
       setLog((prev) => {
         const s = prev[today]
-        return s && !s.rest ? { ...prev, [today]: f(s) } : prev
+        return s && !isRest(s) ? { ...prev, [today]: f(s) } : prev
       }),
     [setLog, today],
   )
@@ -82,7 +85,7 @@ export function TreinoTab() {
 
   const undoRest = () =>
     setLog((prev) => {
-      if (!prev[today]?.rest) return prev
+      if (!isRest(prev[today])) return prev
       const { [today]: _gone, ...others } = prev
       return others
     })
@@ -108,7 +111,7 @@ export function TreinoTab() {
               <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-accent-line bg-accent-bg text-sm font-bold text-accent">{w.label}</span>
               <span className="block min-w-0 flex-1">
                 <span className="block text-[15px] font-semibold text-strong">{w.name}</span>
-                <span className="block text-[13px] text-text-2">{exCount(w.exercises.length)}</span>
+                <span className="block text-[13px] text-text-2">{plural(w.exercises.length, 'exercício', 'exercícios')}</span>
               </span>
               <ChevronRight size={16} className="text-faint" aria-hidden="true" />
             </button>
@@ -121,14 +124,14 @@ export function TreinoTab() {
   const view = session ?? startSession(workout!, today)
   const stats = sessionStats(view, now)
   const minutes = session ? stats.minutes : null
-  const open = openIdx ?? firstIncomplete(view)
+  const open = openIdx === 'auto' ? firstIncomplete(view) : openIdx
   // o registro de descanso é trocado pela sessão no primeiro toque
   const current = (prev: WorkoutLog) => {
     const s = prev[today]
-    return s && !s.rest ? s : startSession(workout!, today)
+    return s && !isRest(s) ? s : startSession(workout!, today)
   }
   const markRest = () => {
-    setLog((prev) => (prev[today] ? prev : { ...prev, [today]: { date: today, workoutId: '', workoutLabel: '', workoutName: 'Descanso', exercises: [], rest: true } }))
+    setLog((prev) => (prev[today] ? prev : { ...prev, [today]: restRecord(today) }))
     toast('Descanso marcado')
   }
 
@@ -143,7 +146,7 @@ export function TreinoTab() {
     })
     if (!saved[today]?.exercises[exIdx].sets[setIdx]) return
     setRestTotal(restSec)
-    if (view.exercises[exIdx].sets.every((d, j) => j === setIdx || d)) setOpenIdx(undefined) // completou: vai pro próximo incompleto
+    if (view.exercises[exIdx].sets.every((d, j) => j === setIdx || d)) setOpenIdx('auto') // completou: vai pro próximo incompleto
   }
   // cardio não tem carga nem descanso: só marca feito
   const toggleCardio = (exIdx: number) =>
@@ -182,7 +185,7 @@ export function TreinoTab() {
         <div>
           <div className="text-[13px] text-text-2">Volume de hoje</div>
           <div className="mt-0.5 text-lg font-semibold text-strong tabular-nums">{`${formatKg(stats.volumeKg)} kg`}</div>
-          <div className="mt-1 text-[13px] text-text-2">{minutes === null ? exCount(view.exercises.length) : `${minutes} min · ${exCount(view.exercises.length)}`}</div>
+          <div className="mt-1 text-[13px] text-text-2">{minutes === null ? plural(view.exercises.length, 'exercício', 'exercícios') : `${minutes} min · ${plural(view.exercises.length, 'exercício', 'exercícios')}`}</div>
         </div>
       </div>
       {!log[today] && workoutForDate(plan, today) && (
@@ -190,7 +193,7 @@ export function TreinoTab() {
       )}
 
       {view.exercises.map((e, i) => !isCardio(e) && (
-        <ExerciseCard key={i} ex={e} open={open === i} onToggle={() => setOpenIdx(open === i ? -1 : i)} onPreview={() => setPreview(i)}>
+        <ExerciseCard key={i} ex={e} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
           <SetTable ex={e} prev={previousSets(log, today, e.exerciseId)} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} />
         </ExerciseCard>
       ))}

@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vitest'
 import type { DietItem, DietLog, DietPlan, Meal, Menu } from './types'
 import {
-  addExtra, chooseOption, currentMealId, currentMenu, dayFromMenu, dayStatus, daySummary, ensureDay, freeUses, itemKcal, itemMacros, removeItem,
+  addExtra, chooseOption, currentMealId, currentMenu, dayFromMenu, dayStatus, daySummary, ensureDay, freeCount, itemKcal, itemMacros, removeItem,
   setDayFree, setDayMenu, setMealFree, skipItem, sortedMeals, swapItem, swapMeal, toggleMeal, touched, undoSwap,
 } from './day'
+import { countInWeekBefore } from '../lib/date'
 
 const it = (id: string, name: string, kcal: number, grams = 100): DietItem => ({ id, name, grams, per100: { kcal, p: 10, c: 20, f: 5 }, source: 'custom' })
 const meal = (id: string, name: string, time: string, ...options: DietItem[][]): Meal => ({ id, name, time, options: options.map((items, o) => ({ id: `${id}-o${o}`, items })) })
@@ -224,7 +225,7 @@ describe('day', () => {
     expect(setDayMenu(log, both, '2026-11-17', 'sumiu')).toBe(log)
   })
 
-  test('freeUses conta os livres da semana antes da data (domingo a sábado)', () => {
+  test('countInWeekBefore(freeCount) conta os livres da semana antes da data (domingo a sábado)', () => {
     const twoFree = setMealFree(setMealFree(dayFromMenu(menuA), 'm1', true), 'm2', true)
     const log: DietLog = {
       '2026-11-14': setDayFree(dayFromMenu(menuA), true), // sábado da semana anterior
@@ -233,12 +234,12 @@ describe('day', () => {
       '2026-11-17': allDone(menuA),
       '2026-11-20': setDayFree(dayFromMenu(menuA), true),
     }
-    expect(freeUses(log, '2026-11-15')).toBe(0)
-    expect(freeUses(log, '2026-11-16')).toBe(2)
-    expect(freeUses(log, '2026-11-18')).toBe(3)
-    expect(freeUses(log, '2026-11-21')).toBe(4)
-    expect(freeUses(log, '2026-11-22')).toBe(0)
-    expect(freeUses({}, '2026-11-18')).toBe(0)
+    expect(countInWeekBefore(log, '2026-11-15', freeCount)).toBe(0)
+    expect(countInWeekBefore(log, '2026-11-16', freeCount)).toBe(2)
+    expect(countInWeekBefore(log, '2026-11-18', freeCount)).toBe(3)
+    expect(countInWeekBefore(log, '2026-11-21', freeCount)).toBe(4)
+    expect(countInWeekBefore(log, '2026-11-22', freeCount)).toBe(0)
+    expect(countInWeekBefore({}, '2026-11-18', freeCount)).toBe(0)
   })
 
   test('dayStatus: 1º livre da semana não estraga o dia; o 2º sim', () => {

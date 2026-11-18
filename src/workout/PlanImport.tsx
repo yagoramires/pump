@@ -6,6 +6,7 @@ import { fetchCatalog } from '../catalog/catalog'
 import { PlanFormatError, buildPrompt, exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
 import { AnamnesisForm } from './AnamnesisForm'
 import { PlanEditor } from './PlanEditor'
+import { plural } from '@/lib/number'
 import { IconDot } from '@/components/IconDot'
 import { Button } from '@/components/ui/button'
 
@@ -126,7 +127,7 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
         <div className="flex items-center gap-3 rounded-[14px] border border-accent-line bg-accent-bg p-3.5">
           <IconDot size={36} color="var(--color-accent)"><Check size={18} aria-hidden="true" /></IconDot>
           <div>
-            <div className="text-[15px] font-semibold text-strong">{`${review.plan.workouts.length} treinos · ${exCount} exercícios`}</div>
+            <div className="text-[15px] font-semibold text-strong">{`${plural(review.plan.workouts.length, 'treino', 'treinos')} · ${plural(exCount, 'exercício', 'exercícios')}`}</div>
             {review.unmatched.length > 0 && <div className="text-[13px] text-text-2">{`${review.unmatched.length} viraram exercícios seus`}</div>}
           </div>
         </div>

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { Document, Font, Image, Page, Path, Polyline, StyleSheet, Svg, Text, View } from '@react-pdf/renderer'
 import type { Angle } from '../types'
 import { daysBetween, formatDayMonth, parseDayKey } from '../../lib/date'
-import { formatDec } from '../../lib/number'
+import { formatDec, formatSigned, plural } from '../../lib/number'
 import type { Report } from '../report'
 
 // cores do mockup (docs/design/evolucao-e-pdf.html); medidas = mockup × 2,2 pra virar A4 (595 × 842 pt)
@@ -41,7 +41,6 @@ const ANGLE: Record<Angle, string> = { frente: 'Frente', lado: 'Lado', costas: '
 // Helvetica padrão (WinAnsi) não tem "−" nem "→": o sinal vira "–" e a seta é desenhada
 // shortcut: outros caracteres fora do WinAnsi (emoji em nome de exercício) somem; registrar uma fonte se aparecer
 const winAnsi = (t: string) => t.replace(/−/g, '–')
-const signed = (d: number) => `${d < 0 ? '–' : d > 0 ? '+' : ''}${formatDec(Math.abs(d))}`
 const dayYear = (k: string) => `${formatDayMonth(k)} ${parseDayKey(k).getFullYear()}`
 
 function Arrow({ size = 16, color = T2 }: { size?: number; color?: string }) {
@@ -133,10 +132,10 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
           <Arrow size={34} color="#fff" />
           <Text style={[s.h4, { fontSize: 40, marginBottom: 0 }]}>{dayYear(r.period.end)}</Text>
         </View>
-        <Text style={[s.lb, { marginTop: 4 }]}>{`${r.period.days} ${r.period.days === 1 ? 'dia' : 'dias'} de acompanhamento`}</Text>
+        <Text style={[s.lb, { marginTop: 4 }]}>{`${plural(r.period.days, 'dia', 'dias')} de acompanhamento`}</Text>
         <View style={[s.grid, { marginTop: 62 }]}>
-          <Big label="Peso" value={r.summary.weightDelta === undefined ? '—' : signed(r.summary.weightDelta)} unit={r.summary.weightDelta === undefined ? undefined : 'kg'} accent={r.summary.weightDelta !== undefined && good('Peso')} />
-          <Big label="Gordura" value={r.summary.fatDelta === undefined ? '—' : signed(r.summary.fatDelta)} unit={r.summary.fatDelta === undefined ? undefined : 'pt'} accent={r.summary.fatDelta !== undefined && good('Gordura')} />
+          <Big label="Peso" value={r.summary.weightDelta === undefined ? '—' : formatSigned(r.summary.weightDelta, '–')} unit={r.summary.weightDelta === undefined ? undefined : 'kg'} accent={r.summary.weightDelta !== undefined && good('Peso')} />
+          <Big label="Gordura" value={r.summary.fatDelta === undefined ? '—' : formatSigned(r.summary.fatDelta, '–')} unit={r.summary.fatDelta === undefined ? undefined : 'pt'} accent={r.summary.fatDelta !== undefined && good('Gordura')} />
           <Big label="Treinos" value={String(r.summary.workouts)} />
           <Big label="Volume" value={formatDec(r.summary.volumeTons)} unit="t" />
         </View>
@@ -182,7 +181,7 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
               <Text>{x.label}</Text>
               <View style={s.val}>
                 <FromTo first={x.first} last={x.last} unit={x.unit} digits={x.unit === 'cm' ? 0 : 1} />
-                <Text style={{ marginLeft: 11, color: x.good ? ACC : T2 }}>{signed(x.delta)}</Text>
+                <Text style={{ marginLeft: 11, color: x.good ? ACC : T2 }}>{formatSigned(x.delta, '–')}</Text>
               </View>
             </View>
           ))}

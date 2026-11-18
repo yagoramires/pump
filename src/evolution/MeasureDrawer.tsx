@@ -4,7 +4,7 @@ import type { Profile } from '../profile/types'
 import type { MeasureFields, Measurement } from './types'
 import { usePersisted } from '../storage/db'
 import { formatDayMonth, todayKey } from '../lib/date'
-import { parseDecimal } from '@/lib/number'
+import { formatInput, parseDecimal } from '@/lib/number'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { bodyFat } from './bodyFat'
@@ -48,7 +48,7 @@ export function MeasureDrawer({ open, onClose, date }: { open: boolean; onClose:
 function Form({ profile, initial, onSave }: { profile: Profile; initial?: Measurement; onSave: (f: { [K in Key]?: number | null }) => void }) {
   const fields = FIELDS.filter((f) => f.key !== 'hipCm' || profile.sex === 'F')
   const [text, setText] = useState(() =>
-    Object.fromEntries(FIELDS.map(({ key }) => [key, initial?.[key] === undefined ? '' : String(initial[key]).replace('.', ',')])) as Record<Key, string>,
+    Object.fromEntries(FIELDS.map(({ key }) => [key, initial?.[key] === undefined ? '' : formatInput(initial[key])])) as Record<Key, string>,
   )
   // vazio ou 0 vira null (apaga o campo); texto inválido trava o Salvar em vez de apagar o valor salvo
   const num = (k: Key) => (text[k].trim() ? parseDecimal(text[k]) : null)
@@ -79,7 +79,7 @@ function Form({ profile, initial, onSave }: { profile: Profile; initial?: Measur
       ))}
       <div className="mt-2 flex items-center justify-between rounded-[11px] border border-border bg-surface px-3 py-2.5 text-[13px] text-text-2">
         <span>% de gordura (estimativa)</span>
-        <b className={fat === null ? 'text-text-2' : 'text-accent'}>{fat === null ? '—' : `${String(fat).replace('.', ',')}%`}</b>
+        <b className={fat === null ? 'text-text-2' : 'text-accent'}>{fat === null ? '—' : `${formatInput(fat)}%`}</b>
       </div>
       <Button className="mt-3 h-11 w-full rounded-[13px] font-bold" disabled={invalid.length > 0} onClick={() => onSave(parsed)}>Salvar</Button>
     </>

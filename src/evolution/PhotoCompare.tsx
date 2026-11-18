@@ -3,7 +3,7 @@ import { Check, ChevronDown, ChevronLeft, ImageOff } from 'lucide-react'
 import type { Angle } from './types'
 import { usePersisted } from '../storage/db'
 import { formatDayMonth } from '../lib/date'
-import { formatDec, formatKg } from '@/lib/number'
+import { formatDec, formatKg, plural } from '@/lib/number'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Overlay } from '@/components/Overlay'
 import { cn } from '@/lib/utils'
@@ -109,7 +109,7 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
                   onClick={() => { setChosen((c) => ({ ...c, [picking!]: s.id })); setPicking(undefined) }}
                 >
                   <span className="text-strong">{formatDayMonth(s.date)}</span>
-                  <span className="flex items-center gap-2 text-text-2">{`${n} ${n === 1 ? 'foto' : 'fotos'}`}{on && <Check size={16} className="text-accent" aria-hidden="true" />}</span>
+                  <span className="flex items-center gap-2 text-text-2">{plural(n, 'foto', 'fotos')}{on && <Check size={16} className="text-accent" aria-hidden="true" />}</span>
                 </button>
               )
             })}

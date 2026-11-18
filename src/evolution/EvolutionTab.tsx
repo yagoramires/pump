@@ -5,7 +5,7 @@ import type { MeasureFields } from './types'
 import { usePersisted } from '../storage/db'
 import { loadPhoto } from '../storage/photos'
 import { daysBetween, formatDayMonth, todayKey } from '../lib/date'
-import { formatDec, formatKg } from '@/lib/number'
+import { formatDec, formatKg, plural } from '@/lib/number'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -148,7 +148,7 @@ export function EvolutionTab() {
 
   return (
     <div className="pb-24">
-      <div className={LABEL}>{`Desde ${formatDayMonth(period.start)} · ${period.days} ${period.days === 1 ? 'dia' : 'dias'}`}</div>
+      <div className={LABEL}>{`Desde ${formatDayMonth(period.start)} · ${plural(period.days, 'dia', 'dias')}`}</div>
       <h1 className="mt-0.5 mb-3 text-[26px] font-bold tracking-tight text-strong">Evolução</h1>
 
       <div className="mb-2.5 grid grid-cols-3 gap-2">
