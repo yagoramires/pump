@@ -1,7 +1,6 @@
 import type { WorkoutPlan } from './types'
 import { imageUrl } from '../catalog/catalog'
-
-export const PREVIEW_CACHE = 'pump-previews-v1'
+import { PREVIEW_CACHE } from '../catalog/urls'
 
 export const planImageUrls = (plan: WorkoutPlan): string[] => [
   ...new Set(plan.workouts.flatMap((w) => w.exercises.flatMap((e) => e.images.map(imageUrl)))),

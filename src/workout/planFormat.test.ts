@@ -1,7 +1,9 @@
 import { ex } from '../../test/helpers'
 import type { WorkoutPlan } from './types'
 import { readFileSync } from 'node:fs'
-import { buildPrompt, exportPlanFormat, parsePlanFormat, planFromFormat, type PlanFormatError } from './planFormat'
+import { exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
+import { buildPrompt } from './prompt'
+import type { FormatError } from '../format/envelope'
 import { normalize } from '../catalog/search'
 
 const ok = { formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'Peito', dias: ['seg', 'qui'], exercicios: [{ nome: 'supino reto com barra', series: 4, reps: 10, cargaKg: 40 }, { nome: 'Remada na máquina do Zé', series: 3, reps: '12', obs: 'banco 3' }] }] }
@@ -14,7 +16,7 @@ test('aceita JSON dentro de bloco de código da resposta da IA', () => {
 test('lista todos os problemas em pt-BR, na ordem', () => {
   const bad = { formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'X', dias: ['segunda'], exercicios: [{ nome: '', series: 'quatro', reps: '10' }] }, { letra: 'A', nome: '', dias: [], exercicios: [] }] }
   try { parsePlanFormat(JSON.stringify(bad)); throw new Error('não lançou') }
-  catch (e) { expect((e as PlanFormatError).problems).toEqual([
+  catch (e) { expect((e as FormatError).problems).toEqual([
     'Treino A: dia "segunda" inválido (use seg, ter, qua, qui, sex, sab, dom)',
     'Treino A, exercício 1: "nome" vazio',
     'Treino A, exercício 1: "series" precisa ser um número inteiro de 1 a 20',
@@ -31,7 +33,7 @@ test('recusa texto sem JSON, outro formato ou versão mais nova', () => {
 test('aceita sáb e valida carga e descanso', () => {
   const t = { letra: 'A', nome: 'X', dias: ['sáb'], exercicios: [{ nome: 'a', series: 3, reps: '8', cargaKg: -1, descansoSeg: 1.5 }] }
   try { parsePlanFormat(JSON.stringify({ ...ok, treinos: [t] })); throw new Error('não lançou') }
-  catch (e) { expect((e as PlanFormatError).problems).toEqual([
+  catch (e) { expect((e as FormatError).problems).toEqual([
     'Treino A, exercício 1: "cargaKg" precisa ser um número maior ou igual a 0',
     'Treino A, exercício 1: "descansoSeg" precisa ser um número inteiro maior ou igual a 0',
   ]) }
@@ -41,7 +43,7 @@ test('recusa carga infinita (1e999 no JSON)', () => {
   const t = { letra: 'A', nome: 'X', dias: ['seg'], exercicios: [{ nome: 'a', series: 3, reps: '8', cargaKg: 0 }] }
   const text = JSON.stringify({ ...ok, treinos: [t] }).replace('"cargaKg":0', '"cargaKg":1e999')
   try { parsePlanFormat(text); throw new Error('não lançou') }
-  catch (e) { expect((e as PlanFormatError).problems).toEqual(['Treino A, exercício 1: "cargaKg" precisa ser um número maior ou igual a 0']) }
+  catch (e) { expect((e as FormatError).problems).toEqual(['Treino A, exercício 1: "cargaKg" precisa ser um número maior ou igual a 0']) }
 })
 test('os nomes de exemplo do prompt existem no catálogo', () => {
   const names = new Set((JSON.parse(readFileSync('public/catalog/exercises.json', 'utf8')) as { name: string }[]).map((e) => normalize(e.name)))
@@ -65,7 +67,7 @@ test('mesmo nome sem par duas vezes reaproveita um só exercício seu', () => {
 })
 test('exportar e reimportar devolve o mesmo plano (fora os ids)', () => {
   const r = planFromFormat(parsePlanFormat(JSON.stringify(ok)), catalog, [])
-  const again = planFromFormat(parsePlanFormat(JSON.stringify(exportPlanFormat(r.plan))), catalog, r.newCustoms)
+  const again = planFromFormat(parsePlanFormat(exportPlanFormat(r.plan)), catalog, r.newCustoms)
   expect(noId(again.plan)).toEqual(noId(r.plan))
   expect(again.unmatched).toEqual([])
 })

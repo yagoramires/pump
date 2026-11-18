@@ -4,14 +4,14 @@ import { DEFAULTS, type Settings } from '../schema'
 import type { Profile } from '../profile/types'
 import type { Exercise, WorkoutPlan } from '../workout/types'
 import { usePersisted } from '../storage/db'
-import { fetchCatalog } from '../catalog/catalog'
+import { fetchExercises } from '../catalog/catalog'
 import { WEEK_ORDER, todayKey } from '../lib/date'
 import { TEMPLATES, instantiateTemplate } from '../workout/templates'
 import { PlanEditor } from '../workout/PlanEditor'
 import { PlanImport } from '../workout/PlanImport'
 import { ImportBackupButton } from '../shell/ImportBackupButton'
 
-import { parseDecimal } from '../lib/number'
+import { formatInput, parseDecimal } from '../lib/number'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,8 +34,8 @@ function Field({ id, label, unit, value, onChange }: { id: string; label: string
 export function ProfileForm({ submitLabel, onDone }: { submitLabel: string; onDone: () => void }) {
   const [start, setProfile] = usePersisted('profile')
   const [sex, setSex] = useState(start.sex)
-  const [h, setH] = useState(start.heightCm ? String(start.heightCm).replace('.', ',') : '')
-  const [w, setW] = useState(start.weightKg ? String(start.weightKg).replace('.', ',') : '')
+  const [h, setH] = useState(start.heightCm ? formatInput(start.heightCm) : '')
+  const [w, setW] = useState(start.weightKg ? formatInput(start.weightKg) : '')
   const height = parseDecimal(h)
   const weight = parseDecimal(w)
   const ok = !!height && !!weight
@@ -79,7 +79,7 @@ export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => 
     setError(undefined)
     let catalog: Exercise[]
     try {
-      catalog = await fetchCatalog()
+      catalog = await fetchExercises()
     } catch {
       setError('Sem internet pra carregar o modelo. Monte do zero com seus exercícios ou tente de novo')
       return

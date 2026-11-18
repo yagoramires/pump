@@ -1,5 +1,5 @@
 import type { DietItem, DietPlan, TacoFood } from './types'
-import type { PlanFormatError } from '../workout/planFormat'
+import type { FormatError } from '../format/envelope'
 import { dietFromFormat, exportDietFormat, parseDietFormat, type PumpAlimento, type PumpDieta } from './dietFormat'
 
 const T: TacoFood[] = [
@@ -9,7 +9,7 @@ const T: TacoFood[] = [
 ]
 const file = (dieta: unknown) => JSON.stringify({ formato: 'pump-plano', versao: 1, dieta })
 const problems = (text: string) => {
-  try { parseDietFormat(text) } catch (e) { return (e as PlanFormatError).problems }
+  try { parseDietFormat(text) } catch (e) { return (e as FormatError).problems }
   throw new Error('não lançou')
 }
 const meal = (alimentos: unknown[], extra = {}) => ({ nome: 'Café', horario: '07:00', alimentos, ...extra })

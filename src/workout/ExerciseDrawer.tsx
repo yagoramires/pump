@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ArrowDown, ArrowUp, Minus, MoreHorizontal, Plus } from 'lucide-react'
 import type { PlanExercise } from './types'
 import { formatInput, parseDecimal } from '@/lib/number'
+import { MAX_KG, SETS } from './limits'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 
@@ -63,12 +64,12 @@ export function ExerciseDrawer({ open, ex, onChange, onRemove, onMoveUp, onMoveD
               <Button variant="outline" className="flex-1" disabled={!onMoveDown} onClick={onMoveDown}><ArrowDown /> Descer</Button>
             </div>
           )}
-          <Row label="Séries"><Stepper label="séries" value={ex.sets} text={String(ex.sets)} step={1} min={1} max={10} onChange={(sets) => patch({ sets })} /></Row>
+          <Row label="Séries"><Stepper label="séries" value={ex.sets} text={String(ex.sets)} step={1} min={SETS[0]} max={SETS[1]} onChange={(sets) => patch({ sets })} /></Row>
           <Row label="Repetições">
             <input className={`${FIELD} w-28`} aria-label="Repetições" value={ex.reps} onChange={(e) => onChange({ ...ex, reps: e.target.value })} {...inputProps} />
           </Row>
           <Row label="Carga">
-            <Stepper label="carga" value={ex.weightKg} step={2.5} min={0} max={500} onChange={(weightKg) => patch({ weightKg })}>
+            <Stepper label="carga" value={ex.weightKg} step={2.5} min={0} max={MAX_KG} onChange={(weightKg) => patch({ weightKg })}>
             <input
               className={`${FIELD} w-20`}
               inputMode="decimal"
@@ -77,7 +78,7 @@ export function ExerciseDrawer({ open, ex, onChange, onRemove, onMoveUp, onMoveD
               onChange={(e) => {
                 setKg(e.target.value)
                 const n = parseDecimal(e.target.value)
-                if (n !== null) onChange({ ...ex, weightKg: clamp(n, 0, 500) })
+                if (n !== null) onChange({ ...ex, weightKg: clamp(n, 0, MAX_KG) })
               }}
               onBlur={() => setKg(undefined)}
               {...inputProps}

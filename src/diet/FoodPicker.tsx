@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Check, Minus, Plus, Search } from 'lucide-react'
 import type { DietItem, Per100, TacoFood } from './types'
 import { usePersisted } from '../storage/db'
 import { fetchTaco } from '../catalog/catalog'
-import { normalize, searchCatalog } from '../catalog/search'
+import { normalize, searchByName } from '../catalog/search'
+import { useCatalog } from '../catalog/useCatalog'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
@@ -11,6 +12,7 @@ import { daysBetween, todayKey } from '@/lib/date'
 import { formatDec, parseDecimal } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { iaLabel } from './day'
+import { GRAMS } from './limits'
 
 type Props = {
   title: string
@@ -52,8 +54,7 @@ function Rows({ label, foods, selected, onSelect }: { label: string; foods: Food
 }
 
 export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, onClose, extraAction }: Props) {
-  const [taco, setTaco] = useState<TacoFood[]>([])
-  const [offline, setOffline] = useState(false)
+  const { list: taco, offline } = useCatalog(fetchTaco)
   const [plan] = usePersisted('dietPlan')
   const [log] = usePersisted('dietLog')
   const [foods, setFoods] = usePersisted('foods')
@@ -63,10 +64,6 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
   const [portion, setPortion] = useState('')
   const [creating, setCreating] = useState(false)
   const [draft, setDraft] = useState({ name: '', kcal: '', p: '', c: '', f: '' })
-
-  useEffect(() => {
-    fetchTaco().then(setTaco, () => setOffline(true))
-  }, [])
 
   // criados, do cardápio e dos últimos 14 dias; o primeiro nome visto vence
   const recents = useMemo(() => {
@@ -82,8 +79,8 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
     return [...seen.values()]
   }, [foods, plan, log])
 
-  const shownRecents = searchCatalog(recents, q).slice(0, 100)
-  const results = q.trim() ? searchCatalog(taco, q).slice(0, 100).map(fromTaco) : []
+  const shownRecents = searchByName(recents, q).slice(0, 100)
+  const results = q.trim() ? searchByName(taco, q).slice(0, 100).map(fromTaco) : []
 
   const pick = () => sel && onPick({ id: crypto.randomUUID(), ...sel, grams, ...(portion.trim() && { portion: portion.trim() }) })
 
@@ -152,7 +149,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
                 <div className="flex items-center gap-2">
                   <button type="button" className={ROUND} aria-label="Diminuir quantidade" disabled={grams <= 10} onClick={() => setGrams((g) => Math.max(10, g - 10))}><Minus size={16} /></button>
                   <span className="min-w-16 text-center text-base font-semibold tabular-nums text-strong">{formatDec(grams)} g</span>
-                  <button type="button" className={ROUND} aria-label="Aumentar quantidade" disabled={grams >= 2000} onClick={() => setGrams((g) => Math.min(2000, g + 10))}><Plus size={16} /></button>
+                  <button type="button" className={ROUND} aria-label="Aumentar quantidade" disabled={grams >= GRAMS[1]} onClick={() => setGrams((g) => Math.min(GRAMS[1], g + 10))}><Plus size={16} /></button>
                 </div>
               </div>
               <Input aria-label="Porção" className="shrink-0" placeholder="Porção (opcional), ex.: 2 un" autoComplete="off" value={portion} onChange={(e) => setPortion(e.target.value)} />

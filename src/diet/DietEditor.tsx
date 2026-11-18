@@ -3,8 +3,9 @@ import { ArrowDown, ArrowUp, ChevronLeft, Copy, Plus, Share2, Trash2 } from 'luc
 import { DEFAULTS } from '../schema'
 import type { DietItem, DietLog, DietPlan, Macros, Meal, MealOption, Menu } from './types'
 import { usePersisted } from '../storage/db'
-import { currentMenu, ensureDay, iaLabel, itemKcal, sortedMeals } from './day'
-import { exportDietFormat, HHMM } from './dietFormat'
+import { currentMenu, ensureDay, iaLabel, itemKcal, optionLetter, sortedMeals } from './day'
+import { exportDietFormat } from './dietFormat'
+import { GOAL_KCAL, GRAMS, HHMM, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 import { FoodPicker } from './FoodPicker'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,7 +20,6 @@ import { cn } from '@/lib/utils'
 type Props = { initial?: DietPlan; confirmReplace?: boolean; onDone: () => void; onCancel: () => void }
 type Setter<T> = (v: T | ((prev: T) => T)) => void
 
-const LETTERS = 'ABCD'
 const LABEL = 'text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
 const CONFIRM = {
   menu: { title: 'Apagar este cardápio?', text: 'As refeições dele saem do editor. O histórico fica.' },
@@ -45,16 +45,13 @@ const problemOf = (plan: DietPlan): { menuId: string; text: string } | undefined
       : !m.meals.length ? `${n}: adicione uma refeição`
       : m.meals.some((ml) => !ml.name.trim() || !HHMM.test(ml.time)) ? `${n}: preencha nome e horário (HH:MM) de cada refeição`
       : m.meals.some((ml) => ml.options.some((o) => !o.items.length)) ? `${n}: cada opção precisa de ao menos 1 alimento`
-      : m.goalKcal !== undefined && (m.goalKcal < 800 || m.goalKcal > 6000) ? `${n}: meta fora da faixa (800 a 6000 kcal)`
-      : m.goalMacros && Object.values(m.goalMacros).some((g) => g < 0 || g > 600) ? `${n}: macros fora da faixa (0 a 600 g)`
+      : m.goalKcal !== undefined && (m.goalKcal < GOAL_KCAL[0] || m.goalKcal > GOAL_KCAL[1]) ? `${n}: meta fora da faixa (${GOAL_KCAL[0]} a ${GOAL_KCAL[1]} kcal)`
+      : m.goalMacros && Object.values(m.goalMacros).some((g) => g < MACRO_G[0] || g > MACRO_G[1]) ? `${n}: macros fora da faixa (${MACRO_G[0]} a ${MACRO_G[1]} g)`
       : ''
     if (text) return { menuId: m.id, text }
   }
 }
 const tidy = (s?: string) => s?.trim() || undefined
-// limites do formato Pump: passar deles gera um export que o import recusa
-const MAX_MENUS = 5, MAX_MEALS = 10, MAX_ITEMS = 30
-const clampGrams = (g: number) => Math.min(2000, Math.max(1, g))
 const tidyPlan = (plan: DietPlan): DietPlan => ({
   ...plan,
   menus: plan.menus.map((m) => ({
@@ -214,15 +211,15 @@ function DietForm({ start, replacing, onDone, onCancel, savePlan, setLog }: Prop
             <div className="flex items-center gap-1.5">
               {meal.options.map((o, j) => (
                 <button key={o.id} type="button" className={cn('h-11 rounded-[10px] border px-2.5 text-[12.5px] font-semibold', j === oi ? 'border-accent bg-accent-bg text-accent' : 'border-border text-text-2')} aria-pressed={j === oi} onClick={() => setOptOf((s) => ({ ...s, [meal.id]: j }))}>
-                  Opção {LETTERS[j]}
+                  Opção {optionLetter(j)}
                 </button>
               ))}
-              {meal.options.length < 4 && <button type="button" className="flex size-11 items-center justify-center text-accent" aria-label={`Adicionar opção na refeição ${mi + 1}`} onClick={() => addOption(meal)}><Plus size={18} /></button>}
+              {meal.options.length < MAX_OPTIONS && <button type="button" className="flex size-11 items-center justify-center text-accent" aria-label={`Adicionar opção na refeição ${mi + 1}`} onClick={() => addOption(meal)}><Plus size={18} /></button>}
               <span className="ml-auto text-[12.5px] tabular-nums text-text-2">{kcal} kcal</span>
             </div>
             <div className="flex items-center gap-2">
-              <Input className="min-w-0 flex-1" aria-label={`Nome da opção da refeição ${mi + 1}`} placeholder={`Nome da opção ${LETTERS[oi]} (opcional)`} autoComplete="off" value={opt.name ?? ''} onChange={(e) => patchOption(meal.id, oi, (o) => ({ ...o, name: e.target.value || undefined }))} />
-              {meal.options.length > 1 && <button type="button" className="icon-btn" aria-label={`Remover opção ${LETTERS[oi]} da refeição ${mi + 1}`} onClick={() => removeOption(meal, oi)}><Trash2 size={16} /></button>}
+              <Input className="min-w-0 flex-1" aria-label={`Nome da opção da refeição ${mi + 1}`} placeholder={`Nome da opção ${optionLetter(oi)} (opcional)`} autoComplete="off" value={opt.name ?? ''} onChange={(e) => patchOption(meal.id, oi, (o) => ({ ...o, name: e.target.value || undefined }))} />
+              {meal.options.length > 1 && <button type="button" className="icon-btn" aria-label={`Remover opção ${optionLetter(oi)} da refeição ${mi + 1}`} onClick={() => removeOption(meal, oi)}><Trash2 size={16} /></button>}
             </div>
             <ul>
               {opt.items.map((it, i) => (
@@ -234,7 +231,7 @@ function DietForm({ start, replacing, onDone, onCancel, savePlan, setLog }: Prop
                   {iaLabel(it) && <span className="text-[12px] text-c7">{iaLabel(it)}</span>}
                   <div className="flex items-center gap-1.5">
                     <Input className="min-w-0 flex-1" aria-label={`Porção de ${it.name}`} placeholder="Porção" autoComplete="off" value={it.portion ?? ''} onChange={(e) => patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, portion: e.target.value || undefined } : x)))} />
-                    <NumField className="w-16 text-center" label={`Gramas de ${it.name}`} value={it.grams} onChange={(n) => n && patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, grams: clampGrams(n) } : x)))} />
+                    <NumField className="w-16 text-center" label={`Gramas de ${it.name}`} value={it.grams} onChange={(n) => n && patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, grams: Math.min(GRAMS[1], Math.max(GRAMS[0], n)) } : x)))} />
                     <span className="text-[12.5px] text-text-2">g</span>
                     <button type="button" className="icon-btn disabled:opacity-40" aria-label={`Subir ${it.name}`} disabled={i === 0} onClick={() => patchItems(meal.id, oi, (xs) => { const a = [...xs]; [a[i - 1], a[i]] = [a[i], a[i - 1]]; return a })}><ArrowUp size={14} /></button>
                     <button type="button" className="icon-btn disabled:opacity-40" aria-label={`Descer ${it.name}`} disabled={i === opt.items.length - 1} onClick={() => patchItems(meal.id, oi, (xs) => { const a = [...xs]; [a[i], a[i + 1]] = [a[i + 1], a[i]]; return a })}><ArrowDown size={14} /></button>

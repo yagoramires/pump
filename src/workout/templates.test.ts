@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import type { Exercise } from './types'
-import { TEMPLATES, PLAN_DEFAULTS, instantiateTemplate, toPlanExercise } from './templates'
+import { TEMPLATES, instantiateTemplate } from './templates'
+import { PLAN_DEFAULTS, toPlanExercise } from './exercises'
 
 const catalog: Exercise[] = JSON.parse(readFileSync('public/catalog/exercises.json', 'utf8'))
 test('todos os ids dos planos prontos existem no catálogo', () => {

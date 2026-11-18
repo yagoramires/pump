@@ -1,5 +1,7 @@
 import type { DietItem, DietPlan, Menu, TacoFood } from './types'
-import { extractJson, PlanFormatError } from '../workout/planFormat'
+import { FormatError, readEnvelope, str, writeEnvelope } from '../format/envelope'
+import { isObj } from '../schema'
+import { GOAL_KCAL, GRAMS, HHMM, MACRO_G, MAX_ITEMS, MAX_KCAL_PER_100G, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 import { matchFood } from './match'
 import { round1 } from '../lib/number'
 
@@ -11,28 +13,25 @@ export interface PumpCardapio { nome: string; metaKcal?: number; macros?: PumpMa
 export interface PumpDieta { cardapios: PumpCardapio[] }
 
 type Obj = Record<string, unknown>
-const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v)
-const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
 const num = (v: unknown, min: number, max: number) => typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max
-export const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/
 const VALUES = ['kcal', 'proteinaG', 'carboG', 'gorduraG'] as const
 
 function parseFoods(v: unknown, tag: string, problems: string[]): PumpAlimento[] {
   const foods = Array.isArray(v) ? v : []
   if (foods.length === 0) problems.push(`${tag}: sem alimentos`)
-  if (foods.length > 30) problems.push(`${tag}: mais de 30 alimentos`)
+  if (foods.length > MAX_ITEMS) problems.push(`${tag}: mais de ${MAX_ITEMS} alimentos`)
   return foods.map((a: unknown, i): PumpAlimento => {
     const x = isObj(a) ? a : {}
     const at = `${tag}, alimento ${i + 1}`
     const nome = str(x.nome)
     if (!nome) problems.push(`${at}: falta o nome`)
     const gramas = x.gramas as number
-    if (!num(gramas, 1, 2000)) problems.push(`${at}: gramas inválidas`)
+    if (!num(gramas, ...GRAMS)) problems.push(`${at}: gramas inválidas`)
     const porcao = str(x.porcao)
     const out: PumpAlimento = { nome, gramas, ...(porcao && { porcao }) }
     // valor fora do formato é só descartado: o item continua e fica "sem valores" se faltar a kcal
     for (const k of VALUES) if (num(x[k], 0, Infinity)) out[k] = x[k] as number
-    if (out.kcal !== undefined && (out.kcal * 100) / gramas > 900) delete out.kcal
+    if (out.kcal !== undefined && (out.kcal * 100) / gramas > MAX_KCAL_PER_100G) delete out.kcal
     return out
   })
 }
@@ -46,7 +45,7 @@ function parseMeal(r: unknown, tag: string, problems: string[]): PumpRefeicao {
   // refeição com "alimentos" direto é uma opção só
   if (!Array.isArray(o.opcoes)) return { nome, horario, opcoes: [{ alimentos: parseFoods(o.alimentos, tag, problems) }] }
   if (o.opcoes.length === 0) problems.push(`${tag}: sem opções`)
-  if (o.opcoes.length > 4) problems.push(`${tag}: mais de 4 opções`)
+  if (o.opcoes.length > MAX_OPTIONS) problems.push(`${tag}: mais de ${MAX_OPTIONS} opções`)
   const opcoes = o.opcoes.map((op: unknown, i): PumpOpcao => {
     const x = isObj(op) ? op : {}
     const opNome = str(x.nome)
@@ -62,11 +61,11 @@ function parseMenu(d: Obj, c: number | undefined, problems: string[]): PumpCarda
   if (!nome) problems.push(`${pre}falta o nome`)
   const list = Array.isArray(d.refeicoes) ? d.refeicoes : []
   if (list.length === 0) problems.push(c === undefined ? 'Cardápio sem refeições' : `${pre}sem refeições`)
-  if (list.length > 10) problems.push(c === undefined ? 'Cardápio com mais de 10 refeições' : `${pre}mais de 10 refeições`)
+  if (list.length > MAX_MEALS) problems.push(c === undefined ? `Cardápio com mais de ${MAX_MEALS} refeições` : `${pre}mais de ${MAX_MEALS} refeições`)
   const metaKcal = d.metaKcal ?? undefined
-  if (metaKcal !== undefined && !(Number.isInteger(metaKcal) && num(metaKcal, 800, 6000))) problems.push(`${pre}metaKcal fora da faixa (800 a 6000)`)
+  if (metaKcal !== undefined && !(Number.isInteger(metaKcal) && num(metaKcal, ...GOAL_KCAL))) problems.push(`${pre}metaKcal fora da faixa (${GOAL_KCAL[0]} a ${GOAL_KCAL[1]})`)
   const m = isObj(d.macros) ? d.macros : undefined
-  if (d.macros != null && !(m && num(m.proteinaG, 0, 600) && num(m.carboG, 0, 600) && num(m.gorduraG, 0, 600))) problems.push(`${pre}macros fora da faixa (0 a 600)`)
+  if (d.macros != null && !(m && num(m.proteinaG, ...MACRO_G) && num(m.carboG, ...MACRO_G) && num(m.gorduraG, ...MACRO_G))) problems.push(`${pre}macros fora da faixa (${MACRO_G[0]} a ${MACRO_G[1]})`)
   const refeicoes = list.map((r: unknown, n) => parseMeal(r, c === undefined ? `Refeição ${n + 1}` : `Cardápio ${c}, refeição ${n + 1}`, problems))
   return {
     nome,
@@ -77,18 +76,18 @@ function parseMenu(d: Obj, c: number | undefined, problems: string[]): PumpCarda
 }
 
 export function parseDietFormat(text: string): PumpDieta {
-  const raw = extractJson(text)
-  if (!isObj(raw)) throw new PlanFormatError(['Não encontrei um cardápio em JSON no texto'])
-  if (!isObj(raw.dieta)) throw new PlanFormatError(['Este arquivo não tem dieta.'])
+  // o cabeçalho não é conferido aqui: a dieta sempre aceitou arquivo sem "formato"/"versao"
+  const raw = readEnvelope(text, 'Não encontrei um cardápio em JSON no texto')
+  if (!isObj(raw.dieta)) throw new FormatError(['Este arquivo não tem dieta.'])
   const d = raw.dieta
   const problems: string[] = []
   let cardapios: PumpCardapio[]
   if (Array.isArray(d.cardapios)) {
     if (d.cardapios.length === 0) problems.push('Dieta sem cardápios')
-    if (d.cardapios.length > 5) problems.push('Mais de 5 cardápios')
+    if (d.cardapios.length > MAX_MENUS) problems.push(`Mais de ${MAX_MENUS} cardápios`)
     cardapios = d.cardapios.map((x: unknown, i) => parseMenu(isObj(x) ? x : {}, i + 1, problems))
   } else cardapios = [parseMenu(d, undefined, problems)]
-  if (problems.length) throw new PlanFormatError(problems)
+  if (problems.length) throw new FormatError(problems)
   return { cardapios }
 }
 
@@ -143,7 +142,6 @@ export function dietFromFormat(
   return { plan: { menus }, items, offline: taco === null }
 }
 
-
 const exportFood = (i: DietItem) => {
   const q = i.grams / 100
   // "sem valores" sai sem números pra voltar como "sem valores", não como estimativa de 0 kcal
@@ -162,9 +160,7 @@ const exportFood = (i: DietItem) => {
 }
 
 export function exportDietFormat(plan: DietPlan): string {
-  return JSON.stringify({
-    formato: 'pump-plano',
-    versao: 1,
+  return writeEnvelope({
     dieta: {
       cardapios: plan.menus.map((menu) => ({
         nome: menu.name,
@@ -177,5 +173,5 @@ export function exportDietFormat(plan: DietPlan): string {
         })),
       })),
     },
-  }, null, 2)
+  })
 }

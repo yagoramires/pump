@@ -1,6 +1,8 @@
 import type { Profile } from '../profile/types'
 import type { DietAnamnesis, DietGoal, Restriction } from './types'
-import { GOALS, names, profileLines } from '../workout/planFormat'
+import { HEADER, str } from '../format/envelope'
+import { GOALS, label, names, profileLines } from '../profile/promptLines'
+import { GOAL_KCAL, GRAMS, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 
 export const TACO_EXAMPLES: string[] = [
   'Arroz, tipo 1, cozido',
@@ -23,26 +25,24 @@ export const TACO_EXAMPLES: string[] = [
 const DIET_GOALS: Record<DietGoal, string> = { 'perder-rapido': 'perder peso rápido', perder: 'perder peso', manter: 'manter o peso', ganhar: 'ganhar peso', 'ganhar-rapido': 'ganhar peso rápido' }
 const RESTRICTIONS: Record<Restriction, string> = { lactose: 'sem lactose', gluten: 'sem glúten', vegetariano: 'vegetariano', vegano: 'vegano' }
 const EAT_OUT: Record<NonNullable<DietAnamnesis['eatOut']>, string> = { casa: 'em casa', fora: 'fora de casa', misto: 'misto (em casa e fora)' }
-const text = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
 
 function aboutMe(p?: Profile): string[] {
   const a = p?.anamnesis ?? {}
-  // backup importado não valida as anamneses: valor desconhecido não pode virar "undefined" no prompt
   const d = (p?.dietAnamnesis ?? {}) as Partial<DietAnamnesis>
   return [
     ...profileLines(p),
     ...[
-      a.goal && GOALS[a.goal] ? `Objetivo no treino: ${GOALS[a.goal]}` : '',
+      label(GOALS, a.goal) && `Objetivo no treino: ${label(GOALS, a.goal)}`,
       a.daysPerWeek ? `Dias de treino por semana: ${a.daysPerWeek}` : '',
-      d.goal && DIET_GOALS[d.goal] ? `Objetivo da dieta: ${DIET_GOALS[d.goal]}` : '',
+      label(DIET_GOALS, d.goal) && `Objetivo da dieta: ${label(DIET_GOALS, d.goal)}`,
       d.meals ? `Refeições por dia: ${d.meals}` : '',
-      text(d.wake) && `Acordo às ${text(d.wake)}`,
-      text(d.train) && `Treino às ${text(d.train)}`,
-      text(d.sleep) && `Durmo às ${text(d.sleep)}`,
+      str(d.wake) && `Acordo às ${str(d.wake)}`,
+      str(d.train) && `Treino às ${str(d.train)}`,
+      str(d.sleep) && `Durmo às ${str(d.sleep)}`,
       names(d.restrictions, RESTRICTIONS) && `Restrições: ${names(d.restrictions, RESTRICTIONS)}`,
-      text(d.avoid) && `Não como: ${text(d.avoid)}`,
-      d.eatOut && EAT_OUT[d.eatOut] ? `Onde como: ${EAT_OUT[d.eatOut]}` : '',
-      text(d.notes) && `Observações: ${text(d.notes)}`,
+      str(d.avoid) && `Não como: ${str(d.avoid)}`,
+      label(EAT_OUT, d.eatOut) && `Onde como: ${label(EAT_OUT, d.eatOut)}`,
+      str(d.notes) && `Observações: ${str(d.notes)}`,
     ].filter(Boolean).map((l) => `- ${l}`),
   ]
 }
@@ -70,29 +70,29 @@ Como fazer:
 9. Com o cardápio pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
 
 Formato:
-- "formato": sempre "pump-plano".
-- "versao": sempre 1.
+- "formato": sempre "${HEADER.formato}".
+- "versao": sempre ${HEADER.versao}.
 - "dieta":
-  - "cardapios": lista de 1 a 5 cardápios. Cada cardápio tem:
+  - "cardapios": lista de 1 a ${MAX_MENUS} cardápios. Cada cardápio tem:
     - "nome": nome do cardápio (ex.: "Dia de treino").
-    - "metaKcal": meta diária de calorias, número inteiro de 800 a 6000.
-    - "macros": meta diária em gramas, com "proteinaG", "carboG" e "gorduraG" (cada um de 0 a 600).
-    - "refeicoes": lista de 1 a 10 refeições. Cada refeição tem:
+    - "metaKcal": meta diária de calorias, número inteiro de ${GOAL_KCAL[0]} a ${GOAL_KCAL[1]}.
+    - "macros": meta diária em gramas, com "proteinaG", "carboG" e "gorduraG" (cada um de ${MACRO_G[0]} a ${MACRO_G[1]}).
+    - "refeicoes": lista de 1 a ${MAX_MEALS} refeições. Cada refeição tem:
       - "nome": nome da refeição (ex.: "Café da manhã").
       - "horario": hora no formato "HH:MM" (ex.: "07:00").
-      - "opcoes": lista de 1 a 4 opções (faça 2). Cada opção tem:
+      - "opcoes": lista de 1 a ${MAX_OPTIONS} opções (faça 2). Cada opção tem:
         - "nome": nome curto da opção (ex.: "Ovos com pão").
-        - "alimentos": lista de 1 a 30 alimentos. Cada alimento tem:
+        - "alimentos": lista de 1 a ${MAX_ITEMS} alimentos. Cada alimento tem:
           - "nome": nome no padrão da TACO (obrigatório).
-          - "gramas": quantidade em gramas, de 1 a 2000 (obrigatório).
+          - "gramas": quantidade em gramas, de ${GRAMS[0]} a ${GRAMS[1]} (obrigatório).
           - "porcao": porção caseira, ex.: "1 unidade" ou "2 colheres de sopa".
           - "kcal", "proteinaG", "carboG", "gorduraG": valores da quantidade indicada, números maiores ou iguais a 0.
 
 Exemplo (um cardápio e uma refeição, só pra mostrar o formato):
 \`\`\`json
 {
-  "formato": "pump-plano",
-  "versao": 1,
+  "formato": "${HEADER.formato}",
+  "versao": ${HEADER.versao},
   "dieta": {
     "cardapios": [
       {

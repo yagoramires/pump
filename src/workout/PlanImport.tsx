@@ -2,8 +2,10 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Check, ChevronLeft, Copy, FileUp } from 'lucide-react'
 import type { CustomExercise, WorkoutPlan } from './types'
 import { usePersisted } from '../storage/db'
-import { fetchCatalog } from '../catalog/catalog'
-import { PlanFormatError, buildPrompt, exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
+import { fetchExercises } from '../catalog/catalog'
+import { exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
+import { buildPrompt } from './prompt'
+import { FormatError } from '../format/envelope'
 import { AnamnesisForm } from './AnamnesisForm'
 import { PlanEditor } from './PlanEditor'
 import { plural } from '@/lib/number'
@@ -61,11 +63,11 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
       try {
         file = parsePlanFormat(text)
       } catch (e) {
-        if (!stale) setProblems(e instanceof PlanFormatError ? e.problems : ['Não encontrei um plano em JSON no texto'])
+        if (!stale) setProblems(e instanceof FormatError ? e.problems : ['Não encontrei um plano em JSON no texto'])
         return
       }
       try {
-        const r = planFromFormat(file, await fetchCatalog(), customs)
+        const r = planFromFormat(file, await fetchExercises(), customs)
         if (!stale) setReview(r)
       } catch {
         if (!stale) setNotice('Precisa de internet pra casar os exercícios com o catálogo')
@@ -133,7 +135,7 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack?: ()
         </div>
       )}
       {review?.ignoredDiet && <p className="text-[13px] text-text-2">A dieta deste arquivo pode ser importada na aba Dieta</p>}
-      <p className="text-[13px] text-text-2">Ou ajuste seu plano atual: <button type="button" className="min-h-11 font-semibold text-accent" onClick={() => copy(JSON.stringify(exportPlanFormat(plan), null, 2), 'Plano copiado.')}>copiar meu plano</button></p>
+      <p className="text-[13px] text-text-2">Ou ajuste seu plano atual: <button type="button" className="min-h-11 font-semibold text-accent" onClick={() => copy(exportPlanFormat(plan), 'Plano copiado.')}>copiar meu plano</button></p>
       <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <Button type="button" className="w-full" disabled={!review} onClick={() => setEditing(true)}>Revisar plano</Button>
       </div>

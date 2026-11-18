@@ -1,21 +1,19 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ChevronLeft, Dumbbell, Plus, Search } from 'lucide-react'
 import type { CustomExercise, Exercise } from '../workout/types'
 import { usePersisted } from '../storage/db'
-import { fetchCatalog, imageUrl } from './catalog'
-import { searchCatalog } from './search'
+import { fetchExercises, imageUrl } from './catalog'
+import { searchByName } from './search'
+import { MUSCLE_GROUPS, muscleColor } from './muscles'
+import { useCatalog } from './useCatalog'
+import { isCustom, newCustomExercise } from '../workout/exercises'
 import { IconDot } from '@/components/IconDot'
-import { muscleColor } from '@/components/muscleColor'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
-// valores de `muscles` do glossário pt-BR (data/glossary.pt.json)
-const MUSCLES = [
-  'abdominais', 'abdutores', 'adutores', 'bíceps', 'panturrilhas', 'peito', 'antebraços', 'glúteos', 'posteriores de coxa',
-  'dorsais', 'lombar', 'meio das costas', 'pescoço', 'quadríceps', 'ombros', 'trapézio', 'tríceps',
-]
+const MUSCLES = [...MUSCLE_GROUPS.keys()]
 
 const uniq = (xs: string[]) => [...new Set(xs)].sort((a, b) => a.localeCompare(b, 'pt-BR'))
 
@@ -32,7 +30,7 @@ function Chips({ values, value, onChange, label }: { values: string[]; value?: s
 }
 
 function Row({ e, mine, onPick }: { e: Exercise | CustomExercise; mine?: boolean; onPick: () => void }) {
-  const img = 'images' in e ? e.images[0] : undefined
+  const img = isCustom(e) ? undefined : e.images[0]
   return (
     <li className="flex items-center gap-3 border-t border-line px-3 py-2 first:border-t-0">
       {img ? <img src={imageUrl(img)} alt="" loading="lazy" className="size-10 shrink-0 rounded-[10px] bg-surface object-cover" /> : <IconDot color={muscleColor(e.muscles)} size={36}><Dumbbell size={16} /></IconDot>}
@@ -48,8 +46,7 @@ function Row({ e, mine, onPick }: { e: Exercise | CustomExercise; mine?: boolean
 const LABEL = 'px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
 
 export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | CustomExercise) => void; onClose: () => void }) {
-  const [catalog, setCatalog] = useState<Exercise[]>([])
-  const [offline, setOffline] = useState(false)
+  const { list: catalog, offline } = useCatalog(fetchExercises)
   const [custom, setCustom] = usePersisted('customExercises')
   const [q, setQ] = useState('')
   const [muscle, setMuscle] = useState<string>()
@@ -57,21 +54,16 @@ export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | Cust
   const [creating, setCreating] = useState(false)
   const [draft, setDraft] = useState({ name: '', muscle: MUSCLES[0], note: '' })
 
-  useEffect(() => {
-    fetchCatalog().then(setCatalog, () => setOffline(true))
-  }, [])
-
   const muscles = useMemo(() => uniq(catalog.flatMap((e) => e.muscles)), [catalog])
   const equipments = useMemo(() => uniq(catalog.map((e) => e.equipment).filter(Boolean)), [catalog])
-  const filter = { muscle, equipment }
-  const mine = searchCatalog(custom, q, { muscle })
-  const shownMine = equipment ? [] : mine // exercício próprio não tem aparelho
-  const list = searchCatalog(catalog, q, filter).slice(0, 100)
+  const byMuscle = (e: Exercise | CustomExercise) => !muscle || e.muscles.includes(muscle)
+  const shownMine = equipment ? [] : searchByName(custom.filter(byMuscle), q) // exercício próprio não tem aparelho
+  const list = searchByName(catalog.filter((e) => byMuscle(e) && (!equipment || e.equipment === equipment)), q).slice(0, 100)
 
   const create = () => {
     const name = draft.name.trim()
     if (!name) return
-    const e: CustomExercise = { id: `custom-${crypto.randomUUID()}`, name, muscles: [draft.muscle], ...(draft.note.trim() && { note: draft.note.trim() }) }
+    const e = newCustomExercise(name, [draft.muscle], draft.note.trim())
     setCustom((prev) => [...prev, e])
     onPick(e)
   }

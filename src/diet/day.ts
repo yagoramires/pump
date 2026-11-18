@@ -2,6 +2,7 @@ import { countInWeekBefore, daysBetween, hhmm } from '../lib/date'
 import type { DayItem, DayMeal, DietDay, DietItem, DietLog, DietPlan, MealOption, Menu, WaterLog } from './types'
 import { formatDec, round1 } from '@/lib/number'
 import { waterMet } from './water'
+import { OPTION_LETTERS } from './limits'
 
 export type Act = (f: (d: DietDay) => DietDay) => void
 
@@ -58,7 +59,7 @@ export const setMealFree = (d: DietDay, mealId: string, free: boolean): DietDay 
 export const setDayFree = (d: DietDay, free: boolean): DietDay => ({ ...d, free })
 
 export const itemKcal = (i: DietItem) => (i.per100.kcal * i.grams) / 100
-export const optionLetter = (i: number) => 'ABCD'[i] ?? String(i + 1)
+export const optionLetter = (i: number) => OPTION_LETTERS[i]
 /** aviso de origem: número da IA nunca aparece sem rótulo */
 export const iaLabel = (i: Pick<DietItem, 'source' | 'per100'>) => (i.source === 'ia' ? (i.per100.kcal ? 'estimativa da IA' : 'sem valores') : undefined)
 export const portionText = (i: Pick<DietItem, 'portion' | 'grams'>) => (i.portion ? `${i.portion} · ${formatDec(i.grams)} g` : `${formatDec(i.grams)} g`)

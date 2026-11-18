@@ -1,5 +1,6 @@
 import type { DietDay, DietItem } from '../src/diet/types'
 import type { Exercise, PlanExercise, Workout, WorkoutPlan } from '../src/workout/types'
+import { PREVIEW_CACHE } from '../src/catalog/urls'
 
 export const pe = (over: Partial<PlanExercise> = {}): PlanExercise => ({
   exerciseId: 'X', name: 'X', muscles: [], images: [], instructions: [], sets: 3, reps: '10', weightKg: 0, restSec: 90, ...over,
@@ -34,7 +35,7 @@ export const fakeCacheStorage = (initial: Record<string, string>, opts: { failOn
 }
 
 export const cachedUrls = async (cs: CacheStorage): Promise<string[]> =>
-  (await (await cs.open('pump-previews-v1')).keys()).map((r) => r.url).sort()
+  (await (await cs.open(PREVIEW_CACHE)).keys()).map((r) => r.url).sort()
 
 export const food = (over: Partial<DietItem> = {}): DietItem => ({ id: 'f', name: 'Arroz', grams: 100, per100: { kcal: 200, p: 5, c: 40, f: 1 }, source: 'taco', ...over })
 

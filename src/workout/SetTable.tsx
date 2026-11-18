@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
 import { Check } from 'lucide-react'
 import type { SessionExercise, SetDone } from './types'
-import { formatKg, parseDecimal } from '@/lib/number'
+import { formatInput, formatKg, parseInRange } from '@/lib/number'
+import { MAX_KG } from './limits'
 import { cn } from '@/lib/utils'
 
 type Draft = { kg?: string; reps?: string }
@@ -14,7 +15,7 @@ type Props = {
   onEdit: (i: number, p: Partial<SetDone>) => void
 }
 
-const parseKg = (v: string) => { const n = parseDecimal(v); return n !== null && n <= 500 ? n : null } // acima de 500: rejeita, como a gaveta
+const parseKg = (v: string) => parseInRange(v, 0, MAX_KG)
 const TH = 'pb-1.5 text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
 
 export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
@@ -73,7 +74,7 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
                   className={box(!!s)}
                   inputMode="decimal"
                   aria-label={`Carga da série ${n} de ${ex.name}`}
-                  value={drafts[i]?.kg ?? String(s ? s.weightKg : ex.weightKg).replace('.', ',')} // sem milhar: "1.240" voltaria como 1,24
+                  value={drafts[i]?.kg ?? formatInput(s ? s.weightKg : ex.weightKg)}
                   onChange={(e) => setDraft(i, { kg: e.target.value })}
                   {...inputProps(i)}
                 />

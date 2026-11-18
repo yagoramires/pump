@@ -4,11 +4,11 @@ import { toast } from 'sonner'
 import type { DietAnamnesis, DietItem, DietPlan } from './types'
 import { usePersisted } from '../storage/db'
 import { fetchTaco } from '../catalog/catalog'
-import { PlanFormatError } from '../workout/planFormat'
+import { FormatError } from '../format/envelope'
 import { Step } from '../workout/PlanImport'
 import { buildDietPrompt } from './prompt'
 import { dietFromFormat, parseDietFormat } from './dietFormat'
-import { ensureDay, itemKcal, portionText, sortedMeals } from './day'
+import { ensureDay, itemKcal, optionLetter, portionText, sortedMeals } from './day'
 import { DietAnamnesisForm } from './DietAnamnesisForm'
 import { DietEditor } from './DietEditor'
 import { FoodPicker } from './FoodPicker'
@@ -25,7 +25,6 @@ type Report = ReturnType<typeof dietFromFormat>['items'][number]
 /** `info` = como cada item (pelo id) casou e o nome que a IA escreveu */
 type Review = { plan: DietPlan; info: Record<string, Report>; offline: boolean }
 
-const LETTERS = 'ABCD'
 const allItems = (plan: DietPlan) => plan.menus.flatMap((m) => m.meals.flatMap((ml) => ml.options.flatMap((o) => o.items)))
 const replaceItem = (plan: DietPlan, id: string, next: DietItem): DietPlan => ({
   ...plan,
@@ -77,7 +76,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
       try {
         file = parseDietFormat(text)
       } catch (e) {
-        if (!stale) setProblems(e instanceof PlanFormatError ? e.problems : ['Não encontrei um cardápio em JSON no texto'])
+        if (!stale) setProblems(e instanceof FormatError ? e.problems : ['Não encontrei um cardápio em JSON no texto'])
         return
       }
       setChecking(true)
@@ -146,7 +145,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
               <div key={o.id} className="pb-1.5">
                 {meal.options.length > 1 && (
                   <div className="px-3.5 pt-2 text-[10px] font-semibold tracking-[.04em] text-faint uppercase">
-                    {`Opção ${LETTERS[oi]}${o.name ? ` · ${o.name}` : ''} · ${Math.round(o.items.reduce((s, i) => s + itemKcal(i), 0))} kcal`}
+                    {`Opção ${optionLetter(oi)}${o.name ? ` · ${o.name}` : ''} · ${Math.round(o.items.reduce((s, i) => s + itemKcal(i), 0))} kcal`}
                   </div>
                 )}
                 {o.items.map((i) => {

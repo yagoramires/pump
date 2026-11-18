@@ -1,31 +1,23 @@
 import type { Exercise } from '../workout/types'
 import type { TacoFood } from '../diet/types'
-
-export const IMAGE_BASE =
-  'https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/'
+import { IMAGE_BASE } from './urls'
 
 export const imageUrl = (path: string): string => IMAGE_BASE + path
 
-const OFFLINE = 'Sem internet para carregar o catálogo'
-
-const getJson = async <T>(file: string, offline: string): Promise<T[]> => {
-  let res: Response
-  try {
-    res = await fetch(`${import.meta.env.BASE_URL}catalog/${file}`)
-  } catch {
-    throw new Error(offline)
+// uma promessa por arquivo; falha não fica guardada, a próxima chamada tenta de novo
+const memo = new Map<string, Promise<unknown[]>>()
+function getJson<T>(file: string): Promise<T[]> {
+  if (!memo.has(file)) {
+    const p = fetch(`${import.meta.env.BASE_URL}catalog/${file}`)
+      .then((res) => { if (!res.ok) throw new Error(res.statusText); return res.json() as Promise<unknown[]> })
+      .catch(() => {
+        memo.delete(file)
+        throw new Error('Sem internet para carregar o catálogo')
+      })
+    memo.set(file, p)
   }
-  if (!res.ok) throw new Error(offline)
-  return res.json()
+  return memo.get(file) as Promise<T[]>
 }
 
-export const fetchCatalog = <T = Exercise>(file = 'exercises.json'): Promise<T[]> => getJson<T>(file, OFFLINE)
-
-let taco: Promise<TacoFood[]> | undefined
-export function fetchTaco(): Promise<TacoFood[]> {
-  taco ??= getJson<TacoFood>('taco.json', 'Sem internet para buscar na TACO').catch((e) => {
-    taco = undefined
-    throw e
-  })
-  return taco
-}
+export const fetchExercises = () => getJson<Exercise>('exercises.json')
+export const fetchTaco = () => getJson<TacoFood>('taco.json')

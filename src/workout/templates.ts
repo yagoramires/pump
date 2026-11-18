@@ -1,4 +1,5 @@
-import type { CustomExercise, Exercise, PlanExercise, WorkoutPlan } from './types'
+import type { Exercise, WorkoutPlan } from './types'
+import { toPlanExercise } from './exercises'
 
 export interface PlanTemplate {
   id: string
@@ -6,8 +7,6 @@ export interface PlanTemplate {
   description: string
   workouts: { label: string; name: string; weekdays: number[]; exerciseIds: string[] }[]
 }
-
-export const PLAN_DEFAULTS = { sets: 3, reps: '10-12', weightKg: 0, restSec: 90 }
 
 const BENCH = 'Barbell_Bench_Press_-_Medium_Grip'
 const INCLINE = 'Barbell_Incline_Bench_Press_-_Medium_Grip'
@@ -75,13 +74,6 @@ export const TEMPLATES: PlanTemplate[] = [
     ],
   },
 ]
-
-export function toPlanExercise(e: Exercise | CustomExercise): PlanExercise {
-  const base = { exerciseId: e.id, name: e.name, muscles: e.muscles, ...PLAN_DEFAULTS }
-  return 'images' in e
-    ? { ...base, images: e.images, instructions: e.instructions }
-    : { ...base, custom: true, images: [], instructions: [], note: e.note }
-}
 
 export function instantiateTemplate(t: PlanTemplate, catalog: Exercise[]): WorkoutPlan {
   const byId = new Map(catalog.map((e) => [e.id, e]))
