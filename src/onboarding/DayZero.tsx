@@ -21,8 +21,11 @@ export function DayZero({ profile, onDone }: { profile: Profile; onDone: () => v
   const [day, setDay] = useState(settings.checkInDay ?? weekday(today))
   const [capturing, setCapturing] = useState(false)
   const todaySet = sets.find((s) => s.date === today)
-  if (capturing) return <PhotoCapture date={today} onClose={() => setCapturing(false)} />
+  // o form fica montado (só escondido) pra não perder o que já foi digitado enquanto a câmera está aberta
   return (
+    <>
+    {capturing && <PhotoCapture date={today} onClose={() => setCapturing(false)} />}
+    <div hidden={capturing}>
     <MeasureForm
       profile={profile}
       initial={list.find((m) => m.date === today)}
@@ -46,5 +49,7 @@ export function DayZero({ profile, onDone }: { profile: Profile; onDone: () => v
       </div>
       <div className="mt-4"><WeekdayChips label="Atualizar toda semana na" value={day} onChange={setDay} /></div>
     </MeasureForm>
+    </div>
+    </>
   )
 }

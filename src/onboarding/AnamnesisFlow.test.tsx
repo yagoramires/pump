@@ -66,3 +66,18 @@ test('abre preenchido para quem já usa', async () => {
   await next(user)
   expect(screen.getByRole('radio', { name: 'Ganhar peso' })).toBeChecked()
 })
+
+test('dia zero mantém o peso digitado depois de abrir e fechar as fotos', async () => {
+  Object.defineProperty(navigator, 'mediaDevices', { value: undefined, configurable: true })
+  const user = userEvent.setup()
+  await renderLoaded(<AnamnesisFlow total={3} onDone={vi.fn()} />)
+  await user.type(screen.getByLabelText('Altura'), '178')
+  await next(user)
+  await next(user)
+  await user.type(screen.getByLabelText('Peso'), '82,4')
+  await user.click(screen.getByRole('button', { name: 'Frente' }))
+  expect(screen.getByLabelText('Escolher da galeria')).toBeInTheDocument()
+  await user.click(screen.getAllByRole('button', { name: 'Voltar' }).at(-1)!)
+  expect(screen.queryByLabelText('Escolher da galeria')).not.toBeInTheDocument()
+  expect(screen.getByLabelText('Peso')).toHaveValue('82,4')
+})
