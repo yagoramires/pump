@@ -14,7 +14,6 @@ export function PastWorkouts({ onClose }: { onClose: () => void }) {
   const [log] = usePersisted('workoutLog')
   const [open, setOpen] = useState<string>()
   const sessions = completedSessions(log).reverse()
-  const now = new Date()
   return (
     <div>
       <BackHeader title="Treinos anteriores" onBack={onClose} />
