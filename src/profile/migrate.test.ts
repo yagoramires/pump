@@ -17,6 +17,10 @@ beforeEach(async () => {
 
 const OLD = { profile: { sex: 'M', heightCm: 178, weightKg: 82.4, anamnesis: { goal: 'forca', age: 30, daysPerWeek: 4, notes: 'ombro', level: 'avancado' }, dietAnamnesis: { goal: 'perder', wake: '06:30', train: '18:00', sleep: '23:00', meals: 5 } }, measurements: [], settings: { firstUseAt: '2026-11-01' } }
 
+test('perfil sem campo antigo volta intacto (mesmo objeto)', () => {
+  const data = { profile: { sex: 'M', heightCm: 178, focus: 'forca', anamnesis: { level: 'avancado' } }, measurements: [] }
+  expect(migrateData(data, '2026-11-18')).toBe(data)
+})
 test('sobe campos comuns e separa objetivos', () => {
   const out = migrateData({ profile: { sex: 'M', heightCm: 178, anamnesis: { goal: 'forca', age: 30, daysPerWeek: 4, notes: 'ombro', level: 'avancado' }, dietAnamnesis: { goal: 'perder', wake: '06:30', train: '18:00', sleep: '23:00', meals: 5 } } }, '2026-11-18')
   expect(out.profile).toEqual({ sex: 'M', heightCm: 178, age: 30, daysPerWeek: 4, notes: 'ombro', wake: '06:30', train: '18:00', sleep: '23:00', dietGoal: 'perder', focus: 'forca', anamnesis: { level: 'avancado' }, dietAnamnesis: { meals: 5 } })
@@ -63,13 +67,13 @@ test('importBackupFile migra um backup antigo', async () => {
   await importBackupFile(new File([JSON.stringify({ app: 'pump', version: 1, exportedAt: '2026-11-01T00:00:00Z', data })], 'b.json'))
   expect((await readCurrent('profile')).focus).toBe('condicionamento')
 })
-test('falha ao gravar a migração não rejeita; o cache já tem o valor migrado', async () => {
+test('falha ao gravar a migração não rejeita e não apaga o peso do perfil no disco', async () => {
   const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   await set('profile', OLD.profile)
   await set('settings', { lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01' })
   vi.mocked(idb.set).mockRejectedValueOnce(new Error("cheio"))
   await expect(migrationFor(readKey('profile'))).resolves.toBeUndefined()
-  expect(await readCurrent('profile')).not.toHaveProperty('weightKg')
+  expect(await idb.get('profile')).toHaveProperty('weightKg') // disco intacto: a migração se repete na próxima abertura
   expect(await readCurrent('measurements')).toMatchObject([{ date: '2026-11-01', weightKg: 82.4 }])
   expect(warn).toHaveBeenCalled()
   warn.mockRestore()

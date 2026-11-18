@@ -84,9 +84,12 @@ export function EvolutionTab() {
     </>
   )
 
-  const cards = !settings.anamnesisAt
-    ? <AnamnesisCard onStart={() => setView('anamnesis')} />
-    : due && <CheckInCard due={due} today={today} onStart={() => setView('checkin')} />
+  const cards = (
+    <>
+      {!settings.anamnesisAt && <AnamnesisCard onStart={() => setView('anamnesis')} />}
+      {due && <CheckInCard due={due} today={today} onStart={() => setView('checkin')} />}
+    </>
+  )
 
   const report = buildReport(input, today)
   const { period, training, body, lastSet } = report

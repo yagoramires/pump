@@ -46,3 +46,24 @@ test('check-in atrasado diz "Era"', async () => {
   await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText(/^Era /)).toBeInTheDocument()
 })
+
+test('legenda cita a data quando a medição anterior é antiga', async () => {
+  const user = userEvent.setup()
+  await settings({ checkInDay: weekday(today) })
+  await save('measurements', [{ id: 'a', date: addDays(today, -60), weightKg: 82.4 }])
+  await renderLoaded(<EvolutionTab />)
+  await user.click(await screen.findByRole('button', { name: 'Atualizar' }))
+  await user.type(screen.getByLabelText('Peso'), '81,6')
+  await user.click(screen.getByRole('button', { name: 'Continuar' }))
+  await user.click(screen.getByRole('button', { name: 'Voltar' }))
+  expect(screen.queryByText(/desde a semana passada/)).not.toBeInTheDocument()
+  expect(screen.getByText(/^desde \d+ \w{3} · 81,6 kg/)).toBeInTheDocument()
+})
+
+test('anamnese pendente e check-in vencido: os dois cartões aparecem', async () => {
+  await settings({ anamnesisAt: undefined, checkInDay: weekday(today) })
+  await save('measurements', old)
+  await renderLoaded(<EvolutionTab />)
+  expect(await screen.findByText('Complete sua anamnese')).toBeInTheDocument()
+  expect(screen.getByText(/seu dia de atualizar/)).toBeInTheDocument()
+})

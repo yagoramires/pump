@@ -17,7 +17,7 @@ const TODAY = '2026-11-18'
 
 const open = () => renderLoaded(<><MeasureDrawer open onClose={vi.fn()} date={TODAY} /><Toaster /></>)
 
-test('medidas com vírgula: grava, mostra a gordura e leva o peso pro perfil', async () => {
+test('medidas com vírgula: grava, mostra a gordura e guarda o peso', async () => {
   const user = userEvent.setup()
   await save('profile', { sex: 'M', heightCm: 178 })
   await open()

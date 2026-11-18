@@ -1,6 +1,7 @@
 import type { Settings } from '@/schema'
 import type { Profile } from '@/profile/types'
 import type { Measurement, PhotoSet } from './types'
+import { round1 } from '@/lib/number'
 import { addDays, daysBetween, weekStart } from '@/lib/date'
 import { FAT, FIELDS, WEIGHT, fatSeries, series, type Point } from './measurements'
 import { goalDirection, isGood, type Metric } from './bodyFat'
@@ -20,6 +21,7 @@ export interface WeekSummary {
   week: number
   weight: number
   sincePrev?: number
+  prevDate?: string
   sinceStart?: number
   rows: { label: string; unit: string; delta: number; good: boolean }[]
   photos: number
@@ -36,7 +38,7 @@ export function weekSummary(profile: Profile, measurements: Measurement[], photo
   const delta = (pts: Point[]) => {
     const cur = pts.find((p) => p.date === today)
     const before = pts.filter((p) => p.date < today).pop()
-    return cur && before ? cur.value - before.value : undefined
+    return cur && before ? round1(cur.value - before.value) : undefined
   }
   const metrics: { key: Metric; label: string; unit: string; pts: Point[] }[] = [
     { key: 'fat', label: FAT.label, unit: FAT.deltaUnit, pts: fatSeries(profile, measurements) },
@@ -49,8 +51,9 @@ export function weekSummary(profile: Profile, measurements: Measurement[], photo
   return {
     week: Math.max(1, Math.round(daysBetween(first.date, today) / 7)),
     weight: now.value,
-    sincePrev: prev && now.value - prev.value,
-    sinceStart: first.date === today ? undefined : now.value - first.value,
+    sincePrev: prev && round1(now.value - prev.value),
+    prevDate: prev?.date,
+    sinceStart: first.date === today ? undefined : round1(now.value - first.value),
     rows,
     photos: ANGLES.filter((a) => photoSets.find((p) => p.date === today)?.[a]).length,
   }

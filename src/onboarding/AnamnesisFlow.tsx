@@ -12,10 +12,10 @@ import { Steps } from './Steps'
 const TITLES = ['Sobre você', 'Objetivos', 'Dia zero']
 
 /** Passos 1–3 da anamnese. O rascunho do perfil fica aqui; só o "Continuar" do passo 3 grava */
-export function AnamnesisFlow({ total, onDone, onBack, first }: { total: 3 | 5; onDone: () => void; onBack?: () => void; first?: ReactNode }) {
+export function AnamnesisFlow({ total, onDone, onBack, first, start }: { total: 3 | 5; start?: number; onDone: () => void; onBack?: () => void; first?: ReactNode }) {
   const [saved] = usePersisted('profile')
   const [draft, setDraft] = useState<Profile>({ ...saved, focus: saved.focus ?? 'hipertrofia' })
-  const [step, setStep] = useState(0)
+  const [step, setStep] = useState(start ?? 0)
   const title = TITLES[step]
   // dentro de uma aba (onBack) a barra de abas fica embaixo: o Continuar sobe pra não ficar escondido
   const bar = onBack ? 'bottom-(--nav-h)' : undefined

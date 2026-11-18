@@ -19,3 +19,8 @@ test('resumo da semana', () => {
   expect(r.sinceStart).toBeCloseTo(-2.1)
   expect(r.rows).toEqual([expect.objectContaining({ label: 'Cintura', delta: -1, good: true })])
 })
+test('anterior antiga: devolve a data; ruído de float não vira linha 0,0', () => {
+  const r = weekSummary({ sex: 'M', heightCm: 178, dietGoal: 'perder' }, [{ id: 'a', date: '2026-08-01', weightKg: 83, waistCm: 94 }, { id: 'c', date: '2026-11-18', weightKg: 81.6, waistCm: 94 + 1e-15 }], [], '2026-11-18')!
+  expect(r.prevDate).toBe('2026-08-01')
+  expect(r.rows).toEqual([])
+})

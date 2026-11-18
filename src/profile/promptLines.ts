@@ -1,5 +1,4 @@
-import type { Profile } from './types'
-import type { Focus } from './types'
+import type { Focus, Profile } from './types'
 import { hasProfile } from './profile'
 
 // backup importado não valida as anamneses: só valores conhecidos entram no prompt, nunca "undefined"

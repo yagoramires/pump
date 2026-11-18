@@ -11,6 +11,8 @@ const DIET_OF: Record<string, string> = { emagrecer: 'perder', hipertrofia: 'gan
 export function migrateData(data: Record<string, unknown>, today: string): Record<string, unknown> {
   if (!isObj(data.profile)) return data
   const { weightKg, anamnesis, dietAnamnesis, ...profile } = data.profile as Record<string, unknown>
+  const legacy = weightKg !== undefined || ['goal', 'age', 'daysPerWeek', 'notes'].some((k) => isObj(anamnesis) && k in anamnesis) || ['goal', 'wake', 'train', 'sleep'].some((k) => isObj(dietAnamnesis) && k in dietAnamnesis)
+  if (!legacy) return data
   const out: Record<string, unknown> = { ...data, profile }
   const ana = isObj(anamnesis) ? { ...anamnesis } : undefined
   const diet = isObj(dietAnamnesis) ? { ...dietAnamnesis } : undefined
@@ -40,9 +42,10 @@ export function migrateData(data: Record<string, unknown>, today: string): Recor
 export async function migrateStored(): Promise<void> {
   const before = { profile: await readCurrent('profile'), measurements: await readCurrent('measurements'), settings: await readCurrent('settings') }
   const after = migrateData(before, todayKey())
-  // todas as gravações começam antes de qualquer await: cada save põe o valor no cache na hora, mesmo que outra falhe
-  const changed = (['measurements', 'profile'] as const).filter((k) => JSON.stringify(after[k]) !== JSON.stringify(before[k]))
-  await Promise.all(changed.map((k) => save(k, after[k] as never)))
+  // copia antes de apagar a origem: se a medição falhar, o perfil segue com o peso e a migração se repete
+  for (const k of ['measurements', 'profile'] as const) {
+    if (JSON.stringify(after[k]) !== JSON.stringify(before[k])) await save(k, after[k] as never)
+  }
 }
 
 const runs = new WeakMap<Promise<unknown>, Promise<void>>()

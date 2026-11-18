@@ -107,3 +107,12 @@ test('sem internet ao usar um plano pronto mostra o aviso', async () => {
   await user.click(screen.getByRole('button', { name: 'Usar ABC' }))
   expect(await screen.findByText(/Sem internet pra carregar o modelo/)).toBeInTheDocument()
 })
+
+test('voltar no passo 4 leva ao Dia zero com o peso salvo', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<Onboarding />)
+  await toTreino(user)
+  await user.click(screen.getByRole('button', { name: 'Voltar' }))
+  expect(screen.getByRole('heading', { name: 'Dia zero' })).toBeInTheDocument()
+  expect(screen.getByLabelText('Peso')).toHaveValue('82,4')
+})

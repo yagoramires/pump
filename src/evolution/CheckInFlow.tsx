@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
 import { usePersisted } from '@/storage/db'
-import { WEEKDAY_LONG, todayKey, weekday } from '@/lib/date'
+import { WEEKDAY_LONG, daysBetween, formatDayMonth, todayKey, weekday } from '@/lib/date'
 import { formatKg, formatSigned, plural } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -58,7 +58,7 @@ export function CheckIn({ onClose }: { onClose: () => void }) {
         ) : (
           <>
             <div className={cn('text-[28px] font-semibold tabular-nums', good ? 'text-accent' : 'text-strong')}>{`${formatSigned(s.sincePrev)} kg`}</div>
-            <div className="text-[13px] text-text-2">{`desde a semana passada · ${formatKg(s.weight)} kg`}</div>
+            <div className="text-[13px] text-text-2">{`${daysBetween(s.prevDate!, today) <= 8 ? 'desde a semana passada' : `desde ${formatDayMonth(s.prevDate!)}`} · ${formatKg(s.weight)} kg`}</div>
           </>
         )}
         {s.rows.map((r) => (

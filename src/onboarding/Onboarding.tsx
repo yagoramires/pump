@@ -30,6 +30,7 @@ export function Onboarding() {
   const [, setPlan] = usePersisted('workoutPlan')
   const [dietPlan, setDietPlan] = usePersisted('dietPlan')
   const [error, setError] = useState<string>()
+  const [back, setBack] = useState(false)
   const [picked, setPicked] = useState(TEMPLATES[0].id)
   const finish = () => setSettings((s) => ({ ...s, onboardingDone: true, firstUseAt: s.firstUseAt ?? todayKey() }))
   const template = TEMPLATES.find((t) => t.id === picked)!
@@ -57,6 +58,7 @@ export function Onboarding() {
     return (
       <AnamnesisFlow
         total={5}
+        start={back ? 2 : undefined}
         onDone={() => setStep('treino')}
         first={(
           <div className="-mt-2">
@@ -95,7 +97,7 @@ export function Onboarding() {
         <div className="flex-1"><Steps n={4} total={5} /></div>
         <Button type="button" variant="ghost" className="-mt-2 text-text-2" onClick={toDieta}>Pular por agora</Button>
       </div>
-      <BackHeader title="Seu treino" onBack={() => setStep('anamnese')} className="mb-3 px-0 py-0" />
+      <BackHeader title="Seu treino" onBack={() => { setBack(true); setStep('anamnese') }} className="mb-3 px-0 py-0" />
       <div role="radiogroup" aria-label="Planos" className="overflow-hidden card">
         {TEMPLATES.map((t) => {
           const days = new Set(t.workouts.flatMap((w) => w.weekdays))
