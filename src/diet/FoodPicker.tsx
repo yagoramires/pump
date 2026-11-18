@@ -1,17 +1,18 @@
 import { useMemo, useState } from 'react'
 import { Check, Minus, Plus, Search } from 'lucide-react'
-import type { DietItem, Per100, TacoFood } from './types'
+import type { DietItem, Per100 } from './types'
 import { usePersisted } from '../storage/db'
 import { fetchTaco } from '../catalog/catalog'
-import { normalize, searchByName } from '../catalog/search'
+import { searchByName } from '../catalog/search'
 import { useCatalog } from '../catalog/useCatalog'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
-import { daysBetween, todayKey } from '@/lib/date'
+import { todayKey } from '@/lib/date'
 import { formatDec, parseDecimal } from '@/lib/number'
 import { cn } from '@/lib/utils'
-import { iaLabel } from './day'
+import { asFood, type Food, fromTaco, iaLabel, recentFoods } from './food'
+import { foodKey } from './match'
 import { GRAMS } from './limits'
 
 type Props = {
@@ -23,19 +24,14 @@ type Props = {
   extraAction?: { label: string; onClick: () => void }
 }
 
-/** alimento sem quantidade: o que a lista mostra e o que vira DietItem */
-type Food = { name: string; per100: Per100; source: DietItem['source']; tacoId?: number }
-
 const LABEL = 'pt-3 pb-1 text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
 const ROUND = 'flex size-11 touch-manipulation items-center justify-center rounded-xl border border-border text-strong disabled:opacity-40'
-const toFood = ({ name, per100, source, tacoId }: Food): Food => ({ name, per100, source, ...(tacoId !== undefined && { tacoId }) })
-const fromTaco = ({ id, name, kcal, p, c, f }: TacoFood): Food => ({ name, per100: { kcal, p, c, f }, source: 'taco', tacoId: id })
 
 function Rows({ label, foods, selected, onSelect }: { label: string; foods: Food[]; selected?: string; onSelect: (f: Food) => void }) {
   return (
     <ul className="overflow-hidden rounded-[14px] border border-border bg-surface" aria-label={label}>
       {foods.map((f) => {
-        const on = f.name === selected
+        const on = foodKey(f.name) === selected
         return (
           <li key={f.name} className="border-t border-line first:border-t-0">
             <button type="button" className={cn('flex min-h-14 w-full items-center gap-3 px-3 py-2 text-left', on && 'bg-accent-bg')} aria-pressed={on} onClick={() => onSelect(f)}>
@@ -65,19 +61,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
   const [creating, setCreating] = useState(false)
   const [draft, setDraft] = useState({ name: '', kcal: '', p: '', c: '', f: '' })
 
-  // criados, do cardápio e dos últimos 14 dias; o primeiro nome visto vence
-  const recents = useMemo(() => {
-    const today = todayKey()
-    const days = Object.keys(log).filter((k) => daysBetween(k, today) < 14).sort().reverse()
-    const all = [
-      ...foods,
-      ...plan.menus.flatMap((m) => m.meals.flatMap((ml) => ml.options.flatMap((o) => o.items))),
-      ...days.flatMap((k) => log[k].meals.flatMap((m) => m.items)),
-    ]
-    const seen = new Map<string, Food>()
-    for (const i of all) if (!seen.has(i.name)) seen.set(i.name, toFood(i))
-    return [...seen.values()]
-  }, [foods, plan, log])
+  const recents = useMemo(() => recentFoods(plan, log, foods, todayKey()), [foods, plan, log])
 
   const shownRecents = searchByName(recents, q).slice(0, 100)
   const results = q.trim() ? searchByName(taco, q).slice(0, 100).map(fromTaco) : []
@@ -86,13 +70,14 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
 
   const num = (s: string) => (s.trim() ? parseDecimal(s) : 0)
   const values = { kcal: draft.kcal.trim() ? parseDecimal(draft.kcal) : null, p: num(draft.p), c: num(draft.c), f: num(draft.f) }
-  const dup = !!draft.name.trim() && foods.some((f) => normalize(f.name) === normalize(draft.name))
+  // mesma identidade do import: "Bolo, da vó" e "Bolo da vó" são o mesmo alimento
+  const dup = !!draft.name.trim() && foods.some((f) => foodKey(f.name) === foodKey(draft.name))
   const valid = !!draft.name.trim() && !dup && Object.values(values).every((v) => v !== null)
   const create = () => {
     if (!valid) return
     const item: DietItem = { id: crypto.randomUUID(), name: draft.name.trim(), grams: 100, per100: values as Per100, source: 'custom' }
     setFoods((prev) => [...prev, item])
-    setSel(toFood(item))
+    setSel(asFood(item))
     setCreating(false)
   }
   const field = (k: keyof typeof draft, label: string, placeholder: string, decimal = true) => (
@@ -133,13 +118,13 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
                 {shownRecents.length > 0 && (
                   <>
                     <h3 className={LABEL}>Recentes e do cardápio</h3>
-                    <Rows label="Recentes e do cardápio" foods={shownRecents} selected={sel?.name} onSelect={setSel} />
+                    <Rows label="Recentes e do cardápio" foods={shownRecents} selected={sel && foodKey(sel.name)} onSelect={setSel} />
                   </>
                 )}
                 {results.length > 0 && (
                   <>
                     <h3 className={LABEL}>TACO</h3>
-                    <Rows label="Resultados da TACO" foods={results} selected={sel?.name} onSelect={setSel} />
+                    <Rows label="Resultados da TACO" foods={results} selected={sel && foodKey(sel.name)} onSelect={setSel} />
                   </>
                 )}
                 {!shownRecents.length && !results.length && <p className="pt-3 text-[13px] text-text-2">{q.trim() ? 'Nada encontrado' : 'Busque um alimento'}</p>}

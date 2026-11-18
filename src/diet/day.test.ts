@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 import type { DietItem, DietLog, DietPlan, Meal, Menu } from './types'
 import {
-  addExtra, chooseOption, currentMealId, currentMenu, dayFromMenu, dayStatus, daySummary, ensureDay, freeCount, itemKcal, itemMacros, removeItem,
-  setDayFree, setDayMenu, setMealFree, skipItem, sortedMeals, swapItem, swapMeal, toggleMeal, touched, undoSwap,
+  addExtra, chooseOption, currentMealId, currentMenu, dayFromMenu, dayOf, dayStatus, daySummary, freeCount, mealOptions, removeItem, resetDay,
+  setDayFree, setMealFree, skipItem, sortedMeals, swapItem, swapMeal, toggleMeal, touched, undoSwap, updateDay,
 } from './day'
 import { countInWeekBefore } from '../lib/date'
 
@@ -101,9 +101,20 @@ describe('day', () => {
     expect(currentMenu({ menus: [] })).toBeUndefined()
   })
 
-  test('itemKcal e itemMacros usam per100 × gramas / 100', () => {
-    expect(itemKcal(it('x', 'x', 130, 200))).toBe(260)
-    expect(itemMacros(it('x', 'x', 130, 200))).toEqual({ p: 20, c: 40, f: 10 })
+  test('toggleMeal: livre volta a nem livre nem feita; senão inverte feita', () => {
+    const free = setMealFree(dayFromMenu(menuA), 'm1', true)
+    expect(toggleMeal(free, 'm1').meals[0]).toMatchObject({ free: false, done: false })
+    const done = toggleMeal(dayFromMenu(menuA), 'm1')
+    expect(done.meals[0]).toMatchObject({ done: true })
+    expect(toggleMeal(done, 'm1').meals[0].done).toBe(false)
+  })
+
+  test('mealOptions: opções do cardápio do dia, a escolhida e se o toggle aparece', () => {
+    const d = chooseOption(dayFromMenu(menuA), 'm1', menuA.meals[0].options[1])
+    expect(mealOptions(both, d, 'm1')).toMatchObject({ index: 1, canToggle: true })
+    expect(mealOptions(both, d, 'm2')).toMatchObject({ index: 0, canToggle: false })
+    expect(mealOptions(both, swapMeal(d, 'm1', { name: 'x', items: [] }), 'm1').canToggle).toBe(false)
+    expect(mealOptions(planB, d, 'm1')).toEqual({ options: [], index: 0, canToggle: false })
   })
 
   test('daySummary: refeição marcada conta, pulado não, extra conta mesmo sem marcar', () => {
@@ -188,41 +199,35 @@ describe('day', () => {
     expect(d).toEqual(snap)
   })
 
-  test('ensureDay refaz a cópia se nada foi marcado e preserva se algo foi', () => {
+  test('dayOf: dia sem marca segue o cardápio atual; com marca, fica o salvo', () => {
     const log: DietLog = { '2026-11-18': dayFromMenu(menuA) }
-    expect(ensureDay(log, planB, '2026-11-18')['2026-11-18'].meals.map((m) => m.id)).toEqual(['mb'])
+    expect(dayOf(log, planB, '2026-11-18')?.meals.map((m) => m.id)).toEqual(['mb'])
     const marked: DietLog = { '2026-11-18': toggleMeal(dayFromMenu(menuA), 'm1') }
-    expect(ensureDay(marked, planB, '2026-11-18')['2026-11-18'].meals.map((m) => m.id)).toEqual(['m1', 'm2'])
-    expect(ensureDay({}, planB, '2026-11-18')['2026-11-18'].meals[0].id).toBe('mb')
-    expect(ensureDay({}, { ...both, lastMenuId: 'B' }, 'd').d.menuId).toBe('B')
-    expect(ensureDay(log, { menus: [] }, 'd')).toBe(log)
+    expect(dayOf(marked, planB, '2026-11-18')).toBe(marked['2026-11-18'])
+    expect(dayOf({}, { ...both, lastMenuId: 'B' }, 'd')?.menuId).toBe('B')
+    expect(dayOf(log, { menus: [] }, '2026-11-18')).toBeUndefined()
+    expect(dayOf(marked, { menus: [] }, '2026-11-18')).toBe(marked['2026-11-18'])
   })
 
-  test('livre e troca de refeição também contam como tocado', () => {
+  test('livre, troca de refeição e extra também contam como tocado', () => {
     const day = dayFromMenu(menuA)
-    for (const d of [setDayFree(day, true), setMealFree(day, 'm2', true), swapMeal(day, 'm1', { name: 'B', items: [] })])
-      expect(ensureDay({ d }, planB, 'd').d.menuId).toBe('A')
+    for (const d of [setDayFree(day, true), setMealFree(day, 'm2', true), swapMeal(day, 'm1', { name: 'B', items: [] }), addExtra(day, 'm1', it('e1', 'Extra', 50))])
+      expect(dayOf({ d }, planB, 'd')?.menuId).toBe('A')
   })
 
-  test('extra adicionado sem marcar nada é preservado ao trocar o cardápio', () => {
-    const log: DietLog = { d: addExtra(dayFromMenu(menuA), 'm1', it('e1', 'Extra', 50)) }
-    expect(ensureDay(log, planB, 'd').d.meals.map((m) => m.id)).toEqual(['m1', 'm2'])
+  test('updateDay aplica no dia como a pessoa vê e não mexe nos outros dias', () => {
+    const log: DietLog = { '2026-11-17': dayFromMenu(menuA), '2026-11-18': dayFromMenu(menuA) }
+    const out = updateDay(log, planB, '2026-11-18', (d) => toggleMeal(d, 'mb'))
+    expect(out['2026-11-18']).toMatchObject({ menuId: 'B', meals: [{ id: 'mb', done: true }] })
+    expect(out['2026-11-17']).toBe(log['2026-11-17'])
+    expect(updateDay(log, { menus: [] }, '2026-11-18', (d) => d)).toBe(log)
   })
 
-  test('editar o plano não muda dias passados', () => {
-    const log: DietLog = { '2026-11-17': dayFromMenu(menuA) }
-    const out = ensureDay(log, planB, '2026-11-18')
-    expect(out['2026-11-17']).toEqual(log['2026-11-17'])
-    expect(out['2026-11-18'].meals[0].id).toBe('mb')
-  })
-
-  test('setDayMenu refaz a cópia com o cardápio escolhido', () => {
+  test('resetDay esquece só o dia pedido', () => {
     const log: DietLog = { '2026-11-16': dayFromMenu(menuA), '2026-11-17': toggleMeal(dayFromMenu(menuA), 'm1') }
-    const out = setDayMenu(log, both, '2026-11-17', 'B')
-    expect(out['2026-11-17']).toEqual(dayFromMenu(menuB))
-    expect(out['2026-11-16']).toBe(log['2026-11-16'])
-    expect(setDayMenu({}, both, 'd', 'A').d.menuName).toBe('Dia de treino')
-    expect(setDayMenu(log, both, '2026-11-17', 'sumiu')).toBe(log)
+    const out = resetDay(log, '2026-11-17')
+    expect(out).toEqual({ '2026-11-16': log['2026-11-16'] })
+    expect(dayOf(out, { ...both, lastMenuId: 'B' }, '2026-11-17')?.menuId).toBe('B')
   })
 
   test('countInWeekBefore(freeCount) conta os livres da semana antes da data (domingo a sábado)', () => {

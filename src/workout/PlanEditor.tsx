@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Dumbbell, HeartPulse, MoreHorizontal, Plus } from 'lucide-react'
 import type { PlanExercise, Workout, WorkoutPlan } from './types'
-import { usePersisted } from '../storage/db'
 import { CatalogPicker } from '../catalog/CatalogPicker'
 import { toPlanExercise } from './exercises'
 import { ExerciseDrawer } from './ExerciseDrawer'
@@ -16,11 +15,11 @@ import { WEEKDAY_SHORT } from '@/lib/date'
 
 const DAY_NAMES = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
 
-type Props = { initial?: WorkoutPlan; onDone: (plan: WorkoutPlan) => void; onCancel?: () => void }
+/** só edita: quem abre grava o plano no `onSave` */
+type Props = { initial: WorkoutPlan; onSave: (plan: WorkoutPlan) => void; onCancel: () => void }
 
-export function PlanEditor({ initial, onDone, onCancel }: Props) {
-  const [saved, savePlan] = usePersisted('workoutPlan')
-  const [plan, setPlan] = useState<WorkoutPlan>(() => structuredClone(initial ?? saved))
+export function PlanEditor({ initial, onSave, onCancel }: Props) {
+  const [plan, setPlan] = useState<WorkoutPlan>(() => structuredClone(initial))
   const [picking, setPicking] = useState<string>() // id do treino que recebe o exercício
   const [editing, setEditing] = useState<{ wid: string; i: number }>()
   const [menuFor, setMenuFor] = useState<string>() // id do treino com o menu ⋯ aberto
@@ -44,11 +43,6 @@ export function PlanEditor({ initial, onDone, onCancel }: Props) {
       return { workouts: [...p.workouts, { id: crypto.randomUUID(), label, name: `Treino ${label}`, weekdays: [], exercises: [] }] }
     })
 
-  const save = () => {
-    savePlan(plan)
-    onDone(plan)
-  }
-
   const ew = editing && plan.workouts.find((w) => w.id === editing.wid)
   const ee = ew?.exercises[editing!.i]
   const mw = plan.workouts.find((w) => w.id === menuFor)
@@ -59,7 +53,7 @@ export function PlanEditor({ initial, onDone, onCancel }: Props) {
       <header className="flex items-center gap-3 py-2">
         <button type="button" className="icon-btn" aria-label="Cancelar" onClick={onCancel}><ChevronLeft size={18} /></button>
         <h1 className="flex-1 text-[19px] font-semibold text-strong">Editar plano</h1>
-        <Button size="sm" onClick={save}>Salvar</Button>
+        <Button size="sm" onClick={() => onSave(plan)}>Salvar</Button>
       </header>
       {plan.workouts.map((w) => (
         <section key={w.id} className="flex flex-col gap-2 rounded-[14px] border border-border bg-panel p-3">

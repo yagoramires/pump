@@ -1,9 +1,9 @@
 import type { PlanExercise, Workout } from './types'
-import { screen, waitFor } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
-import { load, resetStoreForTests, save } from '../storage/db'
+import { load, resetStoreForTests } from '../storage/db'
 import { PlanEditor } from './PlanEditor'
 
 beforeEach(async () => {
@@ -11,15 +11,16 @@ beforeEach(async () => {
   resetStoreForTests()
 })
 
-test('sem initial, abre o plano salvo e o Salvar não o apaga', async () => {
-  await save('workoutPlan', { workouts: [{ id: 'w1', label: 'A', name: 'Treino de pernas', weekdays: [1], exercises: [] }] })
-  resetStoreForTests() // força o carregamento assíncrono a partir do banco
-  const onDone = vi.fn()
-  await renderLoaded(<PlanEditor onDone={onDone} />)
-  expect(await screen.findByDisplayValue('Treino de pernas')).toBeInTheDocument()
-  await userEvent.click(screen.getByRole('button', { name: 'Salvar' }))
-  await waitFor(() => expect(onDone).toHaveBeenCalled())
-  expect((await load('workoutPlan'))?.workouts.map((w) => w.name)).toEqual(['Treino de pernas'])
+test('Salvar entrega o plano editado pro onSave e não grava nada sozinho', async () => {
+  const user = userEvent.setup()
+  const onSave = vi.fn()
+  await renderLoaded(<PlanEditor initial={{ workouts: [{ id: 'w1', label: 'A', name: 'Treino de pernas', weekdays: [1], exercises: [] }] }} onSave={onSave} onCancel={vi.fn()} />)
+  const name = await screen.findByDisplayValue('Treino de pernas')
+  await user.clear(name)
+  await user.type(name, 'Pernas')
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  expect(onSave).toHaveBeenCalledWith({ workouts: [expect.objectContaining({ id: 'w1', name: 'Pernas' })] })
+  expect(await load('workoutPlan')).toBeUndefined()
 })
 
 const workoutOf = (exercises: Partial<PlanExercise>[]): Workout => ({
@@ -30,7 +31,7 @@ const supino = { name: 'Supino reto', sets: 3, reps: '10-12', weightKg: 40, rest
 
 test('tocar no exercício abre a gaveta; +2,5 kg e Pronto atualiza o resumo', async () => {
   const user = userEvent.setup()
-  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([supino])] }} onDone={vi.fn()} />)
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([supino])] }} onSave={vi.fn()} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: /Supino reto/ }))
   await user.click(screen.getByRole('button', { name: 'Aumentar carga' }))
   await user.click(screen.getByRole('button', { name: 'Pronto' }))
@@ -39,7 +40,7 @@ test('tocar no exercício abre a gaveta; +2,5 kg e Pronto atualiza o resumo', as
 
 test('carga digitada com vírgula na gaveta', async () => {
   const user = userEvent.setup()
-  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([supino])] }} onDone={vi.fn()} />)
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([supino])] }} onSave={vi.fn()} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: /Supino reto/ }))
   const kg = screen.getByRole('textbox', { name: 'Carga em kg' })
   await user.clear(kg)

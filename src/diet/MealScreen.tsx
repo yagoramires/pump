@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { ArrowLeftRight, Check, ChevronLeft, MoreHorizontal, Plus, Sparkles } from 'lucide-react'
-import type { DayItem, DayMeal, DietDay, DietItem, DietPlan, Menu } from './types'
+import type { DayItem, DietDay } from './types'
 import { Overlay } from '@/components/Overlay'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
@@ -8,27 +8,27 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { formatDec } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { FoodPicker } from './FoodPicker'
-import { type Act, addExtra, chooseOption, iaLabel, itemKcal, itemMacros, optionLetter, portionText, removeItem, setMealFree, skipItem, swapItem, swapMeal, toggleMeal, undoSwap } from './day'
-
-type Props = { meal: DayMeal; menu?: Menu; plan: DietPlan; dayFree: boolean; act: Act; onClose: () => void }
+import { addExtra, chooseOption, mealOptions, optionLetter, removeItem, setMealFree, skipItem, swapItem, swapMeal, toggleMeal, undoSwap } from './day'
+import { iaLabel, itemKcal, itemMacros, kcalOf, macroText, portionText } from './food'
+import { useDietToday } from './useDietToday'
 
 const LABEL = 'pt-3 pb-1 text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
 const CARD = 'overflow-hidden rounded-[14px] border border-border bg-surface'
-const kcalOf = (items: DietItem[]) => Math.round(items.reduce((s, i) => s + itemKcal(i), 0))
-
-export function MealScreen({ meal, menu, plan, dayFree, act, onClose }: Props) {
+export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () => void }) {
+  const { plan, day, menu, act } = useDietToday()
   const [picking, setPicking] = useState<DayItem | 'extra'>()
   const [sheet, setSheet] = useState<'more' | 'swap'>()
+  const meal = day?.meals.find((m) => m.id === mealId)
+  if (!day || !meal) return null // a aba só abre refeições do dia; sumiu (virada do dia, plano mudou), ela mostra a lista
+  const dayFree = !!day.free
   const free = dayFree || !!meal.free
-  const isFree = (d: DietDay) => !!d.meals.find((m) => m.id === meal.id)?.free // decide no salvo, não no render
 
-  const options = menu?.meals.find((m) => m.id === meal.id)?.options ?? []
-  const selIdx = Math.max(0, options.findIndex((o) => o.id === meal.optionId))
+  const { options, index: selIdx, canToggle } = mealOptions(plan, day, meal.id)
   const selected = options[selIdx]
 
   const counted = meal.items.filter((i) => !i.skipped)
   const t = counted.reduce((s, i) => { const x = itemMacros(i); return { p: s.p + x.p, c: s.c + x.c, f: s.f + x.f } }, { p: 0, c: 0, f: 0 })
-  const total = `${formatDec(kcalOf(counted))} kcal · P ${Math.round(t.p)} · C ${Math.round(t.c)} · G ${Math.round(t.f)}`
+  const total = `${formatDec(kcalOf(counted))} kcal · ${macroText({ p: Math.round(t.p), c: Math.round(t.c), f: Math.round(t.f) })}`
 
   const groups = plan.menus.filter((m) => m.id !== menu?.id).map((m) => ({
     id: m.id,
@@ -81,7 +81,7 @@ export function MealScreen({ meal, menu, plan, dayFree, act, onClose }: Props) {
       </header>
 
       <div className="pb-24">
-        {options.length > 1 && !meal.swappedMeal && (
+        {canToggle && (
           <ToggleGroup
             type="single" spacing={1} aria-label="Opção" disabled={free} value={selected.id}
             onValueChange={(v) => { const o = options.find((x) => x.id === v); if (o && o.id !== selected.id) act((d) => chooseOption(d, meal.id, o)) }}
@@ -118,7 +118,7 @@ export function MealScreen({ meal, menu, plan, dayFree, act, onClose }: Props) {
       <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex max-w-md gap-2 bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
         {meal.done ? (
           <>
-            <Button variant="outline" className="h-11 flex-1 bg-transparent" onClick={() => act((d) => (isFree(d) ? setMealFree(d, meal.id, false) : toggleMeal(d, meal.id)))}>Desmarcar</Button>
+            <Button variant="outline" className="h-11 flex-1 bg-transparent" onClick={() => act((d) => toggleMeal(d, meal.id))}>Desmarcar</Button>
             <Button className="h-11 flex-[1.4]" onClick={onClose}>Voltar</Button>
           </>
         ) : (
@@ -151,7 +151,7 @@ export function MealScreen({ meal, menu, plan, dayFree, act, onClose }: Props) {
                     {!free && row(<ArrowLeftRight size={18} className="text-accent" aria-hidden="true" />, 'Trocar por refeição de outro cardápio', () => setSheet('swap'))}
                     {row(<Sparkles size={18} className="text-accent" aria-hidden="true" />, meal.free ? 'Desfazer refeição livre' : 'Refeição livre', () => {
                       setSheet(undefined)
-                      act((d) => setMealFree(d, meal.id, !isFree(d)))
+                      act((d) => setMealFree(d, meal.id, !meal.free))
                       if (!meal.free) onClose()
                     })}
                   </ul>

@@ -1,3 +1,13 @@
+/** false quando o navegador recusa (sem permissão, sem clipboard): quem chama mostra o aviso */
+export async function copyText(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text)
+    return true
+  } catch {
+    return false
+  }
+}
+
 /** folha de compartilhar com o arquivo; sem suporte, baixa. Cancelar a folha não é erro */
 export async function shareFile(file: File): Promise<'shared' | 'downloaded' | 'cancelled'> {
   if (navigator.canShare?.({ files: [file] })) {

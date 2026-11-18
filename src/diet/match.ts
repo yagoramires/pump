@@ -1,6 +1,6 @@
 import type { DietItem, TacoFood } from './types'
 
-/** Diferente do `normalize` do catálogo de exercícios: aqui pontuação vira espaço e a comparação é por palavras. */
+/** Identidade de um alimento (import, alimento próprio repetido, recentes). Diferente do `normalize` do catálogo de exercícios: aqui pontuação vira espaço e a comparação é por palavras. */
 export const foodKey = (s: string): string =>
   s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
 

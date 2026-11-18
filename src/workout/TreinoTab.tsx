@@ -32,7 +32,7 @@ export function TreinoTab() {
   const clock = useToday()
   const [today, setToday] = useState(clock.today) // treino que passa da meia-noite segue no mesmo dia
   const [seenAt, setSeenAt] = useState(clock.now)
-  const [plan] = usePersisted('workoutPlan')
+  const [plan, setPlan] = usePersisted('workoutPlan')
   const [log, setLog] = usePersisted('workoutLog')
   const [chosenId, setChosenId] = useState<string>()
   const [editingPlan, setEditingPlan] = useState(false)
@@ -73,7 +73,7 @@ export function TreinoTab() {
   const finishRest = useCallback(() => patch((s) => (s.restEndsAt === undefined ? s : setRestEnd(s, undefined))), [patch])
   const closePreview = useCallback(() => setPreview(undefined), [])
 
-  if (editingPlan) return <Overlay><PlanEditor onDone={() => setEditingPlan(false)} onCancel={() => setEditingPlan(false)} /></Overlay>
+  if (editingPlan) return <Overlay><PlanEditor initial={plan} onSave={(p) => { setPlan(p); setEditingPlan(false) }} onCancel={() => setEditingPlan(false)} /></Overlay>
   if (plan.workouts.length === 0) {
     return (
       <EmptyState icon={<Dumbbell size={30} aria-hidden="true" />} title="Nenhum treino montado">

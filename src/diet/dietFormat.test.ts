@@ -104,7 +104,7 @@ test('item "sem valores" exportado volta como "none", não como estimativa de 0 
   const plan: DietPlan = { menus: [{ id: 'c', name: 'Cardápio', meals: [{ id: 'm1', name: 'Lanche', time: '16:00', options: [{ id: 'o1', items: [{ id: 'i1', name: 'Coisa estranha', grams: 50, per100: { kcal: 0, p: 0, c: 0, f: 0 }, source: 'ia' }] }] }] }] }
   const text = exportDietFormat(plan)
   expect(JSON.parse(text).dieta.cardapios[0].refeicoes[0].opcoes[0].alimentos).toEqual([{ nome: 'Coisa estranha', gramas: 50 }])
-  expect(dietFromFormat(parseDietFormat(text), T, []).items[0].match).toBe('none')
+  expect(Object.values(dietFromFormat(parseDietFormat(text), T, []).reports)[0].match).toBe('none')
 })
 
 test('kcal por 100 g acima de 900 é tratada como ausente', () => {
@@ -128,27 +128,25 @@ test('dietFromFormat: casados guardam o nome da TACO; sem casamento vira ia com 
   expect(items[0]).toEqual({ id: expect.any(String), name: 'Arroz, integral, cozido', grams: 100, portion: '4 colheres', per100: { kcal: 124, p: 2.6, c: 25.8, f: 1 }, source: 'taco', tacoId: 1 })
   expect(items[1]).toEqual({ id: expect.any(String), name: 'Whey protein', grams: 30, per100: { kcal: 400, p: 80, c: 10, f: 0 }, source: 'ia' })
   expect(new Set([menu.id, m.id, m.options[0].id, items[0].id, items[1].id]).size).toBe(5)
-  expect(r.items).toEqual([
-    { menuIdx: 0, mealIdx: 0, optionIdx: 0, itemIdx: 0, match: 'words', aiName: 'Arroz integral' },
-    { menuIdx: 0, mealIdx: 0, optionIdx: 0, itemIdx: 1, match: 'ia', aiName: 'Whey protein' },
-  ])
+  expect(r.reports).toEqual({ [items[0].id]: { match: 'words', aiName: 'Arroz integral' }, [items[1].id]: { match: 'ia', aiName: 'Whey protein' } })
 })
 
-test('dietFromFormat: vários cardápios e opções, com índices no relatório', () => {
+test('dietFromFormat: vários cardápios e opções, relatório pelo id de cada item', () => {
   const r = dietFromFormat({ cardapios: [
     { nome: 'Treino', refeicoes: [{ nome: 'Café', horario: '07:00', opcoes: [{ nome: 'Pão', alimentos: [{ nome: 'Pão, trigo, francês', gramas: 50 }] }, { alimentos: [{ nome: 'Coisa', gramas: 10, kcal: 20 }] }] }] },
     { nome: 'Descanso', refeicoes: [{ nome: 'Café', horario: '08:00', opcoes: [{ alimentos: [{ nome: 'Arroz, integral, cru', gramas: 50 }] }] }] },
   ] }, T, [])
   expect(r.plan.menus.map((m) => m.name)).toEqual(['Treino', 'Descanso'])
   expect(r.plan.menus[0].meals[0].options.map((o) => o.name)).toEqual(['Pão', undefined])
-  expect(r.items.map(({ menuIdx, mealIdx, optionIdx, itemIdx, match }) => [menuIdx, mealIdx, optionIdx, itemIdx, match]))
-    .toEqual([[0, 0, 0, 0, 'exact'], [0, 0, 1, 0, 'ia'], [1, 0, 0, 0, 'exact']])
+  const [treino, descanso] = r.plan.menus
+  const ids = [treino.meals[0].options[0].items[0].id, treino.meals[0].options[1].items[0].id, descanso.meals[0].options[0].items[0].id]
+  expect(ids.map((id) => r.reports[id].match)).toEqual(['exact', 'ia', 'exact'])
 })
 
 test('sem kcal da IA e sem casamento: entra com 0 e match "none"', () => {
   const r = dietFromFormat(one([{ nome: 'Lanche', horario: '16:00', alimentos: [{ nome: 'Coisa estranha', gramas: 50, proteinaG: 5 }] }]), T, [])
   expect(r.plan.menus[0].meals[0].options[0].items[0]).toMatchObject({ name: 'Coisa estranha', per100: { kcal: 0, p: 0, c: 0, f: 0 }, source: 'ia' })
-  expect(r.items[0].match).toBe('none')
+  expect(r.reports[r.plan.menus[0].meals[0].options[0].items[0].id].match).toBe('none')
   expect(r.plan.menus[0].goalKcal).toBeUndefined()
   expect(r.plan.menus[0].goalMacros).toBeUndefined()
 })
@@ -156,7 +154,7 @@ test('sem kcal da IA e sem casamento: entra com 0 e match "none"', () => {
 test('taco null: tudo ia e offline true', () => {
   const r = dietFromFormat(one([{ nome: 'Café', horario: '07:00', alimentos: [{ nome: 'Pão, trigo, francês', gramas: 50, kcal: 150 }] }]), null, [])
   expect(r.offline).toBe(true)
-  expect(r.items.map((i) => i.match)).toEqual(['ia'])
+  expect(Object.values(r.reports).map((i) => i.match)).toEqual(['ia'])
   expect(r.plan.menus[0].meals[0].options[0].items[0]).toMatchObject({ source: 'ia', per100: { kcal: 300 } })
 })
 
@@ -179,7 +177,7 @@ test('exportar e importar de novo mantém alimento criado como custom', () => {
   ] }] }] } })
   expect(text).toContain('\n  "versao"')
   const r = dietFromFormat(parseDietFormat(text), T, [bolo])
-  expect(r.items.map((i) => i.match)).toEqual(['custom', 'exact', 'custom'])
+  expect(Object.values(r.reports).map((i) => i.match)).toEqual(['custom', 'exact', 'custom'])
   const opts = r.plan.menus[0].meals[0].options
   expect(r.plan.menus[0]).toMatchObject({ name: 'Dia de treino', goalKcal: 2000, goalMacros: { p: 140, c: 220, f: 60 } })
   expect(opts[0].name).toBe('Bolo com pão')

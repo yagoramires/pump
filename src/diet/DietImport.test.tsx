@@ -5,7 +5,6 @@ import userEvent from '@testing-library/user-event'
 import { clear, get } from 'idb-keyval'
 import { resetStoreForTests, save } from '../storage/db'
 import { fetchTaco } from '../catalog/catalog'
-import { todayKey } from '../lib/date'
 import { DietImport } from './DietImport'
 
 // fetchTaco guarda a promessa no módulo; mockado, cada teste escolhe online ou offline
@@ -26,10 +25,10 @@ beforeEach(async () => {
   vi.mocked(fetchTaco).mockRejectedValue(new Error('offline'))
 })
 
+// arquivo escolhido revisa na hora: sem esperar os 400 ms de quem digita (o debounce tem teste próprio no usePastedReview)
 async function paste(text: string) {
   const user = userEvent.setup()
-  await user.click(await screen.findByRole('textbox', { name: 'Resposta da IA' }))
-  await user.paste(text)
+  await user.upload(await screen.findByLabelText('Escolher arquivo'), new File([text], 'cardapio.json', { type: 'application/json' }))
   return user
 }
 
@@ -71,7 +70,7 @@ test('import offline: tudo vira estimativa com aviso e dá pra usar', async () =
   const items = plan.menus[0].meals[0].options[0].items
   expect(items.map((i) => [i.name, i.source])).toEqual([['Whey protein', 'ia'], ['Pão francês', 'ia']])
   expect(plan.lastMenuId).toBe(plan.menus[0].id)
-  expect(((await get('dietLog')) as DietLog)[todayKey()].menuId).toBe(plan.menus[0].id)
+  expect(await get('dietLog')).toBeUndefined() // dia sem marca não é dado (B7)
 })
 
 test('casado por palavras com nome diferente mostra "na TACO"', async () => {
@@ -105,7 +104,7 @@ test('JSON inválido lista os erros e não grava', async () => {
 
 test('substituir cardápio pede confirmação e preserva o que foi marcado hoje', async () => {
   const old: DietPlan = { menus: [{ id: 'old', name: 'Antigo', meals: [{ id: 'm1', name: 'Café', time: '07:00', options: [{ id: 'o1', items: [] }] }] }], lastMenuId: 'old' }
-  const log: DietLog = { [todayKey()]: { menuId: 'old', menuName: 'Antigo', meals: [{ id: 'm1', name: 'Café', time: '07:00', done: true, items: [] }] } }
+  const log: DietLog = { '2026-11-18': { menuId: 'old', menuName: 'Antigo', meals: [{ id: 'm1', name: 'Café', time: '07:00', done: true, items: [] }] } }
   await save('dietPlan', old)
   await save('dietLog', log)
   resetStoreForTests()
@@ -134,4 +133,47 @@ test('enquanto a TACO carrega mostra "Conferindo na TACO…"', async () => {
   resolve(TACO)
   expect(await screen.findByRole('heading', { name: 'Revisar cardápio' })).toBeInTheDocument()
   expect(screen.queryByText('Conferindo na TACO…')).not.toBeInTheDocument()
+})
+
+test('Editar e salvar por cima de um cardápio salvo passa pela mesma confirmação', async () => {
+  await save('dietPlan', { menus: [{ id: 'X', name: 'Antigo', meals: [{ id: 'm', name: 'Café', time: '07:00', options: [{ id: 'o', items: [] }] }] }], lastMenuId: 'X' })
+  resetStoreForTests()
+  const onDone = vi.fn()
+  await renderLoaded(<DietImport mode="import" onDone={onDone} onBack={vi.fn()} />)
+  const user = await paste(json([PAO]))
+  await user.click(await screen.findByRole('button', { name: 'Editar' }))
+  await user.click(await screen.findByRole('button', { name: 'Salvar' }))
+  const dialog = await screen.findByRole('alertdialog')
+  expect(within(dialog).getByText('O cardápio atual será substituído. O que você já marcou hoje continua.')).toBeInTheDocument()
+  expect(((await get('dietPlan')) as DietPlan).menus[0].id).toBe('X')
+  await user.click(within(dialog).getByRole('button', { name: 'Substituir' }))
+  await vi.waitFor(() => expect(onDone).toHaveBeenCalled())
+  expect(((await get('dietPlan')) as DietPlan).menus.map((m) => m.name)).toEqual(['Cardápio'])
+})
+
+test('Editar sem cardápio salvo grava direto', async () => {
+  const onDone = vi.fn()
+  await renderLoaded(<DietImport mode="import" onDone={onDone} onBack={vi.fn()} />)
+  const user = await paste(json([PAO]))
+  await user.click(await screen.findByRole('button', { name: 'Editar' }))
+  await user.click(await screen.findByRole('button', { name: 'Salvar' }))
+  await vi.waitFor(() => expect(onDone).toHaveBeenCalled())
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  expect(((await get('dietPlan')) as DietPlan).menus).toHaveLength(1)
+})
+
+test('criar alimento próprio na revisão não refaz a revisão nem perde as trocas', async () => {
+  vi.mocked(fetchTaco).mockResolvedValue(TACO)
+  await renderLoaded(<DietImport mode="import" onDone={vi.fn()} onBack={vi.fn()} />)
+  const user = await paste(json([PAO, WHEY]))
+  await user.click(await screen.findByRole('button', { name: /Whey protein/ }))
+  await user.click(await screen.findByRole('button', { name: 'Criar alimento próprio' }))
+  await user.type(screen.getByRole('textbox', { name: 'Nome do alimento' }), 'Meu whey')
+  await user.type(screen.getByRole('textbox', { name: 'kcal por 100 g' }), '400')
+  await user.click(screen.getByRole('button', { name: 'Criar' }))
+  await user.click(await screen.findByRole('button', { name: 'Trocar' }))
+  expect(await screen.findByText('Meu whey')).toBeInTheDocument()
+  await vi.waitFor(async () => expect(await get('foods')).toHaveLength(1))
+  expect(screen.getByText('Meu whey')).toBeInTheDocument()
+  expect(screen.getByText('na TACO: Pão, trigo, francês')).toBeInTheDocument()
 })

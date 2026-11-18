@@ -94,3 +94,15 @@ test('FoodPicker busca na TACO e mostra a fonte', async () => {
   await user.click(screen.getByRole('button', { name: 'Pular hoje' }))
   expect(onSkip).toHaveBeenCalled()
 })
+
+test('FoodPicker não cria alimento que o import trataria como o mesmo (B5)', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
+  await save('foods', [food('Bolo, da vó')])
+  resetStoreForTests()
+  const user = userEvent.setup()
+  await renderLoaded(<FoodPicker title="Adicionar" confirmLabel="Adicionar" onPick={vi.fn()} onClose={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: 'Criar alimento próprio' }))
+  await user.type(screen.getByRole('textbox', { name: 'Nome do alimento' }), 'Bolo da vó')
+  expect(screen.getByRole('alert')).toHaveTextContent('Já existe um alimento com esse nome')
+  expect(screen.getByRole('button', { name: 'Criar' })).toBeDisabled()
+})

@@ -3,6 +3,7 @@ import { FormatError, readEnvelope, str, writeEnvelope } from '../format/envelop
 import { isObj } from '../schema'
 import { GOAL_KCAL, GRAMS, HHMM, MACRO_G, MAX_ITEMS, MAX_KCAL_PER_100G, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 import { matchFood } from './match'
+import { asFood, hasValues } from './food'
 import { round1 } from '../lib/number'
 
 export interface PumpAlimento { nome: string; gramas: number; porcao?: string; kcal?: number; proteinaG?: number; carboG?: number; gorduraG?: number }
@@ -92,14 +93,14 @@ export function parseDietFormat(text: string): PumpDieta {
 }
 
 type Match = 'custom' | 'exact' | 'words' | 'ia' | 'none'
-type ItemReport = { menuIdx: number; mealIdx: number; optionIdx: number; itemIdx: number; match: Match; aiName: string }
+/** como cada item do import casou (pelo id do item) e o nome que a IA escreveu */
+export type ItemReport = { match: Match; aiName: string }
 
 function itemFromFormat(a: PumpAlimento, taco: TacoFood[] | null, customs: DietItem[]): { item: DietItem; match: Match } {
   const base = { id: crypto.randomUUID(), grams: a.gramas, ...(a.porcao && { portion: a.porcao }) }
   const found = matchFood(a.nome, a.gramas, a.kcal, taco ?? [], customs)
   if (found?.kind === 'custom') {
-    const { portion: _, ...mine } = found.item
-    return { match: 'custom', item: { ...mine, ...base } }
+    return { match: 'custom', item: { ...asFood(found.item), ...base } }
   }
   if (found) {
     const { id: tacoId, name, kcal, p, c, f } = found.food
@@ -117,40 +118,39 @@ export function dietFromFormat(
   d: PumpDieta,
   taco: TacoFood[] | null,
   customs: DietItem[],
-): { plan: DietPlan; items: ItemReport[]; offline: boolean } {
-  const items: ItemReport[] = []
-  const menus = d.cardapios.map((cd, menuIdx): Menu => ({
+): { plan: DietPlan; reports: Record<string, ItemReport>; offline: boolean } {
+  const reports: Record<string, ItemReport> = {}
+  const menus = d.cardapios.map((cd): Menu => ({
     id: crypto.randomUUID(),
     name: cd.nome,
     ...(cd.metaKcal !== undefined && { goalKcal: cd.metaKcal }),
     ...(cd.macros && { goalMacros: { p: cd.macros.proteinaG, c: cd.macros.carboG, f: cd.macros.gorduraG } }),
-    meals: cd.refeicoes.map((r, mealIdx) => ({
+    meals: cd.refeicoes.map((r) => ({
       id: crypto.randomUUID(),
       name: r.nome,
       time: r.horario,
-      options: r.opcoes.map((op, optionIdx) => ({
+      options: r.opcoes.map((op) => ({
         id: crypto.randomUUID(),
         ...(op.nome && { name: op.nome }),
-        items: op.alimentos.map((a, itemIdx) => {
+        items: op.alimentos.map((a) => {
           const { item, match } = itemFromFormat(a, taco, customs)
-          items.push({ menuIdx, mealIdx, optionIdx, itemIdx, match, aiName: a.nome })
+          reports[item.id] = { match, aiName: a.nome }
           return item
         }),
       })),
     })),
   }))
-  return { plan: { menus }, items, offline: taco === null }
+  return { plan: { menus }, reports, offline: taco === null }
 }
 
 const exportFood = (i: DietItem) => {
   const q = i.grams / 100
-  // "sem valores" sai sem números pra voltar como "sem valores", não como estimativa de 0 kcal
-  const noValues = i.source === 'ia' && i.per100.kcal === 0
   return {
     nome: i.name,
     gramas: i.grams,
     ...(i.portion && { porcao: i.portion }),
-    ...(!noValues && {
+    // "sem valores" sai sem números pra voltar como "sem valores", não como estimativa de 0 kcal
+    ...(hasValues(i) && {
       kcal: Math.round(i.per100.kcal * q),
       proteinaG: round1(i.per100.p * q),
       carboG: round1(i.per100.c * q),

@@ -69,7 +69,8 @@ function Steps({ n }: { n: 1 | 2 }) {
 
 export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => Settings) => void }) {
   const [step, setStep] = useState<Step>('perfil')
-  const [initial, setInitial] = useState<WorkoutPlan>()
+  const [initial, setInitial] = useState<WorkoutPlan>(DEFAULTS.workoutPlan)
+  const [, setPlan] = usePersisted('workoutPlan')
   const [error, setError] = useState<string>()
   const [picked, setPicked] = useState(TEMPLATES[0].id)
   const finish = () => setSettings((s) => ({ ...s, onboardingDone: true, firstUseAt: s.firstUseAt ?? todayKey() }))
@@ -88,7 +89,7 @@ export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => 
     setStep('editor')
   }
 
-  if (step === 'editor') return <PlanEditor initial={initial} onDone={finish} onCancel={() => setStep('treino')} />
+  if (step === 'editor') return <PlanEditor initial={initial} onSave={(p) => { setPlan(p); finish() }} onCancel={() => setStep('treino')} />
   if (step === 'import') return <PlanImport onDone={finish} onBack={() => setStep('treino')} />
   if (step === 'perfil') {
     return (

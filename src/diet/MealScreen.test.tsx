@@ -1,8 +1,10 @@
-import { useState } from 'react'
-import { render, screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { clear } from 'idb-keyval'
+import { renderLoaded } from '../../test/render'
+import { load, resetStoreForTests, save } from '../storage/db'
 import type { DietDay, DietItem, DietPlan, Menu } from './types'
-import { dayFromMenu, skipItem, toggleMeal } from './day'
+import { dayFromMenu, setDayFree, toggleMeal } from './day'
 import { MealScreen } from './MealScreen'
 
 const it_ = (id: string, name: string, kcal: number, grams = 100, source: DietItem['source'] = 'custom'): DietItem => ({ id, name, grams, per100: { kcal, p: 10, c: 20, f: 5 }, source })
@@ -17,18 +19,33 @@ const menuA: Menu = {
   }],
 }
 const menuB: Menu = { id: 'B', name: 'Descanso', meals: [{ id: 'mb', name: 'Jantar', time: '20:00', options: [{ id: 'ob', items: [it_('ib', 'Sopa', 50, 300)] }] }] }
-const plan: DietPlan = { menus: [menuA, menuB] }
+const plan: DietPlan = { menus: [menuA, menuB], lastMenuId: 'A' }
+const TODAY = '2026-11-18'
 
-// dia em memória: o `act` aplica na cópia, guarda em `stored` e re-renderiza com a refeição salva
-let stored: DietDay
-function Harness({ initial, noMenu = false, dayFree = false, onClose = () => {} }: { initial: DietDay; noMenu?: boolean; dayFree?: boolean; onClose?: () => void }) {
-  const [day, setDay] = useState(initial)
-  return <MealScreen meal={day.meals[0]} menu={noMenu ? undefined : menuA} plan={plan} dayFree={dayFree} act={(f) => setDay((d) => (stored = f(d)))} onClose={onClose} />
+beforeEach(async () => {
+  await clear()
+  resetStoreForTests()
+  vi.useFakeTimers({ toFake: ['Date'] }) // só o relógio; IndexedDB/findBy/user-event seguem com timers reais
+  vi.setSystemTime(new Date(2026, 10, 18, 12, 0))
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
+})
+afterEach(() => {
+  vi.useRealTimers()
+  vi.unstubAllGlobals()
+})
+
+/** abre o Almoço pelo armazenamento, como a aba faz; `day` = dia de hoje já mexido */
+async function open({ day, dietPlan = plan, onClose = () => {} }: { day?: DietDay; dietPlan?: DietPlan; onClose?: () => void } = {}) {
+  await save('dietPlan', dietPlan)
+  if (day) await save('dietLog', { [TODAY]: day })
+  resetStoreForTests()
+  return renderLoaded(<MealScreen mealId="m1" onClose={onClose} />)
 }
+const stored = async () => (await load('dietLog'))?.[TODAY].meals[0]
 
 test('toggle troca a opção e os itens', async () => {
   const user = userEvent.setup()
-  render(<Harness initial={dayFromMenu(menuA)} />)
+  await open()
   expect(screen.getByRole('heading', { name: 'Almoço · 12:30' })).toBeInTheDocument()
   expect(screen.getByRole('radiogroup', { name: 'Opção' })).toBeInTheDocument()
   expect(screen.getByRole('radio', { name: 'A' })).toBeChecked()
@@ -37,52 +54,46 @@ test('toggle troca a opção e os itens', async () => {
 
   await user.click(screen.getByRole('radio', { name: 'B' }))
   expect(screen.getByRole('radio', { name: 'B' })).toBeChecked()
-  expect(screen.getByText('Opção B')).toBeInTheDocument()
+  expect(await screen.findByText('Opção B')).toBeInTheDocument()
   expect(screen.getByText('Carne')).toBeInTheDocument()
   expect(screen.queryByText('Frango')).not.toBeInTheDocument()
   expect(screen.getByText('330 kcal · P 15 · C 30 · G 8')).toBeInTheDocument()
-  expect(stored.meals[0].optionId).toBe('o2')
-  expect(stored.meals[0].items.map((i) => i.id)).toEqual(['i3'])
+  await waitFor(async () => expect((await stored())?.optionId).toBe('o2'))
+  expect((await stored())?.items.map((i) => i.id)).toEqual(['i3'])
 })
 
 test('Comi esta marca e fecha', async () => {
   const user = userEvent.setup()
   const onClose = vi.fn()
-  render(<Harness initial={dayFromMenu(menuA)} onClose={onClose} />)
+  await open({ onClose })
   expect(screen.getByRole('button', { name: 'Refeição livre' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Comi esta' }))
-  expect(stored.meals[0].done).toBe(true)
   expect(onClose).toHaveBeenCalled()
-})
-
-test('dia livre desabilita Comi esta', () => {
-  render(<Harness initial={dayFromMenu(menuA)} dayFree />)
-  expect(screen.getByRole('button', { name: 'Comi esta' })).toBeDisabled()
+  await waitFor(async () => expect((await stored())?.done).toBe(true))
 })
 
 test('clicar na opção ativa não escreve nada', async () => {
   const user = userEvent.setup()
-  const act = vi.fn()
-  const day = skipItem(dayFromMenu(menuA), 'm1', 'i1', true)
-  render(<MealScreen meal={day.meals[0]} menu={menuA} plan={plan} dayFree={false} act={act} onClose={() => {}} />)
+  await open()
   await user.click(screen.getByRole('radio', { name: 'A' }))
-  expect(act).not.toHaveBeenCalled()
+  expect(screen.getByRole('radio', { name: 'A' })).toBeChecked()
+  expect(await load('dietLog')).toBeUndefined()
 })
 
 test('feita mostra Desmarcar', async () => {
   const user = userEvent.setup()
   const onClose = vi.fn()
-  render(<Harness initial={toggleMeal(dayFromMenu(menuA), 'm1')} onClose={onClose} />)
+  await open({ day: toggleMeal(dayFromMenu(menuA), 'm1'), onClose })
   expect(screen.queryByRole('button', { name: 'Comi esta' })).not.toBeInTheDocument()
   expect(screen.getAllByRole('button', { name: 'Voltar' })).toHaveLength(2) // topo + barra de baixo
   await user.click(screen.getByRole('button', { name: 'Desmarcar' }))
-  expect(stored.meals[0].done).toBe(false)
+  expect(await screen.findByRole('button', { name: 'Comi esta' })).toBeInTheDocument()
   expect(onClose).not.toHaveBeenCalled()
-  expect(screen.getByRole('button', { name: 'Comi esta' })).toBeInTheDocument()
+  expect((await stored())?.done).toBe(false)
 })
 
-test('sem o cardápio do dia não mostra toggle', () => {
-  render(<Harness initial={dayFromMenu(menuA)} noMenu />)
+test('sem o cardápio do dia não mostra toggle', async () => {
+  await open({ day: toggleMeal(dayFromMenu(menuA), 'm1'), dietPlan: { menus: [menuB] } })
   expect(screen.queryByRole('radiogroup', { name: 'Opção' })).not.toBeInTheDocument()
   expect(screen.queryByText(/^Opção A/)).not.toBeInTheDocument()
   expect(screen.getByText('Frango')).toBeInTheDocument()
@@ -92,62 +103,63 @@ test('sem o cardápio do dia não mostra toggle', () => {
 test('refeição livre desabilita o toggle e esconde ações de item', async () => {
   const user = userEvent.setup()
   const onClose = vi.fn()
-  render(<Harness initial={dayFromMenu(menuA)} onClose={onClose} />)
+  await open({ onClose })
   expect(screen.getByRole('button', { name: /Frango/ })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Refeição livre' }))
-  expect(stored.meals[0].free).toBe(true)
   expect(onClose).toHaveBeenCalled()
-  expect(screen.getByRole('radio', { name: 'A' })).toBeDisabled()
+  await waitFor(() => expect(screen.getByRole('radio', { name: 'A' })).toBeDisabled())
+  expect((await stored())?.free).toBe(true)
   expect(screen.getByRole('radio', { name: 'B' })).toBeDisabled()
   expect(screen.queryByRole('button', { name: /Frango/ })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Adicionar extra' })).not.toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Mais opções da refeição' }))
   await user.click(await screen.findByRole('button', { name: 'Desfazer refeição livre' }))
-  expect(stored.meals[0].free).toBe(false)
-  expect(screen.getByRole('radio', { name: 'A' })).toBeEnabled()
+  await waitFor(() => expect(screen.getByRole('radio', { name: 'A' })).toBeEnabled())
+  expect((await stored())?.free).toBe(false)
 })
 
-test('dia livre desabilita o toggle', () => {
-  render(<Harness initial={dayFromMenu(menuA)} dayFree />)
+test('dia livre desabilita o toggle, Comi esta e as ações de item', async () => {
+  await open({ day: setDayFree(dayFromMenu(menuA), true) })
+  expect(screen.getByRole('button', { name: 'Comi esta' })).toBeDisabled()
   expect(screen.getByRole('radio', { name: 'B' })).toBeDisabled()
   expect(screen.queryByRole('button', { name: /Frango/ })).not.toBeInTheDocument()
 })
 
 test('trocar por outro cardápio mostra "Voltar às opções" e volta pra A', async () => {
   const user = userEvent.setup()
-  render(<Harness initial={dayFromMenu(menuA)} />)
+  await open()
   await user.click(screen.getByRole('radio', { name: 'B' }))
+  await screen.findByText('Carne')
   await user.click(screen.getByRole('button', { name: 'Mais opções da refeição' }))
   await user.click(await screen.findByRole('button', { name: 'Trocar por refeição de outro cardápio' }))
   expect(await screen.findByRole('list', { name: 'Descanso' })).toBeInTheDocument()
   expect(screen.queryByRole('list', { name: 'Dia de treino' })).not.toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: /Jantar/ }))
-  expect(stored.meals[0].swappedMeal).toBe('Descanso · Jantar')
-  expect(stored.meals[0].optionId).toBeUndefined()
   expect(await screen.findByText('De outro cardápio: Descanso · Jantar')).toBeInTheDocument()
+  expect((await stored())?.optionId).toBeUndefined()
   expect(screen.getByText('Sopa')).toBeInTheDocument()
   expect(screen.queryByRole('radiogroup', { name: 'Opção' })).not.toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Voltar às opções' }))
-  expect(stored.meals[0].optionId).toBe('o1')
-  expect(stored.meals[0].swappedMeal).toBeUndefined()
+  expect(await screen.findByText('Frango')).toBeInTheDocument()
   expect(screen.getByRole('radio', { name: 'A' })).toBeChecked()
-  expect(screen.getByText('Frango')).toBeInTheDocument()
+  expect(await stored()).toMatchObject({ optionId: 'o1' })
+  expect((await stored())?.swappedMeal).toBeUndefined()
 })
 
-test('item da IA mostra "estimativa da IA"', () => {
-  const day = dayFromMenu(menuA)
-  day.meals[0].items.push(it_('ia1', 'Bolo da vó', 350, 80, 'ia'))
-  render(<Harness initial={day} />)
+test('item da IA mostra "estimativa da IA"', async () => {
+  const withIa = structuredClone(menuA)
+  withIa.meals[0].options[0].items.push(it_('ia1', 'Bolo da vó', 350, 80, 'ia'))
+  await open({ dietPlan: { menus: [withIa] } })
   expect(screen.getByText('Bolo da vó')).toBeInTheDocument()
   expect(screen.getByText('estimativa da IA')).toBeInTheDocument()
 })
 
-test('subtítulo do item: porção · gramas, ou só gramas', () => {
-  const day = dayFromMenu(menuA)
-  day.meals[0].items[0] = { ...day.meals[0].items[0], portion: '1 filé' }
-  render(<Harness initial={day} />)
+test('subtítulo do item: porção · gramas, ou só gramas', async () => {
+  const withPortion = structuredClone(menuA)
+  withPortion.meals[0].options[0].items[0].portion = '1 filé'
+  await open({ dietPlan: { menus: [withPortion] } })
   expect(screen.getByText('1 filé · 150 g')).toBeInTheDocument()
   expect(screen.getByText('120 g')).toBeInTheDocument()
 })

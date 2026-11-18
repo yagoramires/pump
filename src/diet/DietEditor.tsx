@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, ChevronLeft, Copy, Plus, Share2, Trash2 } from 'lucide-react'
 import { DEFAULTS } from '../schema'
-import type { DietItem, DietLog, DietPlan, Macros, Meal, MealOption, Menu } from './types'
-import { usePersisted } from '../storage/db'
-import { currentMenu, ensureDay, iaLabel, itemKcal, optionLetter, sortedMeals } from './day'
+import type { DietItem, DietPlan, Macros, Meal, MealOption, Menu } from './types'
+import { currentMenu, optionLetter, sortedMeals } from './day'
+import { iaLabel, itemKcal, kcalOf } from './food'
+import { emptyMenu } from './plan'
 import { exportDietFormat } from './dietFormat'
 import { GOAL_KCAL, GRAMS, HHMM, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 import { FoodPicker } from './FoodPicker'
@@ -12,19 +13,17 @@ import { Input } from '@/components/ui/input'
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { todayKey } from '@/lib/date'
 import { formatInput, parseDecimal } from '@/lib/number'
+import { copyText } from '@/lib/share'
 import { cn } from '@/lib/utils'
 
-/** `confirmReplace`: pede confirmação antes de salvar por cima de cardápios já salvos (vindo da importação) */
-type Props = { initial?: DietPlan; confirmReplace?: boolean; onDone: () => void; onCancel: () => void }
-type Setter<T> = (v: T | ((prev: T) => T)) => void
+/** só edita: quem abre grava no `onSave` ("Apagar todos" também passa por ele, com o plano vazio) */
+type Props = { initial: DietPlan; onSave: (plan: DietPlan) => void; onCancel: () => void }
 
 const LABEL = 'text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
 const CONFIRM = {
   menu: { title: 'Apagar este cardápio?', text: 'As refeições dele saem do editor. O histórico fica.' },
   all: { title: 'Apagar todos os cardápios?', text: 'A aba Dieta volta ao convite. O histórico fica.' },
-  replace: { title: 'Substituir cardápio?', text: 'O cardápio atual será substituído. O que você já marcou hoje continua.' },
 }
 
 const uuid = () => crypto.randomUUID()
@@ -87,15 +86,9 @@ function NumField({ value, onChange, label, className, placeholder }: { value?: 
   )
 }
 
-export function DietEditor(props: Props) {
-  const [saved, savePlan] = usePersisted('dietPlan')
-  const [, setLog] = usePersisted('dietLog')
-  return <DietForm {...props} start={props.initial ?? saved} replacing={!!props.confirmReplace && saved.menus.length > 0} savePlan={savePlan} setLog={setLog} />
-}
-
-function DietForm({ start, replacing, onDone, onCancel, savePlan, setLog }: Props & { start: DietPlan; replacing: boolean; savePlan: Setter<DietPlan>; setLog: Setter<DietLog> }) {
-  const [plan, setPlan] = useState<DietPlan>(() => (start.menus.length ? structuredClone(start) : { menus: [newMenu(1)] }))
-  const [menuId, setMenuId] = useState(() => currentMenu(plan)!.id)
+export function DietEditor({ initial, onSave, onCancel }: Props) {
+  const [plan, setPlan] = useState<DietPlan>(() => (initial.menus.length ? structuredClone(initial) : { menus: [emptyMenu(1)] }))
+  const [menuId, setMenuId] = useState(() => (currentMenu(plan) ?? plan.menus[0]).id)
   const [optOf, setOptOf] = useState<Record<string, number>>({}) // aba de opção aberta em cada refeição
   const [picking, setPicking] = useState<{ mealId: string; oi: number; name: string }>()
   const [confirm, setConfirm] = useState<keyof typeof CONFIRM>()
@@ -129,33 +122,16 @@ function DietForm({ start, replacing, onDone, onCancel, savePlan, setLog }: Prop
     setOptOf((o) => ({ ...o, [meal.id]: Math.max(0, oi - 1) }))
   }
 
-  const save = (sure = false) => {
+  const save = () => {
     const problem = problemOf(plan)
     if (problem) {
       setError(problem.text)
       return setMenuId(problem.menuId) // mostra o cardápio com o problema
     }
-    if (replacing && !sure) return setConfirm('replace')
-    const lastMenuId = plan.menus.some((m) => m.id === plan.lastMenuId) ? plan.lastMenuId : plan.menus[0].id
-    const next: DietPlan = { ...tidyPlan(plan), lastMenuId }
-    savePlan(() => next)
-    setLog((l) => ensureDay(l, next, todayKey()))
-    onDone()
+    onSave(tidyPlan(plan))
   }
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(exportDietFormat(tidyPlan(plan)))
-      setNotice('Cardápio copiado. Cole na IA pra pedir ajustes.')
-    } catch {
-      setNotice('Não consegui copiar. Tente de novo.')
-    }
-  }
-  const confirmed = () => {
-    if (confirm === 'menu') return removeMenu()
-    if (confirm === 'replace') return save(true)
-    savePlan(() => DEFAULTS.dietPlan)
-    onDone()
-  }
+  const copy = async () => setNotice((await copyText(exportDietFormat(tidyPlan(plan)))) ? 'Cardápio copiado. Cole na IA pra pedir ajustes.' : 'Não consegui copiar. Tente de novo.')
+  const confirmed = () => (confirm === 'menu' ? removeMenu() : onSave(DEFAULTS.dietPlan))
 
   const dash = 'flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-medium'
 
@@ -164,7 +140,7 @@ function DietForm({ start, replacing, onDone, onCancel, savePlan, setLog }: Prop
       <header className="flex items-center gap-3 py-2">
         <button type="button" className="icon-btn" aria-label="Cancelar" onClick={onCancel}><ChevronLeft size={18} /></button>
         <h1 className="flex-1 text-[19px] font-semibold text-strong">Cardápio</h1>
-        <Button size="sm" onClick={() => save()}>Salvar</Button>
+        <Button size="sm" onClick={save}>Salvar</Button>
       </header>
       {error && <p role="alert" className="rounded-xl border border-negative/30 px-3 py-2 text-[13px] text-negative">{error}</p>}
 
@@ -200,7 +176,7 @@ function DietForm({ start, replacing, onDone, onCancel, savePlan, setLog }: Prop
       {menu.meals.map((meal, mi) => {
         const oi = Math.min(optOf[meal.id] ?? 0, meal.options.length - 1)
         const opt = meal.options[oi]
-        const kcal = Math.round(opt.items.reduce((s, i) => s + itemKcal(i), 0))
+        const kcal = kcalOf(opt.items)
         return (
           <section key={meal.id} className="flex flex-col gap-2 rounded-[14px] border border-border bg-panel p-3">
             <div className="flex items-center gap-2">
@@ -269,7 +245,7 @@ function DietForm({ start, replacing, onDone, onCancel, savePlan, setLog }: Prop
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction variant={confirm === 'replace' ? 'default' : 'destructive'} onClick={confirmed}>{confirm === 'replace' ? 'Substituir' : 'Apagar'}</AlertDialogAction>
+            <AlertDialogAction variant="destructive" onClick={confirmed}>Apagar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

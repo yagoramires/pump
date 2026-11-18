@@ -1,29 +1,28 @@
-import { useEffect, useRef, useState } from 'react'
-import { AlertTriangle, ChevronLeft, Copy, FileUp } from 'lucide-react'
+import { useState } from 'react'
+import { AlertTriangle, ChevronLeft, Copy } from 'lucide-react'
 import { toast } from 'sonner'
 import type { DietAnamnesis, DietItem, DietPlan } from './types'
 import { usePersisted } from '../storage/db'
 import { fetchTaco } from '../catalog/catalog'
-import { FormatError } from '../format/envelope'
-import { Step } from '../workout/PlanImport'
 import { buildDietPrompt } from './prompt'
 import { dietFromFormat, parseDietFormat } from './dietFormat'
-import { ensureDay, itemKcal, optionLetter, portionText, sortedMeals } from './day'
+import { optionLetter } from './day'
+import { itemKcal, kcalOf, macroText, matchLabel, portionText } from './food'
+import { savePlan } from './plan'
 import { DietAnamnesisForm } from './DietAnamnesisForm'
 import { DietEditor } from './DietEditor'
 import { FoodPicker } from './FoodPicker'
+import { PasteBox, Step } from '@/components/ImportFlow'
+import { usePastedReview } from '@/components/usePastedReview'
 import { Button } from '@/components/ui/button'
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { todayKey } from '@/lib/date'
 import { formatDec } from '@/lib/number'
+import { copyText } from '@/lib/share'
 import { cn } from '@/lib/utils'
 
 type Props = { mode: 'ia' | 'import'; onDone: () => void; onBack: () => void }
-type Report = ReturnType<typeof dietFromFormat>['items'][number]
-/** `info` = como cada item (pelo id) casou e o nome que a IA escreveu */
-type Review = { plan: DietPlan; info: Record<string, Report>; offline: boolean }
 
 const allItems = (plan: DietPlan) => plan.menus.flatMap((m) => m.meals.flatMap((ml) => ml.options.flatMap((o) => o.items)))
 const replaceItem = (plan: DietPlan, id: string, next: DietItem): DietPlan => ({
@@ -34,85 +33,57 @@ const replaceItem = (plan: DietPlan, id: string, next: DietItem): DietPlan => ({
 export function DietImport({ mode, onDone, onBack }: Props) {
   const [profile, setProfile] = usePersisted('profile')
   const [saved, setPlan] = usePersisted('dietPlan')
-  const [, setLog] = usePersisted('dietLog')
   const [foods] = usePersisted('foods')
   const [edited, setEdited] = useState<Partial<DietAnamnesis>>()
-  const [text, setText] = useState('')
-  const [problems, setProblems] = useState<string[]>([])
-  const [review, setReview] = useState<Review>()
   const [tab, setTab] = useState(0)
   const [picking, setPicking] = useState<DietItem>()
-  const [confirming, setConfirming] = useState(false)
+  const [replacing, setReplacing] = useState<DietPlan>() // plano esperando o "Substituir"
   const [editing, setEditing] = useState(false)
-  const [checking, setChecking] = useState(false)
-  const instant = useRef(false) // arquivo escolhido revisa na hora; digitar espera 400 ms
+  const paste = usePastedReview(parseDietFormat, async (file) => {
+    const r = dietFromFormat(file, await fetchTaco().catch(() => null), foods)
+    return { ...r, plan: savePlan(saved, r.plan) } // já na ordem de horário, como vai ficar salvo
+  })
+  const review = paste.result
   // até a pessoa mexer, a anamnese é a do perfil
   const anamnesis = edited ?? profile.dietAnamnesis ?? {}
 
   const copyPrompt = async () => {
     const dietAnamnesis = anamnesis as DietAnamnesis
     setProfile((p) => ({ ...p, dietAnamnesis }))
-    try {
-      await navigator.clipboard.writeText(buildDietPrompt({ ...profile, dietAnamnesis }))
-      toast('Prompt copiado')
-    } catch {
-      toast('Não consegui copiar. Tente de novo.')
-    }
+    toast((await copyText(buildDietPrompt({ ...profile, dietAnamnesis }))) ? 'Prompt copiado' : 'Não consegui copiar. Tente de novo.')
+  }
+  const edit = (v: string, now?: boolean) => {
+    setTab(0)
+    paste.set(v, now)
   }
 
-  const edit = (v: string) => {
-    setText(v)
-    setReview(undefined)
-    setProblems([])
-    setChecking(false)
-  }
-
-  useEffect(() => {
-    // em revisão, um alimento criado no FoodPicker muda `foods` e rever perderia as trocas
-    if (review || !text.trim()) return
-    let stale = false
-    const run = async () => {
-      let file
-      try {
-        file = parseDietFormat(text)
-      } catch (e) {
-        if (!stale) setProblems(e instanceof FormatError ? e.problems : ['Não encontrei um cardápio em JSON no texto'])
-        return
-      }
-      setChecking(true)
-      const taco = await fetchTaco().catch(() => null)
-      if (stale) return
-      setChecking(false)
-      const r = dietFromFormat(file, taco, foods)
-      const ids = allItems(r.plan)
-      const info = Object.fromEntries(r.items.map((x, n) => [ids[n].id, x]))
-      setTab(0)
-      setReview({ plan: { menus: r.plan.menus.map((m) => ({ ...m, meals: sortedMeals(m.meals) })) }, info, offline: r.offline })
-    }
-    const t = setTimeout(() => void run(), instant.current ? 0 : 400)
-    instant.current = false
-    return () => { stale = true; clearTimeout(t) }
-  }, [text, foods, review])
-
-  const use = () => {
-    if (!review) return
-    const next: DietPlan = { menus: review.plan.menus, lastMenuId: review.plan.menus[0].id }
-    setPlan(() => next)
-    setLog((l) => ensureDay(l, next, todayKey()))
+  const commit = (next: DietPlan) => {
+    setPlan((p) => savePlan(p, next))
     onDone()
   }
+  // substituir um cardápio salvo pede confirmação (apagar tudo no editor, não)
+  const offer = (next: DietPlan) => (saved.menus.length && next.menus.length ? setReplacing(next) : commit(next))
 
-  if (editing && review) return <DietEditor initial={review.plan} confirmReplace onDone={onDone} onCancel={() => setEditing(false)} />
+  const confirm = (
+    <AlertDialog open={!!replacing} onOpenChange={(o) => !o && setReplacing(undefined)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Substituir cardápio?</AlertDialogTitle>
+          <AlertDialogDescription>O cardápio atual será substituído. O que você já marcou hoje continua.</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction onClick={() => replacing && commit(replacing)}>Substituir</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+
+  if (editing && review) return <><DietEditor initial={review.plan} onSave={offer} onCancel={() => setEditing(false)} />{confirm}</>
 
   if (review) {
     const menu = review.plan.menus[tab] ?? review.plan.menus[0]
     const outside = allItems(review.plan).filter((i) => i.source === 'ia').length
-    const label = (i: DietItem) => {
-      const r = review.info[i.id]
-      if (r?.match === 'none') return { text: 'sem valores — escolha na TACO', warn: true }
-      if (i.source === 'ia' && i.per100.kcal > 0) return { text: 'estimativa da IA', warn: true }
-      if (r?.match === 'words' && r.aiName !== i.name) return { text: `na TACO: ${i.name}`, warn: false }
-    }
     return (
       <div className="flex flex-col gap-3 pb-28">
         <header className="flex min-h-11 items-center gap-3 py-2">
@@ -131,8 +102,8 @@ export function DietImport({ mode, onDone, onBack }: Props) {
         )}
         {(menu.goalKcal !== undefined || menu.goalMacros) && (
           <div className="flex justify-between gap-3 rounded-[14px] border border-border bg-panel px-3.5 py-2.5 text-[13px] tabular-nums text-text-2">
-            <span>{menu.goalKcal !== undefined ? `Meta · ${menu.goalKcal.toLocaleString('pt-BR')} kcal` : 'Meta'}</span>
-            {menu.goalMacros && <span>{`P ${formatDec(menu.goalMacros.p)} · C ${formatDec(menu.goalMacros.c)} · G ${formatDec(menu.goalMacros.f)}`}</span>}
+            <span>{menu.goalKcal !== undefined ? `Meta · ${formatDec(menu.goalKcal)} kcal` : 'Meta'}</span>
+            {menu.goalMacros && <span>{macroText(menu.goalMacros)}</span>}
           </div>
         )}
         {menu.meals.map((meal) => (
@@ -145,12 +116,13 @@ export function DietImport({ mode, onDone, onBack }: Props) {
               <div key={o.id} className="pb-1.5">
                 {meal.options.length > 1 && (
                   <div className="px-3.5 pt-2 text-[10px] font-semibold tracking-[.04em] text-faint uppercase">
-                    {`Opção ${optionLetter(oi)}${o.name ? ` · ${o.name}` : ''} · ${Math.round(o.items.reduce((s, i) => s + itemKcal(i), 0))} kcal`}
+                    {`Opção ${optionLetter(oi)}${o.name ? ` · ${o.name}` : ''} · ${kcalOf(o.items)} kcal`}
                   </div>
                 )}
                 {o.items.map((i) => {
-                  const l = label(i)
-                  const shown = review.info[i.id]?.match === 'words' ? review.info[i.id].aiName : i.name
+                  const r = review.reports[i.id]
+                  const l = matchLabel(i, r)
+                  const shown = r?.match === 'words' ? r.aiName : i.name
                   const body = (
                     <>
                       <span className="min-w-0 flex-1">
@@ -177,7 +149,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
         )}
         <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md gap-2 bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <Button type="button" variant="outline" className="flex-1 bg-transparent" onClick={() => setEditing(true)}>Editar</Button>
-          <Button type="button" className="flex-1" onClick={() => (saved.menus.length ? setConfirming(true) : use())}>Usar cardápios</Button>
+          <Button type="button" className="flex-1" onClick={() => offer(review.plan)}>Usar cardápios</Button>
         </div>
         {picking && (
           <FoodPicker
@@ -185,24 +157,13 @@ export function DietImport({ mode, onDone, onBack }: Props) {
             initialGrams={picking.grams}
             confirmLabel="Trocar"
             onPick={(next) => {
-              setReview((r) => r && { ...r, plan: replaceItem(r.plan, picking.id, next) })
+              paste.setResult((r) => r && { ...r, plan: replaceItem(r.plan, picking.id, next) })
               setPicking(undefined)
             }}
             onClose={() => setPicking(undefined)}
           />
         )}
-        <AlertDialog open={confirming} onOpenChange={setConfirming}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Substituir cardápio?</AlertDialogTitle>
-              <AlertDialogDescription>O cardápio atual será substituído. O que você já marcou hoje continua.</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={use}>Substituir</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        {confirm}
       </div>
     )
   }
@@ -218,29 +179,9 @@ export function DietImport({ mode, onDone, onBack }: Props) {
         {mode === 'ia' && <Step n={1} title="Copie o prompt" sub="Botão lá embaixo; cole no ChatGPT" />}
         <Step n={mode === 'ia' ? 2 : 1} title="Cole a resposta aqui" sub="Pode colar o texto todo ou escolher o arquivo" />
       </div>
-      <textarea
-        aria-label="Resposta da IA"
-        rows={8}
-        className="w-full resize-none rounded-[14px] border border-border bg-panel p-3.5 text-base text-text outline-none placeholder:text-faint focus-visible:border-accent-line"
-        placeholder='{ "formato": "pump-plano", "dieta": ... }'
-        value={text}
-        onChange={(e) => edit(e.target.value)}
-      />
-      <label className="flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-secondary text-sm font-medium text-secondary-foreground">
-        <FileUp size={16} aria-hidden="true" />
-        Escolher arquivo
-        <input type="file" hidden accept=".json,application/json,text/plain" onChange={async (e) => {
-          const f = e.target.files?.[0]
-          if (f) { const t = await f.text(); instant.current = t !== text; edit(t) }
-          e.target.value = ''
-        }} />
-      </label>
-      {checking && <p role="status" className="text-[13px] text-text-2">Conferindo na TACO…</p>}
-      {problems.length > 0 && (
-        <ul role="alert" className="flex flex-col gap-1 rounded-[14px] border border-border bg-panel p-3.5 text-[13px] text-negative">
-          {problems.map((p) => <li key={p}>{p}</li>)}
-        </ul>
-      )}
+      <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", "dieta": ... }'>
+        {paste.reviewing && <p role="status" className="text-[13px] text-text-2">Conferindo na TACO…</p>}
+      </PasteBox>
       {mode === 'ia' && (
         <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <Button type="button" className="w-full" disabled={!anamnesis.goal} onClick={copyPrompt}><Copy size={16} aria-hidden="true" />Copiar prompt pra IA</Button>
