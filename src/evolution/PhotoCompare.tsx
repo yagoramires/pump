@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Check, ChevronDown, ChevronLeft, ImageOff } from 'lucide-react'
+import { Check, ChevronDown, ImageOff } from 'lucide-react'
 import type { Angle } from './types'
-import { usePersisted } from '../storage/db'
-import { formatDayMonth } from '../lib/date'
+import { usePersisted } from '@/storage/db'
+import { formatDayMonth } from '@/lib/date'
 import { formatDec, formatKg, plural, round1 } from '@/lib/number'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Overlay } from '@/components/Overlay'
+import { BackHeader } from '@/components/BackHeader'
 import { cn } from '@/lib/utils'
 import { goalDirection, isGood, type Metric } from './bodyFat'
 import { Delta } from './Delta'
@@ -38,12 +39,7 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
   const before = sorted.find((s) => s.id === chosen.before) ?? sorted[0]
   const after = sorted.find((s) => s.id === chosen.after) ?? sorted[sorted.length - 1]
 
-  const header = (
-    <header className="flex items-center gap-3 py-2">
-      <button type="button" className="icon-btn" aria-label="Voltar" onClick={onClose}><ChevronLeft size={18} /></button>
-      <h1 className="flex-1 text-[19px] font-semibold text-strong">Comparar</h1>
-    </header>
-  )
+  const header = <BackHeader title="Comparar" onBack={onClose} />
   if (!before || !after) return <Overlay>{header}<p className="text-sm text-text-2">Nenhuma foto ainda.</p></Overlay>
 
   const dir = goalDirection(profile)

@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { ArrowDown, ArrowUp, ChevronLeft, Copy, Plus, Share2, Trash2 } from 'lucide-react'
-import { DEFAULTS } from '../schema'
+import { ArrowDown, ArrowUp, Copy, Plus, Share2, Trash2 } from 'lucide-react'
+import { DEFAULTS } from '@/schema'
 import type { DietItem, DietPlan, Macros, Meal, MealOption, Menu } from './types'
 import { currentMenu, optionLetter, sortedMeals } from './day'
 import { iaLabel, itemKcal, kcalOf } from './food'
@@ -10,17 +10,15 @@ import { GOAL_KCAL, GRAMS, HHMM, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_O
 import { FoodPicker } from './FoodPicker'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { formatInput, parseDecimal } from '@/lib/number'
+import { BackHeader } from '@/components/BackHeader'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { NumberField } from '@/components/NumberField'
 import { copyText } from '@/lib/share'
 import { cn } from '@/lib/utils'
 
 /** só edita: quem abre grava no `onSave` ("Apagar todos" também passa por ele, com o plano vazio) */
 type Props = { initial: DietPlan; onSave: (plan: DietPlan) => void; onCancel: () => void }
 
-const LABEL = 'text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
 const CONFIRM = {
   menu: { title: 'Apagar este cardápio?', text: 'As refeições dele saem do editor. O histórico fica.' },
   all: { title: 'Apagar todos os cardápios?', text: 'A aba Dieta volta ao convite. O histórico fica.' },
@@ -63,28 +61,6 @@ const tidyPlan = (plan: DietPlan): DietPlan => ({
     })),
   })),
 })
-
-/** texto livre com vírgula; vazio = sem valor. Usar com `key` pra reiniciar quando o valor muda por fora */
-function NumField({ value, onChange, label, className, placeholder }: { value?: number; onChange: (n?: number) => void; label: string; className?: string; placeholder?: string }) {
-  const [text, setText] = useState(value === undefined ? '' : formatInput(value))
-  return (
-    <Input
-      className={className}
-      inputMode="decimal"
-      aria-label={label}
-      placeholder={placeholder}
-      autoComplete="off"
-      enterKeyHint="done"
-      value={text}
-      onChange={(e) => {
-        setText(e.target.value)
-        const n = parseDecimal(e.target.value)
-        if (!e.target.value.trim()) onChange(undefined)
-        else if (n !== null) onChange(n)
-      }}
-    />
-  )
-}
 
 export function DietEditor({ initial, onSave, onCancel }: Props) {
   const [plan, setPlan] = useState<DietPlan>(() => (initial.menus.length ? structuredClone(initial) : { menus: [emptyMenu(1)] }))
@@ -137,11 +113,9 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
 
   return (
     <div className="flex flex-col gap-3 pb-6">
-      <header className="flex items-center gap-3 py-2">
-        <button type="button" className="icon-btn" aria-label="Cancelar" onClick={onCancel}><ChevronLeft size={18} /></button>
-        <h1 className="flex-1 text-[19px] font-semibold text-strong">Cardápio</h1>
+      <BackHeader title="Cardápio" onBack={onCancel} label="Cancelar">
         <Button size="sm" onClick={save}>Salvar</Button>
-      </header>
+      </BackHeader>
       {error && <p role="alert" className="rounded-xl border border-negative/30 px-3 py-2 text-[13px] text-negative">{error}</p>}
 
       <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Cardápios">
@@ -161,13 +135,13 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
         </div>
         <div className="flex items-center justify-between gap-3 border-t border-line pt-2">
           <span className="text-sm text-text-2">Meta diária (kcal)</span>
-          <NumField key={`${menu.id}-kcal`} className="w-28 text-center" label="Meta diária em kcal" placeholder="opcional" value={menu.goalKcal} onChange={(n) => patchMenu((m) => ({ ...m, goalKcal: n === undefined ? undefined : Math.round(n) }))} />
+          <NumberField className="w-28 text-center" aria-label="Meta diária em kcal" placeholder="opcional" autoComplete="off" enterKeyHint="done" min={0} max={Infinity} value={menu.goalKcal} onChange={(n) => n !== null && patchMenu((m) => ({ ...m, goalKcal: n === undefined ? undefined : Math.round(n) }))} />
         </div>
         <div className="grid grid-cols-3 gap-2">
           {(['p', 'c', 'f'] as const).map((k) => (
             <label key={k} className="flex flex-col gap-1">
-              <span className={LABEL}>{{ p: 'Proteína', c: 'Carbo', f: 'Gordura' }[k]} (g)</span>
-              <NumField key={`${menu.id}-${k}`} className="text-center" label={`Meta de ${{ p: 'proteína', c: 'carbo', f: 'gordura' }[k]} em g`} placeholder="—" value={menu.goalMacros?.[k] || undefined} onChange={(n) => patchMenu((m) => setMacro(m, k, n))} />
+              <span className="label-caps tracking-[.04em]">{{ p: 'Proteína', c: 'Carbo', f: 'Gordura' }[k]} (g)</span>
+              <NumberField className="text-center" aria-label={`Meta de ${{ p: 'proteína', c: 'carbo', f: 'gordura' }[k]} em g`} placeholder="—" autoComplete="off" enterKeyHint="done" min={0} max={Infinity} value={menu.goalMacros?.[k] || undefined} onChange={(n) => n !== null && patchMenu((m) => setMacro(m, k, n))} />
             </label>
           ))}
         </div>
@@ -207,7 +181,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
                   {iaLabel(it) && <span className="text-[12px] text-c7">{iaLabel(it)}</span>}
                   <div className="flex items-center gap-1.5">
                     <Input className="min-w-0 flex-1" aria-label={`Porção de ${it.name}`} placeholder="Porção" autoComplete="off" value={it.portion ?? ''} onChange={(e) => patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, portion: e.target.value || undefined } : x)))} />
-                    <NumField className="w-16 text-center" label={`Gramas de ${it.name}`} value={it.grams} onChange={(n) => n && patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, grams: Math.min(GRAMS[1], Math.max(GRAMS[0], n)) } : x)))} />
+                    <NumberField className="w-16 text-center" aria-label={`Gramas de ${it.name}`} autoComplete="off" enterKeyHint="done" min={GRAMS[0]} max={GRAMS[1]} value={it.grams} onChange={(n) => n != null && patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, grams: n } : x)))} />
                     <span className="text-[12.5px] text-text-2">g</span>
                     <button type="button" className="icon-btn disabled:opacity-40" aria-label={`Subir ${it.name}`} disabled={i === 0} onClick={() => patchItems(meal.id, oi, (xs) => { const a = [...xs]; [a[i - 1], a[i]] = [a[i], a[i - 1]]; return a })}><ArrowUp size={14} /></button>
                     <button type="button" className="icon-btn disabled:opacity-40" aria-label={`Descer ${it.name}`} disabled={i === opt.items.length - 1} onClick={() => patchItems(meal.id, oi, (xs) => { const a = [...xs]; [a[i], a[i + 1]] = [a[i + 1], a[i]]; return a })}><ArrowDown size={14} /></button>
@@ -237,18 +211,10 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
           }}
         />
       )}
-      <AlertDialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(undefined)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{confirm && CONFIRM[confirm].title}</AlertDialogTitle>
-            <AlertDialogDescription>{confirm && CONFIRM[confirm].text}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={confirmed}>Apagar</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={!!confirm} title={confirm ? CONFIRM[confirm].title : ''} text={confirm ? CONFIRM[confirm].text : ''} confirm="Apagar" destructive
+        onConfirm={confirmed} onCancel={() => setConfirm(undefined)}
+      />
     </div>
   )
 }

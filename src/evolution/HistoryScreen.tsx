@@ -1,17 +1,16 @@
 import { useId, useState } from 'react'
 import { Camera, ChevronLeft, ChevronRight, Dumbbell, GlassWater, Moon, Ruler, Utensils } from 'lucide-react'
-import { usePersisted } from '../storage/db'
-import { WEEKDAY_SHORT, formatDayMonth, todayKey } from '../lib/date'
-import { useToday } from '../lib/useToday'
+import { usePersisted } from '@/storage/db'
+import { WEEKDAY_SHORT, formatDayMonth, todayKey } from '@/lib/date'
+import { useToday } from '@/lib/useToday'
 import { formatDec, formatKg } from '@/lib/number'
 import { Overlay } from '@/components/Overlay'
 import { IconDot } from '@/components/IconDot'
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import { BackHeader } from '@/components/BackHeader'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { cn, omitKey } from '@/lib/utils'
-import { WorkoutDayLine } from '../workout/WorkoutDayLine'
-import { DietDayLine } from '../diet/DietDayLine'
+import { WorkoutDayLine } from '@/workout/WorkoutDayLine'
+import { DietDayLine } from '@/diet/DietDayLine'
 import { FIELDS, removeMeasurement } from './measurements'
 import { ANGLES, hasPhoto, usePhotoSets } from './photoSets'
 import { dayRecords } from './dayRecords'
@@ -58,13 +57,11 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
 
   return (
     <Overlay>
-      <header className="flex items-center gap-3 py-2">
-        <button type="button" className="icon-btn" aria-label="Voltar" onClick={onClose}><ChevronLeft size={18} /></button>
-        <h1 className="flex-1 text-[19px] font-semibold text-strong first-letter:uppercase">{title}</h1>
+      <BackHeader title={title} onBack={onClose} titleClassName="first-letter:uppercase">
         <button type="button" className="flex size-11 items-center justify-center text-text-2" aria-label="Mês anterior" onClick={() => go(-1)}><ChevronLeft size={20} aria-hidden="true" /></button>
         {/* nada se registra no futuro: para no mês atual */}
         <button type="button" className="flex size-11 items-center justify-center text-text-2 disabled:text-border-strong" aria-label="Próximo mês" disabled={isCurrent} onClick={() => go(1)}><ChevronRight size={20} aria-hidden="true" /></button>
-      </header>
+      </BackHeader>
 
       {/* o nome do botão fica só o número; o estado do dia vai na descrição */}
       <span id={`${descId}t`} hidden>treino</span>
@@ -100,7 +97,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
 
       {day && (
         <>
-          <div className="mx-0.5 mt-4 mb-1.5 text-[10px] font-semibold uppercase tracking-[.05em] text-faint">
+          <div className="label-caps mx-0.5 mt-4 mb-1.5">
             {done ? `${formatDayMonth(day)} · Treino ${done.workoutLabel}` : formatDayMonth(day)}
           </div>
           {!done && !rest && !meals && !drank && !measure && !photos ? (
@@ -164,18 +161,10 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
           </>
         )}
 
-      <AlertDialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(undefined)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{confirm && CONFIRM[confirm].title}</AlertDialogTitle>
-            <AlertDialogDescription>{confirm && CONFIRM[confirm].text}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={remove}>Apagar</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={!!confirm} title={confirm ? CONFIRM[confirm].title : ''} text={confirm ? CONFIRM[confirm].text : ''} confirm="Apagar" destructive
+        onConfirm={remove} onCancel={() => setConfirm(undefined)}
+      />
     </Overlay>
   )
 }

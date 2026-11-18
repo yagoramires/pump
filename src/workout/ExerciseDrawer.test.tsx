@@ -1,7 +1,10 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { useState } from 'react'
 import { pe } from '../../test/helpers'
+import type { PlanExercise } from './types'
 import { ExerciseDrawer } from './ExerciseDrawer'
+import { MAX_KG } from './limits'
 
 test('séries vão até 20, como no formato: um plano importado com 12 séries segue editável', async () => {
   const onChange = vi.fn()
@@ -11,4 +14,40 @@ test('séries vão até 20, como no formato: um plano importado com 12 séries s
   expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ sets: 13 }))
   rerender(<ExerciseDrawer open ex={pe({ sets: 20 })} onChange={onChange} onRemove={vi.fn()} onClose={vi.fn()} />)
   expect(screen.getByRole('button', { name: 'Aumentar séries' })).toBeDisabled()
+})
+
+test('B9: a carga digitada não sobrevive quando o exercício muda por outro caminho (reps, outro valor)', async () => {
+  const onChange = vi.fn()
+  const user = userEvent.setup()
+  const props = { open: true, onChange, onRemove: vi.fn(), onClose: vi.fn() }
+  const { rerender } = render(<ExerciseDrawer {...props} ex={pe({ weightKg: 20 })} />)
+  const kg = screen.getByRole('textbox', { name: 'Carga em kg' })
+  await user.clear(kg)
+  await user.type(kg, '7a')
+  expect(kg).toHaveValue('7a')
+  // a edição de reps não passava pelo patch, então o rascunho "7a" ficava na tela por cima do valor novo
+  rerender(<ExerciseDrawer {...props} ex={pe({ weightKg: 25, reps: '12' })} />)
+  expect(screen.getByRole('textbox', { name: 'Carga em kg' })).toHaveValue('25')
+})
+
+let current: PlanExercise
+function Harness() {
+  const [ex, setEx] = useState(pe({ weightKg: 20 }))
+  return <ExerciseDrawer open ex={ex} onChange={(next) => { current = next; setEx(next) }} onRemove={vi.fn()} onClose={vi.fn()} />
+}
+
+test('carga: o texto digitado fica enquanto digita, mesmo quando o valor é limitado; o blur mostra o valor', async () => {
+  const user = userEvent.setup()
+  render(<Harness />)
+  const kg = screen.getByRole('textbox', { name: 'Carga em kg' })
+  await user.clear(kg)
+  await user.type(kg, '22,')
+  expect(kg).toHaveValue('22,')
+  expect(current.weightKg).toBe(22)
+  await user.clear(kg)
+  await user.type(kg, `${MAX_KG + 50}`)
+  expect(kg).toHaveValue(`${MAX_KG + 50}`)
+  expect(current.weightKg).toBe(MAX_KG)
+  await user.click(screen.getByRole('button', { name: 'Aumentar séries' }))
+  expect(kg).toHaveValue(String(MAX_KG))
 })

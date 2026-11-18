@@ -1,10 +1,10 @@
-import { DEFAULTS } from '../schema'
+import { DEFAULTS } from '@/schema'
 import type { DietItem, DietPlan } from './types'
 import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
-import { resetStoreForTests, save } from '../storage/db'
+import { resetStoreForTests, save } from '@/storage/db'
 import { DietEditor } from './DietEditor'
 
 const shake: DietItem = { id: 'f1', name: 'Meu shake', grams: 100, per100: { kcal: 120, p: 20, c: 5, f: 2 }, source: 'custom' }
@@ -164,4 +164,29 @@ test('DietEditor recusa meta de macro acima de 600 g', async () => {
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
   expect(screen.getByRole('alert')).toHaveTextContent('Dia de treino: macros fora da faixa (0 a 600 g)')
   expect(onSave).not.toHaveBeenCalled()
+})
+
+test('B8: 0 g marca o campo como inválido e não entra no plano (antes sumia calado)', async () => {
+  const onSave = vi.fn()
+  const user = setup()
+  await renderLoaded(<DietEditor initial={plan()} onSave={onSave} onCancel={vi.fn()} />)
+  await user.click(screen.getByRole('button', { name: 'Dia de treino' }))
+  const grams = screen.getByRole('textbox', { name: 'Gramas de Pão francês' })
+  await user.clear(grams)
+  await user.type(grams, '0')
+  expect(grams).toHaveAttribute('aria-invalid', 'true')
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  expect(saved(onSave).menus[0].meals[0].options[0].items[0].grams).toBe(50)
+})
+
+test('trocar de cardápio mostra a meta do outro, e voltar mostra a do primeiro', async () => {
+  const user = setup()
+  await renderLoaded(<DietEditor initial={plan()} onSave={vi.fn()} onCancel={vi.fn()} />)
+  const kcal = () => screen.getByRole('textbox', { name: 'Meta diária em kcal' })
+  await user.click(screen.getByRole('button', { name: 'Dia de treino' }))
+  expect(kcal()).toHaveValue('2000')
+  await user.click(screen.getByRole('button', { name: 'Descanso' }))
+  expect(kcal()).toHaveValue('')
+  await user.click(screen.getByRole('button', { name: 'Dia de treino' }))
+  expect(kcal()).toHaveValue('2000')
 })

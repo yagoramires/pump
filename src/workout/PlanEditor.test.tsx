@@ -3,7 +3,7 @@ import { screen } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
-import { load, resetStoreForTests } from '../storage/db'
+import { load, resetStoreForTests } from '@/storage/db'
 import { PlanEditor } from './PlanEditor'
 
 beforeEach(async () => {

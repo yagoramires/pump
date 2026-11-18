@@ -1,7 +1,7 @@
-import type { Profile } from '../profile/types'
+import type { Profile } from '@/profile/types'
 import type { DietAnamnesis, DietGoal, Restriction } from './types'
-import { HEADER, str } from '../format/envelope'
-import { GOALS, label, names, profileLines } from '../profile/promptLines'
+import { HEADER, str } from '@/format/envelope'
+import { GOALS, label, names, profileLines } from '@/profile/promptLines'
 import { GOAL_KCAL, GRAMS, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 
 export const TACO_EXAMPLES: string[] = [

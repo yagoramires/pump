@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { FormatError } from '../format/envelope'
+import { FormatError } from '@/format/envelope'
 
 /**
  * Texto colado → revisão. Digitar espera 400 ms; arquivo escolhido revisa na hora (o mesmo arquivo de novo também).

@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, Dumbbell, HeartPulse, MoreHorizontal, Plus } from 'lucide-react'
+import { ChevronRight, Dumbbell, HeartPulse, MoreHorizontal, Plus } from 'lucide-react'
 import type { PlanExercise, Workout, WorkoutPlan } from './types'
-import { CatalogPicker } from '../catalog/CatalogPicker'
+import { CatalogPicker } from '@/catalog/CatalogPicker'
 import { toPlanExercise } from './exercises'
 import { ExerciseDrawer } from './ExerciseDrawer'
 import { isCardio } from './cardio'
 import { IconDot } from '@/components/IconDot'
-import { muscleColor } from '../catalog/muscles'
+import { BackHeader } from '@/components/BackHeader'
+import { muscleColor } from '@/catalog/muscles'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { formatKg } from '@/lib/number'
@@ -50,11 +51,9 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
 
   return (
     <div className="flex flex-col gap-3 pb-6">
-      <header className="flex items-center gap-3 py-2">
-        <button type="button" className="icon-btn" aria-label="Cancelar" onClick={onCancel}><ChevronLeft size={18} /></button>
-        <h1 className="flex-1 text-[19px] font-semibold text-strong">Editar plano</h1>
+      <BackHeader title="Editar plano" onBack={onCancel} label="Cancelar">
         <Button size="sm" onClick={() => onSave(plan)}>Salvar</Button>
-      </header>
+      </BackHeader>
       {plan.workouts.map((w) => (
         <section key={w.id} className="flex flex-col gap-2 rounded-[14px] border border-border bg-panel p-3">
           <div className="flex items-center gap-2">
@@ -80,7 +79,7 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
             const items = w.exercises.map((e, i) => ({ e, i })).filter(({ e }) => isCardio(e) === cardio)
             return items.length > 0 && (
               <div key={String(cardio)} className="flex flex-col gap-2">
-                {cardio && <div className="border-t border-line pt-2 text-[10px] font-semibold tracking-[.05em] text-faint uppercase">Cardio</div>}
+                {cardio && <div className="label-caps border-t border-line pt-2">Cardio</div>}
                 {items.map(({ e, i }) => (
                   <button key={`${e.exerciseId}-${i}`} type="button" className={cn('flex min-h-14 items-center gap-3 text-left', !cardio && 'border-t border-line pt-2')} onClick={() => setEditing({ wid: w.id, i })}>
                     <IconDot color={cardio ? 'var(--c1)' : muscleColor(e.muscles)} size={36}>{cardio ? <HeartPulse size={16} /> : <Dumbbell size={16} />}</IconDot>

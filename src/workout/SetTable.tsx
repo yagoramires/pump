@@ -16,7 +16,7 @@ type Props = {
 }
 
 const parseKg = (v: string) => parseInRange(v, 0, MAX_KG)
-const TH = 'pb-1.5 text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
+const TH = 'label-caps pb-1.5 tracking-[.04em]'
 
 export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
   // o que foi digitado fica só na tela até marcar (ou até o blur, se a série já foi feita)

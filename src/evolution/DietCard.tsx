@@ -1,5 +1,5 @@
-import type { DietLog, WaterLog } from '../diet/types'
-import { addDays } from '../lib/date'
+import type { DietLog, WaterLog } from '@/diet/types'
+import { addDays } from '@/lib/date'
 import { formatDec } from '@/lib/number'
 import { dietStats } from './dietStats'
 

@@ -1,4 +1,4 @@
-import type { Profile } from '../profile/types'
+import type { Profile } from '@/profile/types'
 import type { MeasureFields, Measurement } from './types'
 import { bodyFat, type Metric } from './bodyFat'
 

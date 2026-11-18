@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { CameraOff, ChevronLeft, SwitchCamera, Timer } from 'lucide-react'
+import { CameraOff, SwitchCamera, Timer } from 'lucide-react'
 import { toast } from 'sonner'
-import { savePhoto } from '../storage/photos'
-import { formatDayMonth } from '../lib/date'
+import { savePhoto } from '@/storage/photos'
+import { formatDayMonth } from '@/lib/date'
 import { Button } from '@/components/ui/button'
 import { Overlay } from '@/components/Overlay'
+import { BackHeader } from '@/components/BackHeader'
 import { cn } from '@/lib/utils'
 import { ANGLE_LABEL, ANGLES, usePhotoSets } from './photoSets'
 import { AngleTabs } from './AngleTabs'
@@ -116,10 +117,7 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
 
   return (
     <Overlay>
-      <header className="flex items-center gap-3 py-2">
-        <button type="button" className="icon-btn" aria-label="Voltar" onClick={close}><ChevronLeft size={18} /></button>
-        <h1 className="flex-1 text-[19px] font-semibold text-strong">{`Fotos · ${formatDayMonth(date)}`}</h1>
-      </header>
+      <BackHeader title={`Fotos · ${formatDayMonth(date)}`} onBack={close} />
       <div className="mt-2">
         <AngleTabs value={ANGLES[i]} onChange={(a) => goTo(ANGLES.indexOf(a))} />
       </div>

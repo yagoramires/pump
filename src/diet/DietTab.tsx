@@ -1,12 +1,13 @@
-import { Fragment, useState, type ReactNode } from 'react'
+import { Fragment, useState } from 'react'
 import { Check, Droplet, ListChecks, MoreHorizontal, Pencil, Plus, Sparkles, Upload, Utensils } from 'lucide-react'
-import { usePersisted } from '../storage/db'
-import { formatDayLabel } from '../lib/date'
+import { usePersisted } from '@/storage/db'
+import { formatDayLabel } from '@/lib/date'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/EmptyState'
 import { Overlay } from '@/components/Overlay'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { SheetBody, SheetRow } from '@/components/SheetRow'
 import { formatDec } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { currentMealId, daySummary, mealOptions, optionLetter, setDayFree, sortedMeals, toggleMeal } from './day'
@@ -19,7 +20,6 @@ import { DietImport } from './DietImport'
 import { MealScreen } from './MealScreen'
 import { WaterCard } from './WaterCard'
 
-const LABEL = 'text-[10px] font-semibold uppercase tracking-[.05em] text-faint'
 const SHEET_CARD = 'overflow-hidden rounded-[14px] border border-border bg-surface'
 const RING_R = 19
 const RING_C = 2 * Math.PI * RING_R
@@ -42,7 +42,7 @@ export function DietTab() {
   if (!day || !plan.menus.length) {
     return (
       <>
-        <div className={LABEL}>Dieta</div>
+        <div className="label-caps">Dieta</div>
         <EmptyState icon={<Utensils size={30} aria-hidden="true" />} title="Monte seu cardápio">
           <p className="max-w-[240px] text-sm text-text-2">Um cardápio pra seguir no dia a dia. Dá pra mudar quando quiser.</p>
           <Button className="mt-3 w-full max-w-xs" onClick={() => setView('ia')}><Sparkles aria-hidden="true" />Gerar com IA</Button>
@@ -68,11 +68,6 @@ export function DietTab() {
   // fechar relê a hora: a refeição pode ter agido depois da meia-noite
   if (openMeal) return <MealScreen mealId={openMeal.id} onClose={() => { setOpenId(undefined); tick() }} />
 
-  const sheetRow = (icon: ReactNode, label: string, onClick: () => void) => (
-    <li className="border-t border-line first:border-t-0">
-      <button type="button" className="flex min-h-14 w-full items-center gap-3 px-3 text-left text-[15px] text-strong" onClick={onClick}>{icon}{label}</button>
-    </li>
-  )
   const menuRow = (id: string, name: string) => (
     <li key={id} className="border-t border-line first:border-t-0">
       <button
@@ -88,9 +83,9 @@ export function DietTab() {
 
   return (
     <div className="pb-6">
-      {/* alinhado com a engrenagem flutuante do App (-mt-1.5) e com um respiro antes dela */}
-      <div className="-mt-1.5 flex items-center justify-between gap-2 pr-2">
-        <span className={cn(LABEL, 'min-w-0 truncate')}>{`${formatDayLabel(today)} · ${day.menuName}`}</span>
+      {/* alinhado com a engrenagem flutuante do App e com um respiro antes dela */}
+      <div className="mt-(--gear-offset) flex items-center justify-between gap-2 pr-2">
+        <span className="label-caps min-w-0 truncate">{`${formatDayLabel(today)} · ${day.menuName}`}</span>
         <button type="button" className="icon-btn" aria-label="Mais opções da dieta" onClick={() => setSheet('more')}><MoreHorizontal size={18} /></button>
       </div>
       <h1 className="mt-0.5 mb-2.5 text-[26px] font-bold tracking-tight text-strong">Dieta</h1>
@@ -159,7 +154,7 @@ export function DietTab() {
       {sheet && (
         <Drawer open onOpenChange={(o) => !o && setSheet(undefined)}>
           <DrawerContent>
-            <div className="flex min-h-0 flex-col overflow-y-auto px-4 pt-2 pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <SheetBody>
               {sheet === 'water' && water.on ? (
                 <>
                   <DrawerTitle className="sr-only">Água</DrawerTitle>
@@ -180,29 +175,21 @@ export function DietTab() {
                   <DrawerTitle className="shrink-0 truncate pb-2 text-[19px] font-semibold text-strong">Dieta</DrawerTitle>
                   <DrawerDescription className="sr-only">Mais opções da dieta</DrawerDescription>
                   <ul className={SHEET_CARD}>
-                    {plan.menus.length > 1 && sheetRow(<ListChecks size={18} className="text-accent" aria-hidden="true" />, 'Cardápio de hoje', () => setSheet('menus'))}
-                    {sheetRow(<Sparkles size={18} className="text-accent" aria-hidden="true" />, day.free ? 'Desfazer dia livre' : 'Dia livre', () => { setSheet(undefined); act((d) => setDayFree(d, !d.free)) })}
-                    {sheetRow(<Pencil size={18} className="text-accent" aria-hidden="true" />, 'Editar cardápio', () => { setSheet(undefined); setView('edit') })}
+                    {plan.menus.length > 1 && <SheetRow icon={<ListChecks size={18} className="text-accent" aria-hidden="true" />} label="Cardápio de hoje" onClick={() => setSheet('menus')} />}
+                    <SheetRow icon={<Sparkles size={18} className="text-accent" aria-hidden="true" />} label={day.free ? 'Desfazer dia livre' : 'Dia livre'} onClick={() => { setSheet(undefined); act((d) => setDayFree(d, !d.free)) }} />
+                    <SheetRow icon={<Pencil size={18} className="text-accent" aria-hidden="true" />} label="Editar cardápio" onClick={() => { setSheet(undefined); setView('edit') }} />
                   </ul>
                 </>
               )}
-            </div>
+            </SheetBody>
           </DrawerContent>
         </Drawer>
       )}
 
-      <AlertDialog open={!!confirmMenu} onOpenChange={(o) => !o && setConfirmMenu(undefined)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Trocar o cardápio de hoje?</AlertDialogTitle>
-            <AlertDialogDescription>O que você marcou hoje será apagado.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={() => confirmMenu && switchMenu(confirmMenu.menuId, confirmMenu.date)}>Trocar</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={!!confirmMenu} title="Trocar o cardápio de hoje?" text="O que você marcou hoje será apagado." confirm="Trocar" destructive
+        onConfirm={() => confirmMenu && switchMenu(confirmMenu.menuId, confirmMenu.date)} onCancel={() => setConfirmMenu(undefined)}
+      />
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { loadPhoto } from '../storage/photos'
+import { loadPhoto } from '@/storage/photos'
 
 /** data URL da foto; undefined enquanto carrega ou se o id não existe */
 export function usePhoto(id?: string): string | undefined {

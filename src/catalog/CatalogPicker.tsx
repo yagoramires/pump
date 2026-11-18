@@ -1,13 +1,15 @@
 import { useMemo, useState } from 'react'
-import { ChevronLeft, Dumbbell, Plus, Search } from 'lucide-react'
-import type { CustomExercise, Exercise } from '../workout/types'
-import { usePersisted } from '../storage/db'
+import { Dumbbell, Plus } from 'lucide-react'
+import type { CustomExercise, Exercise } from '@/workout/types'
+import { usePersisted } from '@/storage/db'
 import { fetchExercises, imageUrl } from './catalog'
 import { searchByName } from './search'
 import { MUSCLE_GROUPS, muscleColor } from './muscles'
 import { useCatalog } from './useCatalog'
-import { isCustom, newCustomExercise } from '../workout/exercises'
+import { isCustom, newCustomExercise } from '@/workout/exercises'
 import { IconDot } from '@/components/IconDot'
+import { BackHeader } from '@/components/BackHeader'
+import { SearchField } from '@/components/SearchField'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
@@ -43,7 +45,7 @@ function Row({ e, mine, onPick }: { e: Exercise | CustomExercise; mine?: boolean
   )
 }
 
-const LABEL = 'px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
+const LABEL = 'label-caps px-4 pt-3 pb-1 tracking-[.04em]'
 
 export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | CustomExercise) => void; onClose: () => void }) {
   const { list: catalog, offline } = useCatalog(fetchExercises)
@@ -69,15 +71,9 @@ export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | Cust
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-bg" role="dialog" aria-label="Escolher exercício">
-      <header className="flex items-center gap-3 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
-        <button type="button" className="icon-btn" aria-label="Voltar" onClick={onClose}><ChevronLeft size={18} /></button>
-        <h1 className="text-[19px] font-semibold text-strong">Exercícios</h1>
-      </header>
-      <div className="relative mx-4 mb-2">
-        <Search size={16} className="absolute top-3.5 left-3 text-faint" />
-        <Input type="search" className="pl-9" placeholder={`Buscar entre ${catalog.length + custom.length}…`} aria-label="Buscar exercício" autoComplete="off" enterKeyHint="search" value={q} onChange={(e) => setQ(e.target.value)} />
-      </div>
+    <div className="fixed inset-0 z-(--z-sheet) flex flex-col bg-bg" role="dialog" aria-label="Escolher exercício">
+      <BackHeader title="Exercícios" onBack={onClose} className="px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2" />
+      <SearchField className="mx-4 mb-2" placeholder={`Buscar entre ${catalog.length + custom.length}…`} aria-label="Buscar exercício" value={q} onChange={(e) => setQ(e.target.value)} />
       <div className="flex flex-col gap-1.5">
         <Chips label="Músculo" values={muscles} value={muscle} onChange={setMuscle} />
         <Chips label="Aparelho" values={equipments} value={equipment} onChange={setEquipment} />

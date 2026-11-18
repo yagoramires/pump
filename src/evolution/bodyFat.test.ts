@@ -1,4 +1,4 @@
-import type { Profile } from '../profile/types'
+import type { Profile } from '@/profile/types'
 import { bodyFat, goalDirection } from './bodyFat'
 
 const p: Profile = { sex: 'M', heightCm: 1, weightKg: 1 }

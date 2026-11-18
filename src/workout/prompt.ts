@@ -1,7 +1,7 @@
-import type { Profile } from '../profile/types'
+import type { Profile } from '@/profile/types'
 import type { Extra, Level, Muscle, Place, Split } from './types'
-import { HEADER, str } from '../format/envelope'
-import { GOALS, label, names, profileLines } from '../profile/promptLines'
+import { HEADER, str } from '@/format/envelope'
+import { GOALS, label, names, profileLines } from '@/profile/promptLines'
 import { SETS } from './limits'
 
 const LEVELS: Record<Level, string> = { iniciante: 'iniciante', intermediario: 'intermediário', avancado: 'avançado' }

@@ -1,6 +1,6 @@
-import type { Profile, Sex } from '../profile/types'
+import type { Profile, Sex } from '@/profile/types'
 import type { MeasureFields } from './types'
-import { round1 } from '../lib/number'
+import { round1 } from '@/lib/number'
 
 /** % de gordura (método da Marinha, cm); null sem dado suficiente ou fora do domínio do log */
 export function bodyFat(sex: Sex, heightCm: number, m: MeasureFields): number | null {

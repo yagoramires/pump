@@ -1,13 +1,13 @@
 import type { DietAnamnesis, DietGoal, Restriction } from './types'
-import { Chips, MultiChips } from '../workout/AnamnesisForm'
+import { Chips, MultiChips } from '@/components/Chips'
 import { Input } from '@/components/ui/input'
 
 type Value = Partial<DietAnamnesis>
 type EatOut = NonNullable<DietAnamnesis['eatOut']>
 
-const LABEL = 'mb-1.5 block text-[10px] font-semibold tracking-[0.08em] text-faint uppercase'
+const LABEL = 'label-caps mb-1.5 block tracking-[0.08em]'
 const GOAL_LABEL: Record<DietGoal, string> = { 'perder-rapido': 'Perder rápido', perder: 'Perder peso', manter: 'Manter', ganhar: 'Ganhar peso', 'ganhar-rapido': 'Ganhar rápido' }
-const MEALS: Record<string, string> = { 3: '3', 4: '4', 5: '5', 6: '6', 7: '7' }
+const MEALS = [3, 4, 5, 6, 7]
 const RESTRICTION_LABEL: Record<Restriction, string> = { lactose: 'Sem lactose', gluten: 'Sem glúten', vegetariano: 'Vegetariano', vegano: 'Vegano' }
 const EAT_OUT_LABEL: Record<EatOut, string> = { casa: 'Em casa', fora: 'Fora', misto: 'Misto' }
 const TIMES = [['wake', 'Acorda'], ['train', 'Treina'], ['sleep', 'Dorme']] as const
@@ -22,7 +22,7 @@ export function DietAnamnesisForm({ value, onChange }: { value: Value; onChange:
         <p className="text-[13px] text-text-2">Só o objetivo é obrigatório; o que faltar a IA pergunta.</p>
       </div>
       <Chips label="Objetivo" options={GOAL_LABEL} value={value.goal} onChange={(v) => set('goal', v)} cols="grid-cols-2" />
-      <Chips label="Refeições por dia" options={MEALS} value={value.meals ? String(value.meals) : undefined} onChange={(v) => set('meals', v ? Number(v) : undefined)} />
+      <Chips label="Refeições por dia" options={MEALS} value={value.meals} onChange={(v) => set('meals', v)} />
       <div className="grid grid-cols-3 gap-2">
         {TIMES.map(([k, label]) => (
           <div key={k}>

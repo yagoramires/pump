@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { createElement, Suspense, type ReactNode } from 'react'
 import * as idb from 'idb-keyval'
 import { clear } from 'idb-keyval'
-import { DEFAULTS, type UserData } from '../schema'
+import { DEFAULTS, type UserData } from '@/schema'
 import { renderHookLoaded } from '../../test/render'
 import { allData, load, onStorageError, readKey, replaceAll, resetStoreForTests, save, StorageReadError, usePersisted } from './db'
 

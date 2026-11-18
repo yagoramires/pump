@@ -1,6 +1,6 @@
 import { use, useCallback, useSyncExternalStore } from 'react'
 import { delMany, entries, get, keys, set, setMany } from 'idb-keyval'
-import { DEFAULTS, USER_KEYS, type UserData } from '../schema'
+import { DEFAULTS, USER_KEYS, type UserData } from '@/schema'
 
 type Key = keyof UserData
 type Value<K extends Key> = UserData[K]

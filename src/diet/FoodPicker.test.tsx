@@ -3,8 +3,8 @@ import { screen, waitFor, within } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
-import { load, resetStoreForTests, save } from '../storage/db'
-import { todayKey } from '../lib/date'
+import { load, resetStoreForTests, save } from '@/storage/db'
+import { todayKey } from '@/lib/date'
 import { FoodPicker } from './FoodPicker'
 
 const food = (name: string, kcal = 100): DietItem => ({ id: `id-${name}`, name, grams: 50, per100: { kcal, p: 10, c: 5, f: 2 }, source: 'custom' })

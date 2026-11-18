@@ -2,7 +2,7 @@ import { waitFor } from '@testing-library/react'
 import { toast } from 'sonner'
 import { pe } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
-import { load, resetStoreForTests, save } from '../storage/db'
+import { load, resetStoreForTests, save } from '@/storage/db'
 import { AchievementToasts } from './AchievementToasts'
 
 vi.mock('sonner', () => ({ toast: vi.fn() }))

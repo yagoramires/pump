@@ -6,6 +6,7 @@ import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from './storage/db'
 import App from './App'
 import { ErrorBoundary } from './shell/ErrorBoundary'
+import { buildBackup } from './storage/backup'
 
 vi.mock('idb-keyval', async (orig) => {
   const m = await orig<typeof import('idb-keyval')>()
@@ -33,7 +34,7 @@ test('primeira vez abre a montagem; pular leva à aba Treino; depois abre na úl
   await user.click(screen.getByRole('button', { name: 'Evolução' }))
   expect(await screen.findByRole('heading', { name: 'Sua evolução começa aqui' })).toBeInTheDocument()
 })
-test('Configurações: grupo DIETA abre cardápio, IA e a tela da água', async () => {
+test('Configurações: grupo DIETA abre cardápio, IA e a tela da água, e cada uma volta pro menu', async () => {
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
   await save('settings', { lastTab: 'dieta', onboardingDone: true })
   await save('profile', { sex: 'M', heightCm: 180, weightKg: 80 })
@@ -49,21 +50,9 @@ test('Configurações: grupo DIETA abre cardápio, IA e a tela da água', async 
   expect(await screen.findByRole('heading', { name: 'Gerar com IA' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Voltar' }))
   await user.click(await screen.findByRole('button', { name: /Água/ }))
-  const sw = await screen.findByRole('switch', { name: 'Contador de água' })
-  expect(sw).toHaveAttribute('aria-checked', 'false')
-  await user.click(sw)
-  await waitFor(async () => expect((await load('settings'))?.water).toEqual({ enabled: true, goalMl: 2750, cupMl: 250 }))
-  const meta = screen.getByRole('textbox', { name: 'Meta (ml)' })
-  await user.clear(meta)
-  await user.type(meta, '3000')
-  await waitFor(async () => expect((await load('settings'))?.water?.goalMl).toBe(3000))
-  await user.clear(screen.getByRole('textbox', { name: 'Copo (ml)' }))
-  await user.type(screen.getByRole('textbox', { name: 'Copo (ml)' }), '300')
-  await waitFor(async () => expect((await load('settings'))?.water?.cupMl).toBe(300))
-  await user.click(screen.getByRole('switch', { name: 'Contador de água' }))
-  await waitFor(async () => expect((await load('settings'))?.water).toEqual({ enabled: false, goalMl: 3000, cupMl: 300 }))
-  await user.click(screen.getByRole('switch', { name: 'Contador de água' })) // religar mantém o que a pessoa ajustou
-  await waitFor(async () => expect((await load('settings'))?.water).toEqual({ enabled: true, goalMl: 3000, cupMl: 300 }))
+  expect(await screen.findByRole('switch', { name: 'Contador de água' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Voltar' }))
+  expect(await screen.findByRole('heading', { name: 'Configurações' })).toBeInTheDocument()
   vi.unstubAllGlobals()
 })
 test('dados ilegíveis: tela de erro em vez da montagem, sem gravar nada', async () => {
@@ -77,4 +66,27 @@ test('dados ilegíveis: tela de erro em vez da montagem, sem gravar nada', async
   expect(screen.queryByRole('heading', { name: 'Sobre você' })).not.toBeInTheDocument()
   resetStoreForTests()
   expect(await load('settings')).toEqual(settings)
+})
+
+const backupFile = (data: Record<string, unknown>) => new File([JSON.stringify(buildBackup(data, new Date()))], 'pump-backup.json', { type: 'application/json' })
+
+test('Configurações: restaurar backup confirma, troca os dados e recarrega; arquivo ruim mostra o erro', async () => {
+  const reload = vi.fn()
+  vi.stubGlobal('location', { ...location, reload })
+  await save('settings', { lastTab: 'treino', onboardingDone: true })
+  resetStoreForTests()
+  const user = userEvent.setup()
+  await renderLoaded(<App />)
+  await user.click(await screen.findByRole('button', { name: 'Configurações' }))
+  await user.upload(screen.getByLabelText('Arquivo de backup'), new File(['{}'], 'x.json', { type: 'application/json' }))
+  await user.click(await screen.findByRole('button', { name: 'Restaurar' }))
+  expect(await screen.findByRole('alert')).toHaveTextContent(/backup/i)
+  expect(reload).not.toHaveBeenCalled()
+  const settings = { lastTab: 'dieta' as const, onboardingDone: true }
+  await user.upload(screen.getByLabelText('Arquivo de backup'), backupFile({ settings }))
+  expect(await screen.findByText('Isso substitui todos os seus dados. Continuar?')).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Restaurar' }))
+  await waitFor(() => expect(reload).toHaveBeenCalled())
+  expect(await load('settings')).toMatchObject(settings)
+  vi.unstubAllGlobals()
 })

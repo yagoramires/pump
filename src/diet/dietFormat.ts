@@ -1,10 +1,10 @@
 import type { DietItem, DietPlan, Menu, TacoFood } from './types'
-import { FormatError, readEnvelope, str, writeEnvelope } from '../format/envelope'
-import { isObj } from '../schema'
+import { FormatError, readEnvelope, str, writeEnvelope } from '@/format/envelope'
+import { isObj } from '@/schema'
 import { GOAL_KCAL, GRAMS, HHMM, MACRO_G, MAX_ITEMS, MAX_KCAL_PER_100G, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 import { matchFood } from './match'
 import { asFood, hasValues } from './food'
-import { round1 } from '../lib/number'
+import { round1 } from '@/lib/number'
 
 export interface PumpAlimento { nome: string; gramas: number; porcao?: string; kcal?: number; proteinaG?: number; carboG?: number; gorduraG?: number }
 export interface PumpOpcao { nome?: string; alimentos: PumpAlimento[] }

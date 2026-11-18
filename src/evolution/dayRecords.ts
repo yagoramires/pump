@@ -1,7 +1,7 @@
 import type { EvolutionInput } from './types'
-import { isRest } from '../workout/rest'
-import { touched } from '../diet/day'
-import { hasWater } from '../diet/water'
+import { isRest } from '@/workout/rest'
+import { touched } from '@/diet/day'
+import { hasWater } from '@/diet/water'
 
 /** o que o dia tem de registro (ponto do calendário e detalhe do Histórico); dia de dieta só conta se a pessoa marcou algo */
 export function dayRecords(d: Pick<EvolutionInput, 'workoutLog' | 'dietLog' | 'waterLog' | 'measurements' | 'photoSets'>, date: string) {

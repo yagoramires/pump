@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react'
-import { FormatError } from '../format/envelope'
+import { FormatError } from '@/format/envelope'
 import { usePastedReview } from './usePastedReview'
 
 const parse = (t: string) => {

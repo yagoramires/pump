@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Check, ChevronLeft, Copy } from 'lucide-react'
+import { Check, Copy } from 'lucide-react'
 import type { WorkoutPlan } from './types'
-import { usePersisted } from '../storage/db'
-import { fetchExercises } from '../catalog/catalog'
+import { usePersisted } from '@/storage/db'
+import { fetchExercises } from '@/catalog/catalog'
 import { exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
 import { buildPrompt } from './prompt'
 import { AnamnesisForm } from './AnamnesisForm'
@@ -10,6 +10,8 @@ import { PlanEditor } from './PlanEditor'
 import { plural } from '@/lib/number'
 import { copyText } from '@/lib/share'
 import { IconDot } from '@/components/IconDot'
+import { BackHeader } from '@/components/BackHeader'
+import { BottomBar } from '@/components/BottomBar'
 import { PasteBox, Step } from '@/components/ImportFlow'
 import { usePastedReview } from '@/components/usePastedReview'
 import { Button } from '@/components/ui/button'
@@ -43,10 +45,7 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack: () 
 
   return (
     <div className="flex flex-col gap-3 pb-28">
-      <header className="flex min-h-11 items-center gap-3 py-2">
-        <button type="button" className="icon-btn" aria-label="Voltar" onClick={onBack}><ChevronLeft size={18} /></button>
-        <h1 className="flex-1 text-[19px] font-semibold text-strong">Importar de uma IA</h1>
-      </header>
+      <BackHeader title="Importar de uma IA" onBack={onBack} className="min-h-11" />
       <AnamnesisForm value={profile.anamnesis ?? {}} onChange={(anamnesis) => setProfile((p) => ({ ...p, anamnesis }))} />
       <div className="overflow-hidden rounded-[14px] border border-border bg-panel">
         <Step n={1} title="Copie o prompt" sub="Cole no ChatGPT (e sua ficha, se tiver)">
@@ -68,9 +67,9 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack: () 
       )}
       {review?.ignoredDiet && <p className="text-[13px] text-text-2">A dieta deste arquivo pode ser importada na aba Dieta</p>}
       <p className="text-[13px] text-text-2">Ou ajuste seu plano atual: <button type="button" className="min-h-11 font-semibold text-accent" onClick={() => copy(exportPlanFormat(plan), 'Plano copiado.')}>copiar meu plano</button></p>
-      <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <BottomBar>
         <Button type="button" className="w-full" disabled={!review} onClick={() => setEditing(true)}>Revisar plano</Button>
-      </div>
+      </BottomBar>
     </div>
   )
 }

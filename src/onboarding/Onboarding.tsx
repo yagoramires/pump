@@ -1,58 +1,20 @@
 import { useState } from 'react'
-import { Plus, Sparkles } from 'lucide-react'
-import { DEFAULTS, type Settings } from '../schema'
-import type { Profile } from '../profile/types'
-import type { Exercise, WorkoutPlan } from '../workout/types'
-import { usePersisted } from '../storage/db'
-import { fetchExercises } from '../catalog/catalog'
-import { WEEK_ORDER, todayKey } from '../lib/date'
-import { TEMPLATES, instantiateTemplate } from '../workout/templates'
-import { PlanEditor } from '../workout/PlanEditor'
-import { PlanImport } from '../workout/PlanImport'
-import { ImportBackupButton } from '../shell/ImportBackupButton'
-
-import { formatInput, parseDecimal } from '../lib/number'
+import { Plus, Sparkles, Upload } from 'lucide-react'
+import { DEFAULTS, type Settings } from '@/schema'
+import type { Exercise, WorkoutPlan } from '@/workout/types'
+import { usePersisted } from '@/storage/db'
+import { fetchExercises } from '@/catalog/catalog'
+import { WEEK_ORDER, todayKey } from '@/lib/date'
+import { TEMPLATES, instantiateTemplate } from '@/workout/templates'
+import { PlanEditor } from '@/workout/PlanEditor'
+import { PlanImport } from '@/workout/PlanImport'
+import { ProfileForm } from '@/profile/ProfileForm'
+import { useImportBackup } from '@/shell/useImportBackup'
+import { BottomBar } from '@/components/BottomBar'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
-const LABEL = 'text-[10px] font-semibold tracking-[0.08em] text-faint uppercase'
-
-function Field({ id, label, unit, value, onChange }: { id: string; label: string; unit: string; value: string; onChange: (v: string) => void }) {
-  return (
-    <div>
-      <label htmlFor={id} className={cn(LABEL, 'mb-1.5 block')}>{label}</label>
-      <div className="relative">
-        <Input id={id} className="pr-11" inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} />
-        <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[13px] text-faint">{unit}</span>
-      </div>
-    </div>
-  )
-}
-
-export function ProfileForm({ submitLabel, onDone }: { submitLabel: string; onDone: () => void }) {
-  const [start, setProfile] = usePersisted('profile')
-  const [sex, setSex] = useState(start.sex)
-  const [h, setH] = useState(start.heightCm ? formatInput(start.heightCm) : '')
-  const [w, setW] = useState(start.weightKg ? formatInput(start.weightKg) : '')
-  const height = parseDecimal(h)
-  const weight = parseDecimal(w)
-  const ok = !!height && !!weight
-  return (
-    <div className="flex flex-1 flex-col gap-4">
-      <ToggleGroup type="single" spacing={1} value={sex} onValueChange={(v) => v && setSex(v as Profile['sex'])} aria-label="Sexo" className="w-full gap-[3px] rounded-[11px] border border-border bg-panel p-[3px]">
-        {(['M', 'F'] as const).map((s) => (
-          <ToggleGroupItem key={s} value={s} className="h-10 flex-1 rounded-[8px] font-semibold text-text-2 data-[state=on]:bg-surface data-[state=on]:text-strong data-[state=on]:shadow-[inset_0_0_0_1px_var(--color-border-strong)]">{s === 'M' ? 'Masculino' : 'Feminino'}</ToggleGroupItem>
-        ))}
-      </ToggleGroup>
-      <Field id="altura" label="Altura" unit="cm" value={h} onChange={setH} />
-      <Field id="peso" label="Peso" unit="kg" value={w} onChange={setW} />
-      <p className="rounded-[11px] border border-border bg-surface px-3 py-2.5 text-[13px] text-text-2">Seus dados ficam só neste aparelho.</p>
-      <Button type="button" className="mt-auto" disabled={!ok} onClick={() => { setProfile({ ...start, sex, heightCm: height!, weightKg: weight! }); onDone() }}>{submitLabel}</Button>
-    </div>
-  )
-}
+const LABEL = 'label-caps tracking-[0.08em]'
 
 type Step = 'perfil' | 'treino' | 'editor' | 'import'
 
@@ -75,6 +37,7 @@ export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => 
   const [picked, setPicked] = useState(TEMPLATES[0].id)
   const finish = () => setSettings((s) => ({ ...s, onboardingDone: true, firstUseAt: s.firstUseAt ?? todayKey() }))
   const template = TEMPLATES.find((t) => t.id === picked)!
+  const backup = useImportBackup()
 
   const startTemplate = async () => {
     setError(undefined)
@@ -94,7 +57,7 @@ export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => 
   if (step === 'perfil') {
     return (
       // altura da tela menos o padding do main: Continuar e os atalhos ficam embaixo, perto do polegar
-      <div className="flex min-h-[calc(100dvh-1rem-max(1rem,env(safe-area-inset-bottom)))] flex-col gap-4">
+      <div className="flex min-h-[calc(100dvh-var(--main-pt)-var(--main-pb))] flex-col gap-4">
         <div>
           <Steps n={1} />
           <h1 className="text-[26px] font-bold tracking-tight text-strong">Sobre você</h1>
@@ -102,8 +65,11 @@ export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => 
         <ProfileForm submitLabel="Continuar" onDone={() => setStep('treino')} />
         <div className="-mt-2 flex flex-wrap items-center justify-between">
           {/* quem instalou o app no iPhone traz aqui os dados que usava no Safari */}
-          <ImportBackupButton label="Restaurar backup" />
+          <Button type="button" variant="ghost" className="text-text-2" onClick={backup.pick}><Upload size={16} aria-hidden="true" />Restaurar backup</Button>
+          {backup.input}
           <Button type="button" variant="ghost" className="text-text-2" onClick={() => setStep('treino')}>Pular</Button>
+          {backup.error && <p role="alert" className="basis-full px-3.5 py-2 text-sm text-negative">{backup.error}</p>}
+          {backup.confirm}
         </div>
       </div>
     )
@@ -136,10 +102,10 @@ export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => 
         <Button type="button" variant="outline" className="h-16 flex-col gap-1" onClick={() => { setInitial(DEFAULTS.workoutPlan); setStep('editor') }}><Plus size={16} aria-hidden="true" />Do zero</Button>
         <Button type="button" variant="outline" className="h-16 flex-col gap-1" onClick={() => setStep('import')}><Sparkles size={16} className="text-accent" aria-hidden="true" />Importar de IA</Button>
       </div>
-      <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md flex-col gap-2 bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <BottomBar className="flex-col gap-2">
         {error && <p role="alert" className="rounded-[10px] border border-border bg-panel px-3 py-2 text-sm text-negative">{error}</p>}
         <Button type="button" onClick={() => void startTemplate()}>{`Usar ${template.name}`}</Button>
-      </div>
+      </BottomBar>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { SessionExercise } from './types'
-import { imageUrl } from '../catalog/catalog'
+import { imageUrl } from '@/catalog/catalog'
 import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'

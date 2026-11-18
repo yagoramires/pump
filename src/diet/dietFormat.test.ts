@@ -1,5 +1,5 @@
 import type { DietItem, DietPlan, TacoFood } from './types'
-import type { FormatError } from '../format/envelope'
+import type { FormatError } from '@/format/envelope'
 import { dietFromFormat, exportDietFormat, parseDietFormat, type PumpAlimento, type PumpDieta } from './dietFormat'
 
 const T: TacoFood[] = [

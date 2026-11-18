@@ -1,6 +1,6 @@
 import type { Profile } from './types'
-import type { Goal } from '../workout/types'
-import { formatKg } from '../lib/number'
+import type { Goal } from '@/workout/types'
+import { formatKg } from '@/lib/number'
 import { hasProfile } from './profile'
 
 // backup importado não valida as anamneses: só valores conhecidos entram no prompt, nunca "undefined"

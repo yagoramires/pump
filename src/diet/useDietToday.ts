@@ -1,6 +1,6 @@
 import type { DietDay } from './types'
-import { usePersisted } from '../storage/db'
-import { useToday } from '../lib/useToday'
+import { usePersisted } from '@/storage/db'
+import { useToday } from '@/lib/useToday'
 import { dayOf, resetDay, touched, updateDay } from './day'
 
 export type Act = (f: (d: DietDay) => DietDay) => void

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { Check, ChevronDown, Dumbbell } from 'lucide-react'
 import type { SessionExercise } from './types'
 import { IconDot } from '@/components/IconDot'
-import { muscleColor } from '../catalog/muscles'
+import { muscleColor } from '@/catalog/muscles'
 import { formatKg } from '@/lib/number'
 import { cn } from '@/lib/utils'
 

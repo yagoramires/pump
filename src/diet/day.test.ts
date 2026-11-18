@@ -4,7 +4,7 @@ import {
   addExtra, chooseOption, currentMealId, currentMenu, dayFromMenu, dayOf, dayStatus, daySummary, freeCount, mealOptions, removeItem, resetDay,
   setDayFree, setMealFree, skipItem, sortedMeals, swapItem, swapMeal, toggleMeal, touched, undoSwap, updateDay,
 } from './day'
-import { countInWeekBefore } from '../lib/date'
+import { countInWeekBefore } from '@/lib/date'
 
 const it = (id: string, name: string, kcal: number, grams = 100): DietItem => ({ id, name, grams, per100: { kcal, p: 10, c: 20, f: 5 }, source: 'custom' })
 const meal = (id: string, name: string, time: string, ...options: DietItem[][]): Meal => ({ id, name, time, options: options.map((items, o) => ({ id: `${id}-o${o}`, items })) })

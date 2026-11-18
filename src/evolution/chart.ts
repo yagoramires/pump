@@ -1,4 +1,4 @@
-import { daysBetween } from '../lib/date'
+import { daysBetween } from '@/lib/date'
 import type { Point } from './measurements'
 
 /** pontos (por data) em coordenadas: x proporcional aos dias, y entre o mínimo e o máximo com `pad` em cima e embaixo */

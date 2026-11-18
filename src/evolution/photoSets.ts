@@ -1,6 +1,6 @@
 import type { Angle, PhotoSet } from './types'
-import { usePersisted } from '../storage/db'
-import { deletePhotos } from '../storage/photos'
+import { usePersisted } from '@/storage/db'
+import { deletePhotos } from '@/storage/photos'
 import { byDate } from './measurements'
 
 export const ANGLES = ['frente', 'lado', 'costas'] as const satisfies readonly Angle[]

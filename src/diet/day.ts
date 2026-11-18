@@ -1,4 +1,4 @@
-import { countInWeekBefore, hhmm } from '../lib/date'
+import { countInWeekBefore, hhmm } from '@/lib/date'
 import type { DayItem, DayMeal, DietDay, DietItem, DietLog, DietPlan, Meal, MealOption, Menu } from './types'
 import { round1 } from '@/lib/number'
 import { OPTION_LETTERS } from './limits'

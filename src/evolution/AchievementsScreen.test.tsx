@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import { clear } from 'idb-keyval'
-import { resetStoreForTests, save } from '../storage/db'
+import { resetStoreForTests, save } from '@/storage/db'
 import { AchievementsScreen } from './AchievementsScreen'
 
 beforeEach(async () => {

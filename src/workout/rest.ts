@@ -1,4 +1,4 @@
-import { countInWeekBefore } from '../lib/date'
+import { countInWeekBefore } from '@/lib/date'
 import type { WorkoutLog, WorkoutSession } from './types'
 
 /** descanso marcado é gravado como uma sessão vazia (formato salvo nos aparelhos) */

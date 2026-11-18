@@ -1,5 +1,5 @@
 import { Dumbbell, TrendingUp, Utensils } from 'lucide-react'
-import type { Tab } from '../types'
+import type { Tab } from '@/types'
 import { cn } from '@/lib/utils'
 
 const TABS = [
@@ -10,7 +10,7 @@ const TABS = [
 
 export function BottomNav({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-20 flex h-[calc(68px+env(safe-area-inset-bottom))] border-t border-border bg-panel pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed inset-x-0 bottom-0 z-(--z-nav) flex h-[calc(var(--nav-h)+env(safe-area-inset-bottom))] border-t border-border bg-panel pb-[env(safe-area-inset-bottom)]">
       {TABS.map(({ id, label, Icon }) => (
         <button
           key={id}

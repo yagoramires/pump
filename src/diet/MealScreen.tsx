@@ -1,7 +1,10 @@
 import { useState, type ReactNode } from 'react'
-import { ArrowLeftRight, Check, ChevronLeft, MoreHorizontal, Plus, Sparkles } from 'lucide-react'
+import { ArrowLeftRight, Check, MoreHorizontal, Plus, Sparkles } from 'lucide-react'
 import type { DayItem, DietDay } from './types'
 import { Overlay } from '@/components/Overlay'
+import { BackHeader } from '@/components/BackHeader'
+import { BottomBar } from '@/components/BottomBar'
+import { SheetBody, SheetRow } from '@/components/SheetRow'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -12,7 +15,7 @@ import { addExtra, chooseOption, mealOptions, optionLetter, removeItem, setMealF
 import { iaLabel, itemKcal, itemMacros, kcalOf, macroText, portionText } from './food'
 import { useDietToday } from './useDietToday'
 
-const LABEL = 'pt-3 pb-1 text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
+const LABEL = 'label-caps pt-3 pb-1 tracking-[.04em]'
 const CARD = 'overflow-hidden rounded-[14px] border border-border bg-surface'
 export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () => void }) {
   const { plan, day, menu, act } = useDietToday()
@@ -66,19 +69,11 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
     )
   }
 
-  const row = (icon: ReactNode, label: string, onClick: () => void) => (
-    <li className="border-t border-line first:border-t-0">
-      <button type="button" className="flex min-h-14 w-full items-center gap-3 px-3 text-left text-[15px] text-strong" onClick={onClick}>{icon}{label}</button>
-    </li>
-  )
-
   return (
     <Overlay>
-      <header className="flex items-center gap-3 py-2">
-        <button type="button" className="icon-btn" aria-label="Voltar" onClick={onClose}><ChevronLeft size={18} /></button>
-        <h1 className="min-w-0 flex-1 truncate text-[19px] font-semibold text-strong">{`${meal.name} · ${meal.time}`}</h1>
+      <BackHeader title={`${meal.name} · ${meal.time}`} onBack={onClose} titleClassName="min-w-0 truncate">
         {!dayFree && <button type="button" className="icon-btn" aria-label="Mais opções da refeição" onClick={() => setSheet('more')}><MoreHorizontal size={18} /></button>}
-      </header>
+      </BackHeader>
 
       <div className="pb-24">
         {canToggle && (
@@ -88,7 +83,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
             className="mt-2 grid w-full auto-cols-fr grid-flow-col gap-[3px] rounded-xl border border-border bg-panel p-[3px]"
           >
             {options.map((o, i) => (
-              <ToggleGroupItem key={o.id} value={o.id} className="h-11 rounded-[9px] text-[13px] font-semibold text-faint data-[state=on]:bg-[#2a2c33] data-[state=on]:text-strong">{optionLetter(i)}</ToggleGroupItem>
+              <ToggleGroupItem key={o.id} value={o.id} className="h-11 rounded-[9px] text-[13px] font-semibold text-faint data-[state=on]:bg-selected data-[state=on]:text-strong">{optionLetter(i)}</ToggleGroupItem>
             ))}
           </ToggleGroup>
         )}
@@ -115,7 +110,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
         </p>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex max-w-md gap-2 bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <BottomBar className="z-(--z-bar) gap-2">
         {meal.done ? (
           <>
             <Button variant="outline" className="h-11 flex-1 bg-transparent" onClick={() => act((d) => toggleMeal(d, meal.id))}>Desmarcar</Button>
@@ -127,7 +122,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
             <Button className="h-11 flex-[1.4]" disabled={dayFree} onClick={() => { act((d) => toggleMeal(d, meal.id)); onClose() }}><Check aria-hidden="true" />Comi esta</Button>
           </>
         )}
-      </div>
+      </BottomBar>
 
       {picking === 'extra' && (
         <FoodPicker title={`Extra · ${meal.name}`} confirmLabel="Adicionar" onClose={() => setPicking(undefined)} onPick={(it) => { act((d) => addExtra(d, meal.id, it)); setPicking(undefined) }} />
@@ -142,18 +137,18 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
       {sheet && (
         <Drawer open onOpenChange={(o) => !o && setSheet(undefined)}>
           <DrawerContent>
-            <div className="flex min-h-0 flex-col overflow-y-auto px-4 pt-2 pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <SheetBody>
               {sheet === 'more' ? (
                 <>
                   <DrawerTitle className="shrink-0 truncate pb-2 text-[19px] font-semibold text-strong">{meal.name}</DrawerTitle>
                   <DrawerDescription className="sr-only">Mais opções da refeição</DrawerDescription>
                   <ul className={CARD}>
-                    {!free && row(<ArrowLeftRight size={18} className="text-accent" aria-hidden="true" />, 'Trocar por refeição de outro cardápio', () => setSheet('swap'))}
-                    {row(<Sparkles size={18} className="text-accent" aria-hidden="true" />, meal.free ? 'Desfazer refeição livre' : 'Refeição livre', () => {
+                    {!free && <SheetRow icon={<ArrowLeftRight size={18} className="text-accent" aria-hidden="true" />} label="Trocar por refeição de outro cardápio" onClick={() => setSheet('swap')} />}
+                    <SheetRow icon={<Sparkles size={18} className="text-accent" aria-hidden="true" />} label={meal.free ? 'Desfazer refeição livre' : 'Refeição livre'} onClick={() => {
                       setSheet(undefined)
                       act((d) => setMealFree(d, meal.id, !meal.free))
                       if (!meal.free) onClose()
-                    })}
+                    }} />
                   </ul>
                 </>
               ) : (
@@ -178,7 +173,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
                   ))}
                 </>
               )}
-            </div>
+            </SheetBody>
           </DrawerContent>
         </Drawer>
       )}

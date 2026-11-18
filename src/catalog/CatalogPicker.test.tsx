@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { ex } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
 import { clear } from 'idb-keyval'
-import { resetStoreForTests, save } from '../storage/db'
+import { resetStoreForTests, save } from '@/storage/db'
 import { CatalogPicker } from './CatalogPicker'
 
 beforeEach(async () => {

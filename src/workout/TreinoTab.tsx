@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { Check, ChevronRight, Dumbbell, HeartPulse, Moon, Undo2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { SetDone, WorkoutLog, WorkoutSession } from './types'
-import { usePersisted } from '../storage/db'
-import { formatDayLabel } from '../lib/date'
-import { useToday } from '../lib/useToday'
+import { usePersisted } from '@/storage/db'
+import { formatDayLabel } from '@/lib/date'
+import { useToday } from '@/lib/useToday'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/EmptyState'
 import { formatKg, plural } from '@/lib/number'
@@ -23,7 +23,6 @@ import { isRest, restRecord } from './rest'
 import { unlockAudio } from './restTimer'
 import { isCardio } from './cardio'
 
-const LABEL = 'text-[10px] font-semibold uppercase tracking-[.05em] text-faint'
 
 // cardio fica num bloco à parte, sem acordeão: abre o primeiro exercício de força incompleto
 const firstIncomplete = (s: WorkoutSession): number => s.exercises.findIndex((e) => !isCardio(e) && e.sets.includes(null))
@@ -93,7 +92,7 @@ export function TreinoTab() {
   if ((rest && !chosenId) || (!session && !workout)) {
     return (
       <div>
-        <div className={LABEL}>{formatDayLabel(today)}</div>
+        <div className="label-caps">{formatDayLabel(today)}</div>
         {rest ? (
           <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Descanso marcado">
             <p className="max-w-[260px] text-sm text-text-2">Hoje é dia de recuperar. Quer treinar mesmo assim?</p>
@@ -104,7 +103,7 @@ export function TreinoTab() {
             <p className="max-w-[260px] text-sm text-text-2">Seu plano não tem treino hoje. Quer treinar mesmo assim?</p>
           </EmptyState>
         )}
-        <div className={`${LABEL} mx-0.5 mb-1.5`}>Escolher um treino</div>
+        <div className="label-caps mx-0.5 mb-1.5">Escolher um treino</div>
         <div className="overflow-hidden rounded-[14px] border border-border bg-panel">
           {plan.workouts.map((w) => (
             <button key={w.id} type="button" onClick={() => setChosenId(w.id)} className="flex min-h-14 w-full items-center gap-3 border-t border-line px-3.5 py-2.5 text-left first:border-t-0">
@@ -169,7 +168,7 @@ export function TreinoTab() {
 
   return (
     <div className="pb-24">
-      <div className={LABEL}>{`${formatDayLabel(today)} · TREINO ${view.workoutLabel}`}</div>
+      <div className="label-caps">{`${formatDayLabel(today)} · TREINO ${view.workoutLabel}`}</div>
       <h1 className="mt-0.5 mb-3 text-[26px] font-bold tracking-tight text-strong">{view.workoutName}</h1>
 
       <div className="mb-2.5 flex items-center gap-3.5 rounded-[14px] border border-border bg-panel p-3.5">
@@ -197,7 +196,7 @@ export function TreinoTab() {
           <SetTable ex={e} prev={previousSets(log, today, e.exerciseId)} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} />
         </ExerciseCard>
       ))}
-      {view.exercises.some(isCardio) && <div className={cn(LABEL, 'mt-4 mb-2')}>Cardio</div>}
+      {view.exercises.some(isCardio) && <div className="label-caps mt-4 mb-2">Cardio</div>}
       {view.exercises.map((e, i) => isCardio(e) && (
         <div key={i} className="mb-2.5 flex items-center gap-1.5 rounded-[14px] border border-border bg-panel py-1.5 pr-2 pl-1.5">
           <button type="button" aria-label={`Ver ${e.name}`} onClick={() => setPreview(i)} className="flex size-11 shrink-0 items-center justify-center">
@@ -213,7 +212,7 @@ export function TreinoTab() {
         </div>
       ))}
 
-      <div className="pointer-events-none fixed bottom-[calc(68px+env(safe-area-inset-bottom))] left-1/2 h-24 w-full max-w-md -translate-x-1/2 bg-linear-to-b from-transparent to-bg to-60%" />
+      <div className="pointer-events-none fixed bottom-[calc(var(--nav-h)+env(safe-area-inset-bottom))] left-1/2 h-24 w-full max-w-md -translate-x-1/2 bg-linear-to-b from-transparent to-bg to-60%" />
       {session?.restEndsAt !== undefined && (
         <RestCard
           endAt={session.restEndsAt}
@@ -226,7 +225,7 @@ export function TreinoTab() {
           onFinish={finishRest}
         />
       )}
-      <div className="fixed bottom-[calc(80px+env(safe-area-inset-bottom))] left-1/2 z-10 w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2">
+      <div className="fixed bottom-[calc(var(--nav-h)+12px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2">
         {session?.completedAt ? (
           <Button variant="secondary" className="h-11 w-full rounded-[13px] font-bold" disabled><Check aria-hidden="true" /> Treino concluído</Button>
         ) : (

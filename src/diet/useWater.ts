@@ -1,6 +1,6 @@
 import type { WaterSettings } from './types'
-import { usePersisted } from '../storage/db'
-import { useToday } from '../lib/useToday'
+import { usePersisted } from '@/storage/db'
+import { useToday } from '@/lib/useToday'
 import { addWater, turnWaterOn } from './water'
 
 /** contador de água: configuração (em `settings.water`) e os copos de hoje */

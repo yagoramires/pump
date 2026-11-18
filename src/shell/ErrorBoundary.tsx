@@ -3,7 +3,7 @@ import { AlertTriangle } from 'lucide-react'
 import { EmptyState } from '@/components/EmptyState'
 import { Button } from '@/components/ui/button'
 import { useBackupExport } from './useBackupExport'
-import { StorageReadError } from '../storage/db'
+import { StorageReadError } from '@/storage/db'
 
 function FatalScreen({ title, text, children }: { title: string; text: string; children: ReactNode }) {
   return (

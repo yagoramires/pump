@@ -2,8 +2,8 @@ import { useState, type ReactNode } from 'react'
 import { CalendarDays, Camera, ChevronRight, FileText, Plus, Ruler, Share2, TrendingUp, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
 import type { EvolutionInput } from './types'
-import { loadPhoto } from '../storage/photos'
-import { daysBetween, formatDayMonth, todayKey } from '../lib/date'
+import { loadPhoto } from '@/storage/photos'
+import { daysBetween, formatDayMonth, todayKey } from '@/lib/date'
 import { formatDec, formatKg, plural } from '@/lib/number'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
@@ -27,7 +27,6 @@ import { buildReport, change } from './report'
 import { generatePdf, sharePdf } from './pdf/generate'
 
 type View = 'capture' | 'compare' | 'achievements' | 'history'
-const LABEL = 'text-[10px] font-semibold uppercase tracking-[.05em] text-faint'
 const CARD = 'mb-2.5 overflow-hidden rounded-[14px] border border-border bg-panel'
 const LINK = 'h-11 px-1 text-[13px] font-medium text-accent disabled:text-faint'
 const RANGES = [{ v: '30', label: '30 d' }, { v: '90', label: '90 d' }, { v: 'all', label: 'Tudo' }]
@@ -119,7 +118,7 @@ export function EvolutionTab() {
 
   return (
     <div className="pb-24">
-      <div className={LABEL}>{`Desde ${formatDayMonth(period.start)} · ${plural(period.days, 'dia', 'dias')}`}</div>
+      <div className="label-caps">{`Desde ${formatDayMonth(period.start)} · ${plural(period.days, 'dia', 'dias')}`}</div>
       <h1 className="mt-0.5 mb-3 text-[26px] font-bold tracking-tight text-strong">Evolução</h1>
 
       <div className="mb-2.5 grid grid-cols-3 gap-2">
@@ -204,8 +203,8 @@ export function EvolutionTab() {
         </button>
       </div>
 
-      <div className="pointer-events-none fixed bottom-[calc(68px+env(safe-area-inset-bottom))] left-1/2 h-24 w-full max-w-md -translate-x-1/2 bg-linear-to-b from-transparent to-bg to-60%" />
-      <div className="fixed bottom-[calc(80px+env(safe-area-inset-bottom))] left-1/2 z-10 flex w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 gap-2">
+      <div className="pointer-events-none fixed bottom-[calc(var(--nav-h)+env(safe-area-inset-bottom))] left-1/2 h-24 w-full max-w-md -translate-x-1/2 bg-linear-to-b from-transparent to-bg to-60%" />
+      <div className="fixed bottom-[calc(var(--nav-h)+12px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) flex w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 gap-2">
         <Button variant="secondary" className="h-11 flex-1 rounded-[13px] border border-border font-bold" onClick={() => setChoosing(true)}><Plus aria-hidden="true" /> Registrar</Button>
         {blob ? (
           <Button className="h-11 flex-1 rounded-[13px] font-bold" onClick={() => sharePdf(blob, `pump-evolucao-${today}.pdf`).catch(() => toast.error('Não consegui compartilhar o PDF'))}><Share2 aria-hidden="true" /> Compartilhar PDF</Button>

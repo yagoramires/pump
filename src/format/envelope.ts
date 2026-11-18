@@ -1,4 +1,4 @@
-import { isObj } from '../schema'
+import { isObj } from '@/schema'
 
 /** o arquivo "pump-plano" é um só: treinos e dieta são metades dele */
 export const HEADER = { formato: 'pump-plano', versao: 1 } as const

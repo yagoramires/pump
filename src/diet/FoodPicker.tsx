@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
-import { Check, Minus, Plus, Search } from 'lucide-react'
+import { Check, Minus, Plus } from 'lucide-react'
 import type { DietItem, Per100 } from './types'
-import { usePersisted } from '../storage/db'
-import { fetchTaco } from '../catalog/catalog'
-import { searchByName } from '../catalog/search'
-import { useCatalog } from '../catalog/useCatalog'
+import { usePersisted } from '@/storage/db'
+import { fetchTaco } from '@/catalog/catalog'
+import { searchByName } from '@/catalog/search'
+import { useCatalog } from '@/catalog/useCatalog'
+import { SearchField } from '@/components/SearchField'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
@@ -24,7 +25,7 @@ type Props = {
   extraAction?: { label: string; onClick: () => void }
 }
 
-const LABEL = 'pt-3 pb-1 text-[10px] font-semibold uppercase tracking-[.04em] text-faint'
+const LABEL = 'label-caps pt-3 pb-1 tracking-[.04em]'
 const ROUND = 'flex size-11 touch-manipulation items-center justify-center rounded-xl border border-border text-strong disabled:opacity-40'
 
 function Rows({ label, foods, selected, onSelect }: { label: string; foods: Food[]; selected?: string; onSelect: (f: Food) => void }) {
@@ -109,10 +110,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
             </form>
           ) : (
             <>
-              <div className="relative shrink-0">
-                <Search size={16} className="absolute top-3.5 left-3 text-faint" />
-                <Input type="search" className="pl-9" placeholder="Buscar alimento" aria-label="Buscar alimento" autoComplete="off" enterKeyHint="search" value={q} onChange={(e) => setQ(e.target.value)} />
-              </div>
+              <SearchField className="shrink-0" placeholder="Buscar alimento" aria-label="Buscar alimento" value={q} onChange={(e) => setQ(e.target.value)} />
               {offline && <p className="pt-2 text-[13px] text-text-2">Sem internet para buscar na TACO</p>}
               <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {shownRecents.length > 0 && (

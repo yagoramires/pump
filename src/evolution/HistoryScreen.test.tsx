@@ -1,12 +1,12 @@
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
-import { load, resetStoreForTests, save } from '../storage/db'
-import { loadPhoto, savePhoto } from '../storage/photos'
+import { load, resetStoreForTests, save } from '@/storage/db'
+import { loadPhoto, savePhoto } from '@/storage/photos'
 import { dietDay, food } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
 import { HistoryScreen } from './HistoryScreen'
-import { restRecord } from '../workout/rest'
+import { restRecord } from '@/workout/rest'
 
 beforeEach(async () => {
   await clear()

@@ -1,8 +1,8 @@
 import { screen } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import { clear } from 'idb-keyval'
-import { resetStoreForTests, save } from '../storage/db'
-import { savePhoto } from '../storage/photos'
+import { resetStoreForTests, save } from '@/storage/db'
+import { savePhoto } from '@/storage/photos'
 import { PhotoCompare } from './PhotoCompare'
 
 beforeEach(async () => {

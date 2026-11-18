@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { AlertTriangle, ChevronLeft, Copy } from 'lucide-react'
+import { AlertTriangle, Copy } from 'lucide-react'
 import { toast } from 'sonner'
 import type { DietAnamnesis, DietItem, DietPlan } from './types'
-import { usePersisted } from '../storage/db'
-import { fetchTaco } from '../catalog/catalog'
+import { usePersisted } from '@/storage/db'
+import { fetchTaco } from '@/catalog/catalog'
 import { buildDietPrompt } from './prompt'
 import { dietFromFormat, parseDietFormat } from './dietFormat'
 import { optionLetter } from './day'
@@ -15,9 +15,9 @@ import { FoodPicker } from './FoodPicker'
 import { PasteBox, Step } from '@/components/ImportFlow'
 import { usePastedReview } from '@/components/usePastedReview'
 import { Button } from '@/components/ui/button'
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import { BackHeader } from '@/components/BackHeader'
+import { BottomBar } from '@/components/BottomBar'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { formatDec } from '@/lib/number'
 import { copyText } from '@/lib/share'
 import { cn } from '@/lib/utils'
@@ -65,18 +65,10 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   const offer = (next: DietPlan) => (saved.menus.length && next.menus.length ? setReplacing(next) : commit(next))
 
   const confirm = (
-    <AlertDialog open={!!replacing} onOpenChange={(o) => !o && setReplacing(undefined)}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Substituir cardápio?</AlertDialogTitle>
-          <AlertDialogDescription>O cardápio atual será substituído. O que você já marcou hoje continua.</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={() => replacing && commit(replacing)}>Substituir</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ConfirmDialog
+      open={!!replacing} title="Substituir cardápio?" text="O cardápio atual será substituído. O que você já marcou hoje continua." confirm="Substituir"
+      onConfirm={() => replacing && commit(replacing)} onCancel={() => setReplacing(undefined)}
+    />
   )
 
   if (editing && review) return <><DietEditor initial={review.plan} onSave={offer} onCancel={() => setEditing(false)} />{confirm}</>
@@ -86,10 +78,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
     const outside = allItems(review.plan).filter((i) => i.source === 'ia').length
     return (
       <div className="flex flex-col gap-3 pb-28">
-        <header className="flex min-h-11 items-center gap-3 py-2">
-          <button type="button" className="icon-btn" aria-label="Voltar" onClick={() => edit('')}><ChevronLeft size={18} /></button>
-          <h1 className="flex-1 text-[19px] font-semibold text-strong">Revisar cardápio</h1>
-        </header>
+        <BackHeader title="Revisar cardápio" onBack={() => edit('')} className="min-h-11" />
         {review.offline && <p role="status" className="rounded-[14px] border border-border bg-panel p-3.5 text-[13px] text-text-2">Sem internet: usei os números da IA. Dá pra trocar depois.</p>}
         {review.plan.menus.length > 1 && (
           <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Cardápios">
@@ -115,7 +104,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
             {meal.options.map((o, oi) => (
               <div key={o.id} className="pb-1.5">
                 {meal.options.length > 1 && (
-                  <div className="px-3.5 pt-2 text-[10px] font-semibold tracking-[.04em] text-faint uppercase">
+                  <div className="label-caps px-3.5 pt-2 tracking-[.04em]">
                     {`Opção ${optionLetter(oi)}${o.name ? ` · ${o.name}` : ''} · ${kcalOf(o.items)} kcal`}
                   </div>
                 )}
@@ -147,10 +136,10 @@ export function DietImport({ mode, onDone, onBack }: Props) {
             {`${outside} ${outside === 1 ? 'item fora da TACO usa' : 'itens fora da TACO usam'} os números da IA. Toque pra trocar.`}
           </p>
         )}
-        <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md gap-2 bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <BottomBar className="gap-2">
           <Button type="button" variant="outline" className="flex-1 bg-transparent" onClick={() => setEditing(true)}>Editar</Button>
           <Button type="button" className="flex-1" onClick={() => offer(review.plan)}>Usar cardápios</Button>
-        </div>
+        </BottomBar>
         {picking && (
           <FoodPicker
             title={`Trocar · ${picking.name}`}
@@ -170,10 +159,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
 
   return (
     <div className="flex flex-col gap-3 pb-28">
-      <header className="flex min-h-11 items-center gap-3 py-2">
-        <button type="button" className="icon-btn" aria-label="Voltar" onClick={onBack}><ChevronLeft size={18} /></button>
-        <h1 className="flex-1 text-[19px] font-semibold text-strong">{mode === 'ia' ? 'Gerar com IA' : 'Importar cardápio'}</h1>
-      </header>
+      <BackHeader title={mode === 'ia' ? 'Gerar com IA' : 'Importar cardápio'} onBack={onBack} className="min-h-11" />
       {mode === 'ia' && <DietAnamnesisForm value={anamnesis} onChange={setEdited} />}
       <div className="overflow-hidden rounded-[14px] border border-border bg-panel">
         {mode === 'ia' && <Step n={1} title="Copie o prompt" sub="Botão lá embaixo; cole no ChatGPT" />}
@@ -183,9 +169,9 @@ export function DietImport({ mode, onDone, onBack }: Props) {
         {paste.reviewing && <p role="status" className="text-[13px] text-text-2">Conferindo na TACO…</p>}
       </PasteBox>
       {mode === 'ia' && (
-        <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <BottomBar>
           <Button type="button" className="w-full" disabled={!anamnesis.goal} onClick={copyPrompt}><Copy size={16} aria-hidden="true" />Copiar prompt pra IA</Button>
-        </div>
+        </BottomBar>
       )}
     </div>
   )

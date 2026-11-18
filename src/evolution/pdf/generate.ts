@@ -1,6 +1,6 @@
 import { createElement } from 'react'
-import { shareFile } from '../../lib/share'
-import type { Report } from '../report'
+import { shareFile } from '@/lib/share'
+import type { Report } from '@/evolution/report'
 
 // react-pdf (~500 KB) só é baixado quando a pessoa pede o PDF
 export async function generatePdf(r: Report, photos: Record<string, string>): Promise<Blob> {

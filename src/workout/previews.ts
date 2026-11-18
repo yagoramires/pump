@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import type { WorkoutPlan } from './types'
-import { imageUrl } from '../catalog/catalog'
-import { PREVIEW_CACHE } from '../catalog/urls'
+import { imageUrl } from '@/catalog/catalog'
+import { PREVIEW_CACHE } from '@/catalog/urls'
+import { usePersisted } from '@/storage/db'
 
 export const planImageUrls = (plan: WorkoutPlan): string[] => [
   ...new Set(plan.workouts.flatMap((w) => w.exercises.flatMap((e) => e.images.map(imageUrl)))),
@@ -20,4 +22,11 @@ export async function syncPreviewCache(plan: WorkoutPlan, cs: CacheStorage = cac
   } catch (err) {
     console.warn('Cache de fotos indisponível:', err)
   }
+}
+
+/** fotos do plano no cache offline; montado uma vez no App, cobre editar, importar, restaurar backup e montagem */
+export function PreviewSync() {
+  const [plan] = usePersisted('workoutPlan')
+  useEffect(() => void syncPreviewCache(plan), [plan])
+  return null
 }

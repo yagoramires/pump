@@ -1,7 +1,7 @@
 import { dietDay, evolutionInput, pe } from '../../test/helpers'
-import type { DietLog } from '../diet/types'
+import type { DietLog } from '@/diet/types'
 import { computeAchievements, type Achievement, type AchievementId } from './achievements'
-import { restRecord } from '../workout/rest'
+import { restRecord } from '@/workout/rest'
 
 const done = (date: string, sets: { id: string; kg: number }[] = []) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', completedAt: `${date}T19:00:00.000Z`, exercises: sets.map((s) => ({ ...pe({ exerciseId: s.id, name: s.id }), sets: [{ reps: '10', weightKg: s.kg }] })) })
 const plan = (weekdays: number[]) => ({ workouts: [{ id: 'a', label: 'A', name: 'A', weekdays, exercises: [] }] })

@@ -2,9 +2,8 @@ import { screen, waitFor } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
-import { load, resetStoreForTests, save } from '../storage/db'
-import * as backup from '../storage/backup'
-import { buildBackup } from '../storage/backup'
+import { load, resetStoreForTests, save } from '@/storage/db'
+import { buildBackup } from '@/storage/backup'
 import { Onboarding } from './Onboarding'
 
 beforeEach(async () => {
@@ -38,13 +37,15 @@ test('primeiro passo restaura um backup depois de confirmar e recarrega o app', 
 })
 
 test('cancelar no diálogo não importa nada', async () => {
-  const spy = vi.spyOn(backup, 'importBackupFile')
+  const profile = { sex: 'F' as const, heightCm: 160, weightKg: 60 }
+  await save('profile', profile)
   const user = userEvent.setup()
   await renderLoaded(<Onboarding setSettings={vi.fn()} />)
   await user.upload(screen.getByLabelText('Arquivo de backup'), backupFile().file)
   await user.click(await screen.findByRole('button', { name: 'Cancelar' }))
   await waitFor(() => expect(screen.queryByText('Restaurar backup?')).not.toBeInTheDocument())
-  expect(spy).not.toHaveBeenCalled()
+  expect(await load('profile')).toEqual(profile)
+  expect(await load('settings')).toBeUndefined()
 })
 
 test('peso com vírgula é salvo como decimal', async () => {

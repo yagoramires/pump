@@ -1,6 +1,6 @@
-import type { DietLog, DietPlan, WaterLog } from '../diet/types'
-import type { Profile } from '../profile/types'
-import type { WorkoutLog, WorkoutPlan } from '../workout/types'
+import type { DietLog, DietPlan, WaterLog } from '@/diet/types'
+import type { Profile } from '@/profile/types'
+import type { WorkoutLog, WorkoutPlan } from '@/workout/types'
 
 export type Angle = 'frente' | 'lado' | 'costas'
 export interface MeasureFields { weightKg?: number; neckCm?: number; waistCm?: number; hipCm?: number; armCm?: number; chestCm?: number; thighCm?: number }

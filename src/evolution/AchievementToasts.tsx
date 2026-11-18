@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
-import { usePersisted } from '../storage/db'
-import { todayKey } from '../lib/date'
+import { usePersisted } from '@/storage/db'
+import { todayKey } from '@/lib/date'
 import { computeAchievements } from './achievements'
 import { useEvolution } from './useEvolution'
 

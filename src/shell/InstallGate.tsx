@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Share } from 'lucide-react'
-import { allData } from '../storage/db'
+import { allData } from '@/storage/db'
 import { useBackupExport } from './useBackupExport'
 import { EmptyState } from '@/components/EmptyState'
 import { Button } from '@/components/ui/button'

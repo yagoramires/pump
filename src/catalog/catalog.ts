@@ -1,5 +1,5 @@
-import type { Exercise } from '../workout/types'
-import type { TacoFood } from '../diet/types'
+import type { Exercise } from '@/workout/types'
+import type { TacoFood } from '@/diet/types'
 import { IMAGE_BASE } from './urls'
 
 export const imageUrl = (path: string): string => IMAGE_BASE + path

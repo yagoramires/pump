@@ -1,7 +1,7 @@
-import type { DietLog, DietPlan, WaterLog } from '../diet/types'
-import { daysBetween } from '../lib/date'
-import { dayStatus, daySummary, freeCount } from '../diet/day'
-import { waterMet } from '../diet/water'
+import type { DietLog, DietPlan, WaterLog } from '@/diet/types'
+import { daysBetween } from '@/lib/date'
+import { dayStatus, daySummary, freeCount } from '@/diet/day'
+import { waterMet } from '@/diet/water'
 
 /** cartão Dieta e conquistas de dieta (§157, §167): com cardápio ou com algum dia registrado */
 export const hasDiet = (plan: DietPlan, log: DietLog) => plan.menus.length > 0 || Object.keys(log).length > 0

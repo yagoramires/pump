@@ -3,8 +3,8 @@ import type { WorkoutPlan } from './types'
 import { readFileSync } from 'node:fs'
 import { exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
 import { buildPrompt } from './prompt'
-import type { FormatError } from '../format/envelope'
-import { normalize } from '../catalog/search'
+import type { FormatError } from '@/format/envelope'
+import { normalize } from '@/catalog/search'
 
 const ok = { formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'Peito', dias: ['seg', 'qui'], exercicios: [{ nome: 'supino reto com barra', series: 4, reps: 10, cargaKg: 40 }, { nome: 'Remada na máquina do Zé', series: 3, reps: '12', obs: 'banco 3' }] }] }
 const catalog = [ex('Supino reto com barra', { id: 'Barbell_Bench_Press_-_Medium_Grip' })]

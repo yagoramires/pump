@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear, get } from 'idb-keyval'
-import { resetStoreForTests } from '../storage/db'
+import { resetStoreForTests } from '@/storage/db'
 import { PlanImport } from './PlanImport'
 
 beforeEach(async () => {

@@ -1,5 +1,5 @@
 import { syncPreviewCache } from './previews'
-import { imageUrl } from '../catalog/catalog'
+import { imageUrl } from '@/catalog/catalog'
 import { cachedUrls, fakeCacheStorage, planWith } from '../../test/helpers'
 
 test('syncPreviewCache adiciona as do plano, remove as antigas e ignora exercício sem foto', async () => {

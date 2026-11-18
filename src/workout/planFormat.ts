@@ -1,7 +1,7 @@
 import type { CustomExercise, Exercise, PlanExercise, WorkoutPlan } from './types'
-import { normalize } from '../catalog/search'
-import { FormatError, headerProblems, readEnvelope, str, writeEnvelope, HEADER } from '../format/envelope'
-import { isObj } from '../schema'
+import { normalize } from '@/catalog/search'
+import { FormatError, headerProblems, readEnvelope, str, writeEnvelope, HEADER } from '@/format/envelope'
+import { isObj } from '@/schema'
 import { SETS } from './limits'
 import { PLAN_DEFAULTS, newCustomExercise, toPlanExercise } from './exercises'
 

@@ -3,12 +3,12 @@ import { screen, within } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear, get } from 'idb-keyval'
-import { resetStoreForTests, save } from '../storage/db'
-import { fetchTaco } from '../catalog/catalog'
+import { resetStoreForTests, save } from '@/storage/db'
+import { fetchTaco } from '@/catalog/catalog'
 import { DietImport } from './DietImport'
 
 // fetchTaco guarda a promessa no módulo; mockado, cada teste escolhe online ou offline
-vi.mock('../catalog/catalog', async (orig) => ({ ...(await orig<typeof import('../catalog/catalog')>()), fetchTaco: vi.fn() }))
+vi.mock('@/catalog/catalog', async (orig) => ({ ...(await orig<typeof import('@/catalog/catalog')>()), fetchTaco: vi.fn() }))
 
 const TACO: TacoFood[] = [
   { id: 1, name: 'Pão, trigo, francês', kcal: 300, p: 8, c: 58.6, f: 3.1 },
