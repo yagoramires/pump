@@ -21,7 +21,7 @@ export function AnamnesisFlow({ step: initial = 0, total, onDone, onCancel, foot
   const [step, setStep] = useState(initial)
   const title = TITLES[step]
   return (
-    <div className="flex min-h-[calc(100dvh-var(--main-pt)-var(--main-pb))] flex-col gap-4 pb-20">
+    <div className="flex flex-col gap-4 pb-20">
       {step === 0 && !onCancel ? (
         <div>
           <Steps n={1} total={total} />

@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 import { goalDirection, isGood } from './bodyFat'
 import { Delta } from './Delta'
 import { byDate, FAT, FIELDS, WEIGHT, fatSeries, pointAt, series, type Field, type Point } from './measurements'
-import { ANGLES } from './photoSets'
+import { ANGLES } from './types'
 import { AngleTabs } from './AngleTabs'
 import { PhotoThumb } from './PhotoThumb'
 

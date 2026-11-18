@@ -8,13 +8,13 @@ import { savePlan } from './plan'
 import { DietEditor } from './DietEditor'
 import { DietImport } from './DietImport'
 
-/** Dieta ainda vazia: gerar com IA, montar do zero ou importar. `onDone` roda depois que o cardápio é salvo */
 export function DietStart({ hint, onDone }: { hint: string; onDone?: () => void }) {
   const [plan, setPlan] = usePersisted('dietPlan')
   const [view, setView] = useState<'edit' | 'ia' | 'import'>()
   const close = () => setView(undefined)
-  if (view === 'edit') return <Overlay><DietEditor initial={plan} onSave={(next) => { setPlan((p) => savePlan(p, next)); onDone?.() }} onCancel={close} /></Overlay>
-  if (view) return <Overlay><DietImport mode={view} onDone={onDone ?? close} onBack={close} /></Overlay>
+  const done = onDone ?? close
+  if (view === 'edit') return <Overlay><DietEditor initial={plan} onSave={(next) => { setPlan((p) => savePlan(p, next)); done() }} onCancel={close} /></Overlay>
+  if (view) return <Overlay><DietImport mode={view} onDone={done} onBack={close} /></Overlay>
   return (
     <EmptyState icon={<Utensils size={30} aria-hidden="true" />} title="Monte seu cardápio">
       <p className="max-w-[240px] text-sm text-text-2">{hint}</p>

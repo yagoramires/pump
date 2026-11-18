@@ -4,7 +4,7 @@ import { formatDayMonth, parseDayKey } from '@/lib/date'
 import { formatDec, formatSigned, plural } from '@/lib/number'
 import type { Metric } from '@/evolution/bodyFat'
 import { FAT, WEIGHT, type Point } from '@/evolution/measurements'
-import { ANGLE_LABEL } from '@/evolution/photoSets'
+import { ANGLE_LABEL } from '@/evolution/types'
 import { scalePoints } from '@/evolution/chart'
 import { change, type BodyRow, type Report } from '@/evolution/report'
 

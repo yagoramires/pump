@@ -58,6 +58,15 @@ test('sem cardápio mostra o convite com os 3 caminhos', async () => {
   expect(screen.getByRole('textbox', { name: 'Nome da refeição 1' })).toHaveValue('Refeição 1')
 })
 
+test('Do zero: salvar sem cardápio resultante fecha o editor e volta ao convite', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<DietTab />)
+  await user.click(await screen.findByRole('button', { name: 'Do zero' }))
+  await user.click(await screen.findByRole('button', { name: 'Apagar todos os cardápios' }))
+  await user.click(await screen.findByRole('button', { name: 'Apagar' }))
+  expect(await screen.findByRole('heading', { name: 'Monte seu cardápio' })).toBeInTheDocument()
+})
+
 test('marcar refeição copia o dia e soma as kcal', async () => {
   await save('dietPlan', plan)
   resetStoreForTests()

@@ -6,7 +6,7 @@ import { computeAchievements, type Achievement } from './achievements'
 import { goalDirection, isGood } from './bodyFat'
 import { byDate, FAT, FIELDS, WEIGHT, fatSeries, series, type Field, type Point } from './measurements'
 import { dietStats, hasDiet, type DietStats } from './dietStats'
-import { ANGLES } from './photoSets'
+import { ANGLES } from './types'
 
 type Earned = { title: string; earnedAt: string }
 export interface BodyRow extends Field { first: Point; last: Point; delta: number; good: boolean }

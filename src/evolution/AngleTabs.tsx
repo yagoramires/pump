@@ -1,5 +1,5 @@
 import type { Angle } from './types'
-import { ANGLE_LABEL, ANGLES } from './photoSets'
+import { ANGLE_LABEL, ANGLES } from './types'
 
 export function AngleTabs({ value, onChange }: { value: Angle; onChange: (a: Angle) => void }) {
   return (

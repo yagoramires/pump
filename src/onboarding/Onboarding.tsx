@@ -14,10 +14,10 @@ import { useImportBackup } from '@/shell/useImportBackup'
 import { BottomBar } from '@/components/BottomBar'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { AnamnesisFlow } from '@/profile/AnamnesisFlow'
+import { ANAMNESIS_STEPS, AnamnesisFlow } from '@/profile/AnamnesisFlow'
 import { Steps } from '@/components/Steps'
 
-const ONBOARDING_STEPS = 5
+const ONBOARDING_STEPS = ANAMNESIS_STEPS + 2
 type Step = 'anamnese' | 'treino' | 'editor' | 'import' | 'dieta'
 
 function StepHeader({ n, onSkip }: { n: number; onSkip: () => void }) {
@@ -78,7 +78,7 @@ export function Onboarding() {
   if (step === 'dieta') {
     return (
       <div>
-        <StepHeader n={5} onSkip={finish} />
+        <StepHeader n={ANAMNESIS_STEPS + 2} onSkip={finish} />
         <BackHeader title="Sua dieta" onBack={() => setStep('treino')} className="mb-3 px-0 py-0" />
         <DietStart hint="A IA já recebe peso, % de gordura, massa magra, medidas e horários." onDone={finish} />
       </div>
@@ -86,7 +86,7 @@ export function Onboarding() {
   }
   return (
     <div className="pb-28">
-      <StepHeader n={4} onSkip={toDieta} />
+      <StepHeader n={ANAMNESIS_STEPS + 1} onSkip={toDieta} />
       <BackHeader title="Seu treino" onBack={() => { setAnamneseStep(2); setStep('anamnese') }} className="mb-3 px-0 py-0" />
       <div role="radiogroup" aria-label="Planos" className="overflow-hidden card">
         {TEMPLATES.map((t) => {

@@ -87,3 +87,14 @@ test('dia zero mantém o peso digitado depois de abrir e fechar as fotos', async
   expect(screen.queryByLabelText('Escolher da galeria')).not.toBeInTheDocument()
   expect(screen.getByLabelText('Peso')).toHaveValue('82,4')
 })
+
+test('sexo F mostra Quadril no dia zero', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<AnamnesisFlow total={3} onDone={vi.fn()} />)
+  await user.click(screen.getByRole('radio', { name: 'Feminino' }))
+  await user.type(screen.getByLabelText('Altura'), '165')
+  await next(user)
+  await user.click(screen.getByRole('radio', { name: 'Perder peso' }))
+  await next(user)
+  expect(screen.getByLabelText('Quadril')).toBeInTheDocument()
+})

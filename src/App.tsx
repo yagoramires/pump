@@ -33,7 +33,7 @@ export default function App() {
 function Shell() {
   const reads = USER_KEYS.map((k) => readKey(k))
   for (const r of reads) use(r)
-  use(migrationFor(reads[USER_KEYS.indexOf('profile')]))
+  use(migrationFor(readKey('profile')))
   const [settings, setSettings] = usePersisted('settings')
   const [storageError, setStorageError] = useState<string>()
   const [showSettings, setShowSettings] = useState(false)

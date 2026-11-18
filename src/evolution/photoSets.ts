@@ -3,8 +3,6 @@ import { usePersisted } from '@/storage/db'
 import { deletePhotos } from '@/storage/photos'
 import { byDate } from './measurements'
 
-export { ANGLES, ANGLE_LABEL } from './types'
-
 export const hasPhoto = (s: PhotoSet) => ANGLES.some((a) => s[a])
 const photoIds = (s: PhotoSet) => ANGLES.flatMap((a) => s[a] ?? [])
 

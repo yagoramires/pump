@@ -7,7 +7,6 @@ import { FAT, FIELDS, WEIGHT, fatSeries, series, type Point } from './measuremen
 import { goalDirection, isGood, type Metric } from './bodyFat'
 import { ANGLES } from './types'
 
-/** dia da semana do check-in: o escolhido ou o de hoje */
 export const checkInDayOf = (settings: Settings, today: string): number => settings.checkInDay ?? weekday(today)
 
 export function checkInDue(settings: Settings, measurements: Measurement[], today: string): string | undefined {
