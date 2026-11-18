@@ -14,7 +14,6 @@ export const setAngle = (sets: PhotoSet[], date: string, angle: Angle, photoId: 
   return byDate([...sets.filter((s) => s.date !== date), { ...(cur ?? { id: crypto.randomUUID(), date }), [angle]: photoId }])
 }
 
-/** registros de fotos; trocar ou apagar remove do banco as fotos que nenhum registro aponta mais */
 export function usePhotoSets() {
   const [sets, setSets] = usePersisted('photoSets')
   const write = (next: PhotoSet[]) => {

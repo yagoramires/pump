@@ -22,8 +22,8 @@ test('primeira vez abre a montagem; pular leva à aba Treino; depois abre na úl
   const user = userEvent.setup()
   const { unmount } = await renderLoaded(<App />)
   expect(await screen.findByRole('heading', { name: 'Sobre você' })).toBeInTheDocument()
-  await user.click(screen.getByRole('button', { name: 'Pular' })) // perfil
-  await user.click(screen.getByRole('button', { name: 'Pular' })) // treino
+  await user.click(screen.getByRole('button', { name: 'Pular' }))
+  await user.click(screen.getByRole('button', { name: 'Pular' }))
   expect(await screen.findByRole('button', { name: 'Treino' })).toHaveAttribute('aria-current', 'page')
   await waitFor(async () => expect((await load('settings'))?.onboardingDone).toBe(true))
   unmount()

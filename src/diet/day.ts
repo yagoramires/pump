@@ -25,7 +25,6 @@ export const currentMenu = (plan: DietPlan): Menu | undefined => plan.menus.find
 export const touched = (d: DietDay) =>
   !!d.free || d.meals.some((m) => DAY_MEAL_FLAGS.some((k) => m[k]) || m.items.some((i) => DAY_ITEM_FLAGS.some((k) => i[k])))
 
-/** o dia como a pessoa vê: o salvo se ela mexeu; senão a cópia do cardápio atual (sem cardápio, nenhum) */
 export const dayOf = (log: DietLog, plan: DietPlan, date: string): DietDay | undefined => {
   const saved = log[date]
   if (saved && touched(saved)) return saved
@@ -38,7 +37,6 @@ export const updateDay = (log: DietLog, plan: DietPlan, date: string, f: (d: Die
   return d ? { ...log, [date]: f(d) } : log
 }
 
-/** esquece o dia: volta a seguir o cardápio atual */
 export const resetDay = (log: DietLog, date: string): DietLog => {
   const { [date]: _, ...rest } = log
   return rest
@@ -50,7 +48,6 @@ const mapMeal = (d: DietDay, mealId: string, f: (m: DayMeal) => DayMeal): DietDa
 const mapItem = (d: DietDay, mealId: string, itemId: string, f: (i: DayItem) => DayItem): DietDay =>
   mapMeal(d, mealId, (m) => (m.items.some((i) => i.id === itemId) ? { ...m, items: m.items.map((i) => (i.id === itemId ? f(i) : i)) } : m))
 
-/** livre → nem livre nem feita; senão inverte feita */
 export const toggleMeal = (d: DietDay, mealId: string): DietDay => mapMeal(d, mealId, (m) => (m.free ? { ...m, free: false, done: false } : { ...m, done: !m.done }))
 const stripDayFields = (i: DayItem): DietItem => {
   const item: DayItem = { ...i }
@@ -80,7 +77,6 @@ export const setMealFree = (d: DietDay, mealId: string, free: boolean): DietDay 
 
 export const optionLetter = (i: number) => OPTION_LETTERS[i]
 
-/** opções da refeição no cardápio do dia (apagado: nenhuma); o toggle só aparece com mais de uma e sem troca por outro cardápio */
 export const mealOptions = (plan: DietPlan, day: DietDay, mealId: string) => {
   const meal = day.meals.find((m) => m.id === mealId)
   const options = plan.menus.find((m) => m.id === day.menuId)?.meals.find((m) => m.id === mealId)?.options ?? []
@@ -105,10 +101,8 @@ export const daySummary = (day: DietDay) => {
   }
 }
 
-/** usos de "livre" no dia: dia livre vale 1, senão cada refeição livre vale 1 */
 export const freeCount = (d: DietDay) => (d.free ? 1 : d.meals.filter((m) => m.free).length)
 
-/** o 1º livre da semana (domingo a sábado) é permitido */
 const firstFreeOfWeek = (log: DietLog, date: string) => countInWeekBefore(log, date, freeCount) === 0
 
 export const dayStatus = (log: DietLog, date: string): 'full' | 'free-ok' | 'off' | 'none' => {
@@ -123,7 +117,6 @@ export const dayStatus = (log: DietLog, date: string): 'full' | 'free-ok' | 'off
 
 export const sortedMeals = <T extends { time: string }>(meals: T[]): T[] => [...meals].sort((a, b) => a.time.localeCompare(b.time))
 
-/** refeição "da vez": 1ª não feita já no horário; senão a próxima; senão nenhuma */
 export const currentMealId = (meals: DayMeal[], now: Date): string | undefined => {
   const t = hhmm(now)
   const open = sortedMeals(meals).filter((m) => !m.done && !m.free)

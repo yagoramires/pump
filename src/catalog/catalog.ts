@@ -4,7 +4,6 @@ import { IMAGE_BASE } from './urls'
 
 export const imageUrl = (path: string): string => IMAGE_BASE + path
 
-// uma promessa por arquivo; falha não fica guardada, a próxima chamada tenta de novo
 const memo = new Map<string, Promise<unknown[]>>()
 function getJson<T>(file: string): Promise<T[]> {
   if (!memo.has(file)) {

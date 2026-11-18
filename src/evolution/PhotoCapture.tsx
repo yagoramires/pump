@@ -37,7 +37,6 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
   const stream = useRef<MediaStream>(undefined)
   const tick = useRef<number>(undefined)
 
-  // um stream por facingMode: trocar ou desmontar para as tracks do anterior
   useEffect(() => {
     if (!hasCamera()) return
     let alive = true
@@ -95,7 +94,7 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
     setFacing((f) => (f === 'user' ? 'environment' : 'user'))
   }
   const pick = (e: React.ChangeEvent<HTMLInputElement>) => {
-    cancelCount() // senão a contagem dispara por cima da foto escolhida
+    cancelCount()
     const file = e.target.files?.[0]
     e.target.value = '' // escolher o mesmo arquivo de novo dispara onChange
     if (file) fileToJpeg(file).then(setPreview, () => toast.error('Não consegui abrir a imagem'))

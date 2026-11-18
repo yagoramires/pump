@@ -5,7 +5,6 @@ const GROUP = 'grid w-full gap-[3px] rounded-[11px] border border-border bg-pane
 const ITEM = 'h-auto min-h-9 whitespace-normal py-1 leading-tight rounded-[8px] px-1 text-[13px] font-semibold text-text-2 data-[state=on]:bg-surface data-[state=on]:text-strong data-[state=on]:shadow-[inset_0_0_0_1px_var(--color-border-strong)]'
 const LABEL = 'label-caps mb-1.5 block tracking-[0.08em]'
 
-/** rótulos por valor; números (1–7 dias, 3–7 refeições) vêm numa lista e o rótulo é o próprio número */
 type Options<T extends string | number> = [T] extends [string] ? Record<T, string> : readonly T[]
 const entries = <T extends string | number>(o: Options<T>): [T, string][] =>
   Array.isArray(o) ? o.map((v: T) => [v, String(v)]) : (Object.entries(o) as [T, string][])

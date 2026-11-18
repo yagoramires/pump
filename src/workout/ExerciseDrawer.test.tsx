@@ -25,7 +25,6 @@ test('B9: a carga digitada não sobrevive quando o exercício muda por outro cam
   await user.clear(kg)
   await user.type(kg, '7a')
   expect(kg).toHaveValue('7a')
-  // a edição de reps não passava pelo patch, então o rascunho "7a" ficava na tela por cima do valor novo
   rerender(<ExerciseDrawer {...props} ex={pe({ weightKg: 25, reps: '12' })} />)
   expect(screen.getByRole('textbox', { name: 'Carga em kg' })).toHaveValue('25')
 })

@@ -5,13 +5,12 @@ import { dayOf, resetDay, touched, updateDay } from './day'
 
 type Act = (f: (d: DietDay) => DietDay) => void
 
-/** o dia de dieta de hoje e as ações sobre ele; toda ação relê a hora (`tick`) e grava no dia que ela devolve */
 export function useDietToday() {
   const { now, today, tick } = useToday()
   const [plan, setPlan] = usePersisted('dietPlan')
   const [log, setLog] = usePersisted('dietLog')
   const day = dayOf(log, plan, today)
-  const menu = day && plan.menus.find((m) => m.id === day.menuId) // cardápio do dia (apagado: nenhum)
+  const menu = day && plan.menus.find((m) => m.id === day.menuId)
 
   const act: Act = (f) => {
     const date = tick()
@@ -21,7 +20,6 @@ export function useDietToday() {
     setLog((l) => resetDay(l, date))
     setPlan((p) => ({ ...p, lastMenuId: menuId }))
   }
-  /** troca direto se nada foi marcado; senão devolve o pedido pra confirmar, com o mesmo dia da decisão */
   const pickMenu = (menuId: string): { menuId: string; date: string } | undefined => {
     const date = tick()
     const d = dayOf(log, plan, date)

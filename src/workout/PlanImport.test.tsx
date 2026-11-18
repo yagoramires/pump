@@ -55,7 +55,7 @@ test('Revisar plano abre o editor; Salvar grava o plano e os exercícios novos',
   await screen.findByText('1 treino · 1 exercício')
   await user.click(screen.getByRole('button', { name: 'Revisar plano' }))
   expect(await screen.findByRole('heading', { name: 'Editar plano' })).toBeInTheDocument()
-  expect(await get('workoutPlan')).toBeUndefined() // nada gravado antes do Salvar
+  expect(await get('workoutPlan')).toBeUndefined()
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
   expect(onDone).toHaveBeenCalled()
   await vi.waitFor(async () => expect((await get('workoutPlan'))?.workouts[0].exercises[0].name).toBe('Remada X'))

@@ -59,11 +59,9 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
     <Overlay>
       <BackHeader title={title} onBack={onClose} titleClassName="first-letter:uppercase">
         <button type="button" className="flex size-11 items-center justify-center text-text-2" aria-label="Mês anterior" onClick={() => go(-1)}><ChevronLeft size={20} aria-hidden="true" /></button>
-        {/* nada se registra no futuro: para no mês atual */}
         <button type="button" className="flex size-11 items-center justify-center text-text-2 disabled:text-border-strong" aria-label="Próximo mês" disabled={isCurrent} onClick={() => go(1)}><ChevronRight size={20} aria-hidden="true" /></button>
       </BackHeader>
 
-      {/* o nome do botão fica só o número; o estado do dia vai na descrição */}
       <span id={`${descId}t`} hidden>treino</span>
       <span id={`${descId}r`} hidden>com registro</span>
       <div className="mt-2 grid grid-cols-7 gap-1 rounded-[14px] border border-border bg-panel p-2.5 text-center">

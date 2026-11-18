@@ -16,14 +16,13 @@ import { WEEKDAY_SHORT } from '@/lib/date'
 
 const DAY_NAMES = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
 
-/** só edita: quem abre grava o plano no `onSave` */
 type Props = { initial: WorkoutPlan; onSave: (plan: WorkoutPlan) => void; onCancel: () => void }
 
 export function PlanEditor({ initial, onSave, onCancel }: Props) {
   const [plan, setPlan] = useState<WorkoutPlan>(() => structuredClone(initial))
-  const [picking, setPicking] = useState<string>() // id do treino que recebe o exercício
+  const [picking, setPicking] = useState<string>()
   const [editing, setEditing] = useState<{ wid: string; i: number }>()
-  const [menuFor, setMenuFor] = useState<string>() // id do treino com o menu ⋯ aberto
+  const [menuFor, setMenuFor] = useState<string>()
   const renaming = useRef<string>(undefined)
 
   const patchWorkout = (id: string, f: (w: Workout) => Workout) =>

@@ -23,8 +23,6 @@ import { isRest, restRecord } from './rest'
 import { unlockAudio } from './restTimer'
 import { isCardio } from './cardio'
 
-
-// cardio fica num bloco à parte, sem acordeão: abre o primeiro exercício de força incompleto
 const firstIncomplete = (s: WorkoutSession): number => s.exercises.findIndex((e) => !isCardio(e) && e.sets.includes(null))
 
 export function TreinoTab() {
@@ -36,12 +34,12 @@ export function TreinoTab() {
   const [chosenId, setChosenId] = useState<string>()
   const [editingPlan, setEditingPlan] = useState(false)
   const [preview, setPreview] = useState<number>()
-  const [openIdx, setOpenIdx] = useState<'auto' | number | null>('auto') // auto = primeiro incompleto
+  const [openIdx, setOpenIdx] = useState<'auto' | number | null>('auto')
   const [restTotal, setRestTotal] = useState<number>()
   const [now, setNow] = useState(() => new Date())
 
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 30_000) // minutos do resumo andam sozinhos
+    const id = setInterval(() => setNow(new Date()), 30_000)
     return () => clearInterval(id)
   }, [])
 
@@ -57,10 +55,9 @@ export function TreinoTab() {
   }
 
   const rest = isRest(log[today])
-  const session = rest ? undefined : log[today] // descanso marcado não é sessão
+  const session = rest ? undefined : log[today]
   const workout = plan.workouts.find((w) => w.id === chosenId) ?? workoutForDate(plan, today)
 
-  // mesma gravação sempre via updater: toques rápidos não perdem atualização
   const patch = useCallback(
     (f: (s: NonNullable<typeof session>) => NonNullable<typeof session>) =>
       setLog((prev) => {
@@ -124,7 +121,6 @@ export function TreinoTab() {
   const stats = sessionStats(view, now)
   const minutes = session ? stats.minutes : null
   const open = openIdx === 'auto' ? firstIncomplete(view) : openIdx
-  // o registro de descanso é trocado pela sessão no primeiro toque
   const current = (prev: WorkoutLog) => {
     const s = prev[today]
     return s && !isRest(s) ? s : startSession(workout!, today)
@@ -139,15 +135,14 @@ export function TreinoTab() {
     const restSec = view.exercises[exIdx].restSec
     const saved = setLog((prev) => {
       const s = current(prev)
-      const marked = !s.exercises[exIdx].sets[setIdx] // decide no último valor salvo: dois toques rápidos desmarcam
+      const marked = !s.exercises[exIdx].sets[setIdx]
       const next = setDone(s, exIdx, setIdx, marked ? v : null)
       return { ...prev, [today]: marked ? { ...next, restEndsAt: Date.now() + restSec * 1000 } : next }
     })
     if (!saved[today]?.exercises[exIdx].sets[setIdx]) return
     setRestTotal(restSec)
-    if (view.exercises[exIdx].sets.every((d, j) => j === setIdx || d)) setOpenIdx('auto') // completou: vai pro próximo incompleto
+    if (view.exercises[exIdx].sets.every((d, j) => j === setIdx || d)) setOpenIdx('auto')
   }
-  // cardio não tem carga nem descanso: só marca feito
   const toggleCardio = (exIdx: number) =>
     setLog((prev) => {
       const s = current(prev)
@@ -157,7 +152,7 @@ export function TreinoTab() {
   const edit = (exIdx: number, setIdx: number, p: Partial<SetDone>) =>
     patch((s) => {
       const cur = s.exercises[exIdx].sets[setIdx]
-      return cur ? setDone(s, exIdx, setIdx, { ...cur, ...p }) : s // desmarcada no meio: não remarca
+      return cur ? setDone(s, exIdx, setIdx, { ...cur, ...p }) : s
     })
   const conclude = () => {
     patch((s) => completeSession(s, new Date()))

@@ -64,7 +64,6 @@ test('dia no plano só conta dia fechado; hoje 100% não ganha', () => {
   expect(get(today, 'diet-day').earnedAt).toBeUndefined()
   const log = { '2026-11-18': dietDay([true, false]), '2026-11-19': dietDay([true, true]), '2026-11-20': dietDay([true, true]) }
   expect(get(computeAchievements(evolutionInput({ ...base, dietLog: log }), '2026-11-20'), 'diet-day')).toMatchObject({ title: 'Dia no plano', earnedAt: '2026-11-19' })
-  // extra estraga o 100%
   const extra = dietDay([true, true])
   extra.meals[0].items.push({ ...extra.meals[0].items[0], id: 'x', extra: true })
   expect(get(computeAchievements(evolutionInput({ ...base, dietLog: { '2026-11-19': extra } }), '2026-11-20'), 'diet-day').earnedAt).toBeUndefined()
@@ -87,7 +86,6 @@ test('dia livre da semana é pulado na sequência; o 2º livre da semana quebra'
   expect(get(computeAchievements(evolutionInput({ ...base, dietLog: twice }), '2026-11-26'), 'diet-7')).toMatchObject({ earnedAt: undefined, progress: 'falta 1' })
 })
 test('água 7 dias lê o waterLog mesmo com a água desligada', () => {
-  // não há configuração de água no Input: só o que foi registrado em cada dia
   const water = Object.fromEntries(nov(10, 16).map((k) => [k, { ml: 2500, goalMl: 2500 }]))
   expect(get(computeAchievements(evolutionInput({ ...base, dietPlan: menu, waterLog: water }), '2026-11-20'), 'water-7')).toMatchObject({ title: 'Água 7 dias', earnedAt: '2026-11-16' })
   const short = { ...water, '2026-11-13': { ml: 2000, goalMl: 2500 } }
@@ -100,7 +98,7 @@ test('1º descanso da semana não quebra a sequência; o 2º quebra', () => {
   const one = { '2026-11-16': done('2026-11-16'), '2026-11-17': rest('2026-11-17'), '2026-11-18': done('2026-11-18'), '2026-11-19': done('2026-11-19') }
   const a = computeAchievements(evolutionInput({ workoutLog: one, workoutPlan: every, measurements: [], photoSets: [] }), '2026-11-20')
   expect(get(a, 'streak-3').earnedAt).toBe('2026-11-19')
-  expect(get(a, 'workouts-10').progress).toBe('falta 7') // descanso não é treino
+  expect(get(a, 'workouts-10').progress).toBe('falta 7')
   const two = { ...one, '2026-11-18': rest('2026-11-18'), '2026-11-19': done('2026-11-19'), '2026-11-20': done('2026-11-20') }
   const b = computeAchievements(evolutionInput({ workoutLog: two, workoutPlan: every, measurements: [], photoSets: [] }), '2026-11-21')
   expect(get(b, 'streak-3').earnedAt).toBeUndefined()

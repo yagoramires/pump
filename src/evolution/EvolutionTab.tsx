@@ -31,7 +31,6 @@ type View = 'capture' | 'compare' | 'achievements' | 'history'
 const CARD = 'mb-2.5 overflow-hidden rounded-[14px] border border-border bg-panel'
 const LINK = 'h-11 px-1 text-[13px] font-medium text-accent disabled:text-faint'
 const RANGES = [{ v: '30', label: '30 d' }, { v: '90', label: '90 d' }, { v: 'all', label: 'Tudo' }]
-// peso e gordura vão nos KPIs; o cartão Medidas mostra o resto
 const KPI: Metric[] = ['weightKg', 'fat']
 function Kpi({ label, value, children }: { label: string; value: string; children: ReactNode }) {
   return (
@@ -76,7 +75,6 @@ export function EvolutionTab() {
     </>
   )
 
-  // mesmos números do PDF: a aba lê do relatório em vez de recalcular
   const report = buildReport(input, today)
   const { period, training, body, lastSet } = report
   if (!training.workouts && !input.measurements.length && !input.photoSets.length && !report.hasDiet) {
@@ -98,7 +96,6 @@ export function EvolutionTab() {
   const rows = body?.rows.filter((r) => !KPI.includes(r.key)) ?? []
   const earned = report.achievements.filter((x) => x.earnedAt)
 
-  // PDF pronto só vale pros dados de quando foi gerado: qualquer registro novo volta pra "Gerar PDF"
   const blob = pdf?.input === input && pdf.today === today ? pdf.blob : undefined
   const makePdf = async () => {
     setBusy(true)

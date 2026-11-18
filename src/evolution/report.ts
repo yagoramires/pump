@@ -10,7 +10,6 @@ import { ANGLES } from './photoSets'
 
 type Earned = { title: string; earnedAt: string }
 export interface BodyRow extends Field { first: Point; last: Point; delta: number; good: boolean }
-/** tudo que a aba, o PDF e a estante mostram, calculado uma vez */
 export interface Report {
   period: { start: string; end: string; days: number }
   achievements: Achievement[]
@@ -24,7 +23,6 @@ export interface Report {
   diet: (DietStats & { achievements: Earned[] }) | null
 }
 
-/** diferença só entre dois registros de dias diferentes */
 export const change = (r?: BodyRow) => (r && r.first.date !== r.last.date ? r.delta : undefined)
 
 export function buildReport(d: EvolutionInput, today: string): Report {
@@ -54,7 +52,6 @@ export function buildReport(d: EvolutionInput, today: string): Report {
       })
     : []
 
-  // carga da primeira sessão de cada exercício contra a maior depois
   const lifts = new Map<string, { name: string; first: number; max: number }>()
   for (const s of sessions) {
     for (const e of s.exercises) {

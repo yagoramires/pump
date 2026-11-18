@@ -25,7 +25,6 @@ beforeEach(async () => {
   vi.mocked(fetchTaco).mockRejectedValue(new Error('offline'))
 })
 
-// arquivo escolhido revisa na hora: sem esperar os 400 ms de quem digita (o debounce tem teste próprio no usePastedReview)
 async function paste(text: string) {
   const user = userEvent.setup()
   await user.upload(await screen.findByLabelText('Escolher arquivo'), new File([text], 'cardapio.json', { type: 'application/json' }))
@@ -81,7 +80,6 @@ test('casado por palavras com nome diferente mostra "na TACO"', async () => {
   expect(screen.queryByText('Sem internet: usei os números da IA. Dá pra trocar depois.')).not.toBeInTheDocument()
   expect(screen.getAllByText('estimativa da IA')).toHaveLength(1)
   expect(screen.getByText('1 item fora da TACO usa os números da IA. Toque pra trocar.')).toBeInTheDocument()
-  // tocar no item estimado troca ele no cardápio em revisão
   await user.click(screen.getByRole('button', { name: /Whey protein/ }))
   await user.type(await screen.findByRole('searchbox', { name: 'Buscar alimento' }), 'arroz')
   const results = await screen.findByRole('list', { name: 'Resultados da TACO' })
@@ -114,7 +112,7 @@ test('substituir cardápio pede confirmação e preserva o que foi marcado hoje'
   await user.click(await screen.findByRole('button', { name: 'Usar cardápios' }))
   const dialog = await screen.findByRole('alertdialog')
   expect(within(dialog).getByText('O cardápio atual será substituído. O que você já marcou hoje continua.')).toBeInTheDocument()
-  expect(((await get('dietPlan')) as DietPlan).menus[0].id).toBe('old') // nada gravado antes de confirmar
+  expect(((await get('dietPlan')) as DietPlan).menus[0].id).toBe('old')
   await user.click(within(dialog).getByRole('button', { name: 'Substituir' }))
   await vi.waitFor(() => expect(onDone).toHaveBeenCalled())
   const plan = (await get('dietPlan')) as DietPlan

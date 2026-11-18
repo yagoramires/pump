@@ -2,7 +2,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 type Props = { open: boolean; title: string; text: string; confirm: string; destructive?: boolean; onConfirm: () => void; onCancel: () => void }
 
-/** "tem certeza?": Cancelar fecha (onCancel); o botão de confirmar chama onConfirm e também fecha */
 export function ConfirmDialog({ open, title, text, confirm, destructive, onConfirm, onCancel }: Props) {
   return (
     <AlertDialog open={open} onOpenChange={(o) => !o && onCancel()}>

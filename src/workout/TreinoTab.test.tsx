@@ -203,7 +203,7 @@ test('cardio fica num bloco à parte, só com a duração, e marca feito sem des
   expect(await screen.findByText('Cardio')).toBeInTheDocument()
   expect(screen.getByText('15 min')).toBeInTheDocument()
   expect(screen.queryByText(/1 × 15 min/)).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Série 1 de Supino reto' })).toBeInTheDocument() // abre a força, não o cardio
+  expect(screen.getByRole('button', { name: 'Série 1 de Supino reto' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Esteira feito' }))
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]).toEqual({ reps: '15 min', weightKg: 0 }))
   expect(screen.queryByText('01:30')).not.toBeInTheDocument()
@@ -214,7 +214,7 @@ test('descansar hoje grava o registro e mostra Desfazer', async () => {
   await renderLoaded(<><TreinoTab /><Toaster /></>)
   await user.click(await screen.findByRole('button', { name: 'Descansar hoje' }))
   expect(await screen.findByRole('heading', { name: 'Descanso marcado' })).toBeInTheDocument()
-  expect(await screen.findByText('Descanso marcado', { selector: '[data-title]' })).toBeInTheDocument() // toast
+  expect(await screen.findByText('Descanso marcado', { selector: '[data-title]' })).toBeInTheDocument()
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16']).toEqual({ date: '2026-11-16', workoutId: '', workoutLabel: '', workoutName: 'Descanso', exercises: [], rest: true }))
   expect(screen.getByRole('button', { name: /Peito e tríceps/ })).toBeInTheDocument()
   // toasts de testes anteriores também têm "Desfazer": procura dentro do estado de descanso

@@ -27,8 +27,7 @@ test('series, fatSeries e pointAt', () => {
   const w = series(l, 'weightKg')
   expect(w).toEqual([{ date: '2026-11-01', value: 80 }, { date: '2026-11-17', value: 78.4 }])
   expect(pointAt(w, '2026-11-12')).toBe(80)
-  expect(pointAt(w, '2026-10-01')).toBe(80) // nada antes: o primeiro depois
+  expect(pointAt(w, '2026-10-01')).toBe(80)
   expect(pointAt([], '2026-11-12')).toBeUndefined()
-  // gordura só do registro que tem pescoço e cintura juntos
   expect(fatSeries({ sex: 'M', heightCm: 178, weightKg: 80 }, l)).toEqual([{ date: '2026-11-17', value: 18.4 }])
 })

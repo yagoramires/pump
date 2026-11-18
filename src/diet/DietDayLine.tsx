@@ -2,7 +2,6 @@ import type { DietDay } from './types'
 import { formatDec, plural } from '@/lib/number'
 import { daySummary } from './day'
 
-/** resumo de um dia de dieta (detalhe do Histórico) */
 export function DietDayLine({ day }: { day: DietDay }) {
   const s = daySummary(day)
   const sub = [

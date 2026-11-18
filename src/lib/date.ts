@@ -27,14 +27,12 @@ export function eachDay(from: string, toExclusive: string): string[] {
   return out
 }
 
-/** domingo da semana de `key` */
 export function weekStart(key: string): string {
   const d = parseDayKey(key)
   d.setDate(d.getDate() - d.getDay())
   return todayKey(d)
 }
 
-/** quanto foi usado na semana (domingo a sábado) de `date`, antes dele */
 export function countInWeekBefore<T>(log: Record<string, T>, date: string, count: (v: T) => number): number {
   const from = weekStart(date)
   let n = 0

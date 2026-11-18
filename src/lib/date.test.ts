@@ -30,8 +30,8 @@ test('addDays e eachDay atravessam mês e horário de verão', () => {
 test('countInWeekBefore soma só domingo..véspera da mesma semana', () => {
   const log = { '2026-11-14': 5, '2026-11-15': 1, '2026-11-17': 2, '2026-11-18': 10, '2026-11-22': 7 }
   const n = (d: string) => countInWeekBefore(log, d, (v) => v)
-  expect(n('2026-11-15')).toBe(0) // domingo começa a semana do zero
-  expect(n('2026-11-18')).toBe(3) // o próprio dia não conta
+  expect(n('2026-11-15')).toBe(0)
+  expect(n('2026-11-18')).toBe(3)
   expect(n('2026-11-21')).toBe(13)
   expect(n('2026-11-22')).toBe(0)
 })

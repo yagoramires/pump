@@ -81,7 +81,7 @@ export function planFromFormat(
         let found = known.get(key)
         if (!found) {
           found = newCustomExercise(x.nome, [], x.obs)
-          known.set(key, found) // o mesmo nome sem par reaproveita este
+          known.set(key, found)
           newCustoms.push(found)
           unmatched.push(x.nome)
         }

@@ -32,7 +32,6 @@ export function DietTab() {
   const [openId, setOpenId] = useState<string>()
   const [confirmMenu, setConfirmMenu] = useState<{ menuId: string; date: string }>()
   const [sheet, setSheet] = useState<'more' | 'menus' | 'water'>()
-  // a refeição aberta sumiu do dia (trocou o cardápio, virou o dia): esquece o id pra ela não reabrir sozinha depois
   if (openId && !day?.meals.some((m) => m.id === openId)) setOpenId(undefined)
 
   const close = () => setView(undefined)
@@ -65,7 +64,6 @@ export function DietTab() {
   const nowId = day.free ? undefined : currentMealId(day.meals, now)
 
   const openMeal = day.meals.find((m) => m.id === openId)
-  // fechar relê a hora: a refeição pode ter agido depois da meia-noite
   if (openMeal) return <MealScreen mealId={openMeal.id} onClose={() => { setOpenId(undefined); tick() }} />
 
   const menuRow = (id: string, name: string) => (
@@ -83,7 +81,6 @@ export function DietTab() {
 
   return (
     <div className="pb-6">
-      {/* alinhado com a engrenagem flutuante do App e com um respiro antes dela */}
       <div className="mt-(--gear-offset) flex items-center justify-between gap-2 pr-2">
         <span className="label-caps min-w-0 truncate">{`${formatDayLabel(today)} · ${day.menuName}`}</span>
         <button type="button" className="icon-btn" aria-label="Mais opções da dieta" onClick={() => setSheet('more')}><MoreHorizontal size={18} /></button>

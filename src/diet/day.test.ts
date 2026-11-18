@@ -38,7 +38,6 @@ describe('day', () => {
     d = addExtra(d, 'm1', it('e1', 'Café', 10))
     d = swapMeal(d, 'm1', { name: 'Opção B', items: menuA.meals[0].options[1].items })
     expect(d.meals[0].swappedMeal).toBe('Opção B')
-    // trocas e pulos da refeição somem; o extra (já comido) fica
     expect(d.meals[0].items.map((i) => i.id)).toEqual(['i4', 'i5', 'e1'])
     expect(d.meals[0].items.some((i) => i.skipped || i.swappedFrom)).toBe(false)
     d.meals[0].items[0].grams = 1
@@ -173,11 +172,11 @@ describe('day', () => {
     ] }
     let d = skipItem(dayFromMenu(menu), 'j', 'r2', true)
     d = swapItem(d, 'j', 'r2', it('s1', 'Batata', 80, 200))
-    expect(d.meals[1].items[0].original).toEqual(menu.meals[1].options[0].items[0]) // sem skipped
+    expect(d.meals[1].items[0].original).toEqual(menu.meals[1].options[0].items[0])
     d = swapItem(d, 'j', 's1', it('s2', 'Cuscuz', 110, 120))
     d = undoSwap(d, 'j', 's2')
     expect(d.meals[1].items[0]).toEqual({ id: 'r2', name: 'Arroz', grams: 100, per100: { kcal: 130, p: 10, c: 20, f: 5 }, source: 'custom' })
-    expect(undoSwap(d, 'j', 'r2')).toEqual(d) // sem original: nada muda
+    expect(undoSwap(d, 'j', 'r2')).toEqual(d)
   })
 
   test('removeItem desfaz extra; id desconhecido devolve igual', () => {

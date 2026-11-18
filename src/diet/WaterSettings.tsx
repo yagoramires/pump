@@ -5,10 +5,8 @@ import { cn } from '@/lib/utils'
 import { ML_PER_KG, WATER_LIMITS } from './water'
 import { useWater } from './useWater'
 
-/** Configurações > Água: liga/desliga, meta e copo */
 export function WaterSettings() {
   const { settings, on, save, turnOn } = useWater()
-  // o texto digitado fica mesmo inválido (mostra "Entre X e Y ml"); só o válido é gravado
   const [draft, setDraft] = useState(() => ({ goalMl: String(settings?.goalMl ?? ''), cupMl: String(settings?.cupMl ?? '') }))
   const toggle = () => {
     if (on) return save({ ...on, enabled: false })

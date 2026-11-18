@@ -6,5 +6,4 @@ export const restRecord = (date: string): WorkoutSession => ({ date, workoutId: 
 
 export const isRest = (s: WorkoutSession | undefined) => !!s?.rest
 
-/** o 1º descanso marcado da semana (domingo a sábado) não quebra a sequência */
 export const neutralRest = (log: WorkoutLog, date: string) => isRest(log[date]) && countInWeekBefore(log, date, (s) => (isRest(s) ? 1 : 0)) === 0

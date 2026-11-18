@@ -15,7 +15,6 @@ export function AchievementsScreen({ onClose }: { onClose: () => void }) {
         <span className="rounded-md border border-border px-1.5 py-0.5 text-[11px] text-text-2">{`${list.filter((x) => x.earnedAt).length} de ${list.length}`}</span>
       </BackHeader>
       <ul className="mt-3 grid grid-cols-3 gap-x-2.5 gap-y-4">
-        {/* ganhas primeiro, como no mockup; sort é estável e mantém a ordem dentro de cada grupo */}
         {[...list].sort((x, y) => Number(!x.earnedAt) - Number(!y.earnedAt)).map((x) => (
           <li key={x.id} className="flex flex-col items-center gap-1 text-center text-xs text-text-2">
             <span

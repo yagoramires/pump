@@ -1,7 +1,6 @@
 import { delMany, get, set } from 'idb-keyval'
 import { guarded } from './db'
 
-// fotos ficam fora do store (UserData): chave photo:<id>, direto no idb-keyval
 const photoKey = (id: string) => `photo:${id}`
 export const isPhotoKey = (k: string) => k.startsWith('photo:')
 

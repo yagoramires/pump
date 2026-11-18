@@ -22,7 +22,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
   const [picking, setPicking] = useState<DayItem | 'extra'>()
   const [sheet, setSheet] = useState<'more' | 'swap'>()
   const meal = day?.meals.find((m) => m.id === mealId)
-  if (!day || !meal) return null // a aba só abre refeições do dia; sumiu (virada do dia, plano mudou), ela mostra a lista
+  if (!day || !meal) return null
   const dayFree = !!day.free
   const free = dayFree || !!meal.free
 

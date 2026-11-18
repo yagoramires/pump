@@ -8,11 +8,9 @@ import { SettingsRow, type OpenView } from '@/components/SettingsSection'
 import { savePlan } from './plan'
 import { WaterSettings } from './WaterSettings'
 
-// editor e import da dieta só baixam quando abertos
 const DietEditor = lazy(() => import('./DietEditor').then((m) => ({ default: m.DietEditor })))
 const DietImport = lazy(() => import('./DietImport').then((m) => ({ default: m.DietImport })))
 
-/** linhas da dieta nas Configurações */
 export function DietSettings({ open }: { open: OpenView }) {
   const [dietPlan, setDietPlan] = usePersisted('dietPlan')
   const [settings] = usePersisted('settings')

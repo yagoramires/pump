@@ -29,7 +29,6 @@
   --radius-card: 14px;
 }
 
-/* Cores de grupo muscular como var simples (muscleColor devolve var(--cN)) */
 :root {
   --c1: var(--color-c1); --c2: var(--color-c2); --c3: var(--color-c3); --c4: var(--color-c4);
   --c5: var(--color-c5); --c6: var(--color-c6); --c7: var(--color-c7); --c8: var(--color-c8);
@@ -48,7 +47,6 @@
   --z-header: 40;
   --z-sheet: 50;
 
-  /* shadcn -> tokens Yield */
   --background: var(--color-bg);
   --foreground: var(--color-text);
   --card: var(--color-panel);
@@ -100,7 +98,6 @@ body { background: var(--color-bg); color: var(--color-text); font-family: var(-
   &::after { content: ''; position: absolute; inset: -6px; }
 }
 
-/* rótulo de seção em caixa alta */
 @utility label-caps {
   font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--color-faint);
 }

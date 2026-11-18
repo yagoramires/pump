@@ -2,7 +2,6 @@ import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
-/** busca com lupa; `className` vai no contêiner */
 export function SearchField({ className, ...props }: React.ComponentProps<'input'>) {
   return (
     <div className={cn('relative', className)}>

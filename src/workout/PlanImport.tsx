@@ -31,7 +31,6 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack: () 
     paste.set(v, now)
   }
 
-  // só entram os exercícios novos que ficaram no plano
   const save = (saved: WorkoutPlan) => {
     const used = new Set(saved.workouts.flatMap((w) => w.exercises.map((e) => e.exerciseId)))
     const added = review?.newCustoms.filter((c) => used.has(c.id)) ?? []

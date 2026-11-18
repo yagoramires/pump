@@ -4,7 +4,6 @@ import { SettingsRow, type OpenView } from '@/components/SettingsSection'
 import { PlanEditor } from './PlanEditor'
 import { PlanImport } from './PlanImport'
 
-/** linhas do treino nas Configurações */
 export function WorkoutSettings({ open }: { open: OpenView }) {
   const [workoutPlan, setWorkoutPlan] = usePersisted('workoutPlan')
   const back = () => open()

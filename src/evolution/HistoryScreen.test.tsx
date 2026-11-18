@@ -75,7 +75,6 @@ test('Histórico mostra dieta e água do dia e apaga com confirmação', async (
   freeMeal.meals[1].free = true
   await save('dietLog', { '2026-11-14': freeMeal, '2026-11-15': dietDay([false, false], { free: true }), '2026-11-16': day })
   await save('waterLog', { '2026-11-16': { ml: 2500, goalMl: 2000 } })
-  // descanso marcado não é treino
   await save('workoutLog', { '2026-11-16': { date: '2026-11-16', workoutId: 'a', workoutLabel: 'A', workoutName: 'Peito', exercises: [], rest: true } })
   const user = userEvent.setup()
   await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
@@ -110,7 +109,7 @@ test('Histórico mostra Descanso no dia', async () => {
   const user = userEvent.setup()
   await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
   const d16 = await screen.findByRole('button', { name: '16' })
-  expect(d16).toHaveAccessibleDescription('com registro') // descanso: ponto de registro, não de treino
+  expect(d16).toHaveAccessibleDescription('com registro')
   expect(d16).not.toHaveClass('bg-accent-bg')
   await user.click(d16)
   expect(screen.getByText('Descanso')).toBeInTheDocument()

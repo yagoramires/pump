@@ -95,12 +95,11 @@ test('lista mostra horário, nome e opções; tocar abre a refeição', async ()
   const user = userEvent.setup()
   await renderLoaded(<DietTab />)
   await screen.findByRole('list', { name: 'Refeições' })
-  // ordenadas por horário
   expect(within(list()).getAllByRole('listitem').map((li) => li.textContent)).toEqual([expect.stringMatching(/^07:00Café2 opções/), expect.stringMatching(/^12:00Almoço260 kcal/)])
   await openMeal(user, 'Café')
   expect(screen.getByRole('heading', { name: 'Café · 07:00' })).toBeInTheDocument()
   await user.click(screen.getByRole('radio', { name: 'B' }))
-  expect(await screen.findByText('Iogurte')).toBeInTheDocument() // a tela usa a refeição viva do dia
+  expect(await screen.findByText('Iogurte')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Comi esta' }))
   await waitFor(async () => expect((await load('dietLog'))?.[TODAY].meals.find((m) => m.id === 'm1')).toMatchObject({ done: true, optionId: 'm1-o1' }))
   expect(row('Café')).toHaveTextContent('234 kcal')
@@ -148,7 +147,6 @@ test('refeição do horário atual destacada', async () => {
   expect(row('Lanche')).toHaveAttribute('aria-current', 'true')
   expect(row('Café')).not.toHaveAttribute('aria-current')
   expect(row('Almoço')).not.toHaveAttribute('aria-current')
-  // um cardápio só: o ⋯ não oferece troca
   const drawer = await more(user)
   expect(within(drawer).queryByRole('button', { name: 'Cardápio de hoje' })).not.toBeInTheDocument()
   expect(within(drawer).getByRole('button', { name: 'Dia livre' })).toBeInTheDocument()
@@ -183,7 +181,7 @@ test('pílula de água abre os copos; água desligada mostra o link', async () =
   await waitFor(async () => expect((await load('waterLog'))?.[TODAY].ml).toBe(250))
   await user.keyboard('{Escape}')
   expect(await screen.findByRole('button', { name: 'Água: 0,3 de 2,8 litros' })).toHaveTextContent('0,3/2,8 L')
-  expect(await load('dietLog')).toBeUndefined() // água não copia o dia
+  expect(await load('dietLog')).toBeUndefined()
 })
 
 test('menu ⋯: dia livre e trocar cardápio com confirmação', async () => {
@@ -191,7 +189,6 @@ test('menu ⋯: dia livre e trocar cardápio com confirmação', async () => {
   resetStoreForTests()
   const user = userEvent.setup()
   await renderLoaded(<DietTab />)
-  // dia livre
   await user.click(await screen.findByRole('button', { name: 'Marcar Café' }))
   await waitFor(() => expect(calorias()).toHaveTextContent('450 / 2.000 kcal'))
   await user.click(within(await more(user)).getByRole('button', { name: 'Dia livre' }))
@@ -205,7 +202,6 @@ test('menu ⋯: dia livre e trocar cardápio com confirmação', async () => {
   await user.click(screen.getByRole('button', { name: 'Desmarcar Café' }))
   await waitFor(async () => expect((await load('dietLog'))?.[TODAY].meals.every((m) => !m.done)).toBe(true))
 
-  // nada marcado: troca direto
   await user.click(within(await more(user)).getByRole('button', { name: 'Cardápio de hoje' }))
   let menus = await screen.findByRole('list', { name: 'Cardápios' })
   expect(within(menus).getByRole('button', { name: 'Dia de treino' })).toHaveAttribute('aria-current', 'true')
@@ -215,7 +211,6 @@ test('menu ⋯: dia livre e trocar cardápio com confirmação', async () => {
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   expect(await screen.findByText('QUA, 18 NOV · Descanso')).toBeInTheDocument()
 
-  // algo marcado: pede confirmação
   await user.click(await screen.findByRole('button', { name: 'Marcar Único' }))
   await user.click(within(await more(user)).getByRole('button', { name: 'Cardápio de hoje' }))
   menus = await screen.findByRole('list', { name: 'Cardápios' })
@@ -227,7 +222,6 @@ test('menu ⋯: dia livre e trocar cardápio com confirmação', async () => {
   expect((await load('dietLog'))?.[TODAY]).toBeUndefined()
   expect(await screen.findByRole('button', { name: 'Marcar Café' })).toBeInTheDocument()
 
-  // editar cardápio
   await user.click(within(await more(user)).getByRole('button', { name: 'Editar cardápio' }))
   expect(await screen.findByRole('heading', { name: 'Cardápio' })).toBeInTheDocument()
 })

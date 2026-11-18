@@ -8,7 +8,6 @@ export interface Measurement extends MeasureFields { id: string; date: string }
 /** valores dos ângulos = id da foto (chave photo:<id>) */
 export interface PhotoSet { id: string; date: string; frente?: string; lado?: string; costas?: string }
 
-/** tudo que a Evolução lê (aba, PDF, estante, toasts), montado uma vez por useEvolution */
 export interface EvolutionInput {
   workoutLog: WorkoutLog
   workoutPlan: WorkoutPlan

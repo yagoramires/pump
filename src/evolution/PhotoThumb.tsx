@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import { usePhoto } from './usePhoto'
 
-/** foto 3:4 carregada do banco; `empty` aparece sem foto, `children` fica por cima */
 export function PhotoThumb({ id, alt, className, empty, children }: { id?: string; alt: string; className?: string; empty?: ReactNode; children?: ReactNode }) {
   const src = usePhoto(id)
   return (

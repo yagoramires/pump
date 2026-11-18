@@ -29,7 +29,6 @@ export default function App() {
 }
 
 function Shell() {
-  // todas as chaves antes do primeiro quadro: um carregando só, e nenhuma tela ou overlay abre suspenso depois
   const reads = USER_KEYS.map((k) => readKey(k))
   for (const r of reads) use(r)
   const [settings, setSettings] = usePersisted('settings')

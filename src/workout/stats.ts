@@ -4,7 +4,6 @@ const repsNumber = (reps: string): number => Number(/\d+/.exec(reps)?.[0] ?? 0)
 
 const doneSets = (s: WorkoutSession) => s.exercises.flatMap((e) => e.sets).filter((d): d is SetDone => d !== null)
 
-/** sessões concluídas, por data */
 export const completedSessions = (log: WorkoutLog) => Object.values(log).filter((s) => s.completedAt).sort((a, b) => a.date.localeCompare(b.date))
 
 export const maxLoad = (e: SessionExercise) => Math.max(0, ...e.sets.map((x) => x?.weightKg ?? 0))

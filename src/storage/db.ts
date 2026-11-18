@@ -7,7 +7,6 @@ type Value<K extends Key> = UserData[K]
 
 // só chaves do schema: fotos não passam pelo cache, loadPhoto lê direto do banco e o base64 aqui só gastaria memória
 const cache = new Map<Key, unknown>()
-// uma leitura por chave
 const reads = new Map<Key, Promise<unknown>>()
 const listeners = new Map<Key, Set<() => void>>()
 const errorListeners = new Set<(message: string) => void>()
@@ -38,13 +37,11 @@ export async function guarded<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
-/** lê a chave uma vez; o que falta vira DEFAULTS[k]. Falha = StorageReadError (o ErrorBoundary mostra a tela de erro) */
 export function readKey<K extends Key>(k: K): Promise<Value<K>> {
   const cached = reads.get(k)
   if (cached) return cached as Promise<Value<K>>
   const p = get<Value<K>>(k).then(
     (v) => {
-      // um save/replaceAll pode ter terminado enquanto o get rodava: o cache é mais novo
       if (!cache.has(k) && v !== undefined) cache.set(k, v)
       return current(k)
     },
@@ -67,7 +64,6 @@ export async function load<K extends Key>(k: K): Promise<Value<K> | undefined> {
   return cache.get(k) as Value<K> | undefined
 }
 
-// cache e aviso antes do await: a tela muda na hora e um save antigo que termina depois nunca volta o valor
 export function save<K extends Key>(k: K, v: Value<K>): Promise<void> {
   cache.set(k, v)
   notify(k)
@@ -111,7 +107,6 @@ export function usePersisted<K extends Key>(k: K): [value: Value<K>, set: (v: Up
   const value = useSyncExternalStore(subscribe, () => current(k))
   const update = useCallback(
     (v: Update<K>) => {
-      // prev vem do cache (não do render), então dois updaters seguidos se acumulam
       const next = typeof v === 'function' ? (v as (prev: Value<K>) => Value<K>)(current(k)) : v
       void save(k, next).catch(() => {}) // guarded já avisou onStorageError
       return next

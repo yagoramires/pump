@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import { FileUp } from 'lucide-react'
 
-/** passo numerado do "copie o prompt / cole a resposta" */
 export function Step({ n, title, sub, children }: { n: number; title: string; sub: string; children?: ReactNode }) {
   return (
     <div className="flex items-center gap-3 border-t border-line p-3.5 first:border-t-0">
@@ -17,7 +16,6 @@ export function Step({ n, title, sub, children }: { n: number; title: string; su
 
 type PasteProps = { text: string; onText: (t: string) => void; onFile: (t: string) => void; problems: string[]; placeholder: string; children?: ReactNode }
 
-/** caixa da resposta da IA + escolher arquivo + lista de problemas; `children` fica entre o arquivo e os problemas */
 export function PasteBox({ text, onText, onFile, problems, placeholder, children }: PasteProps) {
   return (
     <>

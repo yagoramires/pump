@@ -59,10 +59,8 @@ test('FoodPicker cria alimento próprio e grava em foods', async () => {
   await waitFor(async () =>
     expect(await load('foods')).toEqual([{ id: expect.any(String), name: 'Pasta de amendoim', grams: 100, per100: { kcal: 588, p: 25.5, c: 0, f: 50 }, source: 'custom' }]),
   )
-  // volta pra lista com o alimento novo escolhido
   await user.click(screen.getByRole('button', { name: 'Adicionar' }))
   expect(onPick).toHaveBeenCalledWith(expect.objectContaining({ name: 'Pasta de amendoim', grams: 100, source: 'custom' }))
-  // mesmo nome (sem acento/caixa) não cria outro
   await user.click(screen.getByRole('button', { name: 'Criar alimento próprio' }))
   const name = screen.getByRole('textbox', { name: 'Nome do alimento' })
   await user.clear(name)

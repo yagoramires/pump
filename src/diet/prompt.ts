@@ -49,7 +49,6 @@ function aboutMe(p?: Profile): string[] {
 
 export const buildDietPrompt = (profile?: Profile): string => {
   const me = aboutMe(profile)
-  // quem treina ganha um cardápio pro descanso, com meta própria
   const menus = profile?.anamnesis?.daysPerWeek
     ? 'Faça 2 cardápios: "Dia de treino" e "Descanso", cada um com sua meta (no descanso, em geral menos calorias e carboidrato).'
     : 'Faça 1 cardápio.'

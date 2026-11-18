@@ -42,7 +42,7 @@ test('do zero abre com uma refeição; Salvar entrega o plano e Apagar todos ent
   await user.click(await screen.findByRole('button', { name: /Meu shake/ }))
   await user.click(screen.getByRole('button', { name: 'Usar' }))
   expect(await screen.findByText('Meu shake')).toBeInTheDocument()
-  expect(screen.getAllByText('120 kcal')).toHaveLength(2) // item e total da opção
+  expect(screen.getAllByText('120 kcal')).toHaveLength(2)
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
 
   expect(onSave).toHaveBeenCalledTimes(1)
@@ -66,7 +66,6 @@ test('DietEditor exige horário HH:MM pra salvar', async () => {
   await user.click(await screen.findByRole('button', { name: 'Salvar' }))
   expect(screen.getByRole('alert')).toHaveTextContent('Dia de treino: preencha nome e horário (HH:MM) de cada refeição')
   expect(onSave).not.toHaveBeenCalled()
-  // abriu no Descanso (lastMenuId) e pulou pro cardápio com o problema
   expect(screen.getByRole('textbox', { name: 'Nome do cardápio' })).toHaveValue('Dia de treino')
   fireEvent.change(screen.getByLabelText('Horário da refeição 1'), { target: { value: '07:30' } })
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
@@ -79,7 +78,6 @@ test('DietEditor duplica e apaga cardápios e edita opções', async () => {
   const onSave = vi.fn()
   const user = setup()
   await renderLoaded(<DietEditor initial={plan()} onSave={onSave} onCancel={vi.fn()} />)
-  // abre no último cardápio usado
   expect(await screen.findByRole('textbox', { name: 'Nome do cardápio' })).toHaveValue('Descanso')
   await user.click(screen.getByRole('button', { name: 'Dia de treino' }))
   await user.click(screen.getByRole('button', { name: 'Duplicar cardápio' }))

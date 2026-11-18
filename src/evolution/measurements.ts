@@ -35,12 +35,10 @@ export function upsertMeasurement(list: Measurement[], date: string, fields: { [
 
 export const removeMeasurement = (list: Measurement[], date: string) => list.filter((m) => m.date !== date)
 
-/** registros com o campo, por data */
 export const series = (ms: Measurement[], key: Key): Point[] => byDate(ms).flatMap((m) => (m[key] === undefined ? [] : [{ date: m.date, value: m[key] }]))
 
 /** % de gordura de cada registro que tem o que a fórmula pede (nunca pescoço de um dia com cintura de outro) */
 export const fatSeries = (p: Profile, ms: Measurement[]): Point[] =>
   byDate(ms).flatMap((m) => { const value = bodyFat(p.sex, p.heightCm, m); return value === null ? [] : [{ date: m.date, value }] })
 
-/** valor do último ponto em/antes de `date`; sem nenhum antes, o primeiro depois */
 export const pointAt = (points: Point[], date: string) => (points.filter((p) => p.date <= date).pop() ?? points[0])?.value

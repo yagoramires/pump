@@ -31,7 +31,6 @@ test('prompt pede 2 opções por refeição e respeita 6000 caracteres', () => {
   expect(empty).toContain('"cardapios"')
   expect(empty).toContain('"opcoes"')
   expect(empty).not.toContain('"Descanso"')
-  // o exemplo do prompt é um arquivo válido no formato novo
   const example = parseDietFormat(empty)
   expect(example.cardapios[0].refeicoes[0].opcoes).toHaveLength(2)
 

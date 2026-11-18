@@ -37,14 +37,13 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   const [edited, setEdited] = useState<Partial<DietAnamnesis>>()
   const [tab, setTab] = useState(0)
   const [picking, setPicking] = useState<DietItem>()
-  const [replacing, setReplacing] = useState<DietPlan>() // plano esperando o "Substituir"
+  const [replacing, setReplacing] = useState<DietPlan>()
   const [editing, setEditing] = useState(false)
   const paste = usePastedReview(parseDietFormat, async (file) => {
     const r = dietFromFormat(file, await fetchTaco().catch(() => null), foods)
-    return { ...r, plan: savePlan(saved, r.plan) } // já na ordem de horário, como vai ficar salvo
+    return { ...r, plan: savePlan(saved, r.plan) }
   })
   const review = paste.result
-  // até a pessoa mexer, a anamnese é a do perfil
   const anamnesis = edited ?? profile.dietAnamnesis ?? {}
 
   const copyPrompt = async () => {
@@ -63,7 +62,6 @@ export function DietImport({ mode, onDone, onBack }: Props) {
     setPlan((p) => savePlan(p, next))
     onDone()
   }
-  // substituir um cardápio salvo pede confirmação (apagar tudo no editor, não)
   const offer = (next: DietPlan) => (saved.menus.length && next.menus.length ? setReplacing(next) : commit(next))
 
   const confirm = (

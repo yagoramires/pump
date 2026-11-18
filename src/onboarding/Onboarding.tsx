@@ -56,7 +56,6 @@ export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => 
   if (step === 'import') return <PlanImport onDone={finish} onBack={() => setStep('treino')} />
   if (step === 'perfil') {
     return (
-      // altura da tela menos o padding do main: Continuar e os atalhos ficam embaixo, perto do polegar
       <div className="flex min-h-[calc(100dvh-var(--main-pt)-var(--main-pb))] flex-col gap-4">
         <div>
           <Steps n={1} />

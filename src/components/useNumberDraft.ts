@@ -3,11 +3,7 @@ import { formatInput, parseInRange } from '@/lib/number'
 
 type Draft = { text: string; value?: number; typed: boolean }
 
-/**
- * Campo de número com vírgula. O texto digitado fica só enquanto ele vale pro `value` atual:
- * o blur ou qualquer mudança que não veio da digitação (botão +/−, outro campo) mostra o valor de novo.
- * onChange: número dentro de [min, max]; `undefined` = vazio; `null` = texto que não vale (o campo fica aria-invalid).
- */
+/** onChange: número dentro de [min, max]; `undefined` = vazio; `null` = texto que não vale (o campo fica aria-invalid) */
 export function useNumberDraft(value: number | undefined, min: number, max: number, onChange: (n: number | undefined | null) => void) {
   const [draft, setDraft] = useState<Draft>()
   // a resposta do dono à digitação (arredondar, limitar) chega no mesmo render: adota o valor novo uma vez

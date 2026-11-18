@@ -16,7 +16,7 @@ import { NumberField } from '@/components/NumberField'
 import { copyText } from '@/lib/share'
 import { cn } from '@/lib/utils'
 
-/** só edita: quem abre grava no `onSave` ("Apagar todos" também passa por ele, com o plano vazio) */
+/** "Apagar todos" também chega pelo `onSave`, com o plano vazio */
 type Props = { initial: DietPlan; onSave: (plan: DietPlan) => void; onCancel: () => void }
 
 const CONFIRM = {
@@ -64,7 +64,7 @@ const tidyPlan = (plan: DietPlan): DietPlan => ({
 export function DietEditor({ initial, onSave, onCancel }: Props) {
   const [plan, setPlan] = useState<DietPlan>(() => (initial.menus.length ? structuredClone(initial) : { menus: [emptyMenu(1)] }))
   const [menuId, setMenuId] = useState(() => (currentMenu(plan) ?? plan.menus[0]).id)
-  const [optOf, setOptOf] = useState<Record<string, number>>({}) // aba de opção aberta em cada refeição
+  const [optOf, setOptOf] = useState<Record<string, number>>({})
   const [picking, setPicking] = useState<{ mealId: string; oi: number; name: string }>()
   const [confirm, setConfirm] = useState<keyof typeof CONFIRM>()
   const [error, setError] = useState('')
@@ -101,7 +101,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
     const problem = problemOf(plan)
     if (problem) {
       setError(problem.text)
-      return setMenuId(problem.menuId) // mostra o cardápio com o problema
+      return setMenuId(problem.menuId)
     }
     onSave(tidyPlan(plan))
   }

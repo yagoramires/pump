@@ -14,7 +14,6 @@ const problems = (text: string) => {
 }
 const meal = (alimentos: unknown[], extra = {}) => ({ nome: 'Café', horario: '07:00', alimentos, ...extra })
 const pao = { nome: 'Pão, trigo, francês', gramas: 50, porcao: '1 un', kcal: 150, proteinaG: 4, carboG: 29, gorduraG: 1.5 }
-/** dieta já lida, com um cardápio e uma opção por refeição */
 const one = (refeicoes: { nome: string; horario: string; alimentos: PumpAlimento[] }[], extra = {}): PumpDieta =>
   ({ cardapios: [{ nome: 'Cardápio', ...extra, refeicoes: refeicoes.map(({ alimentos, ...r }) => ({ ...r, opcoes: [{ alimentos }] })) }] })
 
@@ -39,7 +38,6 @@ test('formato aceita cardapios/opcoes, refeicoes direto e alimentos direto', () 
     ] },
     { nome: 'Descanso', refeicoes: [{ nome: 'Café', horario: '07:00', opcoes: [{ alimentos: [pao] }] }] },
   ] })
-  // refeicoes direto vira um cardápio "Cardápio"; opcoes também vale nesse formato
   expect(parseDietFormat(file({ refeicoes: [meal([], { opcoes: [{ alimentos: [pao] }, { alimentos: [iogurte] }] })] })).cardapios)
     .toEqual([{ nome: 'Cardápio', refeicoes: [{ nome: 'Café', horario: '07:00', opcoes: [{ alimentos: [pao] }, { alimentos: [iogurte] }] }] }])
 })
@@ -69,7 +67,6 @@ test('mensagens de cardápio/opção', () => {
     'Cardápio 2, refeição 4: falta o nome',
     'Cardápio 2, refeição 4, alimento 1: falta o nome',
   ])
-  // com refeicoes direto, as mensagens continuam sem "Cardápio N"
   expect(problems(file({ refeicoes: [meal([], { opcoes: [{ alimentos: [] }] })] }))).toEqual(['Refeição 1, opção 1: sem alimentos'])
 })
 

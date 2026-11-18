@@ -47,7 +47,6 @@ test('buildReport sem medidas: body null; sem fotos: photoPairs []', () => {
 
 test('report.diet: média, dias no plano e período começando no 1º dia de dieta', () => {
   const r = buildReport(evolutionInput({
-    // descanso marcado não conta como treino
     workoutLog: { '2026-12-02': { date: '2026-12-02', workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [], rest: true } },
     workoutPlan: { workouts: [] },
     measurements: [{ id: '1', date: '2026-12-05', weightKg: 80 }],

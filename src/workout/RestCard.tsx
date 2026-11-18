@@ -10,7 +10,7 @@ type Props = { endAt: number; totalSec?: number; onAdd15: () => void; onDone: ()
 
 export function RestCard({ endAt, totalSec, onAdd15, onDone }: Props) {
   const [now, setNow] = useState(() => Date.now())
-  const seenRunning = useRef(false) // já estava contando? (montar com 0 limpa sem bipar)
+  const seenRunning = useRef(false)
   const left = remainingSec(endAt, now)
   const [initial] = useState(left)
 

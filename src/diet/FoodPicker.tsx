@@ -71,7 +71,6 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
 
   const num = (s: string) => (s.trim() ? parseDecimal(s) : 0)
   const values = { kcal: draft.kcal.trim() ? parseDecimal(draft.kcal) : null, p: num(draft.p), c: num(draft.c), f: num(draft.f) }
-  // mesma identidade do import: "Bolo, da vó" e "Bolo da vó" são o mesmo alimento
   const dup = !!draft.name.trim() && foods.some((f) => foodKey(f.name) === foodKey(draft.name))
   const valid = !!draft.name.trim() && !dup && Object.values(values).every((v) => v !== null)
   const create = () => {

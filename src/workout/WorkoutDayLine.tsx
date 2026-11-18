@@ -2,7 +2,6 @@ import type { WorkoutSession } from './types'
 import { formatKg } from '@/lib/number'
 import { sessionStats } from './stats'
 
-/** resumo de um treino concluído (detalhe do Histórico) */
 export function WorkoutDayLine({ session, now }: { session: WorkoutSession; now: Date }) {
   const s = sessionStats(session, now)
   return (

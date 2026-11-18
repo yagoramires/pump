@@ -1,11 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { FormatError } from '@/format/envelope'
 
-/**
- * Texto colado → revisão. Digitar espera 400 ms; arquivo escolhido revisa na hora (o mesmo arquivo de novo também).
- * `parse` lança FormatError com os problemas; `review` (assíncrono: catálogo) monta o resultado.
- * Os dois são lidos na hora de revisar: mudar alimentos/exercícios próprios no meio não refaz a revisão nem perde as trocas.
- */
+/** `parse` lança FormatError com os problemas; `review` (assíncrono: catálogo) monta o resultado */
 export function usePastedReview<F, R>(parse: (text: string) => F, review: (file: F) => Promise<R>) {
   const [req, setReq] = useState({ text: '', now: false })
   const [result, setResult] = useState<R>()

@@ -20,7 +20,6 @@ export function dietStats(log: DietLog, water: WaterLog, from: string, to: strin
     if (!inRange(k)) continue
     if (dayStatus(log, k) === 'full') fullDays++
     frees += freeCount(day)
-    // média ignora dia livre e dia sem refeição comida
     if (day.free || !day.meals.some((m) => m.done && !m.free)) continue
     kcal.push(daySummary(day).kcal)
     if (day.goalKcal) goals.push(day.goalKcal)
@@ -31,7 +30,6 @@ export function dietStats(log: DietLog, water: WaterLog, from: string, to: strin
     avgKcal: avg(kcal),
     avgGoal: avg(goals),
     fullDays,
-    // sem registro de água no período a linha some; 0 com registro aparece
     waterDays: waterDays.length ? waterDays.filter((k) => waterMet(water[k])).length : undefined,
     freeUses: frees,
     days: first ? Math.max(0, daysBetween(start, to) + 1) : 0,

@@ -42,8 +42,8 @@ test('duas cópias da mesma chave: o setter devolve o valor e a outra cópia vê
   let returned
   act(() => { returned = a.result.current[1]({ ...DEFAULTS.settings, lastTab: 'dieta' }) })
   expect(returned).toEqual({ ...DEFAULTS.settings, lastTab: 'dieta' })
-  expect(b.result.current[0].lastTab).toBe('dieta') // sem esperar o banco
-  act(() => void save('settings', { ...b.result.current[0], lastBackupAt: '2026-11-16' })) // escrita fora do hook
+  expect(b.result.current[0].lastTab).toBe('dieta')
+  act(() => void save('settings', { ...b.result.current[0], lastBackupAt: '2026-11-16' }))
   expect(a.result.current[0].lastBackupAt).toBe('2026-11-16')
   await waitFor(async () => expect((await idb.get('settings'))?.lastBackupAt).toBe('2026-11-16'))
 })

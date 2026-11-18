@@ -4,7 +4,6 @@ import { scalePoints } from './chart'
 const W = 240
 const H = 90
 
-/** linha simples sem eixos (pontos já em ordem de data); a margem de 10% não deixa a linha encostar na borda nem na base */
 export function WeightChart({ points, empty = 'Registre mais um peso pra ver o gráfico' }: { points: Point[]; empty?: string }) {
   if (points.length < 2) {
     return <p className="flex h-24 items-center justify-center px-6 text-center text-[13px] text-text-2">{empty}</p>

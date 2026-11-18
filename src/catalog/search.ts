@@ -1,6 +1,5 @@
 export const normalize = (s: string): string => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim()
 
-/** todas as palavras no nome; quem começa com a busca vem antes */
 export function searchByName<T extends { name: string }>(list: T[], q: string): T[] {
   const nq = normalize(q)
   const words = nq.split(/\s+/).filter(Boolean)

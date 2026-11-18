@@ -6,7 +6,6 @@ import { defineConfig } from 'vitest/config'
 
 const BASE = '/pump/'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),

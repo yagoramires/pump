@@ -48,7 +48,6 @@ export const dietDay = (done: boolean[], over: Partial<DietDay> = {}): DietDay =
   ...over,
 })
 
-/** entrada da Evolução com as chaves vazias do schema e só o que o teste precisa */
 export const evolutionInput = (over: Partial<EvolutionInput> = {}): EvolutionInput => ({
   workoutLog: DEFAULTS.workoutLog, workoutPlan: DEFAULTS.workoutPlan, measurements: DEFAULTS.measurements, photoSets: DEFAULTS.photoSets,
   profile: DEFAULTS.profile, dietLog: DEFAULTS.dietLog, waterLog: DEFAULTS.waterLog, dietPlan: DEFAULTS.dietPlan, ...over,

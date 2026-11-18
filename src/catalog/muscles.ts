@@ -5,5 +5,4 @@ export const MUSCLE_GROUPS = new Map<string, string | undefined>([
   ['meio das costas', 'c6'], ['pescoço', undefined], ['quadríceps', 'c1'], ['ombros', 'c4'], ['trapézio', 'c6'], ['tríceps', 'c3'],
 ])
 
-/** cor do primeiro músculo com grupo */
 export const muscleColor = (muscles: string[]): string => `var(--${muscles.map((m) => MUSCLE_GROUPS.get(m)).find(Boolean) ?? 'c5'})`

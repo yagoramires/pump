@@ -19,7 +19,7 @@ import { useImportBackup } from './useImportBackup'
 type SetSettings = (f: (s: Settings) => Settings) => Settings
 
 export function SettingsScreen({ settings, onClose, setSettings }: { settings: Settings; onClose: () => void; setSettings: SetSettings }) {
-  const [view, setView] = useState<ReactNode>() // tela aberta por uma seção; vazio = menu
+  const [view, setView] = useState<ReactNode>()
   const [confirmRedo, setConfirmRedo] = useState(false)
   const [profile] = usePersisted('profile')
   const backup = useBackupExport(toast.error)
@@ -62,7 +62,6 @@ export function SettingsScreen({ settings, onClose, setSettings }: { settings: S
   )
 }
 
-// componente próprio: o erro some quando o menu sai da tela (abrir outra tela e voltar)
 function RestoreRow() {
   const restore = useImportBackup()
   return (

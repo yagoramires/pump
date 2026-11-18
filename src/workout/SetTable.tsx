@@ -19,7 +19,6 @@ const parseKg = (v: string) => parseInRange(v, 0, MAX_KG)
 const TH = 'label-caps pb-1.5 tracking-[.04em]'
 
 export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
-  // o que foi digitado fica só na tela até marcar (ou até o blur, se a série já foi feita)
   const [drafts, setDrafts] = useState<Record<number, Draft>>({})
   const typed = useRef(false)
   const setDraft = (i: number, p: Draft) => { typed.current = true; setDrafts((d) => ({ ...d, [i]: { ...d[i], ...p } })) }
@@ -33,7 +32,7 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
   const commit = (i: number) => {
     const d = drafts[i]
     if (!ex.sets[i] || !d) return
-    const kg = parseKg(d.kg ?? '') // inválida: mantém a anterior
+    const kg = parseKg(d.kg ?? '')
     const p: Partial<SetDone> = {}
     if (kg !== null) p.weightKg = kg
     if (d.reps?.trim()) p.reps = d.reps.trim()

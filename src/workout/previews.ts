@@ -24,7 +24,6 @@ export async function syncPreviewCache(plan: WorkoutPlan, cs: CacheStorage = cac
   }
 }
 
-/** fotos do plano no cache offline; montado uma vez no App, cobre editar, importar, restaurar backup e montagem */
 export function PreviewSync() {
   const [plan] = usePersisted('workoutPlan')
   useEffect(() => void syncPreviewCache(plan), [plan])

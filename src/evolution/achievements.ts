@@ -36,7 +36,6 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
   const sessions = completedSessions(d.workoutLog)
   const total = (n: number): Achievement['earnedAt'] => sessions[n - 1]?.date
 
-  // sequência: dia previsto no plano atual, sem treino e antes de hoje, zera; o 1º descanso marcado da semana não conta como previsto
   const trained = new Set(sessions.map((s) => s.date))
   const planned = new Set(d.workoutPlan.workouts.flatMap((w) => w.weekdays))
   const reached = new Map<number, string>()
@@ -51,7 +50,6 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
   }
   const streakAt = (n: number) => [...reached].find(([c]) => c >= n)?.[1]
 
-  // recorde: carga acima do máximo anterior de um exercício que já existia
   const max = new Map<string, number>()
   let record: string | undefined
   for (const s of sessions) {
@@ -71,7 +69,6 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
   const sign = dir === 'loss' ? 1 : -1
   const weights = series(d.measurements, 'weightKg')
   const w0 = weights[0]?.value
-  // quanto já mudou na direção do objetivo
   const wDelta = (w: number) => (w0 === undefined ? 0 : (w0 - w) * sign)
   const weightAt = (n: number) => weights.find((m) => wDelta(m.value) >= n - EPS)?.date
   const wBest = Math.max(0, ...weights.map((m) => wDelta(m.value)))
@@ -80,7 +77,6 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
   const fats = fatSeries(d.profile, d.measurements)
   const fatAt = fats.find((x) => fats[0].value - x.value >= 1 - EPS)?.date
 
-  // dieta: dia livre neutro da semana ('free-ok') é pulado; dia sem registro quebra
   const dl = d.dietLog
   const wl = d.waterLog
   const diet = dayRun(Object.keys(dl).sort()[0], today, (k) => { const st = dayStatus(dl, k); return st === 'full' ? true : st === 'free-ok' ? null : false })

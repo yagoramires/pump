@@ -30,7 +30,6 @@ function parseFoods(v: unknown, tag: string, problems: string[]): PumpAlimento[]
     if (!num(gramas, ...GRAMS)) problems.push(`${at}: gramas inválidas`)
     const porcao = str(x.porcao)
     const out: PumpAlimento = { nome, gramas, ...(porcao && { porcao }) }
-    // valor fora do formato é só descartado: o item continua e fica "sem valores" se faltar a kcal
     for (const k of VALUES) if (num(x[k], 0, Infinity)) out[k] = x[k] as number
     if (out.kcal !== undefined && (out.kcal * 100) / gramas > MAX_KCAL_PER_100G) delete out.kcal
     return out
@@ -41,9 +40,8 @@ function parseMeal(r: unknown, tag: string, problems: string[]): PumpRefeicao {
   const o = isObj(r) ? r : {}
   const nome = str(o.nome)
   if (!nome) problems.push(`${tag}: falta o nome`)
-  const horario = str(o.horario).padStart(5, '0') // "7:00" → "07:00"
+  const horario = str(o.horario).padStart(5, '0')
   if (!HHMM.test(horario)) problems.push(`${tag}: horário inválido (use HH:MM)`)
-  // refeição com "alimentos" direto é uma opção só
   if (!Array.isArray(o.opcoes)) return { nome, horario, opcoes: [{ alimentos: parseFoods(o.alimentos, tag, problems) }] }
   if (o.opcoes.length === 0) problems.push(`${tag}: sem opções`)
   if (o.opcoes.length > MAX_OPTIONS) problems.push(`${tag}: mais de ${MAX_OPTIONS} opções`)
@@ -55,7 +53,6 @@ function parseMeal(r: unknown, tag: string, problems: string[]): PumpRefeicao {
   return { nome, horario, opcoes }
 }
 
-/** `tag` ("Cardápio 2") só quando o arquivo usa "cardapios"; sem ele, as mensagens são as do formato de um cardápio só */
 function parseMenu(d: Obj, tag: string | undefined, problems: string[]): PumpCardapio {
   const pre = tag === undefined ? '' : `${tag}: `
   const nome = tag === undefined ? 'Cardápio' : str(d.nome)

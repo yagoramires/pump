@@ -61,7 +61,7 @@ test('sem internet ao usar um plano pronto mostra o aviso', async () => {
   vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('offline'))
   const user = userEvent.setup()
   await renderLoaded(<Onboarding setSettings={vi.fn()} />)
-  await user.click(screen.getByRole('button', { name: 'Pular' })) // perfil
+  await user.click(screen.getByRole('button', { name: 'Pular' }))
   await user.click(screen.getByRole('radio', { name: 'ABC' }))
   await user.click(screen.getByRole('button', { name: 'Usar ABC' }))
   expect(await screen.findByText(/Sem internet pra carregar o modelo/)).toBeInTheDocument()
