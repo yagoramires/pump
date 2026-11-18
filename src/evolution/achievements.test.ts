@@ -4,17 +4,36 @@ import { computeAchievements, type Achievement, type AchievementId } from './ach
 import { restRecord } from '@/workout/rest'
 
 const done = (date: string, sets: { id: string; kg: number }[] = []) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', completedAt: `${date}T19:00:00.000Z`, exercises: sets.map((s) => ({ ...pe({ exerciseId: s.id, name: s.id }), sets: [{ reps: '10', weightKg: s.kg }] })) })
-const plan = (weekdays: number[]) => ({ workouts: [{ id: 'a', label: 'A', name: 'A', weekdays, exercises: [] }] })
+const plan = (n: number) => ({ workouts: Array.from({ length: n }, (_, i) => ({ id: `w${i}`, label: 'A', name: 'A', exercises: [] })) })
+const goalInput = (log: object, daysPerWeek?: number, workouts = 1) => evolutionInput({ workoutLog: log as never, workoutPlan: plan(workouts), measurements: [], photoSets: [], profile: { sex: 'M', heightCm: 178, daysPerWeek } })
 const get = (list: Achievement[], id: AchievementId) => list.find((a) => a.id === id)!
 
-// shortcut: depende dos dias da semana; a Task 2 reescreve com a meta semanal
-test.skip('sequência: folga não quebra, falta em dia previsto quebra', () => {
-  // plano seg/qua/sex; 2026-11-16 é segunda
-  const log = { '2026-11-16': done('2026-11-16'), '2026-11-18': done('2026-11-18'), '2026-11-20': done('2026-11-20') }
-  const a = computeAchievements(evolutionInput({ workoutLog: log, workoutPlan: plan([1, 3, 5]), measurements: [], photoSets: [] }), '2026-11-22')
-  expect(get(a, 'streak-3').earnedAt).toBe('2026-11-20')
-  const log2 = { '2026-11-16': done('2026-11-16'), '2026-11-20': done('2026-11-20'), '2026-11-23': done('2026-11-23') } // faltou qua 18
-  expect(get(computeAchievements(evolutionInput({ workoutLog: log2, workoutPlan: plan([1, 3, 5]), measurements: [], photoSets: [] }), '2026-11-24'), 'streak-3').earnedAt).toBeUndefined()
+test('sequência: semana fechada abaixo da meta zera; na meta mantém', () => {
+  // semana dom 15 a sáb 21, meta 3: 2 treinos zeram no sábado
+  const below = { '2026-11-16': done('2026-11-16'), '2026-11-17': done('2026-11-17'), '2026-11-23': done('2026-11-23'), '2026-11-24': done('2026-11-24'), '2026-11-25': done('2026-11-25') }
+  const a = computeAchievements(goalInput(below, 3), '2026-11-26')
+  expect(get(a, 'streak-3').earnedAt).toBe('2026-11-25')
+  expect(get(a, 'streak-7').progress).toBe('falta 4')
+  // meta 2: a mesma semana basta e a sequência segue
+  const b = computeAchievements(goalInput({ '2026-11-16': done('2026-11-16'), '2026-11-17': done('2026-11-17'), '2026-11-23': done('2026-11-23') }, 2), '2026-11-24')
+  expect(get(b, 'streak-3').earnedAt).toBe('2026-11-23')
+})
+test('sequência: semana atual com 0 treinos não zera', () => {
+  const log = { '2026-11-16': done('2026-11-16'), '2026-11-17': done('2026-11-17'), '2026-11-18': done('2026-11-18') }
+  const a = computeAchievements(goalInput(log, 3), '2026-11-25') // quarta da semana seguinte, nada treinado ainda
+  expect(get(a, 'streak-3').earnedAt).toBe('2026-11-18')
+  expect(get(a, 'streak-7').progress).toBe('falta 4')
+})
+test('sequência: sem daysPerWeek a meta é o número de treinos do plano', () => {
+  const log = { '2026-11-16': done('2026-11-16'), '2026-11-17': done('2026-11-17'), '2026-11-23': done('2026-11-23') }
+  expect(get(computeAchievements(goalInput(log, undefined, 2), '2026-11-24'), 'streak-3').earnedAt).toBe('2026-11-23')
+  expect(get(computeAchievements(goalInput(log, undefined, 3), '2026-11-24'), 'streak-3').earnedAt).toBeUndefined()
+})
+test('sequência: descanso no meio não soma nem zera', () => {
+  const log = { '2026-11-16': done('2026-11-16'), '2026-11-17': restRecord('2026-11-17'), '2026-11-18': done('2026-11-18'), '2026-11-19': done('2026-11-19') }
+  const a = computeAchievements(goalInput(log, 3), '2026-11-20')
+  expect(get(a, 'streak-3').earnedAt).toBe('2026-11-19')
+  expect(get(a, 'workouts-10').progress).toBe('falta 7')
 })
 test('sem plano: conta só os dias treinados, sem travar', () => {
   const log = { '2026-11-16': done('2026-11-16'), '2026-11-17': done('2026-11-17'), '2026-11-19': done('2026-11-19') }
@@ -25,31 +44,29 @@ test('sem plano: conta só os dias treinados, sem travar', () => {
 })
 test('recorde só depois de já existir o exercício', () => {
   const log = { '2026-11-16': done('2026-11-16', [{ id: 'Supino', kg: 40 }]), '2026-11-18': done('2026-11-18', [{ id: 'Supino', kg: 40 }]), '2026-11-20': done('2026-11-20', [{ id: 'Supino', kg: 42.5 }]) }
-  expect(get(computeAchievements(evolutionInput({ workoutLog: log, workoutPlan: plan([]), measurements: [], photoSets: [] }), '2026-11-21'), 'record').earnedAt).toBe('2026-11-20')
+  expect(get(computeAchievements(evolutionInput({ workoutLog: log, workoutPlan: plan(0), measurements: [], photoSets: [] }), '2026-11-21'), 'record').earnedAt).toBe('2026-11-20')
 })
 test('peso: direção pelo objetivo', () => {
   const ms = [{ id: '1', date: '2026-11-01', weightKg: 80 }, { id: '2', date: '2026-11-15', weightKg: 78.8 }]
-  const loss = computeAchievements(evolutionInput({ workoutLog: {}, workoutPlan: plan([]), measurements: ms, photoSets: [] , profile: { sex: 'M', heightCm: 178, dietGoal: 'perder' } }), '2026-11-16')
+  const loss = computeAchievements(evolutionInput({ workoutLog: {}, workoutPlan: plan(0), measurements: ms, photoSets: [] , profile: { sex: 'M', heightCm: 178, dietGoal: 'perder' } }), '2026-11-16')
   expect(get(loss, 'weight-small')).toMatchObject({ title: '−1 kg', earnedAt: '2026-11-15' })
   expect(get(loss, 'weight-big').progress).toBe('falta 3,8 kg')
-  const gain = computeAchievements(evolutionInput({ workoutLog: {}, workoutPlan: plan([]), measurements: ms, photoSets: [], profile: { sex: 'M', heightCm: 178, dietGoal: 'ganhar' } }), '2026-11-16')
+  const gain = computeAchievements(evolutionInput({ workoutLog: {}, workoutPlan: plan(0), measurements: ms, photoSets: [], profile: { sex: 'M', heightCm: 178, dietGoal: 'ganhar' } }), '2026-11-16')
   expect(get(gain, 'weight-small')).toMatchObject({ title: '+1 kg', earnedAt: undefined })
 })
 test('primeira foto e gordura −1 ponto', () => {
   const ms = [{ id: '1', date: '2026-11-01', neckCm: 38, waistCm: 88 }, { id: '2', date: '2026-11-20', neckCm: 38, waistCm: 85 }]
-  const a = computeAchievements(evolutionInput({ workoutLog: {}, workoutPlan: plan([]), measurements: ms, photoSets: [{ id: 's', date: '2026-11-03', frente: 'p' }], profile: { sex: 'M', heightCm: 178 } }), '2026-11-21')
+  const a = computeAchievements(evolutionInput({ workoutLog: {}, workoutPlan: plan(0), measurements: ms, photoSets: [{ id: 's', date: '2026-11-03', frente: 'p' }], profile: { sex: 'M', heightCm: 178 } }), '2026-11-21')
   expect(get(a, 'first-photo').earnedAt).toBe('2026-11-03')
   expect(get(a, 'fat-1').earnedAt).toBe('2026-11-20')
 })
-// shortcut: depende dos dias da semana; a Task 2 reescreve com a meta semanal
-test.skip('progresso da sequência parte da sequência atual, não da melhor', () => {
-  const days = ['2026-11-16', '2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20', '2026-11-22'] // 5 seguidos, faltou sáb 21, voltou dom 22
+test('progresso da sequência parte da sequência atual, não da melhor', () => {
+  const days = ['2026-11-16', '2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20', '2026-11-22'] // 5 na semana (meta 7) zeram no sáb 21; dom 22 recomeça
   const log = Object.fromEntries(days.map((k) => [k, done(k)]))
-  const a = computeAchievements(evolutionInput({ workoutLog: log, workoutPlan: plan([0, 1, 2, 3, 4, 5, 6]), measurements: [], photoSets: [] }), '2026-11-22')
-  expect(get(a, 'streak-7').progress).toBe('falta 6')
+  expect(get(computeAchievements(goalInput(log, 7), '2026-11-22'), 'streak-7').progress).toBe('falta 6')
 })
 
-const base = evolutionInput({ workoutPlan: plan([]) })
+const base = evolutionInput({ workoutPlan: plan(0) })
 const menu = { menus: [{ id: 'm', name: 'Padrão', meals: [] }] }
 const fullDays = (keys: string[]): DietLog => Object.fromEntries(keys.map((k) => [k, dietDay([true, true])]))
 const nov = (from: number, to: number) => Array.from({ length: to - from + 1 }, (_, i) => `2026-11-${from + i}`)
@@ -92,23 +109,6 @@ test('água 7 dias lê o waterLog mesmo com a água desligada', () => {
   expect(get(computeAchievements(evolutionInput({ ...base, dietPlan: menu, waterLog: water }), '2026-11-20'), 'water-7')).toMatchObject({ title: 'Água 7 dias', earnedAt: '2026-11-16' })
   const short = { ...water, '2026-11-13': { ml: 2000, goalMl: 2500 } }
   expect(get(computeAchievements(evolutionInput({ ...base, dietPlan: menu, waterLog: short }), '2026-11-20'), 'water-7')).toMatchObject({ earnedAt: undefined, progress: 'falta 7' })
-})
-// shortcut: depende dos dias da semana; a Task 2 reescreve com a meta semanal
-test.skip('1º descanso da semana não quebra a sequência; o 2º quebra', () => {
-  // plano todo dia; semana de dom 15 a sáb 21
-  const rest = restRecord
-  const every = plan([0, 1, 2, 3, 4, 5, 6])
-  const one = { '2026-11-16': done('2026-11-16'), '2026-11-17': rest('2026-11-17'), '2026-11-18': done('2026-11-18'), '2026-11-19': done('2026-11-19') }
-  const a = computeAchievements(evolutionInput({ workoutLog: one, workoutPlan: every, measurements: [], photoSets: [] }), '2026-11-20')
-  expect(get(a, 'streak-3').earnedAt).toBe('2026-11-19')
-  expect(get(a, 'workouts-10').progress).toBe('falta 7')
-  const two = { ...one, '2026-11-18': rest('2026-11-18'), '2026-11-19': done('2026-11-19'), '2026-11-20': done('2026-11-20') }
-  const b = computeAchievements(evolutionInput({ workoutLog: two, workoutPlan: every, measurements: [], photoSets: [] }), '2026-11-21')
-  expect(get(b, 'streak-3').earnedAt).toBeUndefined()
-  expect(get(b, 'streak-7').progress).toBe('falta 5')
-  // semana nova (dom 22) zera a cota: 19, 20, 21, (22 descanso), 23 = 4
-  const three = { ...two, '2026-11-21': done('2026-11-21'), '2026-11-22': rest('2026-11-22'), '2026-11-23': done('2026-11-23') }
-  expect(get(computeAchievements(evolutionInput({ workoutLog: three, workoutPlan: every, measurements: [], photoSets: [] }), '2026-11-24'), 'streak-7').progress).toBe('falta 3')
 })
 test('sem objetivo de peso, conquistas de peso somem da lista', () => {
   const ids = computeAchievements(evolutionInput({ profile: { sex: 'M', heightCm: 178 }, measurements: [], photoSets: [] }), '2026-11-20').map((a) => a.id)

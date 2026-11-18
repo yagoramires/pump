@@ -1,9 +1,8 @@
 import type { EvolutionInput } from './types'
-import { addDays, eachDay, weekday } from '@/lib/date'
+import { addDays, eachDay, weekStart, weekday } from '@/lib/date'
 import { formatKg } from '@/lib/number'
 import { dayStatus } from '@/diet/day'
 import { completedSessions, maxLoad } from '@/workout/stats'
-import { neutralRest } from '@/workout/rest'
 import { waterMet } from '@/diet/water'
 import { goalDirection } from './bodyFat'
 import { byDate, fatSeries, series } from './measurements'
@@ -37,8 +36,8 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
   const total = (n: number): Achievement['earnedAt'] => sessions[n - 1]?.date
 
   const trained = new Set(sessions.map((s) => s.date))
-  // shortcut: sem dias da semana a sequência não zera; a Task 2 troca pela meta semanal
-  const planned = new Set<number>()
+  const goal = Math.min(7, Math.max(1, d.profile.daysPerWeek ?? d.workoutPlan.workouts.length))
+  const thisWeek = weekStart(today)
   const reached = new Map<number, string>()
   let count = 0
   if (sessions.length) {
@@ -46,7 +45,9 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
       if (trained.has(key)) {
         count++
         if (!reached.has(count)) reached.set(count, key)
-      } else if (key < today && planned.has(weekday(key)) && !neutralRest(d.workoutLog, key)) count = 0
+      }
+      // sábado de semana já encerrada abaixo da meta zera; a semana atual nunca zera
+      if (weekday(key) === 6 && key < thisWeek && eachDay(weekStart(key), addDays(key, 1)).filter((k) => trained.has(k)).length < goal) count = 0
     }
   }
   const streakAt = (n: number) => [...reached].find(([c]) => c >= n)?.[1]
