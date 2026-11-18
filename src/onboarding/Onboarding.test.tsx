@@ -26,7 +26,7 @@ test('primeiro passo restaura um backup depois de confirmar e recarrega o app', 
   await save('profile', { sex: 'F', heightCm: 1, weightKg: 1 })
   const { settings, file } = backupFile()
   const user = userEvent.setup()
-  await renderLoaded(<Onboarding setSettings={vi.fn()} />)
+  await renderLoaded(<Onboarding />)
   await user.click(screen.getByRole('button', { name: 'Restaurar backup' }))
   await user.upload(screen.getByLabelText('Arquivo de backup'), file)
   expect(await screen.findByText('Isso substitui todos os seus dados. Continuar?')).toBeInTheDocument()
@@ -40,7 +40,7 @@ test('cancelar no diálogo não importa nada', async () => {
   const profile = { sex: 'F' as const, heightCm: 160, weightKg: 60 }
   await save('profile', profile)
   const user = userEvent.setup()
-  await renderLoaded(<Onboarding setSettings={vi.fn()} />)
+  await renderLoaded(<Onboarding />)
   await user.upload(screen.getByLabelText('Arquivo de backup'), backupFile().file)
   await user.click(await screen.findByRole('button', { name: 'Cancelar' }))
   await waitFor(() => expect(screen.queryByText('Restaurar backup?')).not.toBeInTheDocument())
@@ -50,7 +50,7 @@ test('cancelar no diálogo não importa nada', async () => {
 
 test('peso com vírgula é salvo como decimal', async () => {
   const user = userEvent.setup()
-  await renderLoaded(<Onboarding setSettings={vi.fn()} />)
+  await renderLoaded(<Onboarding />)
   await user.type(await screen.findByLabelText('Altura'), '178')
   await user.type(screen.getByLabelText('Peso'), '80,5')
   await user.click(screen.getByRole('button', { name: 'Continuar' }))
@@ -60,7 +60,7 @@ test('peso com vírgula é salvo como decimal', async () => {
 test('sem internet ao usar um plano pronto mostra o aviso', async () => {
   vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('offline'))
   const user = userEvent.setup()
-  await renderLoaded(<Onboarding setSettings={vi.fn()} />)
+  await renderLoaded(<Onboarding />)
   await user.click(screen.getByRole('button', { name: 'Pular' }))
   await user.click(screen.getByRole('radio', { name: 'ABC' }))
   await user.click(screen.getByRole('button', { name: 'Usar ABC' }))

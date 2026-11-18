@@ -29,3 +29,10 @@ test('usePhotoSets: trocar a foto de um ângulo apaga a antiga do banco e manté
   expect(await loadPhoto(side)).toBeDefined()
   expect(await load('photoSets')).toEqual([{ id: 's', date: '2026-11-17', frente: fresh, lado: side }])
 })
+test('usePhotoSets grava sobre o valor guardado: o que mudou depois do render não se perde', async () => {
+  const h = await renderHookLoaded(() => usePhotoSets())
+  const { setAngle: stale } = h.result.current
+  act(() => void save('photoSets', [{ id: 'a', date: '2026-11-10', lado: 'p0' }]))
+  act(() => stale('2026-11-17', 'frente', 'p1'))
+  expect((await load('photoSets'))?.map((s) => s.date)).toEqual(['2026-11-10', '2026-11-17'])
+})

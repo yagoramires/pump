@@ -3,7 +3,7 @@ import { Check, Copy } from 'lucide-react'
 import type { WorkoutPlan } from './types'
 import { usePersisted } from '@/storage/db'
 import { fetchExercises } from '@/catalog/catalog'
-import { exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
+import { PLAN_NOT_FOUND, exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
 import { buildPrompt } from './prompt'
 import { AnamnesisForm } from './AnamnesisForm'
 import { PlanEditor } from './PlanEditor'
@@ -22,7 +22,7 @@ export function PlanImport({ onDone, onBack }: { onDone: () => void; onBack: () 
   const [profile, setProfile] = usePersisted('profile')
   const [notice, setNotice] = useState('')
   const [editing, setEditing] = useState(false)
-  const paste = usePastedReview(parsePlanFormat, async (file) => planFromFormat(file, await fetchExercises(), customs))
+  const paste = usePastedReview(parsePlanFormat, async (file) => planFromFormat(file, await fetchExercises(), customs), PLAN_NOT_FOUND)
   const review = paste.result
 
   const copy = async (value: string, ok: string) => setNotice((await copyText(value)) ? ok : 'Não consegui copiar. Tente de novo.')

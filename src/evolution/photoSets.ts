@@ -16,15 +16,21 @@ export const setAngle = (sets: PhotoSet[], date: string, angle: Angle, photoId: 
 
 export function usePhotoSets() {
   const [sets, setSets] = usePersisted('photoSets')
-  const write = (next: PhotoSet[]) => {
-    const kept = new Set(setSets(next).flatMap(photoIds))
-    const gone = sets.flatMap(photoIds).filter((id) => !kept.has(id))
+  // calcula sobre o valor guardado, não o do render: o PhotoCapture chama depois de um await
+  const write = (change: (prev: PhotoSet[]) => PhotoSet[]) => {
+    let gone: string[] = []
+    setSets((prev) => {
+      const next = change(prev)
+      const kept = new Set(next.flatMap(photoIds))
+      gone = prev.flatMap(photoIds).filter((id) => !kept.has(id))
+      return next
+    })
     // falhar aqui só deixa fotos órfãs no banco; o registro já não aponta pra elas
     if (gone.length) void deletePhotos(gone).catch(() => {})
   }
   return {
     sets,
-    setAngle: (date: string, angle: Angle, photoId: string) => write(setAngle(sets, date, angle, photoId)),
-    removeSet: (id: string) => write(sets.filter((s) => s.id !== id)),
+    setAngle: (date: string, angle: Angle, photoId: string) => write((prev) => setAngle(prev, date, angle, photoId)),
+    removeSet: (id: string) => write((prev) => prev.filter((s) => s.id !== id)),
   }
 }

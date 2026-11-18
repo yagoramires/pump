@@ -49,14 +49,15 @@ function Shell() {
   )
 
   if (isIOS() && !isStandalone() && !settings.installDismissed) {
-    return <>{banner}<InstallGate onDismiss={() => setSettings((s) => ({ ...s, installDismissed: true }))} /></>
+    return <>{banner}<PreviewSync /><InstallGate onDismiss={() => setSettings((s) => ({ ...s, installDismissed: true }))} /></>
   }
-  if (!settings.onboardingDone) return <>{banner}<main className="mx-auto max-w-md px-4 pt-(--main-pt) pb-(--main-pb)"><Onboarding setSettings={setSettings} /></main></>
+  if (!settings.onboardingDone) return <>{banner}<PreviewSync /><main className="mx-auto max-w-md px-4 pt-(--main-pt) pb-(--main-pb)"><Onboarding /></main></>
 
   const tab = settings.lastTab
   return (
     <>
       {banner}
+      <PreviewSync />
       {backupDue(settings, todayKey()) && (
         <div className="mx-auto mt-3 max-w-md px-4"><div className="flex items-center gap-2 rounded-xl border border-accent-line bg-accent-bg py-1 pr-1 pl-3.5 text-[13px] text-text">
           <span className="flex-1">{`Faz ${daysWithoutBackup(settings, todayKey())} dias sem backup`}</span>
@@ -65,7 +66,7 @@ function Shell() {
       )}
       <main className={MAIN}>
         {showSettings ? (
-          <SettingsScreen settings={settings} onClose={() => setShowSettings(false)} setSettings={setSettings} />
+          <SettingsScreen onClose={() => setShowSettings(false)} />
         ) : (
           <>
             <button type="button" className="icon-btn float-right mt-(--gear-offset)" aria-label="Configurações" onClick={() => setShowSettings(true)}><SettingsIcon size={17} /></button>
@@ -76,7 +77,6 @@ function Shell() {
       <BottomNav tab={tab} onChange={(lastTab) => { setShowSettings(false); setSettings((s) => ({ ...s, lastTab })) }} />
       <Toaster />
       <AchievementToasts />
-      <PreviewSync />
     </>
   )
 }

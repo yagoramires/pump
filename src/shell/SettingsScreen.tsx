@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { RotateCcw, Share2, Upload, User } from 'lucide-react'
 import { toast } from 'sonner'
-import { type Settings } from '@/schema'
 import { usePersisted } from '@/storage/db'
 import { daysBetween, todayKey } from '@/lib/date'
 import { formatKg, plural } from '@/lib/number'
@@ -16,9 +15,8 @@ import { DietSettings } from '@/diet/DietSettings'
 import { useBackupExport } from './useBackupExport'
 import { useImportBackup } from './useImportBackup'
 
-type SetSettings = (f: (s: Settings) => Settings) => Settings
-
-export function SettingsScreen({ settings, onClose, setSettings }: { settings: Settings; onClose: () => void; setSettings: SetSettings }) {
+export function SettingsScreen({ onClose }: { onClose: () => void }) {
+  const [settings, setSettings] = usePersisted('settings')
   const [view, setView] = useState<ReactNode>()
   const [confirmRedo, setConfirmRedo] = useState(false)
   const [profile] = usePersisted('profile')

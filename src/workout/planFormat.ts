@@ -5,6 +5,8 @@ import { isObj } from '@/schema'
 import { SETS } from './limits'
 import { PLAN_DEFAULTS, newCustomExercise, toPlanExercise } from './exercises'
 
+export const PLAN_NOT_FOUND = 'Não encontrei um plano em JSON no texto'
+
 type Dia = 'dom' | 'seg' | 'ter' | 'qua' | 'qui' | 'sex' | 'sab'
 interface PumpExercicio { nome: string; series: number; reps: string; cargaKg?: number; descansoSeg?: number; obs?: string }
 interface PumpTreino { letra: string; nome: string; dias: Dia[]; exercicios: PumpExercicio[] }
@@ -12,7 +14,7 @@ export type PumpPlanoFile = typeof HEADER & { treinos: PumpTreino[]; dieta?: unk
 
 const DIAS: Dia[] = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab']
 export function parsePlanFormat(text: string): PumpPlanoFile {
-  const raw = readEnvelope(text, 'Não encontrei um plano em JSON no texto')
+  const raw = readEnvelope(text, PLAN_NOT_FOUND)
   if (raw.dieta !== undefined && raw.treinos === undefined) throw new FormatError(['Este arquivo só tem dieta. Importe na aba Dieta.'])
   const problems = headerProblems(raw)
   const list = Array.isArray(raw.treinos) ? raw.treinos : []

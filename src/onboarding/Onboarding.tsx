@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Plus, Sparkles, Upload } from 'lucide-react'
-import { DEFAULTS, type Settings } from '@/schema'
+import { DEFAULTS } from '@/schema'
 import type { Exercise, WorkoutPlan } from '@/workout/types'
 import { usePersisted } from '@/storage/db'
 import { fetchExercises } from '@/catalog/catalog'
@@ -29,7 +29,8 @@ function Steps({ n }: { n: 1 | 2 }) {
   )
 }
 
-export function Onboarding({ setSettings }: { setSettings: (f: (s: Settings) => Settings) => void }) {
+export function Onboarding() {
+  const [, setSettings] = usePersisted('settings')
   const [step, setStep] = useState<Step>('perfil')
   const [initial, setInitial] = useState<WorkoutPlan>(DEFAULTS.workoutPlan)
   const [, setPlan] = usePersisted('workoutPlan')

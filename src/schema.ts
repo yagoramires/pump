@@ -10,8 +10,13 @@ interface CoreSettings { lastTab: Tab; onboardingDone: boolean; firstUseAt?: str
 export type Settings = CoreSettings & { seenAchievements?: string[]; water?: WaterSettings }
 export interface UserData { profile: Profile; workoutPlan: WorkoutPlan; workoutLog: WorkoutLog; customExercises: CustomExercise[]; settings: Settings; measurements: Measurement[]; photoSets: PhotoSet[]; dietPlan: DietPlan; dietLog: DietLog; waterLog: WaterLog; foods: DietItem[] }
 
-/** valor de cada chave antes da primeira gravação (profile com heightCm 0 = ainda não preenchido) */
-export const DEFAULTS = {
+const deepFreeze = <T,>(o: T): T => {
+  Object.values(o as object).forEach((v) => typeof v === 'object' && v !== null && deepFreeze(v))
+  return Object.freeze(o)
+}
+
+/** valor de cada chave antes da primeira gravação (profile com heightCm 0 = ainda não preenchido); congelado porque o store entrega por referência */
+export const DEFAULTS = deepFreeze({
   profile: { sex: 'M', heightCm: 0, weightKg: 0 },
   workoutPlan: { workouts: [] },
   workoutLog: {},
@@ -23,9 +28,10 @@ export const DEFAULTS = {
   dietLog: {},
   waterLog: {},
   foods: [],
-} satisfies UserData
+} satisfies UserData)
 
 export const USER_KEYS = Object.keys(DEFAULTS) as (keyof UserData)[]
+export const isUserKey = (k: string): k is keyof UserData => (USER_KEYS as readonly string[]).includes(k)
 
 export const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
 

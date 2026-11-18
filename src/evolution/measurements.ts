@@ -4,11 +4,12 @@ import { bodyFat, type Metric } from './bodyFat'
 
 export type Point = { date: string; value: number }
 type Key = keyof MeasureFields
-/** `digits` = casas no PDF; `spaced: false` cola a unidade no número ("22,9%") */
-export interface Field { key: Metric; label: string; unit: string; digits: number; spaced?: false }
+/** `digits` = casas no PDF; `spaced: false` cola a unidade no número ("22,9%"); `deltaUnit` = unidade da diferença quando não é a do valor */
+export interface Field { key: Metric; label: string; unit: string; digits: number; spaced?: false; deltaUnit?: string }
 
+export const WEIGHT = { key: 'weightKg', label: 'Peso', unit: 'kg', digits: 1 } satisfies Field & { key: Key }
 export const FIELDS: (Field & { key: Key })[] = [
-  { key: 'weightKg', label: 'Peso', unit: 'kg', digits: 1 },
+  WEIGHT,
   { key: 'neckCm', label: 'Pescoço', unit: 'cm', digits: 0 },
   { key: 'waistCm', label: 'Cintura', unit: 'cm', digits: 0 },
   { key: 'hipCm', label: 'Quadril', unit: 'cm', digits: 0 },
@@ -16,7 +17,7 @@ export const FIELDS: (Field & { key: Key })[] = [
   { key: 'chestCm', label: 'Peito', unit: 'cm', digits: 0 },
   { key: 'thighCm', label: 'Coxa', unit: 'cm', digits: 0 },
 ]
-export const FAT: Field = { key: 'fat', label: 'Gordura', unit: '%', digits: 1, spaced: false }
+export const FAT = { key: 'fat', label: 'Gordura', unit: '%', digits: 1, spaced: false, deltaUnit: 'pt' } satisfies Field
 
 export const byDate = <T extends { date: string }>(l: T[]) => [...l].sort((a, b) => a.date.localeCompare(b.date))
 

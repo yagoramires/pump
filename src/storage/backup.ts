@@ -1,6 +1,6 @@
 import { daysBetween, todayKey } from '@/lib/date'
-import { DEFAULTS, USER_KEYS, VALID, isObj, type Settings, type UserData } from '@/schema'
-import { allData, load, replaceAll, save } from './db'
+import { VALID, isObj, isUserKey, type Settings } from '@/schema'
+import { allData, readCurrent, replaceAll, save } from './db'
 import { isPhotoKey } from './photos'
 import { shareFile } from '@/lib/share'
 
@@ -24,7 +24,6 @@ export function parseBackup(text: string): BackupFile {
   if (b.app !== 'pump') throw new Error('Esse arquivo não é um backup do Pump')
   if (b.version !== 1) throw new Error('Backup de uma versão mais nova do app')
   const { data } = b
-  const isUserKey = (k: string): k is keyof UserData => (USER_KEYS as readonly string[]).includes(k)
   const known = (k: string, v: unknown) =>
     isUserKey(k) || (isPhotoKey(k) && typeof v === 'string' && v.startsWith('data:image/'))
   if (!isObj(data) || Object.entries(data).some(([k, v]) => !known(k, v))) {
@@ -50,7 +49,7 @@ export async function exportBackup(now = new Date()): Promise<'shared' | 'downlo
     const file = new File([JSON.stringify(buildBackup(await allData(), now))], `pump-backup-${day}.json`, { type: 'application/json' })
     const result = await shareFile(file)
     if (result === 'cancelled') return result
-    await save('settings', { ...(await load('settings') ?? DEFAULTS.settings), lastBackupAt: day })
+    await save('settings', { ...(await readCurrent('settings')), lastBackupAt: day })
     return result
   } catch (e) {
     // quem chama mostra a mensagem na tela: nada de erro cru do navegador em inglês

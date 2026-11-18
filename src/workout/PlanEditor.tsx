@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { ChevronRight, Dumbbell, HeartPulse, MoreHorizontal, Plus } from 'lucide-react'
 import type { PlanExercise, Workout, WorkoutPlan } from './types'
-import { CatalogPicker } from '@/catalog/CatalogPicker'
+import { CatalogPicker } from './CatalogPicker'
 import { toPlanExercise } from './exercises'
 import { ExerciseDrawer } from './ExerciseDrawer'
 import { isCardio } from './cardio'

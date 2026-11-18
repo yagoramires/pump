@@ -4,11 +4,11 @@ import { ex } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
 import { clear } from 'idb-keyval'
 import { resetStoreForTests, save } from '@/storage/db'
-import { fetchExercises } from './catalog'
+import { fetchExercises } from '@/catalog/catalog'
 import { CatalogPicker } from './CatalogPicker'
 
 // fetchExercises guarda a promessa no módulo; mockado, cada teste escolhe online ou offline
-vi.mock('./catalog', async (orig) => ({ ...(await orig<typeof import('./catalog')>()), fetchExercises: vi.fn() }))
+vi.mock('@/catalog/catalog', async (orig) => ({ ...(await orig<typeof import('@/catalog/catalog')>()), fetchExercises: vi.fn() }))
 
 beforeEach(async () => {
   await clear()

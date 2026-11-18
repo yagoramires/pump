@@ -11,6 +11,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { EmptyState } from '@/components/EmptyState'
 import { IconDot } from '@/components/IconDot'
 import type { Metric } from './bodyFat'
+import { FAT, WEIGHT } from './measurements'
 import { WeightChart } from './WeightChart'
 import { MeasureDrawer } from './MeasureDrawer'
 import { Delta } from './Delta'
@@ -120,11 +121,11 @@ export function EvolutionTab() {
       <h1 className="mt-0.5 mb-3 text-[26px] font-bold tracking-tight text-strong">Evolução</h1>
 
       <div className="mb-2.5 grid grid-cols-3 gap-2">
-        <Kpi label="Peso" value={weight ? `${formatKg(weight.last.value)} kg` : '—'}>
-          <Delta value={change(weight)} good={!!weight?.good} unit="kg" />
+        <Kpi label={WEIGHT.label} value={weight ? `${formatKg(weight.last.value)} ${WEIGHT.unit}` : '—'}>
+          <Delta value={change(weight)} good={!!weight?.good} unit={WEIGHT.unit} />
         </Kpi>
-        <Kpi label="Gordura" value={fat ? `${formatDec(fat.last.value)}%` : '—'}>
-          <Delta value={change(fat)} good={!!fat?.good} unit="pt" />
+        <Kpi label={FAT.label} value={fat ? `${formatDec(fat.last.value)}${FAT.unit}` : '—'}>
+          <Delta value={change(fat)} good={!!fat?.good} unit={FAT.deltaUnit} />
         </Kpi>
         <Kpi label="Treinos" value={String(training.workouts)}>
           <span className={training.workouts ? 'text-accent' : 'text-text-2'}>{training.workouts ? `${formatDec(training.perWeek, 1)}/sem` : '—'}</span>

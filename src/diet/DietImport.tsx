@@ -5,9 +5,9 @@ import type { DietAnamnesis, DietItem, DietPlan } from './types'
 import { usePersisted } from '@/storage/db'
 import { fetchTaco } from '@/catalog/catalog'
 import { buildDietPrompt } from './prompt'
-import { dietFromFormat, parseDietFormat } from './dietFormat'
+import { DIET_NOT_FOUND, dietFromFormat, matchLabel, parseDietFormat } from './dietFormat'
 import { optionLetter } from './day'
-import { itemKcal, kcalOf, macroText, matchLabel, portionText } from './food'
+import { itemKcal, kcalOf, macroText, portionText } from './food'
 import { savePlan } from './plan'
 import { DietAnamnesisForm } from './DietAnamnesisForm'
 import { DietEditor } from './DietEditor'
@@ -42,7 +42,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   const paste = usePastedReview(parseDietFormat, async (file) => {
     const r = dietFromFormat(file, await fetchTaco().catch(() => null), foods)
     return { ...r, plan: savePlan(saved, r.plan) }
-  })
+  }, DIET_NOT_FOUND)
   const review = paste.result
   const anamnesis = edited ?? profile.dietAnamnesis ?? {}
 

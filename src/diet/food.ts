@@ -1,5 +1,4 @@
 import type { DietItem, DietLog, DietPlan, Macros, TacoFood } from './types'
-import type { ItemReport } from './dietFormat'
 import { daysBetween } from '@/lib/date'
 import { formatDec } from '@/lib/number'
 import { foodKey } from './match'
@@ -16,11 +15,6 @@ export const portionText = (i: Pick<DietItem, 'portion' | 'grams'>) => (i.portio
 export const hasValues = (i: Pick<DietItem, 'source' | 'per100'>) => i.source !== 'ia' || i.per100.kcal > 0
 /** aviso de origem: número da IA nunca aparece sem rótulo */
 export const iaLabel = (i: Pick<DietItem, 'source' | 'per100'>) => (i.source === 'ia' ? (hasValues(i) ? 'estimativa da IA' : 'sem valores') : undefined)
-export const matchLabel = (i: DietItem, r?: ItemReport): { text: string; warn: boolean } | undefined => {
-  if (r?.match === 'none') return { text: 'sem valores — escolha na TACO', warn: true }
-  if (i.source === 'ia' && hasValues(i)) return { text: 'estimativa da IA', warn: true }
-  if (r?.match === 'words' && r.aiName !== i.name) return { text: `na TACO: ${i.name}`, warn: false }
-}
 
 export const asFood = ({ name, per100, source, tacoId }: Food): Food => ({ name, per100, source, ...(tacoId !== undefined && { tacoId }) })
 export const fromTaco = ({ id, name, kcal, p, c, f }: TacoFood): Food => ({ name, per100: { kcal, p, c, f }, source: 'taco', tacoId: id })

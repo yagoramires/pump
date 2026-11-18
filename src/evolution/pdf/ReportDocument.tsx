@@ -3,7 +3,7 @@ import { Document, Font, Image, Page, Path, Polyline, StyleSheet, Svg, Text, Vie
 import { formatDayMonth, parseDayKey } from '@/lib/date'
 import { formatDec, formatSigned, plural } from '@/lib/number'
 import type { Metric } from '@/evolution/bodyFat'
-import type { Point } from '@/evolution/measurements'
+import { FAT, WEIGHT, type Point } from '@/evolution/measurements'
 import { ANGLE_LABEL } from '@/evolution/photoSets'
 import { scalePoints } from '@/evolution/chart'
 import { change, type BodyRow, type Report } from '@/evolution/report'
@@ -137,8 +137,8 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
         </View>
         <Text style={[s.lb, { marginTop: 4 }]}>{`${plural(r.period.days, 'dia', 'dias')} de acompanhamento`}</Text>
         <View style={[s.grid, { marginTop: 62 }]}>
-          <Change label="Peso" unit="kg" row={row('weightKg')} />
-          <Change label="Gordura" unit="pt" row={row('fat')} />
+          <Change label={WEIGHT.label} unit={WEIGHT.unit} row={row(WEIGHT.key)} />
+          <Change label={FAT.label} unit={FAT.deltaUnit} row={row(FAT.key)} />
           <Big label="Treinos" value={String(r.training.workouts)} />
           <Big label="Volume" value={formatDec(r.training.volumeTons)} unit="t" />
         </View>

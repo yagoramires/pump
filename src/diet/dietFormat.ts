@@ -2,6 +2,8 @@ import type { DietItem, DietPlan, Menu, TacoFood } from './types'
 import { FormatError, readEnvelope, str, writeEnvelope } from '@/format/envelope'
 import { isObj } from '@/schema'
 import { GOAL_KCAL, GRAMS, HHMM, MACRO_G, MAX_ITEMS, MAX_KCAL_PER_100G, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
+
+export const DIET_NOT_FOUND = 'Não encontrei um cardápio em JSON no texto'
 import { matchFood } from './match'
 import { asFood, hasValues } from './food'
 import { round1 } from '@/lib/number'
@@ -75,7 +77,7 @@ function parseMenu(d: Obj, tag: string | undefined, problems: string[]): PumpCar
 
 export function parseDietFormat(text: string): PumpDieta {
   // o cabeçalho não é conferido aqui: a dieta sempre aceitou arquivo sem "formato"/"versao"
-  const raw = readEnvelope(text, 'Não encontrei um cardápio em JSON no texto')
+  const raw = readEnvelope(text, DIET_NOT_FOUND)
   if (!isObj(raw.dieta)) throw new FormatError(['Este arquivo não tem dieta.'])
   const d = raw.dieta
   const problems: string[] = []
@@ -92,6 +94,11 @@ export function parseDietFormat(text: string): PumpDieta {
 type Match = 'custom' | 'exact' | 'words' | 'ia' | 'none'
 /** como cada item do import casou (pelo id do item) e o nome que a IA escreveu */
 export type ItemReport = { match: Match; aiName: string }
+export const matchLabel = (i: DietItem, r?: ItemReport): { text: string; warn: boolean } | undefined => {
+  if (r?.match === 'none') return { text: 'sem valores — escolha na TACO', warn: true }
+  if (i.source === 'ia' && hasValues(i)) return { text: 'estimativa da IA', warn: true }
+  if (r?.match === 'words' && r.aiName !== i.name) return { text: `na TACO: ${i.name}`, warn: false }
+}
 
 function itemFromFormat(a: PumpAlimento, taco: TacoFood[] | null, customs: DietItem[]): { item: DietItem; match: Match } {
   const base = { id: crypto.randomUUID(), grams: a.gramas, ...(a.porcao && { portion: a.porcao }) }

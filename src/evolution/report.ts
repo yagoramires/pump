@@ -4,7 +4,7 @@ import { round1 } from '@/lib/number'
 import { completedSessions, maxLoad, sessionVolume } from '@/workout/stats'
 import { computeAchievements, type Achievement } from './achievements'
 import { goalDirection, isGood } from './bodyFat'
-import { byDate, FAT, FIELDS, fatSeries, series, type Field, type Point } from './measurements'
+import { byDate, FAT, FIELDS, WEIGHT, fatSeries, series, type Field, type Point } from './measurements'
 import { dietStats, hasDiet, type DietStats } from './dietStats'
 import { ANGLES } from './photoSets'
 
@@ -40,8 +40,8 @@ export function buildReport(d: EvolutionInput, today: string): Report {
     return [{ ...f, first, last, delta, good: isGood(f.key, dir, delta) }]
   }
   const weight = series(ms, 'weightKg')
-  const [weightField, ...cmFields] = FIELDS
-  const body = ms.length ? { weight, rows: [...row(weightField, weight), ...row(FAT, fatSeries(d.profile, ms)), ...cmFields.flatMap((f) => row(f, series(ms, f.key)))] } : null
+  const cmFields = FIELDS.filter((f) => f !== WEIGHT)
+  const body = ms.length ? { weight, rows: [...row(WEIGHT, weight), ...row(FAT, fatSeries(d.profile, ms)), ...cmFields.flatMap((f) => row(f, series(ms, f.key)))] } : null
 
   const [before, after] = [sets[0], sets[sets.length - 1]]
   const photoPairs = before && after && before !== after

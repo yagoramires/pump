@@ -8,9 +8,9 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/compone
 import { Overlay } from '@/components/Overlay'
 import { BackHeader } from '@/components/BackHeader'
 import { cn } from '@/lib/utils'
-import { goalDirection, isGood, type Metric } from './bodyFat'
+import { goalDirection, isGood } from './bodyFat'
 import { Delta } from './Delta'
-import { byDate, fatSeries, pointAt, series, type Point } from './measurements'
+import { byDate, FAT, FIELDS, WEIGHT, fatSeries, pointAt, series, type Field, type Point } from './measurements'
 import { ANGLES } from './photoSets'
 import { AngleTabs } from './AngleTabs'
 import { PhotoThumb } from './PhotoThumb'
@@ -43,11 +43,15 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
   if (!before || !after) return <Overlay>{header}<p className="text-sm text-text-2">Nenhuma foto ainda.</p></Overlay>
 
   const dir = goalDirection(profile)
-  const at = (points: Point[]) => ({ from: pointAt(points, before.date), to: pointAt(points, after.date) })
-  const rows: { label: string; metric: Metric; unit: string; delta: string; from?: number; to?: number; fmt: (n: number) => string }[] = [
-    { label: 'Peso', metric: 'weightKg', unit: ' kg', delta: 'kg', ...at(series(ms, 'weightKg')), fmt: formatKg },
-    { label: 'Cintura', metric: 'waistCm', unit: ' cm', delta: 'cm', ...at(series(ms, 'waistCm')), fmt: formatKg },
-    { label: 'Gordura', metric: 'fat', unit: '%', delta: 'pt', ...at(fatSeries(profile, ms)), fmt: (n) => formatDec(n) },
+  const row = (f: Field, points: Point[], fmt: (n: number) => string) => ({
+    label: f.label, metric: f.key, unit: f.spaced === false ? f.unit : ` ${f.unit}`, delta: f.deltaUnit ?? f.unit,
+    from: pointAt(points, before.date), to: pointAt(points, after.date), fmt,
+  })
+  const waist = FIELDS.find((f) => f.key === 'waistCm')!
+  const rows = [
+    row(WEIGHT, series(ms, 'weightKg'), formatKg),
+    row(waist, series(ms, 'waistCm'), formatKg),
+    row(FAT, fatSeries(profile, ms), (n) => formatDec(n)),
   ]
   const shown = rows.flatMap((r) => (r.from !== undefined && r.to !== undefined ? [{ ...r, from: r.from, to: r.to, d: round1(r.to - r.from) }] : []))
 
