@@ -3,7 +3,7 @@ import type { TacoFood } from '../src/diet/types.ts'
 
 // shortcut: CSV simples (aspas duplas, sem quebra de linha dentro de campo), basta pro dataset da TACO
 function parseCsv(text: string): Record<string, string>[] {
-  const rows = text.trim().split(/\r?\n/).map((l) => [...l.matchAll(/"([^"]*)"|([^,]*)(,|$)/g)].filter((m) => m[0] !== '' || false).map((m) => m[1] ?? m[2]))
+  const rows = text.trim().split(/\r?\n/).map((l) => [...l.matchAll(/"([^"]*)"|([^,]*)(,|$)/g)].filter((m) => m[0] !== '').map((m) => m[1] ?? m[2]))
   const [head, ...body] = rows
   return body.map((r) => Object.fromEntries(head.map((h, i) => [h, r[i] ?? ''])))
 }

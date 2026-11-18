@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ChevronRight, Dumbbell, HeartPulse, MoreHorizontal, Plus } from 'lucide-react'
 import type { PlanExercise, Workout, WorkoutPlan } from './types'
 import { CatalogPicker } from '@/catalog/CatalogPicker'
@@ -9,7 +9,7 @@ import { IconDot } from '@/components/IconDot'
 import { BackHeader } from '@/components/BackHeader'
 import { muscleColor } from '@/catalog/muscles'
 import { Button } from '@/components/ui/button'
-import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { formatKg } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { WEEKDAY_SHORT } from '@/lib/date'
@@ -24,6 +24,7 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
   const [picking, setPicking] = useState<string>() // id do treino que recebe o exercício
   const [editing, setEditing] = useState<{ wid: string; i: number }>()
   const [menuFor, setMenuFor] = useState<string>() // id do treino com o menu ⋯ aberto
+  const renaming = useRef<string>(undefined)
 
   const patchWorkout = (id: string, f: (w: Workout) => Workout) =>
     setPlan((p) => ({ workouts: p.workouts.map((w) => (w.id === id ? f(w) : w)) }))
@@ -99,7 +100,6 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
       <button type="button" className={cn(dash, 'border border-dashed border-border-strong text-text-2')} onClick={addWorkout}><Plus size={18} /> Novo treino</button>
       {ew && ee && (
         <ExerciseDrawer
-          open
           ex={ee}
           onChange={(next) => patchEx(ew.id, editing!.i, next)}
           onRemove={() => { patchWorkout(ew.id, (x) => ({ ...x, exercises: x.exercises.filter((_, j) => j !== editing!.i) })); setEditing(undefined) }}
@@ -108,12 +108,20 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
           onClose={() => setEditing(undefined)}
         />
       )}
-      <Drawer open={!!mw} onOpenChange={(o) => !o && setMenuFor(undefined)}>
+      <Drawer
+        open={!!mw}
+        onOpenChange={(o) => !o && setMenuFor(undefined)}
+        onAnimationEnd={(o) => {
+          if (o || !renaming.current) return
+          document.getElementById(`name-${renaming.current}`)?.focus()
+          renaming.current = undefined
+        }}
+      >
         <DrawerContent>
           <div className="flex flex-col gap-1 px-4 pb-5">
             <DrawerTitle className="text-[19px] font-semibold text-strong">{mw ? `Treino ${mw.label}` : ''}</DrawerTitle>
             <DrawerDescription className="sr-only">Ações do treino</DrawerDescription>
-            <Button variant="ghost" className="justify-start" onClick={() => { const id = menuFor; setMenuFor(undefined); setTimeout(() => document.getElementById(`name-${id}`)?.focus(), 300) }}>Renomear</Button>
+            <DrawerClose asChild><Button variant="ghost" className="justify-start" onClick={() => { renaming.current = menuFor }}>Renomear</Button></DrawerClose>
             <Button variant="ghost" className="justify-start text-negative" onClick={() => { setPlan((p) => ({ workouts: p.workouts.filter((x) => x.id !== menuFor) })); setMenuFor(undefined) }}>Remover treino</Button>
           </div>
         </DrawerContent>

@@ -1,5 +1,5 @@
 import type { PlanExercise, Workout } from './types'
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
@@ -47,4 +47,11 @@ test('carga digitada com vírgula na gaveta', async () => {
   await user.type(kg, '22,5')
   await user.click(screen.getByRole('button', { name: 'Pronto' }))
   expect(screen.getByText('3 × 10-12 · 22,5 kg · 90 s')).toBeInTheDocument()
+})
+test('Renomear fecha o menu e põe o foco no nome do treino depois da animação', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([])] }} onSave={vi.fn()} onCancel={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: 'Mais ações do treino A' }))
+  await user.click(await screen.findByRole('button', { name: 'Renomear' }))
+  await waitFor(() => expect(screen.getByDisplayValue('Peito')).toHaveFocus(), { timeout: 2000 })
 })

@@ -24,7 +24,8 @@ import { HistoryScreen } from './HistoryScreen'
 import { DietCard } from './DietCard'
 import { useEvolution } from './useEvolution'
 import { buildReport, change } from './report'
-import { generatePdf, sharePdf } from './pdf/generate'
+import { generatePdf } from './pdf/generate'
+import { shareFile } from '@/lib/share'
 
 type View = 'capture' | 'compare' | 'achievements' | 'history'
 const CARD = 'mb-2.5 overflow-hidden rounded-[14px] border border-border bg-panel'
@@ -207,7 +208,7 @@ export function EvolutionTab() {
       <div className="fixed bottom-[calc(var(--nav-h)+12px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) flex w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 gap-2">
         <Button variant="secondary" className="h-11 flex-1 rounded-[13px] border border-border font-bold" onClick={() => setChoosing(true)}><Plus aria-hidden="true" /> Registrar</Button>
         {blob ? (
-          <Button className="h-11 flex-1 rounded-[13px] font-bold" onClick={() => sharePdf(blob, `pump-evolucao-${today}.pdf`).catch(() => toast.error('Não consegui compartilhar o PDF'))}><Share2 aria-hidden="true" /> Compartilhar PDF</Button>
+          <Button className="h-11 flex-1 rounded-[13px] font-bold" onClick={() => shareFile(new File([blob], `pump-evolucao-${today}.pdf`, { type: 'application/pdf' })).catch(() => toast.error('Não consegui compartilhar o PDF'))}><Share2 aria-hidden="true" /> Compartilhar PDF</Button>
         ) : (
           <Button className="h-11 flex-1 rounded-[13px] font-bold" disabled={busy} onClick={() => void makePdf()}><FileText aria-hidden="true" /> {busy ? 'Gerando…' : 'Gerar PDF'}</Button>
         )}

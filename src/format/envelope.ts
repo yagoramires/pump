@@ -14,7 +14,7 @@ export class FormatError extends Error {
 
 export const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
 
-export function extractJson(text: string): unknown {
+function extractJson(text: string): unknown {
   const fence = text.match(/```[^\n`]*\n?([\s\S]*?)```/)
   const body = fence ? fence[1] : text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1)
   try {

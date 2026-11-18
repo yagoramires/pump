@@ -4,6 +4,8 @@ import path from 'node:path'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
 
+const BASE = '/pump/'
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -24,8 +26,8 @@ export default defineConfig({
         display: 'standalone',
         background_color: '#121315',
         theme_color: '#121315',
-        start_url: '/pump/',
-        scope: '/pump/',
+        start_url: BASE,
+        scope: BASE,
         icons: [
           { src: 'pwa-64x64.png', sizes: '64x64', type: 'image/png' },
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
@@ -35,7 +37,7 @@ export default defineConfig({
       },
     }),
   ],
-  base: '/pump/',
+  base: BASE,
   resolve: { alias: { '@': path.resolve(import.meta.dirname, 'src') } },
   test: { environment: 'jsdom', globals: true, setupFiles: ['test/setup.ts'] },
 })

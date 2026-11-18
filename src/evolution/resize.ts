@@ -1,5 +1,5 @@
-export function fitWithin(w: number, h: number, max = 1280): { w: number; h: number } {
-  const k = Math.min(1, max / Math.max(w, h))
+function fitWithin(w: number, h: number): { w: number; h: number } {
+  const k = Math.min(1, 1280 / Math.max(w, h))
   return { w: Math.round(w * k), h: Math.round(h * k) }
 }
 

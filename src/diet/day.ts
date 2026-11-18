@@ -77,7 +77,6 @@ export const chooseOption = (d: DietDay, mealId: string, option: MealOption): Di
   return mapMeal(d, mealId, ({ swappedMeal: _s, ...m }) => ({ ...m, optionId: option.id, items: keepExtras(m, option.items) }))
 }
 export const setMealFree = (d: DietDay, mealId: string, free: boolean): DietDay => mapMeal(d, mealId, (m) => ({ ...m, free, done: free }))
-export const setDayFree = (d: DietDay, free: boolean): DietDay => ({ ...d, free })
 
 export const optionLetter = (i: number) => OPTION_LETTERS[i]
 
@@ -110,7 +109,7 @@ export const daySummary = (day: DietDay) => {
 export const freeCount = (d: DietDay) => (d.free ? 1 : d.meals.filter((m) => m.free).length)
 
 /** o 1º livre da semana (domingo a sábado) é permitido */
-export const firstFreeOfWeek = (log: DietLog, date: string) => countInWeekBefore(log, date, freeCount) === 0
+const firstFreeOfWeek = (log: DietLog, date: string) => countInWeekBefore(log, date, freeCount) === 0
 
 export const dayStatus = (log: DietLog, date: string): 'full' | 'free-ok' | 'off' | 'none' => {
   const day = log[date]

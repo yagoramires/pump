@@ -6,9 +6,9 @@ import { beep, remainingSec } from './restTimer'
 const mmss = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 
 /** totalSec: descanso do exercício marcado; sem ele (app reaberto) a barra parte do restante ao montar */
-type Props = { endAt: number; totalSec?: number; onSkip: () => void; onAdd15: () => void; onFinish: () => void }
+type Props = { endAt: number; totalSec?: number; onAdd15: () => void; onDone: () => void }
 
-export function RestCard({ endAt, totalSec, onSkip, onAdd15, onFinish }: Props) {
+export function RestCard({ endAt, totalSec, onAdd15, onDone }: Props) {
   const [now, setNow] = useState(() => Date.now())
   const seenRunning = useRef(false) // já estava contando? (montar com 0 limpa sem bipar)
   const left = remainingSec(endAt, now)
@@ -26,8 +26,8 @@ export function RestCard({ endAt, totalSec, onSkip, onAdd15, onFinish }: Props) 
     }
     if (seenRunning.current) beep()
     seenRunning.current = false
-    onFinish()
-  }, [left, onFinish])
+    onDone()
+  }, [left, onDone])
 
   if (left <= 0) return null
   const pct = (left / Math.max(totalSec ?? initial, left)) * 100
@@ -42,7 +42,7 @@ export function RestCard({ endAt, totalSec, onSkip, onAdd15, onFinish }: Props) 
       <b className="text-[19px] font-bold text-accent tabular-nums">{mmss(left)}</b>
       <div className="h-1 flex-1 overflow-hidden rounded-sm bg-line"><div className="h-full bg-accent" style={{ width: `${pct}%` }} /></div>
       <Button variant="outline" size="sm" onClick={onAdd15}>+15 s</Button>
-      <Button variant="outline" size="sm" onClick={onSkip}>Pular</Button>
+      <Button variant="outline" size="sm" onClick={onDone}>Pular</Button>
     </div>
   )
 }

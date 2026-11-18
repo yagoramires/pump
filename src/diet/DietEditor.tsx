@@ -24,9 +24,8 @@ const CONFIRM = {
   all: { title: 'Apagar todos os cardápios?', text: 'A aba Dieta volta ao convite. O histórico fica.' },
 }
 
-const uuid = () => crypto.randomUUID()
-const fresh = <T extends { id: string }>(x: T): T => ({ ...x, id: uuid() })
-const newMenu = (n: number): Menu => ({ id: uuid(), name: `Cardápio ${n}`, meals: [] })
+const fresh = <T extends { id: string }>(x: T): T => ({ ...x, id: crypto.randomUUID() })
+const newMenu = (n: number): Menu => ({ id: crypto.randomUUID(), name: `Cardápio ${n}`, meals: [] })
 const copyMenu = (m: Menu): Menu => {
   const c = structuredClone(m)
   return { ...fresh(c), name: `${m.name} (cópia)`, meals: c.meals.map((ml) => ({ ...fresh(ml), options: ml.options.map((o) => ({ ...fresh(o), items: o.items.map(fresh) })) })) }
@@ -88,9 +87,9 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
     setMenuId(rest[0].id)
   }
   const addMeal = () =>
-    patchMenu((m) => ({ ...m, meals: [...m.meals, { id: uuid(), name: `Refeição ${m.meals.length + 1}`, time: '', options: [{ id: uuid(), items: [] }] }] }))
+    patchMenu((m) => ({ ...m, meals: [...m.meals, { id: crypto.randomUUID(), name: `Refeição ${m.meals.length + 1}`, time: '', options: [{ id: crypto.randomUUID(), items: [] }] }] }))
   const addOption = (meal: Meal) => {
-    patchMeal(meal.id, (m) => ({ ...m, options: [...m.options, { id: uuid(), items: [] }] }))
+    patchMeal(meal.id, (m) => ({ ...m, options: [...m.options, { id: crypto.randomUUID(), items: [] }] }))
     setOptOf((o) => ({ ...o, [meal.id]: meal.options.length }))
   }
   const removeOption = (meal: Meal, oi: number) => {

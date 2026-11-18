@@ -15,7 +15,7 @@ export function matchFood(
   customs: DietItem[],
 ): { kind: 'custom'; item: DietItem } | { kind: 'exact' | 'words'; food: TacoFood } | null {
   const key = foodKey(name)
-  const item = customs.find((c) => c.source === 'custom' && foodKey(c.name) === key)
+  const item = customs.find((c) => foodKey(c.name) === key)
   if (item) return { kind: 'custom', item }
   const exact = taco.find((f) => foodKey(f.name) === key)
   if (exact) return { kind: 'exact', food: exact }

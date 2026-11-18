@@ -40,7 +40,7 @@ export const daysWithoutBackup = (s: Settings, today: string): number | undefine
   return since ? daysBetween(since, today) : undefined
 }
 
-export const BACKUP_REMINDER_DAYS = 14
+const BACKUP_REMINDER_DAYS = 14
 
 export const backupDue = (s: Settings, today: string): boolean => (daysWithoutBackup(s, today) ?? 0) >= BACKUP_REMINDER_DAYS
 

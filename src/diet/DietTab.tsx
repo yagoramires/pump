@@ -10,7 +10,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { SheetBody, SheetRow } from '@/components/SheetRow'
 import { formatDec } from '@/lib/number'
 import { cn } from '@/lib/utils'
-import { currentMealId, daySummary, mealOptions, optionLetter, setDayFree, sortedMeals, toggleMeal } from './day'
+import { currentMealId, daySummary, mealOptions, optionLetter, sortedMeals, toggleMeal } from './day'
 import { kcalOf } from './food'
 import { savePlan } from './plan'
 import { useDietToday } from './useDietToday'
@@ -176,7 +176,7 @@ export function DietTab() {
                   <DrawerDescription className="sr-only">Mais opções da dieta</DrawerDescription>
                   <ul className={SHEET_CARD}>
                     {plan.menus.length > 1 && <SheetRow icon={<ListChecks size={18} className="text-accent" aria-hidden="true" />} label="Cardápio de hoje" onClick={() => setSheet('menus')} />}
-                    <SheetRow icon={<Sparkles size={18} className="text-accent" aria-hidden="true" />} label={day.free ? 'Desfazer dia livre' : 'Dia livre'} onClick={() => { setSheet(undefined); act((d) => setDayFree(d, !d.free)) }} />
+                    <SheetRow icon={<Sparkles size={18} className="text-accent" aria-hidden="true" />} label={day.free ? 'Desfazer dia livre' : 'Dia livre'} onClick={() => { setSheet(undefined); act((d) => ({ ...d, free: !d.free })) }} />
                     <SheetRow icon={<Pencil size={18} className="text-accent" aria-hidden="true" />} label="Editar cardápio" onClick={() => { setSheet(undefined); setView('edit') }} />
                   </ul>
                 </>

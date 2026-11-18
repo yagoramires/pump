@@ -14,8 +14,6 @@ export const setDone = (s: WorkoutSession, exIdx: number, setIdx: number, v: Set
   exercises: s.exercises.map((e, i) => (i === exIdx ? { ...e, sets: e.sets.map((d, j) => (j === setIdx ? v : d)) } : e)),
 })
 
-export const setRestEnd = (s: WorkoutSession, endAt: number | undefined): WorkoutSession => ({ ...s, restEndsAt: endAt })
-
 export const completeSession = (s: WorkoutSession, now: Date): WorkoutSession => ({
   ...s,
   completedAt: now.toISOString(),

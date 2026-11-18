@@ -5,9 +5,9 @@ import { isObj } from '@/schema'
 import { SETS } from './limits'
 import { PLAN_DEFAULTS, newCustomExercise, toPlanExercise } from './exercises'
 
-export type Dia = 'dom' | 'seg' | 'ter' | 'qua' | 'qui' | 'sex' | 'sab'
-export interface PumpExercicio { nome: string; series: number; reps: string; cargaKg?: number; descansoSeg?: number; obs?: string }
-export interface PumpTreino { letra: string; nome: string; dias: Dia[]; exercicios: PumpExercicio[] }
+type Dia = 'dom' | 'seg' | 'ter' | 'qua' | 'qui' | 'sex' | 'sab'
+interface PumpExercicio { nome: string; series: number; reps: string; cargaKg?: number; descansoSeg?: number; obs?: string }
+interface PumpTreino { letra: string; nome: string; dias: Dia[]; exercicios: PumpExercicio[] }
 export type PumpPlanoFile = typeof HEADER & { treinos: PumpTreino[]; dieta?: unknown }
 
 const DIAS: Dia[] = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab']

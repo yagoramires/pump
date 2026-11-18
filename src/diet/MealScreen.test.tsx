@@ -4,7 +4,7 @@ import { clear } from 'idb-keyval'
 import { renderLoaded } from '../../test/render'
 import { load, resetStoreForTests, save } from '@/storage/db'
 import type { DietDay, DietItem, DietPlan, Menu } from './types'
-import { dayFromMenu, setDayFree, toggleMeal } from './day'
+import { dayFromMenu, toggleMeal } from './day'
 import { MealScreen } from './MealScreen'
 
 const it_ = (id: string, name: string, kcal: number, grams = 100, source: DietItem['source'] = 'custom'): DietItem => ({ id, name, grams, per100: { kcal, p: 10, c: 20, f: 5 }, source })
@@ -120,7 +120,7 @@ test('refeição livre desabilita o toggle e esconde ações de item', async () 
 })
 
 test('dia livre desabilita o toggle, Comi esta e as ações de item', async () => {
-  await open({ day: setDayFree(dayFromMenu(menuA), true) })
+  await open({ day: { ...dayFromMenu(menuA), free: true } })
   expect(screen.getByRole('button', { name: 'Comi esta' })).toBeDisabled()
   expect(screen.getByRole('radio', { name: 'B' })).toBeDisabled()
   expect(screen.queryByRole('button', { name: /Frango/ })).not.toBeInTheDocument()

@@ -3,7 +3,7 @@ import { usePersisted } from '@/storage/db'
 import { useToday } from '@/lib/useToday'
 import { dayOf, resetDay, touched, updateDay } from './day'
 
-export type Act = (f: (d: DietDay) => DietDay) => void
+type Act = (f: (d: DietDay) => DietDay) => void
 
 /** o dia de dieta de hoje e as ações sobre ele; toda ação relê a hora (`tick`) e grava no dia que ela devolve */
 export function useDietToday() {

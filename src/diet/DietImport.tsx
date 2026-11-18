@@ -48,7 +48,9 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   const anamnesis = edited ?? profile.dietAnamnesis ?? {}
 
   const copyPrompt = async () => {
-    const dietAnamnesis = anamnesis as DietAnamnesis
+    const { goal } = anamnesis
+    if (!goal) return
+    const dietAnamnesis = { ...anamnesis, goal }
     setProfile((p) => ({ ...p, dietAnamnesis }))
     toast((await copyText(buildDietPrompt({ ...profile, dietAnamnesis }))) ? 'Prompt copiado' : 'Não consegui copiar. Tente de novo.')
   }

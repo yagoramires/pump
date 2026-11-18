@@ -1,6 +1,6 @@
 import type { SessionExercise, SetDone, WorkoutLog, WorkoutSession } from './types'
 
-export const repsNumber = (reps: string): number => Number(/\d+/.exec(reps)?.[0] ?? 0)
+const repsNumber = (reps: string): number => Number(/\d+/.exec(reps)?.[0] ?? 0)
 
 const doneSets = (s: WorkoutSession) => s.exercises.flatMap((e) => e.sets).filter((d): d is SetDone => d !== null)
 

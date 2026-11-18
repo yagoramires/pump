@@ -8,9 +8,11 @@ import { Toaster } from '@/components/ui/sonner'
 import { dietDay } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
 import { EvolutionTab } from './EvolutionTab'
-import { generatePdf, sharePdf } from './pdf/generate'
+import { generatePdf } from './pdf/generate'
+import { shareFile } from '@/lib/share'
 
-vi.mock('./pdf/generate', () => ({ generatePdf: vi.fn().mockResolvedValue(new Blob(['%PDF'], { type: 'application/pdf' })), sharePdf: vi.fn().mockResolvedValue('shared') }))
+vi.mock('./pdf/generate', () => ({ generatePdf: vi.fn().mockResolvedValue(new Blob(['%PDF'], { type: 'application/pdf' })) }))
+vi.mock('@/lib/share', () => ({ shareFile: vi.fn().mockResolvedValue('shared') }))
 
 beforeEach(async () => {
   await clear()
@@ -43,7 +45,7 @@ test('Gerar PDF vira Compartilhar PDF e compartilha pump-evolucao-<dia>.pdf', as
   await renderLoaded(<EvolutionTab />)
   await user.click(await screen.findByRole('button', { name: 'Gerar PDF' }))
   await user.click(await screen.findByRole('button', { name: 'Compartilhar PDF' }))
-  expect(vi.mocked(sharePdf)).toHaveBeenCalledWith(expect.any(Blob), expect.stringMatching(/^pump-evolucao-/))
+  expect(vi.mocked(shareFile)).toHaveBeenCalledWith(expect.objectContaining({ name: expect.stringMatching(/^pump-evolucao-.*\.pdf$/), type: 'application/pdf' }))
 })
 test('erro ao gerar o PDF mostra toast', async () => {
   const user = userEvent.setup()

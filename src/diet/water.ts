@@ -1,7 +1,7 @@
 import type { WaterDay, WaterLog, WaterSettings } from './types'
 
 export const ML_PER_KG = 35
-export const DEFAULT_GOAL_ML = 2000
+const DEFAULT_GOAL_ML = 2000
 export const WATER_LIMITS = { goalMl: [250, 10000], cupMl: [50, 1000] } as const
 
 /** ligar: volta a configuração salva; na primeira vez, a meta do peso arredondada pra 250 (sem peso, 2 L) */

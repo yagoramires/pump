@@ -4,7 +4,7 @@ import { imageUrl } from '@/catalog/catalog'
 import { PREVIEW_CACHE } from '@/catalog/urls'
 import { usePersisted } from '@/storage/db'
 
-export const planImageUrls = (plan: WorkoutPlan): string[] => [
+const planImageUrls = (plan: WorkoutPlan): string[] => [
   ...new Set(plan.workouts.flatMap((w) => w.exercises.flatMap((e) => e.images.map(imageUrl)))),
 ]
 

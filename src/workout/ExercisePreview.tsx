@@ -12,7 +12,7 @@ export function ExercisePreview({ exercise, onClose }: { exercise: SessionExerci
   const steps = exercise.instructions.filter(Boolean)
   useEffect(() => {
     if (images.length < 2) return
-    const id = setInterval(() => setFrame((f) => (f + 1) % 2), 1000)
+    const id = setInterval(() => setFrame((f) => (f + 1) % images.length), 1000)
     return () => clearInterval(id)
   }, [images.length])
 

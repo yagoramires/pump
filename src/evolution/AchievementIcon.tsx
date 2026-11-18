@@ -1,4 +1,3 @@
-import { createElement } from 'react'
 import { CalendarCheck, Camera, Dumbbell, GlassWater, ListChecks, Percent, Sparkles, Timer, TrendingUp, Utensils, type LucideIcon } from 'lucide-react'
 import type { AchievementId } from './achievements'
 
@@ -20,4 +19,7 @@ const ICON: Record<AchievementId, LucideIcon> = {
   'water-7': GlassWater,
 }
 
-export const AchievementIcon = ({ id }: { id: AchievementId }) => createElement(ICON[id], { size: 22, 'aria-hidden': true })
+export function AchievementIcon({ id }: { id: AchievementId }) {
+  const Icon = ICON[id]
+  return <Icon size={22} aria-hidden />
+}

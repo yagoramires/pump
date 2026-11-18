@@ -17,7 +17,7 @@ import { ExercisePreview } from './ExercisePreview'
 import { SetTable } from './SetTable'
 import { RestCard } from './RestCard'
 import { workoutForDate } from './schedule'
-import { completeSession, setDone, setRestEnd, startSession } from './session'
+import { completeSession, setDone, startSession } from './session'
 import { previousSets, sessionStats } from './stats'
 import { isRest, restRecord } from './rest'
 import { unlockAudio } from './restTimer'
@@ -69,7 +69,7 @@ export function TreinoTab() {
       }),
     [setLog, today],
   )
-  const finishRest = useCallback(() => patch((s) => (s.restEndsAt === undefined ? s : setRestEnd(s, undefined))), [patch])
+  const finishRest = useCallback(() => patch((s) => (s.restEndsAt === undefined ? s : { ...s, restEndsAt: undefined })), [patch])
   const closePreview = useCallback(() => setPreview(undefined), [])
 
   if (editingPlan) return <Overlay><PlanEditor initial={plan} onSave={(p) => { setPlan(p); setEditingPlan(false) }} onCancel={() => setEditingPlan(false)} /></Overlay>
@@ -141,7 +141,7 @@ export function TreinoTab() {
       const s = current(prev)
       const marked = !s.exercises[exIdx].sets[setIdx] // decide no último valor salvo: dois toques rápidos desmarcam
       const next = setDone(s, exIdx, setIdx, marked ? v : null)
-      return { ...prev, [today]: marked ? setRestEnd(next, Date.now() + restSec * 1000) : next }
+      return { ...prev, [today]: marked ? { ...next, restEndsAt: Date.now() + restSec * 1000 } : next }
     })
     if (!saved[today]?.exercises[exIdx].sets[setIdx]) return
     setRestTotal(restSec)
@@ -217,12 +217,11 @@ export function TreinoTab() {
         <RestCard
           endAt={session.restEndsAt}
           totalSec={restTotal}
-          onSkip={finishRest}
+          onDone={finishRest}
           onAdd15={() => {
-            patch((s) => setRestEnd(s, (s.restEndsAt ?? Date.now()) + 15_000))
+            patch((s) => ({ ...s, restEndsAt: (s.restEndsAt ?? Date.now()) + 15_000 }))
             setRestTotal((t) => t && t + 15)
           }}
-          onFinish={finishRest}
         />
       )}
       <div className="fixed bottom-[calc(var(--nav-h)+12px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2">

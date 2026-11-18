@@ -1,4 +1,4 @@
-import { completeSession, setDone, setRestEnd, startSession } from './session'
+import { completeSession, setDone, startSession } from './session'
 import { workoutOf } from '../../test/helpers'
 
 test('sessão é cópia completa: editar o plano depois não muda a sessão', () => {
@@ -16,10 +16,8 @@ test('setDone marca e desmarca sem mutar; o mesmo exercício duas vezes fica sep
   expect(s1.exercises[1].sets).toEqual([{ reps: '10', weightKg: 12 }, null])
   expect(setDone(s1, 1, 0, null).exercises[1].sets[0]).toBeNull()
 })
-test('setRestEnd e completeSession', () => {
-  const s = setRestEnd(startSession(workoutOf([{}]), '2026-11-16'), 123)
-  expect(s.restEndsAt).toBe(123)
-  const c = completeSession(s, new Date(2026, 10, 16, 19))
+test('completeSession marca a hora e encerra o descanso', () => {
+  const c = completeSession({ ...startSession(workoutOf([{}]), '2026-11-16'), restEndsAt: 123 }, new Date(2026, 10, 16, 19))
   expect(c.completedAt).toBeDefined(); expect(c.restEndsAt).toBeUndefined()
 })
 test('startSession grava startedAt', () => {

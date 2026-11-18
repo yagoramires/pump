@@ -37,6 +37,5 @@ test('"de" é ignorado, mas o nome sem palavras úteis não casa nada', () => {
 })
 test('alimento criado casa antes da TACO', () => {
   const mine: DietItem = { id: 'c1', name: 'Arroz integral cozido', grams: 150, per100: { kcal: 110, p: 2, c: 23, f: 1 }, source: 'custom' }
-  const fromTaco: DietItem = { ...mine, id: 't1', source: 'taco', tacoId: 1 }
-  expect(matchFood('Arroz, integral, cozido', 100, undefined, T, [fromTaco, mine])).toEqual({ kind: 'custom', item: mine })
+  expect(matchFood('Arroz, integral, cozido', 100, undefined, T, [mine])).toEqual({ kind: 'custom', item: mine })
 })

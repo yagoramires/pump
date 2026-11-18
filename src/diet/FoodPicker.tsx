@@ -19,7 +19,7 @@ import { GRAMS } from './limits'
 type Props = {
   title: string
   initialGrams?: number
-  confirmLabel: 'Trocar' | 'Adicionar' | 'Usar'
+  confirmLabel: string
   onPick: (item: DietItem) => void
   onClose: () => void
   extraAction?: { label: string; onClick: () => void }

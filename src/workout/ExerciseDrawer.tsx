@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 
 type Props = {
-  open: boolean
   ex: PlanExercise
   onChange: (next: PlanExercise) => void
   onRemove: () => void
@@ -41,14 +40,14 @@ function Stepper({ label, text, value, step, min, max, onChange, children }: { l
   )
 }
 
-export function ExerciseDrawer({ open, ex, onChange, onRemove, onMoveUp, onMoveDown, onClose }: Props) {
+export function ExerciseDrawer({ ex, onChange, onRemove, onMoveUp, onMoveDown, onClose }: Props) {
   const [menu, setMenu] = useState(false)
   const patch = (p: Partial<PlanExercise>) => onChange({ ...ex, ...p })
   const kg = useNumberDraft(ex.weightKg, 0, Infinity, (n) => n != null && patch({ weightKg: clamp(n, 0, MAX_KG) }))
   const inputProps = { autoComplete: 'off', enterKeyHint: 'done' as const, onFocus: select }
 
   return (
-    <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
+    <Drawer open onOpenChange={(o) => !o && onClose()}>
       <DrawerContent>
         <div className="px-4 pb-5">
           <div className="flex items-start justify-between gap-2 pb-2">

@@ -7,10 +7,10 @@ import { asFood, hasValues } from './food'
 import { round1 } from '@/lib/number'
 
 export interface PumpAlimento { nome: string; gramas: number; porcao?: string; kcal?: number; proteinaG?: number; carboG?: number; gorduraG?: number }
-export interface PumpOpcao { nome?: string; alimentos: PumpAlimento[] }
-export interface PumpRefeicao { nome: string; horario: string; opcoes: PumpOpcao[] }
-export interface PumpMacros { proteinaG: number; carboG: number; gorduraG: number }
-export interface PumpCardapio { nome: string; metaKcal?: number; macros?: PumpMacros; refeicoes: PumpRefeicao[] }
+interface PumpOpcao { nome?: string; alimentos: PumpAlimento[] }
+interface PumpRefeicao { nome: string; horario: string; opcoes: PumpOpcao[] }
+interface PumpMacros { proteinaG: number; carboG: number; gorduraG: number }
+interface PumpCardapio { nome: string; metaKcal?: number; macros?: PumpMacros; refeicoes: PumpRefeicao[] }
 export interface PumpDieta { cardapios: PumpCardapio[] }
 
 type Obj = Record<string, unknown>
@@ -55,19 +55,19 @@ function parseMeal(r: unknown, tag: string, problems: string[]): PumpRefeicao {
   return { nome, horario, opcoes }
 }
 
-/** `c` = número do cardápio quando o arquivo usa "cardapios"; sem ele, as mensagens são as do formato de um cardápio só */
-function parseMenu(d: Obj, c: number | undefined, problems: string[]): PumpCardapio {
-  const pre = c === undefined ? '' : `Cardápio ${c}: `
-  const nome = c === undefined ? 'Cardápio' : str(d.nome)
+/** `tag` ("Cardápio 2") só quando o arquivo usa "cardapios"; sem ele, as mensagens são as do formato de um cardápio só */
+function parseMenu(d: Obj, tag: string | undefined, problems: string[]): PumpCardapio {
+  const pre = tag === undefined ? '' : `${tag}: `
+  const nome = tag === undefined ? 'Cardápio' : str(d.nome)
   if (!nome) problems.push(`${pre}falta o nome`)
   const list = Array.isArray(d.refeicoes) ? d.refeicoes : []
-  if (list.length === 0) problems.push(c === undefined ? 'Cardápio sem refeições' : `${pre}sem refeições`)
-  if (list.length > MAX_MEALS) problems.push(c === undefined ? `Cardápio com mais de ${MAX_MEALS} refeições` : `${pre}mais de ${MAX_MEALS} refeições`)
-  const metaKcal = d.metaKcal ?? undefined
+  if (list.length === 0) problems.push(tag === undefined ? 'Cardápio sem refeições' : `${pre}sem refeições`)
+  if (list.length > MAX_MEALS) problems.push(tag === undefined ? `Cardápio com mais de ${MAX_MEALS} refeições` : `${pre}mais de ${MAX_MEALS} refeições`)
+  const metaKcal = d.metaKcal === null ? undefined : d.metaKcal
   if (metaKcal !== undefined && !(Number.isInteger(metaKcal) && num(metaKcal, ...GOAL_KCAL))) problems.push(`${pre}metaKcal fora da faixa (${GOAL_KCAL[0]} a ${GOAL_KCAL[1]})`)
   const m = isObj(d.macros) ? d.macros : undefined
-  if (d.macros != null && !(m && num(m.proteinaG, ...MACRO_G) && num(m.carboG, ...MACRO_G) && num(m.gorduraG, ...MACRO_G))) problems.push(`${pre}macros fora da faixa (${MACRO_G[0]} a ${MACRO_G[1]})`)
-  const refeicoes = list.map((r: unknown, n) => parseMeal(r, c === undefined ? `Refeição ${n + 1}` : `Cardápio ${c}, refeição ${n + 1}`, problems))
+  if (d.macros !== undefined && d.macros !== null && !(m && num(m.proteinaG, ...MACRO_G) && num(m.carboG, ...MACRO_G) && num(m.gorduraG, ...MACRO_G))) problems.push(`${pre}macros fora da faixa (${MACRO_G[0]} a ${MACRO_G[1]})`)
+  const refeicoes = list.map((r: unknown, n) => parseMeal(r, tag === undefined ? `Refeição ${n + 1}` : `${tag}, refeição ${n + 1}`, problems))
   return {
     nome,
     ...(metaKcal !== undefined && { metaKcal: metaKcal as number }),
@@ -86,7 +86,7 @@ export function parseDietFormat(text: string): PumpDieta {
   if (Array.isArray(d.cardapios)) {
     if (d.cardapios.length === 0) problems.push('Dieta sem cardápios')
     if (d.cardapios.length > MAX_MENUS) problems.push(`Mais de ${MAX_MENUS} cardápios`)
-    cardapios = d.cardapios.map((x: unknown, i) => parseMenu(isObj(x) ? x : {}, i + 1, problems))
+    cardapios = d.cardapios.map((x: unknown, i) => parseMenu(isObj(x) ? x : {}, `Cardápio ${i + 1}`, problems))
   } else cardapios = [parseMenu(d, undefined, problems)]
   if (problems.length) throw new FormatError(problems)
   return { cardapios }

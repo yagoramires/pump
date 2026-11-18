@@ -19,3 +19,16 @@ test('fileToJpeg: iOS 15 recusa imageOrientation, tenta de novo sem opções', a
   expect(create).toHaveBeenLastCalledWith(file)
   expect(bmp.close).toHaveBeenCalled()
 })
+test('fileToJpeg reduz o lado maior pra 1280 e não amplia foto menor', async () => {
+  const sizes: number[][] = []
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({ drawImage: vi.fn() } as never)
+  vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockImplementation(function (this: HTMLCanvasElement) {
+    sizes.push([this.width, this.height])
+    return 'data:image/jpeg;base64,X'
+  })
+  for (const [width, height] of [[4032, 3024], [800, 600]]) {
+    vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue({ width, height, close: vi.fn() }))
+    await fileToJpeg(new File(['x'], 'a.jpg', { type: 'image/jpeg' }))
+  }
+  expect(sizes).toEqual([[1280, 960], [800, 600]])
+})

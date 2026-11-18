@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 import type { DietItem, DietLog, DietPlan, Meal, Menu } from './types'
 import {
   addExtra, chooseOption, currentMealId, currentMenu, dayFromMenu, dayOf, dayStatus, daySummary, freeCount, mealOptions, removeItem, resetDay,
-  setDayFree, setMealFree, skipItem, sortedMeals, swapItem, swapMeal, toggleMeal, touched, undoSwap, updateDay,
+  setMealFree, skipItem, sortedMeals, swapItem, swapMeal, toggleMeal, touched, undoSwap, updateDay,
 } from './day'
 import { countInWeekBefore } from '@/lib/date'
 
@@ -144,12 +144,12 @@ describe('day', () => {
     expect(setMealFree(d, 'm1', false).meals[0]).toMatchObject({ done: false, free: false })
     expect(daySummary(setMealFree(d, 'm1', false)).kcal).toBe(760)
 
-    const f = setDayFree(d, true)
+    const f = { ...d, free: true }
     s = daySummary(f)
     expect(s.kcal).toBe(0)
     expect(s.p).toBe(0)
     expect(s.dayFree).toBe(true)
-    expect(daySummary(setDayFree(f, false)).kcal).toBe(260)
+    expect(daySummary({ ...f, free: false }).kcal).toBe(260)
   })
 
   test('troca substitui o item e conta como troca; trocar de novo substitui a troca', () => {
@@ -195,7 +195,6 @@ describe('day', () => {
     swapItem(d, 'm1', 'i1', it('s', 's', 1))
     swapMeal(d, 'm1', { name: 'x', items: [] })
     setMealFree(d, 'm1', true)
-    setDayFree(d, true)
     expect(d).toEqual(snap)
   })
 
@@ -211,7 +210,7 @@ describe('day', () => {
 
   test('livre, troca de refeição e extra também contam como tocado', () => {
     const day = dayFromMenu(menuA)
-    for (const d of [setDayFree(day, true), setMealFree(day, 'm2', true), swapMeal(day, 'm1', { name: 'B', items: [] }), addExtra(day, 'm1', it('e1', 'Extra', 50))])
+    for (const d of [{ ...day, free: true }, setMealFree(day, 'm2', true), swapMeal(day, 'm1', { name: 'B', items: [] }), addExtra(day, 'm1', it('e1', 'Extra', 50))])
       expect(dayOf({ d }, planB, 'd')?.menuId).toBe('A')
   })
 
@@ -233,11 +232,11 @@ describe('day', () => {
   test('countInWeekBefore(freeCount) conta os livres da semana antes da data (domingo a sábado)', () => {
     const twoFree = setMealFree(setMealFree(dayFromMenu(menuA), 'm1', true), 'm2', true)
     const log: DietLog = {
-      '2026-11-14': setDayFree(dayFromMenu(menuA), true), // sábado da semana anterior
+      '2026-11-14': { ...dayFromMenu(menuA), free: true }, // sábado da semana anterior
       '2026-11-15': twoFree, // domingo: 2 refeições livres = 2 usos
-      '2026-11-16': setDayFree(twoFree, true), // segunda: dia livre = 1 uso, mesmo com refeições livres
+      '2026-11-16': { ...twoFree, free: true }, // segunda: dia livre = 1 uso, mesmo com refeições livres
       '2026-11-17': allDone(menuA),
-      '2026-11-20': setDayFree(dayFromMenu(menuA), true),
+      '2026-11-20': { ...dayFromMenu(menuA), free: true },
     }
     expect(countInWeekBefore(log, '2026-11-15', freeCount)).toBe(0)
     expect(countInWeekBefore(log, '2026-11-16', freeCount)).toBe(2)
@@ -252,10 +251,10 @@ describe('day', () => {
     const log: DietLog = {
       '2026-11-15': freeMealDay, // dom: refeição livre + resto feito
       '2026-11-16': allDone(menuA),
-      '2026-11-17': setDayFree(dayFromMenu(menuA), true), // ter: dia livre, 2º uso
+      '2026-11-17': { ...dayFromMenu(menuA), free: true }, // ter: dia livre, 2º uso
       '2026-11-18': freeMealDay, // qua: refeição livre, 3º uso
       '2026-11-19': toggleMeal(dayFromMenu(menuA), 'm1'), // qui: incompleto
-      '2026-11-22': setDayFree(dayFromMenu(menuA), true), // dom seguinte: 1º uso da semana
+      '2026-11-22': { ...dayFromMenu(menuA), free: true }, // dom seguinte: 1º uso da semana
       '2026-11-23': setMealFree(setMealFree(allDone(menuA), 'm1', true), 'm2', true), // seg: 2 livres no mesmo dia
     }
     expect(dayStatus(log, '2026-11-15')).toBe('full')

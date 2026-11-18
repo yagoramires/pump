@@ -1,10 +1,12 @@
-import { previousSets, repsNumber, sessionStats } from './stats'
+import { previousSets, sessionStats } from './stats'
 import { startSession } from './session'
 import { pe, workoutOf } from '../../test/helpers'
 import type { SetDone } from './types'
 
-test('repsNumber pega o primeiro número', () => {
-  expect(repsNumber('10')).toBe(10); expect(repsNumber('10-12')).toBe(10); expect(repsNumber('falha')).toBe(0)
+test('volume usa o primeiro número das reps; sem número conta 0', () => {
+  const s = startSession(workoutOf([{ sets: 3 }]), '2026-11-16')
+  s.exercises[0].sets = [{ reps: '10', weightKg: 10 }, { reps: '10-12', weightKg: 10 }, { reps: 'falha', weightKg: 10 }]
+  expect(sessionStats(s, new Date()).volumeKg).toBe(200)
 })
 test('sessionStats: feitas, total, volume e tempo', () => {
   const s = { ...startSession(workoutOf([{ sets: 3 }, { sets: 2 }]), '2026-11-16', new Date(2026, 10, 16, 18, 0)) }

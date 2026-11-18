@@ -9,17 +9,17 @@ import { MAX_KG } from './limits'
 test('séries vão até 20, como no formato: um plano importado com 12 séries segue editável', async () => {
   const onChange = vi.fn()
   const user = userEvent.setup()
-  const { rerender } = render(<ExerciseDrawer open ex={pe({ sets: 12 })} onChange={onChange} onRemove={vi.fn()} onClose={vi.fn()} />)
+  const { rerender } = render(<ExerciseDrawer ex={pe({ sets: 12 })} onChange={onChange} onRemove={vi.fn()} onClose={vi.fn()} />)
   await user.click(screen.getByRole('button', { name: 'Aumentar séries' }))
   expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ sets: 13 }))
-  rerender(<ExerciseDrawer open ex={pe({ sets: 20 })} onChange={onChange} onRemove={vi.fn()} onClose={vi.fn()} />)
+  rerender(<ExerciseDrawer ex={pe({ sets: 20 })} onChange={onChange} onRemove={vi.fn()} onClose={vi.fn()} />)
   expect(screen.getByRole('button', { name: 'Aumentar séries' })).toBeDisabled()
 })
 
 test('B9: a carga digitada não sobrevive quando o exercício muda por outro caminho (reps, outro valor)', async () => {
   const onChange = vi.fn()
   const user = userEvent.setup()
-  const props = { open: true, onChange, onRemove: vi.fn(), onClose: vi.fn() }
+  const props = { onChange, onRemove: vi.fn(), onClose: vi.fn() }
   const { rerender } = render(<ExerciseDrawer {...props} ex={pe({ weightKg: 20 })} />)
   const kg = screen.getByRole('textbox', { name: 'Carga em kg' })
   await user.clear(kg)
@@ -33,7 +33,7 @@ test('B9: a carga digitada não sobrevive quando o exercício muda por outro cam
 let current: PlanExercise
 function Harness() {
   const [ex, setEx] = useState(pe({ weightKg: 20 }))
-  return <ExerciseDrawer open ex={ex} onChange={(next) => { current = next; setEx(next) }} onRemove={vi.fn()} onClose={vi.fn()} />
+  return <ExerciseDrawer ex={ex} onChange={(next) => { current = next; setEx(next) }} onRemove={vi.fn()} onClose={vi.fn()} />
 }
 
 test('carga: o texto digitado fica enquanto digita, mesmo quando o valor é limitado; o blur mostra o valor', async () => {
