@@ -6,17 +6,26 @@ import { restRecord } from '@/workout/rest'
 const done = (date: string, sets: { id: string; kg: number }[] = []) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', completedAt: `${date}T19:00:00.000Z`, exercises: sets.map((s) => ({ ...pe({ exerciseId: s.id, name: s.id }), sets: [{ reps: '10', weightKg: s.kg }] })) })
 const plan = (n: number) => ({ workouts: Array.from({ length: n }, (_, i) => ({ id: `w${i}`, label: 'A', name: 'A', exercises: [] })) })
 const goalInput = (log: object, daysPerWeek?: number, workouts = 1) => evolutionInput({ workoutLog: log as never, workoutPlan: plan(workouts), measurements: [], photoSets: [], profile: { sex: 'M', heightCm: 178, daysPerWeek } })
+// 1ª sessão numa semana anterior: a semana da 1ª sessão é parcial e nunca zera, então ela vem antes (a semana 8-14 fica vazia e zera)
+const first = { '2026-11-01': done('2026-11-01') }
 const get = (list: Achievement[], id: AchievementId) => list.find((a) => a.id === id)!
 
 test('sequência: semana fechada abaixo da meta zera; na meta mantém', () => {
   // semana dom 15 a sáb 21, meta 3: 2 treinos zeram no sábado
-  const below = { '2026-11-16': done('2026-11-16'), '2026-11-17': done('2026-11-17'), '2026-11-23': done('2026-11-23'), '2026-11-24': done('2026-11-24'), '2026-11-25': done('2026-11-25') }
+  const below = { ...first, '2026-11-16': done('2026-11-16'), '2026-11-17': done('2026-11-17'), '2026-11-23': done('2026-11-23'), '2026-11-24': done('2026-11-24'), '2026-11-25': done('2026-11-25') }
   const a = computeAchievements(goalInput(below, 3), '2026-11-26')
   expect(get(a, 'streak-3').earnedAt).toBe('2026-11-25')
   expect(get(a, 'streak-7').progress).toBe('falta 4')
   // meta 2: a mesma semana basta e a sequência segue
-  const b = computeAchievements(goalInput({ '2026-11-16': done('2026-11-16'), '2026-11-17': done('2026-11-17'), '2026-11-23': done('2026-11-23') }, 2), '2026-11-24')
+  const b = computeAchievements(goalInput({ ...first, '2026-11-16': done('2026-11-16'), '2026-11-17': done('2026-11-17'), '2026-11-23': done('2026-11-23') }, 2), '2026-11-24')
   expect(get(b, 'streak-3').earnedAt).toBe('2026-11-23')
+})
+test('sequência: a semana da 1ª sessão é parcial e nunca zera', () => {
+  // começa na quinta 19, meta 4, treina qui/sex/sáb: a sequência de 3 sobrevive ao sábado
+  const log = { '2026-11-19': done('2026-11-19'), '2026-11-20': done('2026-11-20'), '2026-11-21': done('2026-11-21') }
+  const a = computeAchievements(goalInput(log, 4), '2026-11-22')
+  expect(get(a, 'streak-3').earnedAt).toBe('2026-11-21')
+  expect(get(a, 'streak-7').progress).toBe('falta 4')
 })
 test('sequência: semana atual com 0 treinos não zera', () => {
   const log = { '2026-11-16': done('2026-11-16'), '2026-11-17': done('2026-11-17'), '2026-11-18': done('2026-11-18') }
@@ -25,7 +34,7 @@ test('sequência: semana atual com 0 treinos não zera', () => {
   expect(get(a, 'streak-7').progress).toBe('falta 4')
 })
 test('sequência: sem daysPerWeek a meta é o número de treinos do plano', () => {
-  const log = { '2026-11-16': done('2026-11-16'), '2026-11-17': done('2026-11-17'), '2026-11-23': done('2026-11-23') }
+  const log = { ...first, '2026-11-16': done('2026-11-16'), '2026-11-17': done('2026-11-17'), '2026-11-23': done('2026-11-23') }
   expect(get(computeAchievements(goalInput(log, undefined, 2), '2026-11-24'), 'streak-3').earnedAt).toBe('2026-11-23')
   expect(get(computeAchievements(goalInput(log, undefined, 3), '2026-11-24'), 'streak-3').earnedAt).toBeUndefined()
 })
@@ -62,7 +71,7 @@ test('primeira foto e gordura −1 ponto', () => {
 })
 test('progresso da sequência parte da sequência atual, não da melhor', () => {
   const days = ['2026-11-16', '2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20', '2026-11-22'] // 5 na semana (meta 7) zeram no sáb 21; dom 22 recomeça
-  const log = Object.fromEntries(days.map((k) => [k, done(k)]))
+  const log = { ...first, ...Object.fromEntries(days.map((k) => [k, done(k)])) }
   expect(get(computeAchievements(goalInput(log, 7), '2026-11-22'), 'streak-7').progress).toBe('falta 6')
 })
 

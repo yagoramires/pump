@@ -38,6 +38,7 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
   const trained = new Set(sessions.map((s) => s.date))
   const goal = Math.min(7, Math.max(1, d.profile.daysPerWeek ?? d.workoutPlan.workouts.length))
   const thisWeek = weekStart(today)
+  const firstWeek = sessions.length ? weekStart(sessions[0].date) : ''
   const reached = new Map<number, string>()
   let count = 0
   if (sessions.length) {
@@ -46,8 +47,8 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
         count++
         if (!reached.has(count)) reached.set(count, key)
       }
-      // sábado de semana já encerrada abaixo da meta zera; a semana atual nunca zera
-      if (weekday(key) === 6 && key < thisWeek && eachDay(weekStart(key), addDays(key, 1)).filter((k) => trained.has(k)).length < goal) count = 0
+      // sábado de semana já encerrada abaixo da meta zera; a semana atual e a da 1ª sessão (parcial) nunca zeram
+      if (weekday(key) === 6 && key < thisWeek && weekStart(key) !== firstWeek && eachDay(weekStart(key), addDays(key, 1)).filter((k) => trained.has(k)).length < goal) count = 0
     }
   }
   const streakAt = (n: number) => [...reached].find(([c]) => c >= n)?.[1]
