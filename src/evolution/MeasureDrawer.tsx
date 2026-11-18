@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { toast } from 'sonner'
 import type { Profile } from '@/profile/types'
 import type { MeasureFields, Measurement } from './types'
@@ -26,7 +26,7 @@ export function MeasureDrawer({ open, onClose, date }: { open: boolean; onClose:
             {date === todayKey() && <span className="rounded-md border border-border px-1.5 py-0.5 text-[11px] text-text-2">hoje</span>}
           </div>
           <DrawerDescription className="sr-only">Peso e medidas do dia</DrawerDescription>
-          <Form
+          <MeasureForm
             profile={profile}
             initial={list.find((m) => m.date === date)}
             onSave={(fields) => {
@@ -43,7 +43,7 @@ export function MeasureDrawer({ open, onClose, date }: { open: boolean; onClose:
   )
 }
 
-function Form({ profile, initial, onSave }: { profile: Profile; initial?: Measurement; onSave: (f: { [K in Key]?: number | null }) => void }) {
+export function MeasureForm({ profile, initial, onSave, submitLabel = 'Salvar', needWeight, children }: { profile: Profile; initial?: Measurement; onSave: (f: { [K in Key]?: number | null }) => void; submitLabel?: string; needWeight?: boolean; children?: ReactNode }) {
   const fields = FIELDS.filter((f) => f.key !== 'hipCm' || profile.sex === 'F')
   const [text, setText] = useState(() =>
     Object.fromEntries(FIELDS.map(({ key }) => [key, initial?.[key] === undefined ? '' : formatInput(initial[key])])) as Record<Key, string>,
@@ -79,7 +79,8 @@ function Form({ profile, initial, onSave }: { profile: Profile; initial?: Measur
         <span>% de gordura (estimativa)</span>
         <b className={fat === null ? 'text-text-2' : 'text-accent'}>{fat === null ? '—' : `${formatInput(fat)}%`}</b>
       </div>
-      <Button className="mt-3 h-11 w-full rounded-[13px] font-bold" disabled={invalid.length > 0} onClick={() => onSave(parsed)}>Salvar</Button>
+      {children}
+      <Button className="mt-3 h-11 w-full rounded-[13px] font-bold" disabled={invalid.length > 0 || (needWeight && !parsed.weightKg)} onClick={() => onSave(parsed)}>{submitLabel}</Button>
     </>
   )
 }

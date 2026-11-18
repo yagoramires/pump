@@ -13,21 +13,9 @@ import { useImportBackup } from '@/shell/useImportBackup'
 import { BottomBar } from '@/components/BottomBar'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-
-const LABEL = 'label-caps tracking-[0.08em]'
+import { Steps } from './Steps'
 
 type Step = 'perfil' | 'treino' | 'editor' | 'import'
-
-function Steps({ n }: { n: 1 | 2 }) {
-  return (
-    <div className="mb-4">
-      <div className="mb-2 flex gap-1.5" aria-hidden="true">
-        {[1, 2].map((i) => <span key={i} className={cn('h-1 flex-1 rounded-full', i <= n ? 'bg-accent' : 'bg-line')} />)}
-      </div>
-      <div className={LABEL}>{`PASSO ${n} DE 2`}</div>
-    </div>
-  )
-}
 
 export function Onboarding() {
   const [, setSettings] = usePersisted('settings')
@@ -59,7 +47,7 @@ export function Onboarding() {
     return (
       <div className="flex min-h-[calc(100dvh-var(--main-pt)-var(--main-pb))] flex-col gap-4">
         <div>
-          <Steps n={1} />
+          <Steps n={1} total={2} />
           <h1 className="text-[26px] font-bold tracking-tight text-strong">Sobre você</h1>
         </div>
         <ProfileForm submitLabel="Continuar" onDone={() => setStep('treino')} />
@@ -77,7 +65,7 @@ export function Onboarding() {
   return (
     <div className="pb-28">
       <div className="flex items-start justify-between">
-        <div className="flex-1"><Steps n={2} /></div>
+        <div className="flex-1"><Steps n={2} total={2} /></div>
         <Button type="button" variant="ghost" className="-mt-2 text-text-2" onClick={finish}>Pular</Button>
       </div>
       <h1 className="mb-3 text-[26px] font-bold tracking-tight text-strong">Seu treino</h1>
