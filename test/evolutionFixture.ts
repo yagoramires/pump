@@ -70,5 +70,6 @@ export const PROFILES: Record<string, Profile> = {
   loss: profile,
   gain: { sex: 'M', heightCm: 178, dietGoal: 'ganhar' },
   female: { sex: 'F', heightCm: 165, dietGoal: 'ganhar' },
+  neutral: { sex: 'M', heightCm: 178 },
   noHeight: { sex: 'M', heightCm: 0, dietGoal: 'perder' },
 }

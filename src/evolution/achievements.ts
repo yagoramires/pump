@@ -65,9 +65,8 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
     }
   }
 
-  // shortcut: sem objetivo conta como perder até a Task 2 filtrar conquistas de peso por objetivo
-  const dir = goalDirection(d.profile) ?? 'loss'
-  const sign = dir === 'loss' ? 1 : -1
+  const dir = goalDirection(d.profile) // null (manter/vazio): sem conquistas de peso
+  const sign = dir === 'gain' ? -1 : 1
   const weights = series(d.measurements, 'weightKg')
   const w0 = weights[0]?.value
   const wDelta = (w: number) => (w0 === undefined ? 0 : (w0 - w) * sign)
@@ -85,7 +84,7 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
 
   const left = (n: number, have: number) => `falta ${n - have}`
   const mk = (id: AchievementId, title: string, earnedAt?: string, progress?: string): Achievement => ({ id, title, earnedAt, progress: earnedAt ? undefined : progress })
-  const [[ns, s], [nb, b]] = WEIGHT_BADGES[dir]
+  const [[ns, s], [nb, b]] = WEIGHT_BADGES[dir ?? 'loss']
   const list: Achievement[] = [
     mk('first-workout', 'Primeiro treino', total(1)),
     mk('streak-3', '3 treinos seguidos', streakAt(3), left(3, count)),
@@ -96,8 +95,7 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
     mk('workouts-100', '100 treinos', total(100), left(100, sessions.length)),
     mk('record', 'Recorde de carga', record),
     mk('first-photo', 'Primeira foto', byDate(d.photoSets.filter(hasPhoto))[0]?.date),
-    mk('weight-small', s, weightAt(ns), leftKg(ns)),
-    mk('weight-big', b, weightAt(nb), leftKg(nb)),
+    ...(dir ? [mk('weight-small', s, weightAt(ns), leftKg(ns)), mk('weight-big', b, weightAt(nb), leftKg(nb))] : []),
     mk('fat-1', '−1 ponto de gordura', fatAt),
     { ...mk('diet-day', 'Dia no plano', diet.first), diet: true },
     { ...mk('diet-7', '7 dias na dieta', diet.seven, left(7, diet.n)), diet: true },

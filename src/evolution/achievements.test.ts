@@ -28,7 +28,7 @@ test('recorde só depois de já existir o exercício', () => {
 })
 test('peso: direção pelo objetivo', () => {
   const ms = [{ id: '1', date: '2026-11-01', weightKg: 80 }, { id: '2', date: '2026-11-15', weightKg: 78.8 }]
-  const loss = computeAchievements(evolutionInput({ workoutLog: {}, workoutPlan: plan([]), measurements: ms, photoSets: [] }), '2026-11-16')
+  const loss = computeAchievements(evolutionInput({ workoutLog: {}, workoutPlan: plan([]), measurements: ms, photoSets: [] , profile: { sex: 'M', heightCm: 178, dietGoal: 'perder' } }), '2026-11-16')
   expect(get(loss, 'weight-small')).toMatchObject({ title: '−1 kg', earnedAt: '2026-11-15' })
   expect(get(loss, 'weight-big').progress).toBe('falta 3,8 kg')
   const gain = computeAchievements(evolutionInput({ workoutLog: {}, workoutPlan: plan([]), measurements: ms, photoSets: [], profile: { sex: 'M', heightCm: 178, dietGoal: 'ganhar' } }), '2026-11-16')
@@ -106,4 +106,10 @@ test('1º descanso da semana não quebra a sequência; o 2º quebra', () => {
   // semana nova (dom 22) zera a cota: 19, 20, 21, (22 descanso), 23 = 4
   const three = { ...two, '2026-11-21': done('2026-11-21'), '2026-11-22': rest('2026-11-22'), '2026-11-23': done('2026-11-23') }
   expect(get(computeAchievements(evolutionInput({ workoutLog: three, workoutPlan: every, measurements: [], photoSets: [] }), '2026-11-24'), 'streak-7').progress).toBe('falta 3')
+})
+test('sem objetivo de peso, conquistas de peso somem da lista', () => {
+  const ids = computeAchievements(evolutionInput({ profile: { sex: 'M', heightCm: 178 }, measurements: [], photoSets: [] }), '2026-11-20').map((a) => a.id)
+  expect(ids).not.toContain('weight-small')
+  expect(ids).not.toContain('weight-big')
+  expect(ids).toContain('fat-1')
 })
