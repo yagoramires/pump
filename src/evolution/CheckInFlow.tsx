@@ -85,11 +85,11 @@ export function CheckIn({ onClose }: { onClose: () => void }) {
 export function AnamnesisCard({ onStart }: { onStart: () => void }) {
   const [, setSettings] = usePersisted('settings')
   return (
-    <div className="card relative mb-2.5 p-4 pr-12">
+    <div className="card relative mb-2.5 border-accent p-4 pr-12">
       <button type="button" className="icon-btn absolute top-2 right-2" aria-label="Dispensar" onClick={() => setSettings((s) => ({ ...s, anamnesisAt: todayKey() }))}><X size={16} /></button>
       <h2 className="text-[15px] font-semibold text-strong">Complete sua anamnese</h2>
       <p className="mt-1 text-[13px] text-text-2">3 passos rápidos. O que você já respondeu vem preenchido.</p>
-      <Button className="mt-3" onClick={onStart}>Completar</Button>
+      <Button className="mt-3 w-full" onClick={onStart}>Completar</Button>
     </div>
   )
 }
@@ -97,10 +97,10 @@ export function AnamnesisCard({ onStart }: { onStart: () => void }) {
 export function CheckInCard({ due, today, onStart }: { due: string; today: string; onStart: () => void }) {
   const dia = WEEKDAY_LONG[weekday(due)]
   return (
-    <div className="card mb-2.5 p-4">
+    <div className="card mb-2.5 border-accent p-4">
       <h2 className="text-[15px] font-semibold text-strong">Atualizar semana</h2>
       <p className="mt-1 text-[13px] text-text-2">{`${due === today ? 'Hoje é' : 'Era'} ${dia}, seu dia de atualizar.`}</p>
-      <Button className="mt-3" onClick={onStart}>Atualizar</Button>
+      <Button className="mt-3 w-full" onClick={onStart}>Atualizar</Button>
     </div>
   )
 }

@@ -17,8 +17,10 @@ export function AnamnesisFlow({ total, onDone, onBack, first }: { total: 3 | 5; 
   const [draft, setDraft] = useState<Profile>({ ...saved, focus: saved.focus ?? 'hipertrofia' })
   const [step, setStep] = useState(0)
   const title = TITLES[step]
+  // dentro de uma aba (onBack) a barra de abas fica embaixo: o Continuar sobe pra não ficar escondido
+  const bar = onBack ? 'bottom-(--nav-h)' : undefined
   return (
-    <div className="flex min-h-[calc(100dvh-var(--main-pt)-var(--main-pb))] flex-col gap-4 pb-20">
+    <div className="clear-both flex min-h-[calc(100dvh-var(--main-pt)-var(--main-pb))] flex-col gap-4 pb-20">
       {step === 0 && !onBack ? (
         <div>
           <Steps n={1} total={total} />
@@ -34,13 +36,13 @@ export function AnamnesisFlow({ total, onDone, onBack, first }: { total: 3 | 5; 
         <>
           <AboutForm value={draft} onChange={setDraft} />
           {first}
-          <BottomBar><Button type="button" className="w-full" disabled={!draft.heightCm} onClick={() => setStep(1)}>Continuar</Button></BottomBar>
+          <BottomBar className={bar}><Button type="button" className="w-full" disabled={!draft.heightCm} onClick={() => setStep(1)}>Continuar</Button></BottomBar>
         </>
       )}
       {step === 1 && (
         <>
           <GoalsForm value={draft} onChange={setDraft} />
-          <BottomBar><Button type="button" className="w-full" onClick={() => setStep(2)}>Continuar</Button></BottomBar>
+          <BottomBar className={bar}><Button type="button" className="w-full" onClick={() => setStep(2)}>Continuar</Button></BottomBar>
         </>
       )}
       {step === 2 && <DayZero profile={draft} onDone={onDone} />}

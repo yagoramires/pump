@@ -130,9 +130,9 @@ export function EvolutionTab() {
 
   return (
     <div className="pb-24">
-      {cards}
       <div className="label-caps">{`Desde ${formatDayMonth(period.start)} · ${plural(period.days, 'dia', 'dias')}`}</div>
       <h1 className="mt-0.5 mb-3 text-[26px] font-bold tracking-tight text-strong">Evolução</h1>
+      {cards}
 
       <div className="mb-2.5 grid grid-cols-3 gap-2">
         <Kpi label={WEIGHT.label} value={weight ? `${formatKg(weight.last.value)} ${WEIGHT.unit}` : '—'}>
