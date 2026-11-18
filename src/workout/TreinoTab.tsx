@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Check, ChevronRight, Dumbbell, HeartPulse, Moon, Undo2 } from 'lucide-react'
+import { ArrowLeftRight, Check, ChevronRight, Dumbbell, HeartPulse, Moon, Undo2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { SetDone, WorkoutLog, WorkoutSession } from './types'
 import { usePersisted } from '@/storage/db'
@@ -16,12 +16,16 @@ import { ExerciseCard } from './ExerciseCard'
 import { ExercisePreview } from './ExercisePreview'
 import { SetTable } from './SetTable'
 import { RestCard } from './RestCard'
-import { nextWorkout } from './schedule'
+import { nextWorkout, unfinishedSession } from './schedule'
 import { completeSession, setDone, startSession } from './session'
 import { previousSets, sessionStats } from './stats'
 import { isRest, restRecord } from './rest'
 import { unlockAudio } from './restTimer'
 import { isCardio } from './cardio'
+import { UnfinishedCard } from './UnfinishedCard'
+import { SwitchWorkout } from './SwitchWorkout'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
+import type { Workout } from './types'
 
 const firstIncomplete = (s: WorkoutSession): number => s.exercises.findIndex((e) => !isCardio(e) && e.sets.includes(null))
 
@@ -33,6 +37,7 @@ export function TreinoTab() {
   const [log, setLog] = usePersisted('workoutLog')
   const [chosenId, setChosenId] = useState<string>()
   const [editingPlan, setEditingPlan] = useState(false)
+  const [switching, setSwitching] = useState<'list' | Workout>()
   const [preview, setPreview] = useState<number>()
   const [openIdx, setOpenIdx] = useState<'auto' | number | null>('auto')
   const [restTotal, setRestTotal] = useState<number>()
@@ -56,7 +61,9 @@ export function TreinoTab() {
 
   const rest = isRest(log[today])
   const session = rest ? undefined : log[today]
-  const workout = plan.workouts.find((w) => w.id === chosenId) ?? nextWorkout(plan, log)
+  const next = nextWorkout(plan, log)
+  const workout = plan.workouts.find((w) => w.id === chosenId) ?? next
+  const unfinished = unfinishedSession(log, today)
 
   const patch = useCallback(
     (f: (s: NonNullable<typeof session>) => NonNullable<typeof session>) =>
@@ -137,6 +144,18 @@ export function TreinoTab() {
     setRestTotal(restSec)
     if (view.exercises[exIdx].sets.every((d, j) => j === setIdx || d)) setOpenIdx('auto')
   }
+  const start = () => setLog((prev) => ({ ...prev, [today]: current(prev) }))
+  const switchTo = (w: Workout) => {
+    setChosenId(w.id)
+    setOpenIdx('auto')
+    if (session) setLog((prev) => ({ ...prev, [today]: startSession(w, today) }))
+  }
+  const pick = (w: Workout) => {
+    if (w.id === view.workoutId) return setSwitching(undefined)
+    if (session?.exercises.some((e) => e.sets.some(Boolean))) return setSwitching(w)
+    switchTo(w)
+    setSwitching(undefined)
+  }
   const toggleCardio = (exIdx: number) =>
     setLog((prev) => {
       const s = current(prev)
@@ -157,8 +176,12 @@ export function TreinoTab() {
 
   return (
     <div className="pb-24">
+      {unfinished && <UnfinishedCard session={unfinished} setLog={setLog} />}
       <div className="label-caps">{`${formatDayLabel(today)} · TREINO ${view.workoutLabel}`}</div>
       <h1 className="mt-0.5 mb-3 text-[26px] font-bold tracking-tight text-strong">{view.workoutName}</h1>
+      {!session?.completedAt && plan.workouts.length > 1 && (
+        <Button variant="ghost" className="-mt-2 mb-2 h-8 px-1 text-[13px] text-accent" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>
+      )}
 
       <div className="mb-2.5 flex items-center gap-3.5 card p-3.5">
         <div
@@ -217,9 +240,11 @@ export function TreinoTab() {
         {session?.completedAt ? (
           <Button variant="secondary" className="h-11 w-full rounded-[13px] font-bold" disabled><Check aria-hidden="true" /> Treino concluído</Button>
         ) : (
-          <Button className="h-11 w-full rounded-[13px] font-bold" disabled={!session} onClick={conclude}><Check aria-hidden="true" /> Concluir treino</Button>
+          <Button className="h-11 w-full rounded-[13px] font-bold" onClick={session ? conclude : start}>{session ? <><Check aria-hidden="true" /> Concluir treino</> : 'Iniciar treino'}</Button>
         )}
       </div>
+      {switching === 'list' && <SwitchWorkout workouts={plan.workouts} shownId={view.workoutId} nextId={next?.id} onPick={pick} onClose={() => setSwitching(undefined)} />}
+      <ConfirmDialog open={typeof switching === 'object'} title="Trocar de treino?" text="As séries marcadas hoje serão descartadas." confirm="Trocar" destructive onCancel={() => setSwitching(undefined)} onConfirm={() => { if (typeof switching === 'object') switchTo(switching); setSwitching(undefined) }} />
       {preview !== undefined && <ExercisePreview exercise={view.exercises[preview]} onClose={closePreview} />}
     </div>
   )

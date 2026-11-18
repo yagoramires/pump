@@ -231,3 +231,90 @@ test('sem treino em andamento, voltar do segundo plano num novo dia troca o dia'
   expect(await screen.findByText(new RegExp(formatDayLabel('2026-11-17')))).toBeInTheDocument()
   expect(screen.queryByText(new RegExp(formatDayLabel('2026-11-16')))).not.toBeInTheDocument()
 })
+
+const wB = { id: 'b', label: 'B', name: 'Costas e bíceps', exercises: [pe({ exerciseId: 'Remada', name: 'Remada curvada', sets: 2, reps: '10', weightKg: 30, restSec: 60 })] }
+const plano2: WorkoutPlan = { workouts: [plano.workouts[0], wB] }
+const logOntem = (completedAt?: string) => ({
+  '2026-11-15': { date: '2026-11-15', startedAt: new Date(2026, 10, 15, 18, 0).toISOString(), workoutId: 'a', workoutLabel: 'A', workoutName: 'Peito e tríceps', completedAt, exercises: [{ ...plano.workouts[0].exercises[0], sets: [{ reps: '10', weightKg: 40 }, null] }] },
+})
+
+test('abre no próximo treino da fila e Iniciar treino grava a sessão com startedAt', async () => {
+  await save('workoutPlan', plano2)
+  await save('workoutLog', { '2026-11-14': { ...logOntem('2026-11-14T20:00:00.000Z')['2026-11-15'], date: '2026-11-14' } })
+  const user = userEvent.setup()
+  await renderLoaded(<TreinoTab />)
+  expect(await screen.findByRole('heading', { name: 'Costas e bíceps' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Iniciar treino' }))
+  await waitFor(async () => {
+    const s = (await load('workoutLog'))?.['2026-11-16']
+    expect(s?.workoutId).toBe('b')
+    expect(s?.startedAt).toBeDefined()
+  })
+  expect(screen.getByRole('button', { name: 'Concluir treino' })).toBeEnabled()
+  expect(screen.queryByRole('button', { name: 'Descansar hoje' })).not.toBeInTheDocument()
+})
+test('trocar antes de iniciar só muda o treino mostrado', async () => {
+  await save('workoutPlan', plano2)
+  const user = userEvent.setup()
+  await renderLoaded(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: 'Trocar treino' }))
+  const dialog = await screen.findByRole('dialog')
+  expect(within(dialog).getByText('próximo')).toBeInTheDocument()
+  await user.click(within(dialog).getByRole('button', { name: /Costas e bíceps/ }))
+  expect(await screen.findByRole('heading', { name: 'Costas e bíceps' })).toBeInTheDocument()
+  expect(await load('workoutLog')).toBeUndefined()
+})
+test('trocar depois de marcar pede confirmação e substitui a sessão', async () => {
+  await save('workoutPlan', plano2)
+  const user = userEvent.setup()
+  await renderLoaded(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16']).toBeDefined())
+  await user.click(screen.getByRole('button', { name: 'Trocar treino' }))
+  await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: /Costas e bíceps/ }))
+  expect(await screen.findByText('As séries marcadas hoje serão descartadas.')).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Trocar' }))
+  expect(await screen.findByRole('heading', { name: 'Costas e bíceps' })).toBeInTheDocument()
+  await waitFor(async () => {
+    const s = (await load('workoutLog'))?.['2026-11-16']
+    expect(s?.workoutId).toBe('b')
+    expect(s?.exercises[0].sets.filter(Boolean)).toHaveLength(0)
+  })
+})
+test('treino de ontem sem concluir: Concluir grava completedAt naquele dia e a fila avança', async () => {
+  await save('workoutPlan', plano2)
+  await save('workoutLog', logOntem())
+  const user = userEvent.setup()
+  await renderLoaded(<TreinoTab />)
+  expect(await screen.findByText(`Treino A de ${formatDayLabel('2026-11-15')} ficou sem concluir`)).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Concluir' }))
+  await waitFor(async () => {
+    const s = (await load('workoutLog'))?.['2026-11-15']
+    expect(s?.completedAt).toBe(new Date(2026, 10, 15, 23, 59).toISOString())
+    expect(s?.startedAt).toBeUndefined()
+  })
+  expect(await screen.findByRole('heading', { name: 'Costas e bíceps' })).toBeInTheDocument()
+  expect(screen.queryByText(/ficou sem concluir/)).not.toBeInTheDocument()
+})
+test('Descartar remove a sessão, a fila fica no mesmo treino e Desfazer restaura', async () => {
+  await save('workoutPlan', plano2)
+  await save('workoutLog', logOntem())
+  const user = userEvent.setup()
+  await renderLoaded(<><TreinoTab /><Toaster /></>)
+  await user.click(await screen.findByRole('button', { name: 'Descartar' }))
+  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-15']).toBeUndefined())
+  expect(screen.getByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
+  expect(await within(screen.getByRole('region', { name: /Notifications/ })).findByText('Treino descartado')).toBeInTheDocument()
+  await user.click(await screen.findByRole('button', { name: 'Desfazer' }))
+  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-15']).toBeDefined())
+})
+test('treino de hoje em andamento que passa da meia-noite não vira cartão de sem concluir', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16']).toBeDefined())
+  vi.setSystemTime(new Date(2026, 10, 17, 0, 30))
+  await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
+  expect(screen.queryByText(/ficou sem concluir/)).not.toBeInTheDocument()
+})
