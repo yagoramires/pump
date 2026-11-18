@@ -1,8 +1,14 @@
+import * as idb from 'idb-keyval'
 import { clear, set } from 'idb-keyval'
 import type { Profile } from './types'
-import { migrateData, migrateStored } from './migrate'
+import { migrateData, migrateStored, migrationFor } from './migrate'
 import { importBackupFile } from '@/storage/backup'
-import { readCurrent, resetStoreForTests } from '@/storage/db'
+import { readCurrent, readKey, resetStoreForTests } from '@/storage/db'
+
+vi.mock('idb-keyval', async (orig) => {
+  const m = await orig<typeof import('idb-keyval')>()
+  return { ...m, set: vi.fn(m.set) }
+})
 
 beforeEach(async () => {
   await clear()
@@ -56,4 +62,10 @@ test('importBackupFile migra um backup antigo', async () => {
   const data = { profile: { sex: 'F', heightCm: 160, anamnesis: { goal: 'saude' } } }
   await importBackupFile(new File([JSON.stringify({ app: 'pump', version: 1, exportedAt: '2026-11-01T00:00:00Z', data })], 'b.json'))
   expect((await readCurrent('profile')).focus).toBe('condicionamento')
+})
+test('falha ao gravar a migração não rejeita; o cache já tem o valor migrado', async () => {
+  await set('profile', OLD.profile)
+  vi.mocked(idb.set).mockRejectedValueOnce(new Error("cheio"))
+  await expect(migrationFor(readKey('profile'))).resolves.toBeUndefined()
+  expect(await readCurrent('profile')).not.toHaveProperty('weightKg')
 })

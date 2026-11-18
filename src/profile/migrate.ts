@@ -49,6 +49,7 @@ const runs = new WeakMap<Promise<unknown>, Promise<void>>()
 /** uma migração só por leitura do perfil (o teste que zera o store recomeça sozinho) */
 export const migrationFor = (profileRead: Promise<unknown>): Promise<void> => {
   let p = runs.get(profileRead)
-  if (!p) { p = migrateStored(); runs.set(profileRead, p) }
+  // escrita que falhou não derruba o app: o cache já tem o valor migrado e a gravação se repete na próxima abertura
+  if (!p) { p = migrateStored().catch(() => {}); runs.set(profileRead, p) }
   return p
 }
