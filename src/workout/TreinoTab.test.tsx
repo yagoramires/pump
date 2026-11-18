@@ -9,6 +9,7 @@ import { renderLoaded } from '../../test/render'
 import { TreinoTab } from './TreinoTab'
 import { Toaster } from '@/components/ui/sonner'
 import { restRecord } from './rest'
+import { formatDayLabel } from '@/lib/date'
 
 vi.mock('idb-keyval', async (orig) => {
   const m = await orig<typeof import('idb-keyval')>()
@@ -220,4 +221,13 @@ test('iniciar treino depois de marcar descanso substitui o registro', async () =
     expect(s?.exercises[0].sets[0]).toEqual({ reps: '10', weightKg: 40 })
   })
   expect(screen.queryByRole('button', { name: 'Descansar hoje' })).not.toBeInTheDocument()
+})
+test('sem treino em andamento, voltar do segundo plano num novo dia troca o dia', async () => {
+  await renderLoaded(<TreinoTab />)
+  await screen.findByRole('heading', { name: 'Peito e tríceps' })
+  expect(screen.getByText(new RegExp(formatDayLabel('2026-11-16')))).toBeInTheDocument()
+  vi.setSystemTime(new Date(2026, 10, 17, 7, 0))
+  await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
+  expect(await screen.findByText(new RegExp(formatDayLabel('2026-11-17')))).toBeInTheDocument()
+  expect(screen.queryByText(new RegExp(formatDayLabel('2026-11-16')))).not.toBeInTheDocument()
 })
