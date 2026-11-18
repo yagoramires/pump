@@ -1,9 +1,8 @@
 import { Fragment, useState } from 'react'
-import { Check, Droplet, ListChecks, MoreHorizontal, Pencil, Plus, Sparkles, Upload, Utensils } from 'lucide-react'
+import { Check, Droplet, ListChecks, MoreHorizontal, Pencil, Sparkles } from 'lucide-react'
 import { usePersisted } from '@/storage/db'
 import { formatDayLabel } from '@/lib/date'
 import { Button } from '@/components/ui/button'
-import { EmptyState } from '@/components/EmptyState'
 import { Overlay } from '@/components/Overlay'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
@@ -16,7 +15,7 @@ import { savePlan } from './plan'
 import { useDietToday } from './useDietToday'
 import { useWater } from './useWater'
 import { DietEditor } from './DietEditor'
-import { DietImport } from './DietImport'
+import { DietStart } from './DietStart'
 import { MealScreen } from './MealScreen'
 import { WaterCard } from './WaterCard'
 
@@ -28,28 +27,20 @@ export function DietTab() {
   const { now, today, tick, plan, day, menu: dayMenu, act, pickMenu, switchMenu } = useDietToday()
   const [, setPlan] = usePersisted('dietPlan')
   const water = useWater()
-  const [view, setView] = useState<'edit' | 'ia' | 'import'>()
+  const [editing, setEditing] = useState(false)
   const [openId, setOpenId] = useState<string>()
   const [confirmMenu, setConfirmMenu] = useState<{ menuId: string; date: string }>()
   const [sheet, setSheet] = useState<'more' | 'menus' | 'water'>()
   if (openId && !day?.meals.some((m) => m.id === openId)) setOpenId(undefined)
 
-  const close = () => setView(undefined)
-  if (view === 'edit') return <Overlay><DietEditor initial={plan} onSave={(next) => { setPlan((p) => savePlan(p, next)); close() }} onCancel={close} /></Overlay>
-  if (view) return <Overlay><DietImport mode={view} onDone={close} onBack={close} /></Overlay>
+  const close = () => setEditing(false)
+  if (editing) return <Overlay><DietEditor initial={plan} onSave={(next) => { setPlan((p) => savePlan(p, next)); close() }} onCancel={close} /></Overlay>
 
   if (!day || !plan.menus.length) {
     return (
       <>
         <div className="label-caps">Dieta</div>
-        <EmptyState icon={<Utensils size={30} aria-hidden="true" />} title="Monte seu cardápio">
-          <p className="max-w-[240px] text-sm text-text-2">Um cardápio pra seguir no dia a dia. Dá pra mudar quando quiser.</p>
-          <Button className="mt-3 w-full max-w-xs" onClick={() => setView('ia')}><Sparkles aria-hidden="true" />Gerar com IA</Button>
-          <div className="grid w-full max-w-xs grid-cols-2 gap-2">
-            <Button variant="outline" className="h-16 flex-col gap-1" onClick={() => setView('edit')}><Plus aria-hidden="true" />Do zero</Button>
-            <Button variant="outline" className="h-16 flex-col gap-1" onClick={() => setView('import')}><Upload aria-hidden="true" />Importar</Button>
-          </div>
-        </EmptyState>
+        <DietStart hint="Um cardápio pra seguir no dia a dia. Dá pra mudar quando quiser." />
       </>
     )
   }
@@ -174,7 +165,7 @@ export function DietTab() {
                   <ul className={SHEET_CARD}>
                     {plan.menus.length > 1 && <SheetRow icon={<ListChecks size={18} className="text-accent" aria-hidden="true" />} label="Cardápio de hoje" onClick={() => setSheet('menus')} />}
                     <SheetRow icon={<Sparkles size={18} className="text-accent" aria-hidden="true" />} label={day.free ? 'Desfazer dia livre' : 'Dia livre'} onClick={() => { setSheet(undefined); act((d) => ({ ...d, free: !d.free })) }} />
-                    <SheetRow icon={<Pencil size={18} className="text-accent" aria-hidden="true" />} label="Editar cardápio" onClick={() => { setSheet(undefined); setView('edit') }} />
+                    <SheetRow icon={<Pencil size={18} className="text-accent" aria-hidden="true" />} label="Editar cardápio" onClick={() => { setSheet(undefined); setEditing(true) }} />
                   </ul>
                 </>
               )}

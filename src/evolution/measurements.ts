@@ -21,7 +21,8 @@ export const FAT = { key: 'fat', label: 'Gordura', unit: '%', digits: 1, spaced:
 
 export const byDate = <T extends { date: string }>(l: T[]) => [...l].sort((a, b) => a.date.localeCompare(b.date))
 
-export function upsertMeasurement(list: Measurement[], date: string, fields: { [K in Key]?: number | null }): { list: Measurement[]; status: 'same' | 'saved' | 'removed' } {
+export type UpsertStatus = 'same' | 'saved' | 'removed'
+export function upsertMeasurement(list: Measurement[], date: string, fields: { [K in Key]?: number | null }): { list: Measurement[]; status: UpsertStatus } {
   const cur = list.find((m) => m.date === date)
   const next: Measurement = { ...(cur ?? { id: crypto.randomUUID(), date }) }
   for (const { key } of FIELDS) {

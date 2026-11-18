@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { hasProfile, profileDraft } from './profile'
 import { AboutForm } from './AboutForm'
 import { GoalsForm } from './GoalsForm'
-import { WeekdayChips } from './WeekdayChips'
+import { CheckInDayChips } from './CheckInDayChips'
 
 export function ProfileScreen({ onDone }: { onDone: () => void }) {
   const [saved, setProfile] = usePersisted('profile')
@@ -17,7 +17,7 @@ export function ProfileScreen({ onDone }: { onDone: () => void }) {
     <div className="flex flex-col gap-4 pb-6">
       <AboutForm value={draft} onChange={setDraft} />
       <GoalsForm value={draft} onChange={setDraft} />
-      <WeekdayChips label="Atualizar toda semana na" value={day} onChange={setDay} />
+      <CheckInDayChips value={day} onChange={setDay} />
       <Button type="button" disabled={!hasProfile(draft)} onClick={() => { setProfile(draft); setSettings((s) => ({ ...s, checkInDay: day })); onDone() }}>Salvar</Button>
     </div>
   )

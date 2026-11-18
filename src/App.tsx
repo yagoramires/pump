@@ -78,7 +78,7 @@ function Shell() {
           </>
         )}
       </main>
-      <BottomNav tab={tab} dot={due ? 'evolucao' : undefined} onChange={(lastTab) => { setShowSettings(false); setSettings((s) => ({ ...s, lastTab })) }} />
+      <BottomNav tab={tab} alerts={due ? { evolucao: 'atualização pendente' } : undefined} onChange={(lastTab) => { setShowSettings(false); setSettings((s) => ({ ...s, lastTab })) }} />
       <Toaster />
       <AchievementToasts />
     </>

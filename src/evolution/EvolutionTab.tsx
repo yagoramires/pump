@@ -23,9 +23,11 @@ import { AchievementIcon } from './AchievementIcon'
 import { AchievementsScreen } from './AchievementsScreen'
 import { HistoryScreen } from './HistoryScreen'
 import { DietCard } from './DietCard'
-import { CheckIn, AnamnesisCard, CheckInCard } from './CheckInFlow'
+import { CheckInFlow, CheckInCard } from './CheckInFlow'
+import { AnamnesisCard } from './AnamnesisCard'
 import { useCheckIn } from './useCheckIn'
-import { AnamnesisFlow } from '@/onboarding/AnamnesisFlow'
+import { Overlay } from '@/components/Overlay'
+import { ANAMNESIS_STEPS, AnamnesisFlow } from '@/profile/AnamnesisFlow'
 import { useEvolution } from './useEvolution'
 import { buildReport, change } from './report'
 import { generatePdf } from './pdf/generate'
@@ -56,8 +58,8 @@ export function EvolutionTab() {
   const [pdf, setPdf] = useState<{ blob: Blob; input: EvolutionInput; today: string }>()
   const { today, due, anamnesisPending } = useCheckIn()
 
-  if (view === 'checkin') return <CheckIn onClose={() => setView(undefined)} />
-  if (view === 'anamnesis') return <AnamnesisFlow total={3} onDone={() => setView(undefined)} onBack={() => setView(undefined)} />
+  if (view === 'checkin') return <CheckInFlow onClose={() => setView(undefined)} />
+  if (view === 'anamnesis') return <Overlay><AnamnesisFlow total={ANAMNESIS_STEPS} onDone={() => setView(undefined)} onCancel={() => setView(undefined)} /></Overlay>
   if (view === 'capture') return <PhotoCapture date={today} onClose={() => setView(undefined)} />
   if (view === 'compare') return <PhotoCompare onClose={() => setView(undefined)} />
   if (view === 'achievements') return <AchievementsScreen onClose={() => setView(undefined)} />

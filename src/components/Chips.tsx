@@ -3,7 +3,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 const GROUP = 'grid w-full gap-[3px] rounded-[11px] border border-border bg-panel p-[3px]'
 const ITEM = 'h-auto min-h-9 whitespace-normal py-1 leading-tight rounded-[8px] px-1 text-[13px] font-semibold text-text-2 data-[state=on]:bg-surface data-[state=on]:text-strong data-[state=on]:shadow-[inset_0_0_0_1px_var(--color-border-strong)]'
-const LABEL = 'label-caps mb-1.5 block tracking-[0.08em]'
+export const LABEL = 'label-caps mb-1.5 block tracking-[0.08em]'
 
 type Options<T extends string | number> = [T] extends [string] ? Record<T, string> : readonly T[]
 const entries = <T extends string | number>(o: Options<T>): [T, string][] =>

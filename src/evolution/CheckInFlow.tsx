@@ -1,29 +1,31 @@
-import { useState } from 'react'
-import { X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { usePersisted } from '@/storage/db'
 import { WEEKDAY_LONG, formatDayMonth, todayKey, weekday } from '@/lib/date'
 import { formatKg, formatSigned, plural } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { BackHeader } from '@/components/BackHeader'
-import { MeasureForm } from './MeasureDrawer'
+import { MeasureForm } from './MeasureForm'
 import { PhotoCapture } from './PhotoCapture'
 import { PhotoCompare } from './PhotoCompare'
 import { Delta } from './Delta'
-import { upsertMeasurement } from './measurements'
 import { weekSummary } from './checkIn'
-import { useCheckIn } from './useCheckIn'
 import { usePhotoSets } from './photoSets'
+import { ANGLES } from './types'
 
 type Step = 'measure' | 'photos' | 'summary' | 'compare'
 
 /** passo a passo da atualização semanal: medidas de hoje, fotos (opcional) e resumo */
-export function CheckIn({ onClose }: { onClose: () => void }) {
+export function CheckInFlow({ onClose }: { onClose: () => void }) {
   const today = todayKey()
-  const [list, setList] = usePersisted('measurements')
+  const [list] = usePersisted('measurements')
   const [profile] = usePersisted('profile')
   const { sets } = usePhotoSets()
   const [step, setStep] = useState<Step>('measure')
+
+  const s = weekSummary(profile, list, sets, today)
+  // sem resumo (sem peso hoje) não há o que mostrar: fecha o fluxo
+  useEffect(() => { if (step === 'summary' && !s) onClose() }, [step, s, onClose])
 
   if (step === 'photos') return <PhotoCapture date={today} onClose={() => setStep('summary')} />
   if (step === 'compare') return <PhotoCompare onClose={() => setStep('summary')} />
@@ -31,23 +33,11 @@ export function CheckIn({ onClose }: { onClose: () => void }) {
     return (
       <>
         <BackHeader title="Atualizar semana" onBack={onClose} />
-        <MeasureForm
-          profile={profile}
-          initial={list.find((m) => m.date === today)}
-          needWeight
-          submitLabel="Continuar"
-          onSave={(fields) => {
-            const { list: next, status } = upsertMeasurement(list, today, fields)
-            if (status !== 'same') setList(next)
-            setStep('photos')
-          }}
-        />
+        <MeasureForm date={today} needWeight submitLabel="Continuar" onSaved={() => setStep('photos')} />
       </>
     )
   }
-
-  const s = weekSummary(profile, list, sets, today)
-  if (!s) return <BackHeader title="Atualizar semana" onBack={onClose} />
+  if (!s) return null
   return (
     <div>
       <BackHeader title={`Semana ${s.week}`} onBack={onClose} />
@@ -67,7 +57,7 @@ export function CheckIn({ onClose }: { onClose: () => void }) {
           </div>
         ))}
         <div className="flex items-center justify-between border-t border-line py-2 text-sm">
-          <span className="text-text-2">Fotos · {s.photos} de 3</span>
+          <span className="text-text-2">Fotos · {s.photos} de {ANGLES.length}</span>
         </div>
         {s.sinceStart !== undefined && (
           <p className="text-[13px] text-text-2">{`Desde o dia zero: ${formatSigned(s.sinceStart)} kg em ${plural(s.week, 'semana', 'semanas')}.`}</p>
@@ -77,18 +67,6 @@ export function CheckIn({ onClose }: { onClose: () => void }) {
         <Button onClick={onClose}>Pronto</Button>
         <Button variant="outline" onClick={() => setStep('compare')}>Comparar fotos</Button>
       </div>
-    </div>
-  )
-}
-
-export function AnamnesisCard({ onStart }: { onStart: () => void }) {
-  const { dismissAnamnesis } = useCheckIn()
-  return (
-    <div className="card relative mb-2.5 border-accent p-4 pr-12">
-      <button type="button" className="icon-btn absolute top-2 right-2" aria-label="Dispensar" onClick={dismissAnamnesis}><X size={16} /></button>
-      <h2 className="text-[15px] font-semibold text-strong">Complete sua anamnese</h2>
-      <p className="mt-1 text-[13px] text-text-2">3 passos rápidos. O que você já respondeu vem preenchido.</p>
-      <Button className="mt-3 w-full" onClick={onStart}>Completar</Button>
     </div>
   )
 }

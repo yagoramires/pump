@@ -12,6 +12,6 @@ test('menu tem 3 abas com rótulo acessível e marca a ativa', async () => {
 })
 
 test('ponto na aba Evolução', () => {
-  render(<BottomNav tab="treino" onChange={vi.fn()} dot="evolucao" />)
+  render(<BottomNav tab="treino" onChange={vi.fn()} alerts={{ evolucao: 'atualização pendente' }} />)
   expect(screen.getByRole('button', { name: 'Evolução, atualização pendente' })).toBeInTheDocument()
 })

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Sparkles, Upload, Utensils } from 'lucide-react'
+import { Plus, Sparkles, Upload } from 'lucide-react'
 import { DEFAULTS } from '@/schema'
 import type { Exercise, WorkoutPlan } from '@/workout/types'
 import { usePersisted } from '@/storage/db'
@@ -8,29 +8,34 @@ import { WEEK_ORDER, todayKey } from '@/lib/date'
 import { TEMPLATES, instantiateTemplate } from '@/workout/templates'
 import { PlanEditor } from '@/workout/PlanEditor'
 import { PlanImport } from '@/workout/PlanImport'
-import { DietEditor } from '@/diet/DietEditor'
-import { DietImport } from '@/diet/DietImport'
-import { savePlan } from '@/diet/plan'
-import { Overlay } from '@/components/Overlay'
-import { EmptyState } from '@/components/EmptyState'
+import { DietStart } from '@/diet/DietStart'
 import { BackHeader } from '@/components/BackHeader'
 import { useImportBackup } from '@/shell/useImportBackup'
 import { BottomBar } from '@/components/BottomBar'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { AnamnesisFlow } from './AnamnesisFlow'
-import { Steps } from './Steps'
+import { AnamnesisFlow } from '@/profile/AnamnesisFlow'
+import { Steps } from '@/components/Steps'
 
-type Step = 'anamnese' | 'treino' | 'editor' | 'import' | 'dieta' | 'dieta-editor' | 'dieta-ia' | 'dieta-import'
+const ONBOARDING_STEPS = 5
+type Step = 'anamnese' | 'treino' | 'editor' | 'import' | 'dieta'
+
+function StepHeader({ n, onSkip }: { n: number; onSkip: () => void }) {
+  return (
+    <div className="flex items-start justify-between">
+      <div className="flex-1"><Steps n={n} total={ONBOARDING_STEPS} /></div>
+      <Button type="button" variant="ghost" className="-mt-2 text-text-2" onClick={onSkip}>Pular por agora</Button>
+    </div>
+  )
+}
 
 export function Onboarding() {
   const [, setSettings] = usePersisted('settings')
   const [step, setStep] = useState<Step>('anamnese')
   const [initial, setInitial] = useState<WorkoutPlan>(DEFAULTS.workoutPlan)
   const [, setPlan] = usePersisted('workoutPlan')
-  const [dietPlan, setDietPlan] = usePersisted('dietPlan')
   const [error, setError] = useState<string>()
-  const [back, setBack] = useState(false)
+  const [anamneseStep, setAnamneseStep] = useState(0)
   const [picked, setPicked] = useState(TEMPLATES[0].id)
   const finish = () => setSettings((s) => ({ ...s, onboardingDone: true, firstUseAt: s.firstUseAt ?? todayKey() }))
   const template = TEMPLATES.find((t) => t.id === picked)!
@@ -52,15 +57,13 @@ export function Onboarding() {
   const toDieta = () => setStep('dieta')
   if (step === 'editor') return <PlanEditor initial={initial} onSave={(p) => { setPlan(p); toDieta() }} onCancel={() => setStep('treino')} />
   if (step === 'import') return <PlanImport onDone={toDieta} onBack={() => setStep('treino')} />
-  if (step === 'dieta-editor') return <Overlay><DietEditor initial={dietPlan} onSave={(next) => { setDietPlan((p) => savePlan(p, next)); finish() }} onCancel={() => setStep('dieta')} /></Overlay>
-  if (step === 'dieta-ia' || step === 'dieta-import') return <Overlay><DietImport mode={step === 'dieta-ia' ? 'ia' : 'import'} onDone={finish} onBack={() => setStep('dieta')} /></Overlay>
   if (step === 'anamnese') {
     return (
       <AnamnesisFlow
-        total={5}
-        start={back ? 2 : undefined}
+        total={ONBOARDING_STEPS}
+        step={anamneseStep}
         onDone={() => setStep('treino')}
-        first={(
+        footer={(
           <div className="-mt-2">
             {/* quem instalou o app no iPhone traz aqui os dados que usava no Safari */}
             <Button type="button" variant="ghost" className="text-text-2" onClick={backup.pick}><Upload size={16} aria-hidden="true" />Restaurar backup</Button>
@@ -75,29 +78,16 @@ export function Onboarding() {
   if (step === 'dieta') {
     return (
       <div>
-        <div className="flex items-start justify-between">
-          <div className="flex-1"><Steps n={5} total={5} /></div>
-          <Button type="button" variant="ghost" className="-mt-2 text-text-2" onClick={finish}>Pular por agora</Button>
-        </div>
+        <StepHeader n={5} onSkip={finish} />
         <BackHeader title="Sua dieta" onBack={() => setStep('treino')} className="mb-3 px-0 py-0" />
-        <EmptyState icon={<Utensils size={30} aria-hidden="true" />} title="Monte seu cardápio">
-          <p className="max-w-[240px] text-sm text-text-2">A IA já recebe peso, % de gordura, massa magra, medidas e horários.</p>
-          <Button className="mt-3 w-full max-w-xs" onClick={() => setStep('dieta-ia')}><Sparkles aria-hidden="true" />Gerar com IA</Button>
-          <div className="grid w-full max-w-xs grid-cols-2 gap-2">
-            <Button variant="outline" className="h-16 flex-col gap-1" onClick={() => setStep('dieta-editor')}><Plus aria-hidden="true" />Do zero</Button>
-            <Button variant="outline" className="h-16 flex-col gap-1" onClick={() => setStep('dieta-import')}><Upload aria-hidden="true" />Importar</Button>
-          </div>
-        </EmptyState>
+        <DietStart hint="A IA já recebe peso, % de gordura, massa magra, medidas e horários." onDone={finish} />
       </div>
     )
   }
   return (
     <div className="pb-28">
-      <div className="flex items-start justify-between">
-        <div className="flex-1"><Steps n={4} total={5} /></div>
-        <Button type="button" variant="ghost" className="-mt-2 text-text-2" onClick={toDieta}>Pular por agora</Button>
-      </div>
-      <BackHeader title="Seu treino" onBack={() => { setBack(true); setStep('anamnese') }} className="mb-3 px-0 py-0" />
+      <StepHeader n={4} onSkip={toDieta} />
+      <BackHeader title="Seu treino" onBack={() => { setAnamneseStep(2); setStep('anamnese') }} className="mb-3 px-0 py-0" />
       <div role="radiogroup" aria-label="Planos" className="overflow-hidden card">
         {TEMPLATES.map((t) => {
           const days = new Set(t.workouts.flatMap((w) => w.weekdays))
