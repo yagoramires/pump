@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
-import { load, resetStoreForTests, save } from '@/storage/db'
+import { load, readCurrent, resetStoreForTests, save } from '@/storage/db'
 import { buildBackup } from '@/storage/backup'
 import { Onboarding } from './Onboarding'
 
@@ -48,11 +48,50 @@ test('cancelar no diálogo não importa nada', async () => {
   expect(await load('settings')).toBeUndefined()
 })
 
+const next = (user: ReturnType<typeof userEvent.setup>) => user.click(screen.getByRole('button', { name: 'Continuar' }))
+const toTreino = async (user: ReturnType<typeof userEvent.setup>) => {
+  await user.type(screen.getByLabelText('Altura'), '178')
+  await next(user)
+  await next(user)
+  await user.type(screen.getByLabelText('Peso'), '82,4')
+  await next(user)
+}
+
+test('pular o treino leva à dieta, não conclui', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<Onboarding />)
+  await toTreino(user)
+  expect(screen.getByText('PASSO 4 DE 5')).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Pular por agora' }))
+  expect(screen.getByRole('heading', { name: 'Sua dieta' })).toBeInTheDocument()
+  expect((await readCurrent('settings')).onboardingDone).toBe(false)
+})
+
+test('5 passos até concluir', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<Onboarding />)
+  await toTreino(user)
+  await user.click(screen.getByRole('button', { name: 'Pular por agora' }))
+  await user.click(screen.getByRole('button', { name: 'Pular por agora' }))
+  await waitFor(async () => expect((await readCurrent('settings')).onboardingDone).toBe(true))
+})
+
+test('restaurar backup no passo 1 conclui a montagem com perfil migrado', async () => {
+  vi.stubGlobal('location', { ...location, reload: vi.fn() })
+  const old = { app: 'pump', version: 1, exportedAt: new Date().toISOString(), data: { settings: { lastTab: 'treino', onboardingDone: true }, profile: { sex: 'M', heightCm: 180 } } }
+  const user = userEvent.setup()
+  await renderLoaded(<Onboarding />)
+  await user.upload(screen.getByLabelText('Arquivo de backup'), new File([JSON.stringify(old)], 'b.json', { type: 'application/json' }))
+  await user.click(await screen.findByRole('button', { name: 'Restaurar' }))
+  await waitFor(async () => expect(await load('settings')).toMatchObject({ onboardingDone: true }))
+  expect(await load('profile')).toMatchObject({ heightCm: 180 })
+})
+
 test('sem internet ao usar um plano pronto mostra o aviso', async () => {
   vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('offline'))
   const user = userEvent.setup()
   await renderLoaded(<Onboarding />)
-  await user.click(screen.getByRole('button', { name: 'Pular' }))
+  await toTreino(user)
   await user.click(screen.getByRole('radio', { name: 'ABC' }))
   await user.click(screen.getByRole('button', { name: 'Usar ABC' }))
   expect(await screen.findByText(/Sem internet pra carregar o modelo/)).toBeInTheDocument()

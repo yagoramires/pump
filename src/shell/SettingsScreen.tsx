@@ -10,7 +10,7 @@ import { BackHeader } from '@/components/BackHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { SettingsRow, SettingsSection } from '@/components/SettingsSection'
 import { series } from '@/evolution/measurements'
-import { ProfileForm } from '@/profile/ProfileForm'
+import { ProfileScreen } from '@/profile/ProfileScreen'
 import { WorkoutSettings } from '@/workout/WorkoutSettings'
 import { DietSettings } from '@/diet/DietSettings'
 import { useBackupExport } from './useBackupExport'
@@ -38,7 +38,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         <WorkoutSettings open={setView} />
         <SettingsRow
           icon={<User size={18} aria-hidden="true" />} color="var(--c2)" title="Perfil" sub={weight && profile.heightCm ? `${formatKg(weight)} kg · ${profile.heightCm} cm` : undefined}
-          onClick={() => setView(<><BackHeader title="Perfil" onBack={back} /><div className="mt-3"><ProfileForm submitLabel="Salvar" onDone={back} /></div></>)}
+          onClick={() => setView(<><BackHeader title="Perfil" onBack={back} /><div className="mt-3"><ProfileScreen onDone={back} /></div></>)}
         />
       </SettingsSection>
       <SettingsSection title="DIETA">
