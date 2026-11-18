@@ -1,4 +1,4 @@
-import type { DietAnamnesis, DietGoal, Restriction } from './types'
+import type { DietAnamnesis, Restriction } from './types'
 import { Chips, MultiChips } from '@/components/Chips'
 import { Input } from '@/components/ui/input'
 
@@ -6,11 +6,9 @@ type Value = Partial<DietAnamnesis>
 type EatOut = NonNullable<DietAnamnesis['eatOut']>
 
 const LABEL = 'label-caps mb-1.5 block tracking-[0.08em]'
-const GOAL_LABEL: Record<DietGoal, string> = { 'perder-rapido': 'Perder rápido', perder: 'Perder peso', manter: 'Manter', ganhar: 'Ganhar peso', 'ganhar-rapido': 'Ganhar rápido' }
 const MEALS = [3, 4, 5, 6, 7]
 const RESTRICTION_LABEL: Record<Restriction, string> = { lactose: 'Sem lactose', gluten: 'Sem glúten', vegetariano: 'Vegetariano', vegano: 'Vegano' }
 const EAT_OUT_LABEL: Record<EatOut, string> = { casa: 'Em casa', fora: 'Fora', misto: 'Misto' }
-const TIMES = [['wake', 'Acorda'], ['train', 'Treina'], ['sleep', 'Dorme']] as const
 const AREA = 'w-full resize-none rounded-[11px] border border-border bg-surface p-3 text-base text-text outline-none placeholder:text-faint focus-visible:border-accent-line'
 
 export function DietAnamnesisForm({ value, onChange }: { value: Value; onChange: (v: Value) => void }) {
@@ -19,18 +17,9 @@ export function DietAnamnesisForm({ value, onChange }: { value: Value; onChange:
     <section aria-labelledby="anamnese-dieta" className="flex flex-col gap-3.5 card p-3.5">
       <div>
         <h2 id="anamnese-dieta" className="text-[15px] font-semibold text-strong">Sobre sua dieta</h2>
-        <p className="text-[13px] text-text-2">Só o objetivo é obrigatório; o que faltar a IA pergunta.</p>
+        <p className="text-[13px] text-text-2">Opcional. O que faltar a IA pergunta.</p>
       </div>
-      <Chips label="Objetivo" options={GOAL_LABEL} value={value.goal} onChange={(v) => set('goal', v)} cols="grid-cols-2" />
       <Chips label="Refeições por dia" options={MEALS} value={value.meals} onChange={(v) => set('meals', v)} />
-      <div className="grid grid-cols-3 gap-2">
-        {TIMES.map(([k, label]) => (
-          <div key={k}>
-            <label htmlFor={`dieta-${k}`} className={LABEL}>{label}</label>
-            <Input id={`dieta-${k}`} type="time" value={value[k] ?? ''} onChange={(e) => set(k, e.target.value || undefined)} />
-          </div>
-        ))}
-      </div>
       <MultiChips label="Restrições" options={RESTRICTION_LABEL} value={value.restrictions} onChange={(v) => set('restrictions', v)} cols="grid-cols-2" />
       <div>
         <label htmlFor="dieta-avoid" className={LABEL}>Não como</label>

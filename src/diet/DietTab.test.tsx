@@ -153,7 +153,8 @@ test('refeição do horário atual destacada', async () => {
 
 test('pílula de água abre os copos; água desligada mostra o link', async () => {
   await save('dietPlan', plan)
-  await save('profile', { sex: 'M', heightCm: 180, weightKg: 80 })
+  await save('profile', { sex: 'M', heightCm: 180 })
+  await save('measurements', [{ id: 'm', date: '2026-11-17', weightKg: 80 }])
   await save('settings', { ...DEFAULTS.settings, onboardingDone: true })
   resetStoreForTests()
   const user = userEvent.setup()

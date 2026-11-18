@@ -1,7 +1,7 @@
 import type { Profile } from '@/profile/types'
 import type { Extra, Level, Muscle, Place, Split } from './types'
 import { HEADER, str } from '@/format/envelope'
-import { GOALS, label, names, profileLines } from '@/profile/promptLines'
+import { FOCUS, label, names, profileLines } from '@/profile/promptLines'
 import { SETS } from './limits'
 
 const LEVELS: Record<Level, string> = { iniciante: 'iniciante', intermediario: 'intermediário', avancado: 'avançado' }
@@ -15,15 +15,15 @@ function aboutMe(p?: Profile): string[] {
   return [
     ...profileLines(p),
     ...[
-      label(GOALS, a.goal) && `Objetivo: ${label(GOALS, a.goal)}`,
+      label(FOCUS, p?.focus) && `Foco: ${label(FOCUS, p?.focus)}`,
       label(LEVELS, a.level) && `Nível: ${label(LEVELS, a.level)}`,
       label(PLACES, a.place) && `Onde treino: ${label(PLACES, a.place)}`,
-      a.daysPerWeek ? `Dias por semana: ${a.daysPerWeek}` : '',
+      p?.daysPerWeek ? `Dias por semana: ${p.daysPerWeek}` : '',
       label(SPLITS, a.split) && `Divisão preferida: ${label(SPLITS, a.split)}`,
       names(a.extras, EXTRAS) && `Incluir também: ${names(a.extras, EXTRAS)}`,
       names(a.weak, MUSCLES) && `Pontos fracos (quero priorizar): ${names(a.weak, MUSCLES)}`,
       a.minutes ? `Tempo por treino: até ${a.minutes} min${a.extras?.includes('cardio') ? ', contando o cardio' : ''}` : '',
-      str(a.notes) && `Lesões, limitações ou preferências: ${str(a.notes)}`,
+      str(p?.notes) && `Lesões, limitações ou observações: ${str(p?.notes)}`,
     ].filter(Boolean).map((l) => `- ${l}`),
   ]
 }

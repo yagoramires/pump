@@ -2,6 +2,7 @@ import { daysBetween, todayKey } from '@/lib/date'
 import { VALID, isObj, isUserKey, type Settings } from '@/schema'
 import { allData, readCurrent, replaceAll, save } from './db'
 import { isPhotoKey } from './photos'
+import { migrateData } from '@/profile/migrate'
 import { shareFile } from '@/lib/share'
 
 export interface BackupFile { app: 'pump'; version: 1; exportedAt: string; data: Record<string, unknown> }
@@ -60,5 +61,5 @@ export async function exportBackup(now = new Date()): Promise<'shared' | 'downlo
 
 export async function importBackupFile(file: File): Promise<void> {
   const b = parseBackup(await file.text())
-  await replaceAll(b.data)
+  await replaceAll(migrateData(b.data, todayKey()))
 }

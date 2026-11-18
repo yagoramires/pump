@@ -35,14 +35,10 @@ test('anamnese fica salva no perfil e vai no prompt copiado', async () => {
   const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
   Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
   await renderLoaded(<PlanImport onDone={vi.fn()} onBack={vi.fn()} />)
-  await user.click(await screen.findByRole('radio', { name: 'Ganhar massa' }))
-  await user.click(screen.getByRole('radio', { name: '4' }))
-  await user.type(screen.getByLabelText('Lesões, limitações ou preferências'), 'ombro')
+  await user.click(await screen.findByRole('radio', { name: 'Em casa' }))
   await user.click(screen.getByRole('button', { name: 'Copiar' }))
-  expect(writeText).toHaveBeenCalledWith(expect.stringContaining('- Objetivo: ganhar massa muscular\n'))
-  expect(writeText.mock.calls[0][0]).toContain('- Dias por semana: 4')
-  expect(writeText.mock.calls[0][0]).toContain('- Lesões, limitações ou preferências: ombro')
-  expect((await get('profile'))?.anamnesis).toEqual({ goal: 'hipertrofia', daysPerWeek: 4, notes: 'ombro' })
+  expect(writeText).toHaveBeenCalledWith(expect.stringContaining('- Onde treino: em casa, com pouco equipamento\n'))
+  expect((await get('profile'))?.anamnesis).toEqual({ place: 'casa' })
 })
 
 test('Revisar plano abre o editor; Salvar grava o plano e os exercícios novos', async () => {

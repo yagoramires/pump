@@ -23,7 +23,7 @@ const backupFile = () => {
 test('primeiro passo restaura um backup depois de confirmar e recarrega o app', async () => {
   const reload = vi.fn()
   vi.stubGlobal('location', { ...location, reload })
-  await save('profile', { sex: 'F', heightCm: 1, weightKg: 1 })
+  await save('profile', { sex: 'F', heightCm: 1 })
   const { settings, file } = backupFile()
   const user = userEvent.setup()
   await renderLoaded(<Onboarding />)
@@ -37,7 +37,7 @@ test('primeiro passo restaura um backup depois de confirmar e recarrega o app', 
 })
 
 test('cancelar no diálogo não importa nada', async () => {
-  const profile = { sex: 'F' as const, heightCm: 160, weightKg: 60 }
+  const profile = { sex: 'F' as const, heightCm: 160 }
   await save('profile', profile)
   const user = userEvent.setup()
   await renderLoaded(<Onboarding />)
@@ -46,15 +46,6 @@ test('cancelar no diálogo não importa nada', async () => {
   await waitFor(() => expect(screen.queryByText('Restaurar backup?')).not.toBeInTheDocument())
   expect(await load('profile')).toEqual(profile)
   expect(await load('settings')).toBeUndefined()
-})
-
-test('peso com vírgula é salvo como decimal', async () => {
-  const user = userEvent.setup()
-  await renderLoaded(<Onboarding />)
-  await user.type(await screen.findByLabelText('Altura'), '178')
-  await user.type(screen.getByLabelText('Peso'), '80,5')
-  await user.click(screen.getByRole('button', { name: 'Continuar' }))
-  await waitFor(async () => expect(await load('profile')).toMatchObject({ heightCm: 178, weightKg: 80.5 }))
 })
 
 test('sem internet ao usar um plano pronto mostra o aviso', async () => {

@@ -19,7 +19,7 @@ test('comparar: primeiro × último e foto ausente vira espaço vazio', async ()
   expect(await screen.findByLabelText('Foto indisponível')).toBeInTheDocument()
 })
 test('medidas: diferença de peso entre as datas', async () => {
-  await save('profile', { sex: 'M', heightCm: 178, weightKg: 80, anamnesis: { goal: 'emagrecer' } })
+  await save('profile', { sex: 'M', heightCm: 178, dietGoal: 'perder' })
   await save('measurements', [{ id: 'a', date: '2026-10-30', weightKg: 80 }, { id: 'b', date: '2026-11-16', weightKg: 78.4 }])
   await save('photoSets', [{ id: 's1', date: '2026-11-01' }, { id: 's2', date: '2026-11-17' }])
   await renderLoaded(<PhotoCompare onClose={vi.fn()} />)
@@ -27,7 +27,7 @@ test('medidas: diferença de peso entre as datas', async () => {
   expect(screen.getByText('−1,6 kg')).toHaveClass('text-accent')
 })
 test('gordura usa um registro só (o mais próximo com pescoço e cintura), não campos de dias diferentes', async () => {
-  await save('profile', { sex: 'M', heightCm: 178, weightKg: 80 })
+  await save('profile', { sex: 'M', heightCm: 178 })
   // 16/11 só tem cintura: misturar com o pescoço de 30/10 inventaria uma gordura que ninguém mediu
   await save('measurements', [{ id: 'a', date: '2026-10-30', neckCm: 38, waistCm: 88 }, { id: 'b', date: '2026-11-16', waistCm: 85 }])
   await save('photoSets', [{ id: 's1', date: '2026-11-01' }, { id: 's2', date: '2026-11-17' }])

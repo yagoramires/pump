@@ -16,6 +16,6 @@ export interface WaterDay { ml: number; goalMl: number }
 export type WaterLog = Record<string, WaterDay>
 export type DietGoal = 'perder-rapido' | 'perder' | 'manter' | 'ganhar' | 'ganhar-rapido'
 export type Restriction = 'lactose' | 'gluten' | 'vegetariano' | 'vegano'
-export interface DietAnamnesis { goal: DietGoal; meals?: number; wake?: string; train?: string; sleep?: string; restrictions?: Restriction[]; avoid?: string; eatOut?: 'casa' | 'fora' | 'misto'; notes?: string }
+export interface DietAnamnesis { meals?: number; restrictions?: Restriction[]; avoid?: string; eatOut?: 'casa' | 'fora' | 'misto'; notes?: string }
 export interface WaterSettings { enabled: boolean; goalMl: number; cupMl: number }
 export interface TacoFood { id: number; name: string; kcal: number; p: number; c: number; f: number }

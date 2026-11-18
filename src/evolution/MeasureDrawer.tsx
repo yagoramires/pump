@@ -15,7 +15,7 @@ const select = (e: React.FocusEvent<HTMLInputElement>) => e.currentTarget.select
 
 export function MeasureDrawer({ open, onClose, date }: { open: boolean; onClose: () => void; date: string }) {
   const [list, setList] = usePersisted('measurements')
-  const [profile, setProfile] = usePersisted('profile')
+  const [profile] = usePersisted('profile')
 
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
@@ -34,8 +34,6 @@ export function MeasureDrawer({ open, onClose, date }: { open: boolean; onClose:
               const { list: next, status } = upsertMeasurement(list, date, fields)
               if (status === 'same') return void toast('Nada mudou')
               setList(next)
-              const w = fields.weightKg
-              if (w) setProfile((p) => ({ ...p, weightKg: w }))
               toast(status === 'saved' ? 'Medidas salvas' : 'Medidas apagadas')
             }}
           />

@@ -1,18 +1,19 @@
 import type { WaterSettings } from './types'
 import { usePersisted } from '@/storage/db'
 import { useToday } from '@/lib/useToday'
+import { series } from '@/evolution/measurements'
 import { addWater, turnWaterOn } from './water'
 
 export function useWater() {
   const { today, tick } = useToday()
   const [settings, setSettings] = usePersisted('settings')
-  const [profile] = usePersisted('profile')
+  const [measurements] = usePersisted('measurements')
   const [log, setLog] = usePersisted('waterLog')
   const on = settings.water?.enabled ? settings.water : undefined
 
   const save = (water: WaterSettings) => setSettings((s) => ({ ...s, water }))
   const turnOn = () => {
-    const water = turnWaterOn(settings.water, profile.weightKg)
+    const water = turnWaterOn(settings.water, series(measurements, 'weightKg').at(-1)?.value ?? 0)
     save(water)
     return water
   }

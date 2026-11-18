@@ -31,26 +31,23 @@ async function paste(text: string) {
   return user
 }
 
-test('gerar com IA: copiar prompt exige objetivo e grava a anamnese', async () => {
+test('gerar com IA: copiar prompt grava a anamnese', async () => {
   const user = userEvent.setup()
   const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
   Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
   const { unmount } = await renderLoaded(<DietImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
   const copy = await screen.findByRole('button', { name: 'Copiar prompt pra IA' })
-  expect(copy).toBeDisabled()
-  await user.click(await screen.findByRole('radio', { name: 'Perder peso' }))
   await user.click(screen.getByRole('radio', { name: '5' }))
   await user.click(screen.getByRole('button', { name: 'Sem lactose' }))
   await user.type(screen.getByLabelText('Não como'), 'fígado')
   expect(copy).toBeEnabled()
   await user.click(copy)
-  expect(writeText).toHaveBeenCalledWith(expect.stringContaining('- Objetivo da dieta: perder peso\n'))
-  expect(writeText.mock.calls[0][0]).toContain('- Refeições por dia: 5')
+  expect(writeText).toHaveBeenCalledWith(expect.stringContaining('- Refeições por dia: 5\n'))
   expect(writeText.mock.calls[0][0]).toContain('- Não como: fígado')
-  await vi.waitFor(async () => expect((await get('profile'))?.dietAnamnesis).toEqual({ goal: 'perder', meals: 5, restrictions: ['lactose'], avoid: 'fígado' }))
+  await vi.waitFor(async () => expect((await get('profile'))?.dietAnamnesis).toEqual({ meals: 5, restrictions: ['lactose'], avoid: 'fígado' }))
   unmount()
   await renderLoaded(<DietImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
-  expect(await screen.findByRole('radio', { name: 'Perder peso' })).toHaveAttribute('aria-checked', 'true')
+  expect(await screen.findByRole('radio', { name: '5' })).toHaveAttribute('aria-checked', 'true')
   expect(screen.getByLabelText('Não como')).toHaveValue('fígado')
 })
 

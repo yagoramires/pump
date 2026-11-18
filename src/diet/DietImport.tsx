@@ -47,11 +47,8 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   const anamnesis = edited ?? profile.dietAnamnesis ?? {}
 
   const copyPrompt = async () => {
-    const { goal } = anamnesis
-    if (!goal) return
-    const dietAnamnesis = { ...anamnesis, goal }
-    setProfile((p) => ({ ...p, dietAnamnesis }))
-    toast((await copyText(buildDietPrompt({ ...profile, dietAnamnesis }))) ? 'Prompt copiado' : 'Não consegui copiar. Tente de novo.')
+    setProfile((p) => ({ ...p, dietAnamnesis: anamnesis }))
+    toast((await copyText(buildDietPrompt({ ...profile, dietAnamnesis: anamnesis }))) ? 'Prompt copiado' : 'Não consegui copiar. Tente de novo.')
   }
   const edit = (v: string, now?: boolean) => {
     setTab(0)
@@ -170,7 +167,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
       </PasteBox>
       {mode === 'ia' && (
         <BottomBar>
-          <Button type="button" className="w-full" disabled={!anamnesis.goal} onClick={copyPrompt}><Copy size={16} aria-hidden="true" />Copiar prompt pra IA</Button>
+          <Button type="button" className="w-full" onClick={copyPrompt}><Copy size={16} aria-hidden="true" />Copiar prompt pra IA</Button>
         </BottomBar>
       )}
     </div>

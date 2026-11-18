@@ -29,7 +29,7 @@ test('sem dados: estado vazio com Registrar', async () => {
   expect(screen.getByRole('button', { name: 'Registrar' })).toBeInTheDocument()
 })
 test('perfil sem altura: gordura mostra —', async () => {
-  await save('profile', { sex: 'M', heightCm: 0, weightKg: 0 })
+  await save('profile', { sex: 'M', heightCm: 0 })
   await save('measurements', [{ id: 'a', date: '2026-11-17', neckCm: 38, waistCm: 85, weightKg: 80 }])
   await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText('Gordura')).toBeInTheDocument()
@@ -37,6 +37,7 @@ test('perfil sem altura: gordura mostra —', async () => {
   expect(screen.getByText('Gordura').parentElement).toHaveTextContent(/^Gordura——$/)
 })
 test('diferença de peso verde quando o objetivo é emagrecer e o peso caiu', async () => {
+  await save('profile', { sex: 'M', heightCm: 178, dietGoal: 'perder' })
   await save('measurements', [{ id: 'a', date: '2026-11-01', weightKg: 80 }, { id: 'b', date: '2026-11-17', weightKg: 78.4 }])
   await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText('−1,6 kg')).toHaveClass('text-accent')

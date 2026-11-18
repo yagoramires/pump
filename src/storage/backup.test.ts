@@ -14,7 +14,7 @@ afterEach(() => {
 })
 
 test('ida e volta', () => {
-  const b = buildBackup({ profile: { sex: 'F', heightCm: 165, weightKg: 60 } }, new Date(2026, 10, 16))
+  const b = buildBackup({ profile: { sex: 'F', heightCm: 165 } }, new Date(2026, 10, 16))
   expect(parseBackup(JSON.stringify(b))).toEqual(b)
 })
 test.each([
@@ -31,12 +31,12 @@ test.each([
   ['dia do log sem lista de exercícios', JSON.stringify({ app: 'pump', version: 1, data: { workoutLog: { '2026-11-10': { date: '2026-11-10' } } } }), 'Backup corrompido'],
 ])('recusa %s', (_, txt, msg) => expect(() => parseBackup(txt)).toThrow(msg))
 test('importar arquivo inválido não apaga nada', async () => {
-  await save('profile', { sex: 'M', heightCm: 178, weightKg: 80 })
+  await save('profile', { sex: 'M', heightCm: 178 })
   await expect(importBackupFile(new File(['{lixo'], 'x.json'))).rejects.toThrow('Arquivo não é um backup válido')
   expect(await load('profile')).toBeDefined()
 })
 test('importar arquivo válido substitui os dados', async () => {
-  await save('profile', { sex: 'M', heightCm: 178, weightKg: 80 })
+  await save('profile', { sex: 'M', heightCm: 178 })
   const b = buildBackup({ settings: { lastTab: 'dieta', onboardingDone: true } }, new Date(2026, 10, 16))
   await importBackupFile(new File([JSON.stringify(b)], 'x.json'))
   expect(await load('profile')).toBeUndefined()

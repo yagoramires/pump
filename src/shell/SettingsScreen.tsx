@@ -9,6 +9,7 @@ import { Overlay } from '@/components/Overlay'
 import { BackHeader } from '@/components/BackHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { SettingsRow, SettingsSection } from '@/components/SettingsSection'
+import { series } from '@/evolution/measurements'
 import { ProfileForm } from '@/profile/ProfileForm'
 import { WorkoutSettings } from '@/workout/WorkoutSettings'
 import { DietSettings } from '@/diet/DietSettings'
@@ -20,6 +21,8 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
   const [view, setView] = useState<ReactNode>()
   const [confirmRedo, setConfirmRedo] = useState(false)
   const [profile] = usePersisted('profile')
+  const [measurements] = usePersisted('measurements')
+  const weight = series(measurements, 'weightKg').at(-1)?.value
   const backup = useBackupExport(toast.error)
   const back = () => setView(undefined)
 
@@ -34,7 +37,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
       <SettingsSection title="TREINO">
         <WorkoutSettings open={setView} />
         <SettingsRow
-          icon={<User size={18} aria-hidden="true" />} color="var(--c2)" title="Perfil" sub={profile.weightKg && profile.heightCm ? `${formatKg(profile.weightKg)} kg · ${profile.heightCm} cm` : undefined}
+          icon={<User size={18} aria-hidden="true" />} color="var(--c2)" title="Perfil" sub={weight && profile.heightCm ? `${formatKg(weight)} kg · ${profile.heightCm} cm` : undefined}
           onClick={() => setView(<><BackHeader title="Perfil" onBack={back} /><div className="mt-3"><ProfileForm submitLabel="Salvar" onDone={back} /></div></>)}
         />
       </SettingsSection>

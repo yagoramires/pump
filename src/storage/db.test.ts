@@ -26,8 +26,8 @@ function deferred<T = void>() {
 }
 
 test('save/load ida e volta; replaceAll grava e remove sobras', async () => {
-  await save('profile', { sex: 'M', heightCm: 178, weightKg: 80 })
-  expect(await load('profile')).toEqual({ sex: 'M', heightCm: 178, weightKg: 80 })
+  await save('profile', { sex: 'M', heightCm: 178 })
+  expect(await load('profile')).toEqual({ sex: 'M', heightCm: 178 })
   await replaceAll({ settings: { lastTab: 'dieta', onboardingDone: true } })
   expect(await load('profile')).toBeUndefined()
   expect(Object.keys(await allData())).toEqual(['settings'])

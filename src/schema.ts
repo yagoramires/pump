@@ -6,7 +6,7 @@ import type { DietItem, DietLog, DietPlan, WaterLog, WaterSettings } from './die
 import type { Measurement, PhotoSet } from './evolution/types'
 
 /** datas = todayKey */
-interface CoreSettings { lastTab: Tab; onboardingDone: boolean; firstUseAt?: string; lastBackupAt?: string; installDismissed?: boolean }
+interface CoreSettings { lastTab: Tab; onboardingDone: boolean; firstUseAt?: string; lastBackupAt?: string; installDismissed?: boolean; checkInDay?: number; anamnesisAt?: string }
 export type Settings = CoreSettings & { seenAchievements?: string[]; water?: WaterSettings }
 export interface UserData { profile: Profile; workoutPlan: WorkoutPlan; workoutLog: WorkoutLog; customExercises: CustomExercise[]; settings: Settings; measurements: Measurement[]; photoSets: PhotoSet[]; dietPlan: DietPlan; dietLog: DietLog; waterLog: WaterLog; foods: DietItem[] }
 
@@ -17,7 +17,7 @@ const deepFreeze = <T,>(o: T): T => {
 
 /** valor de cada chave antes da primeira gravação (profile com heightCm 0 = ainda não preenchido); congelado porque o store entrega por referência */
 export const DEFAULTS = deepFreeze({
-  profile: { sex: 'M', heightCm: 0, weightKg: 0 },
+  profile: { sex: 'M', heightCm: 0 },
   workoutPlan: { workouts: [] },
   workoutLog: {},
   customExercises: [],

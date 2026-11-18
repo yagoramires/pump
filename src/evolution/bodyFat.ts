@@ -17,14 +17,10 @@ export function bodyFat(sex: Sex, heightCm: number, m: MeasureFields): number | 
   return Number.isFinite(v) ? round1(v) : null
 }
 
-export const goalDirection = (p: Profile): 'gain' | 'loss' => {
-  const diet = p.dietAnamnesis?.goal
-  if (diet?.startsWith('perder')) return 'loss'
-  if (diet?.startsWith('ganhar')) return 'gain'
-  return p.anamnesis?.goal === 'hipertrofia' || p.anamnesis?.goal === 'forca' ? 'gain' : 'loss'
-}
+export const goalDirection = (p: Profile): 'gain' | 'loss' | null =>
+  p.dietGoal?.startsWith('perder') ? 'loss' : p.dietGoal?.startsWith('ganhar') ? 'gain' : null
 
 export type Metric = keyof MeasureFields | 'fat'
 const GOOD: Record<'gain' | 'loss', Metric[]> = { gain: ['weightKg', 'armCm', 'chestCm', 'thighCm'], loss: ['weightKg', 'waistCm', 'hipCm'] }
-export const isGood = (m: Metric, dir: 'gain' | 'loss', v: number) =>
-  v !== 0 && (m === 'fat' ? v < 0 : v > 0 ? dir === 'gain' && GOOD.gain.includes(m) : dir === 'loss' && GOOD.loss.includes(m))
+export const isGood = (m: Metric, dir: 'gain' | 'loss' | null, v: number) =>
+  v !== 0 && (m === 'fat' ? v < 0 : dir !== null && (v > 0 ? dir === 'gain' && GOOD.gain.includes(m) : dir === 'loss' && GOOD.loss.includes(m)))

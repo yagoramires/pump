@@ -17,6 +17,7 @@ import { todayKey } from '@/lib/date'
 import { AchievementToasts } from '@/evolution/AchievementToasts'
 import { EvolutionTab } from '@/evolution/EvolutionTab'
 import { Loading } from '@/components/Loading'
+import { migrationFor } from '@/profile/migrate'
 import { USER_KEYS } from './schema'
 
 // dieta fora do chunk principal (orçamento de bundle); continua no precache
@@ -31,6 +32,7 @@ export default function App() {
 function Shell() {
   const reads = USER_KEYS.map((k) => readKey(k))
   for (const r of reads) use(r)
+  use(migrationFor(reads[USER_KEYS.indexOf('profile')]))
   const [settings, setSettings] = usePersisted('settings')
   const [storageError, setStorageError] = useState<string>()
   const [showSettings, setShowSettings] = useState(false)

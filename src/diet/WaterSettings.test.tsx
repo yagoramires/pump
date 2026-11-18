@@ -12,7 +12,8 @@ beforeEach(async () => {
 
 test('liga com a meta pelo peso, grava meta e copo válidos, e religar mantém o ajuste', async () => {
   await save('settings', { lastTab: 'dieta', onboardingDone: true })
-  await save('profile', { sex: 'M', heightCm: 180, weightKg: 80 })
+  await save('profile', { sex: 'M', heightCm: 180 })
+  await save('measurements', [{ id: 'm', date: '2026-11-17', weightKg: 80 }])
   resetStoreForTests()
   const user = userEvent.setup()
   await renderLoaded(<WaterSettings />)

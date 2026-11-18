@@ -29,5 +29,5 @@ test('series, fatSeries e pointAt', () => {
   expect(pointAt(w, '2026-11-12')).toBe(80)
   expect(pointAt(w, '2026-10-01')).toBe(80)
   expect(pointAt([], '2026-11-12')).toBeUndefined()
-  expect(fatSeries({ sex: 'M', heightCm: 178, weightKg: 80 }, l)).toEqual([{ date: '2026-11-17', value: 18.4 }])
+  expect(fatSeries({ sex: 'M', heightCm: 178 }, l)).toEqual([{ date: '2026-11-17', value: 18.4 }])
 })

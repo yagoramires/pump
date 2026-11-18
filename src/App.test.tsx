@@ -38,7 +38,7 @@ test('primeira vez abre a montagem; pular leva à aba Treino; depois abre na úl
 test('Configurações: grupo DIETA abre cardápio, IA e a tela da água, e cada uma volta pro menu', async () => {
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
   await save('settings', { lastTab: 'dieta', onboardingDone: true })
-  await save('profile', { sex: 'M', heightCm: 180, weightKg: 80 })
+  await save('profile', { sex: 'M', heightCm: 180 })
   resetStoreForTests()
   const user = userEvent.setup()
   await renderLoaded(<App />)

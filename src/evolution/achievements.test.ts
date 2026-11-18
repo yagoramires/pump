@@ -31,12 +31,12 @@ test('peso: direção pelo objetivo', () => {
   const loss = computeAchievements(evolutionInput({ workoutLog: {}, workoutPlan: plan([]), measurements: ms, photoSets: [] }), '2026-11-16')
   expect(get(loss, 'weight-small')).toMatchObject({ title: '−1 kg', earnedAt: '2026-11-15' })
   expect(get(loss, 'weight-big').progress).toBe('falta 3,8 kg')
-  const gain = computeAchievements(evolutionInput({ workoutLog: {}, workoutPlan: plan([]), measurements: ms, photoSets: [], profile: { sex: 'M', heightCm: 178, weightKg: 80, anamnesis: { goal: 'hipertrofia' } } }), '2026-11-16')
+  const gain = computeAchievements(evolutionInput({ workoutLog: {}, workoutPlan: plan([]), measurements: ms, photoSets: [], profile: { sex: 'M', heightCm: 178, dietGoal: 'ganhar' } }), '2026-11-16')
   expect(get(gain, 'weight-small')).toMatchObject({ title: '+1 kg', earnedAt: undefined })
 })
 test('primeira foto e gordura −1 ponto', () => {
   const ms = [{ id: '1', date: '2026-11-01', neckCm: 38, waistCm: 88 }, { id: '2', date: '2026-11-20', neckCm: 38, waistCm: 85 }]
-  const a = computeAchievements(evolutionInput({ workoutLog: {}, workoutPlan: plan([]), measurements: ms, photoSets: [{ id: 's', date: '2026-11-03', frente: 'p' }], profile: { sex: 'M', heightCm: 178, weightKg: 80 } }), '2026-11-21')
+  const a = computeAchievements(evolutionInput({ workoutLog: {}, workoutPlan: plan([]), measurements: ms, photoSets: [{ id: 's', date: '2026-11-03', frente: 'p' }], profile: { sex: 'M', heightCm: 178 } }), '2026-11-21')
   expect(get(a, 'first-photo').earnedAt).toBe('2026-11-03')
   expect(get(a, 'fat-1').earnedAt).toBe('2026-11-20')
 })

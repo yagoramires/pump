@@ -10,7 +10,7 @@ test('buildReport: período, resumo, pares de fotos e corpo', () => {
     workoutPlan: { workouts: [] },
     measurements: [{ id: '1', date: '2026-11-15', weightKg: 80, neckCm: 38, waistCm: 88 }, { id: '2', date: '2026-12-10', weightKg: 78.4, neckCm: 38, waistCm: 85 }],
     photoSets: [{ id: 'a', date: '2026-11-15', frente: 'p1', lado: 'p2' }, { id: 'b', date: '2026-12-10', frente: 'p3' }],
-    profile: { sex: 'M', heightCm: 178, weightKg: 78.4 },
+    profile: { sex: 'M', heightCm: 178, dietGoal: 'perder' },
   }), '2026-12-12')
   expect(r.period).toEqual({ start: '2026-11-15', end: '2026-12-12', days: 28 })
   expect(change(row(r, 'weightKg'))).toBe(-1.6)
@@ -29,7 +29,7 @@ test('buildReport sem altura: sem linha de gordura e sem fatDelta', () => {
     workoutPlan: { workouts: [] },
     measurements: [{ id: '1', date: '2026-11-15', weightKg: 80, neckCm: 38, waistCm: 88 }, { id: '2', date: '2026-12-10', weightKg: 78.4, neckCm: 38, waistCm: 85 }],
     photoSets: [],
-    profile: { sex: 'M', heightCm: 0, weightKg: 78.4 },
+    profile: { sex: 'M', heightCm: 0 },
   }), '2026-12-12')
   expect(row(r, 'fat')).toBeUndefined()
   expect(r.body?.rows.map((x) => x.key)).toEqual(['weightKg', 'neckCm', 'waistCm'])

@@ -1,7 +1,7 @@
 import type { Profile } from '@/profile/types'
 import type { DietAnamnesis, DietGoal, Restriction } from './types'
 import { HEADER, str } from '@/format/envelope'
-import { GOALS, label, names, profileLines } from '@/profile/promptLines'
+import { label, names, profileLines } from '@/profile/promptLines'
 import { GOAL_KCAL, GRAMS, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 
 export const TACO_EXAMPLES: string[] = [
@@ -27,21 +27,20 @@ const RESTRICTIONS: Record<Restriction, string> = { lactose: 'sem lactose', glut
 const EAT_OUT: Record<NonNullable<DietAnamnesis['eatOut']>, string> = { casa: 'em casa', fora: 'fora de casa', misto: 'misto (em casa e fora)' }
 
 function aboutMe(p?: Profile): string[] {
-  const a = p?.anamnesis ?? {}
   const d = (p?.dietAnamnesis ?? {}) as Partial<DietAnamnesis>
   return [
     ...profileLines(p),
     ...[
-      label(GOALS, a.goal) && `Objetivo no treino: ${label(GOALS, a.goal)}`,
-      a.daysPerWeek ? `Dias de treino por semana: ${a.daysPerWeek}` : '',
-      label(DIET_GOALS, d.goal) && `Objetivo da dieta: ${label(DIET_GOALS, d.goal)}`,
+      p?.daysPerWeek ? `Dias de treino por semana: ${p.daysPerWeek}` : '',
+      label(DIET_GOALS, p?.dietGoal) && `Objetivo da dieta: ${label(DIET_GOALS, p?.dietGoal)}`,
       d.meals ? `Refeições por dia: ${d.meals}` : '',
-      str(d.wake) && `Acordo às ${str(d.wake)}`,
-      str(d.train) && `Treino às ${str(d.train)}`,
-      str(d.sleep) && `Durmo às ${str(d.sleep)}`,
+      str(p?.wake) && `Acordo às ${str(p?.wake)}`,
+      str(p?.train) && `Treino às ${str(p?.train)}`,
+      str(p?.sleep) && `Durmo às ${str(p?.sleep)}`,
       names(d.restrictions, RESTRICTIONS) && `Restrições: ${names(d.restrictions, RESTRICTIONS)}`,
       str(d.avoid) && `Não como: ${str(d.avoid)}`,
       label(EAT_OUT, d.eatOut) && `Onde como: ${label(EAT_OUT, d.eatOut)}`,
+      str(p?.notes) && `Observações gerais: ${str(p?.notes)}`,
       str(d.notes) && `Observações: ${str(d.notes)}`,
     ].filter(Boolean).map((l) => `- ${l}`),
   ]
@@ -49,7 +48,7 @@ function aboutMe(p?: Profile): string[] {
 
 export const buildDietPrompt = (profile?: Profile): string => {
   const me = aboutMe(profile)
-  const menus = profile?.anamnesis?.daysPerWeek
+  const menus = profile?.daysPerWeek
     ? 'Faça 2 cardápios: "Dia de treino" e "Descanso", cada um com sua meta (no descanso, em geral menos calorias e carboidrato).'
     : 'Faça 1 cardápio.'
   return `Você é um nutricionista. Monte meu cardápio no formato "Pump".

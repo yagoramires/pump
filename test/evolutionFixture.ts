@@ -60,7 +60,7 @@ dietLog['2026-12-17'] = dietDay([false, false, false]) // cópia sem marca antig
 const waterLog: WaterLog = {}
 for (const k of eachDay('2026-11-28', '2026-12-19')) waterLog[k] = { ml: k === '2026-12-03' ? 1500 : 2750, goalMl: 2500 }
 
-const profile: Profile = { sex: 'M', heightCm: 178, weightKg: 83.7, anamnesis: { goal: 'hipertrofia' }, dietAnamnesis: { goal: 'perder' } }
+const profile: Profile = { sex: 'M', heightCm: 178, dietGoal: 'perder' }
 
 export const RICH = { workoutLog, workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan }
 const RICH_TODAY = '2026-12-20'
@@ -68,7 +68,7 @@ export const RICH_TODAYS = ['2026-10-20', '2026-11-30', RICH_TODAY, addDays(RICH
 
 export const PROFILES: Record<string, Profile> = {
   loss: profile,
-  gain: { sex: 'M', heightCm: 178, weightKg: 83.7, anamnesis: { goal: 'hipertrofia' } },
-  female: { sex: 'F', heightCm: 165, weightKg: 70, dietAnamnesis: { goal: 'ganhar' } },
-  noHeight: { sex: 'M', heightCm: 0, weightKg: 0 },
+  gain: { sex: 'M', heightCm: 178, dietGoal: 'ganhar' },
+  female: { sex: 'F', heightCm: 165, dietGoal: 'ganhar' },
+  noHeight: { sex: 'M', heightCm: 0, dietGoal: 'perder' },
 }

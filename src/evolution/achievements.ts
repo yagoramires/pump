@@ -65,7 +65,8 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
     }
   }
 
-  const dir = goalDirection(d.profile)
+  // shortcut: sem objetivo conta como perder até a Task 2 filtrar conquistas de peso por objetivo
+  const dir = goalDirection(d.profile) ?? 'loss'
   const sign = dir === 'loss' ? 1 : -1
   const weights = series(d.measurements, 'weightKg')
   const w0 = weights[0]?.value

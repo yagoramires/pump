@@ -12,8 +12,7 @@ export function ProfileForm({ submitLabel, onDone }: { submitLabel: string; onDo
   const [sex, setSex] = useState(start.sex)
   // undefined = vazio, null = texto inválido; 0 conta como vazio
   const [height, setHeight] = useState<number | null | undefined>(start.heightCm || undefined)
-  const [weight, setWeight] = useState<number | null | undefined>(start.weightKg || undefined)
-  const ok = !!height && !!weight
+  const ok = !!height
   return (
     <div className="flex flex-1 flex-col gap-4">
       <ToggleGroup type="single" spacing={1} value={sex} onValueChange={(v) => v && setSex(v as Profile['sex'])} aria-label="Sexo" className="w-full gap-[3px] rounded-[11px] border border-border bg-panel p-[3px]">
@@ -25,12 +24,8 @@ export function ProfileForm({ submitLabel, onDone }: { submitLabel: string; onDo
         <label htmlFor="altura" className={LABEL}>Altura</label>
         <NumberField id="altura" className="pr-11" unit="cm" min={0} max={Infinity} value={height ?? undefined} onChange={setHeight} />
       </div>
-      <div>
-        <label htmlFor="peso" className={LABEL}>Peso</label>
-        <NumberField id="peso" className="pr-11" unit="kg" min={0} max={Infinity} value={weight ?? undefined} onChange={setWeight} />
-      </div>
       <p className="rounded-[11px] border border-border bg-surface px-3 py-2.5 text-[13px] text-text-2">Seus dados ficam só neste aparelho.</p>
-      <Button type="button" className="mt-auto" disabled={!ok} onClick={() => { setProfile({ ...start, sex, heightCm: height!, weightKg: weight! }); onDone() }}>{submitLabel}</Button>
+      <Button type="button" className="mt-auto" disabled={!ok} onClick={() => { setProfile({ ...start, sex, heightCm: height! }); onDone() }}>{submitLabel}</Button>
     </div>
   )
 }

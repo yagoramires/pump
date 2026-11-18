@@ -5,13 +5,13 @@ import { buildDietPrompt, TACO_EXAMPLES } from './prompt'
 
 test('buildDietPrompt traz perfil e anamnese da dieta; sem perfil pede pra perguntar primeiro', () => {
   const p = buildDietPrompt({
-    sex: 'F', heightCm: 165, weightKg: 62.5,
-    anamnesis: { goal: 'emagrecer', daysPerWeek: 4, age: 34 },
-    dietAnamnesis: { goal: 'perder', meals: 5, wake: '06:30', train: '18:00', sleep: '23:00', restrictions: ['lactose', 'vegetariano'], avoid: ' fígado ', eatOut: 'misto', notes: 'gosto de café' },
+    sex: 'F', heightCm: 165,
+    age: 34, daysPerWeek: 4, dietGoal: 'perder', wake: '06:30', train: '18:00', sleep: '23:00', notes: 'tenho pouco tempo',
+    dietAnamnesis: { meals: 5, restrictions: ['lactose', 'vegetariano'], avoid: ' fígado ', eatOut: 'misto', notes: 'gosto de café' },
   })
-  for (const l of ['- Sexo: feminino', '- Idade: 34 anos', '- Altura: 165 cm', '- Peso: 62,5 kg', '- Objetivo no treino: emagrecer', '- Dias de treino por semana: 4',
+  for (const l of ['- Sexo: feminino', '- Idade: 34 anos', '- Altura: 165 cm', '- Dias de treino por semana: 4',
     '- Objetivo da dieta: perder peso', '- Refeições por dia: 5', '- Acordo às 06:30', '- Treino às 18:00', '- Durmo às 23:00', '- Restrições: sem lactose, vegetariano',
-    '- Não como: fígado', '- Onde como: misto (em casa e fora)', '- Observações: gosto de café'])
+    '- Não como: fígado', '- Onde como: misto (em casa e fora)', '- Observações gerais: tenho pouco tempo', '- Observações: gosto de café'])
     expect(p).toContain(l)
 
   const empty = buildDietPrompt(undefined)
@@ -27,14 +27,14 @@ test('prompt respeita 6000 caracteres, o exemplo é um cardápio válido com 2 o
   const example = parseDietFormat(empty)
   expect(example.cardapios[0].refeicoes[0].opcoes).toHaveLength(2)
 
-  const trains = buildDietPrompt({ sex: 'M', heightCm: 180, weightKg: 80, anamnesis: { daysPerWeek: 4 } })
+  const trains = buildDietPrompt({ sex: 'M', heightCm: 180, daysPerWeek: 4 })
   expect(trains).toContain('2 cardápios')
   expect(trains).toContain('"Dia de treino"')
   expect(trains).toContain('"Descanso"')
 })
 
 test('anamnese da dieta inválida vinda de backup não gera linha', () => {
-  const p = buildDietPrompt({ sex: 'M', heightCm: 170, weightKg: 70, dietAnamnesis: { goal: 'xyz', restrictions: 'lactose', eatOut: 'lua', notes: 3 } as never })
+  const p = buildDietPrompt({ sex: 'M', heightCm: 170, dietGoal: 'xyz' as never, notes: 3 as never, dietAnamnesis: { restrictions: 'lactose', eatOut: 'lua', notes: 3 } as never })
   expect(p).not.toContain('Objetivo da dieta')
   expect(p).not.toContain('Restrições')
   expect(p).not.toContain('Onde como')
