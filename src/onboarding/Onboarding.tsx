@@ -77,7 +77,7 @@ export function Onboarding() {
           <div className="flex-1"><Steps n={5} total={5} /></div>
           <Button type="button" variant="ghost" className="-mt-2 text-text-2" onClick={finish}>Pular por agora</Button>
         </div>
-        <h1 className="mb-3 text-[26px] font-bold tracking-tight text-strong">Sua dieta</h1>
+        <BackHeader title="Sua dieta" onBack={() => setStep('treino')} className="mb-3 px-0 py-0" />
         <EmptyState icon={<Utensils size={30} aria-hidden="true" />} title="Monte seu cardápio">
           <p className="max-w-[240px] text-sm text-text-2">A IA já recebe peso, % de gordura, massa magra, medidas e horários.</p>
           <Button className="mt-3 w-full max-w-xs" onClick={() => setStep('dieta-ia')}><Sparkles aria-hidden="true" />Gerar com IA</Button>
