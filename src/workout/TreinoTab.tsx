@@ -28,6 +28,7 @@ import { PastWorkouts } from './PastWorkouts'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import type { Workout } from './types'
 
+const MIDNIGHT_HOLD_HOURS = 6
 const firstIncomplete = (s: WorkoutSession): number => s.exercises.findIndex((e) => !isCardio(e) && e.sets.includes(null))
 
 export function TreinoTab() {
@@ -54,7 +55,9 @@ export function TreinoTab() {
   if (seenAt !== clock.now) {
     setSeenAt(clock.now)
     const s = log[today]
-    if (clock.today !== today && !(s && !s.completedAt && !isRest(s))) {
+    // só segura o dia com treino de verdade (série marcada) e recente
+    const holds = s && !s.completedAt && !isRest(s) && s.exercises.some((e) => e.sets.some(Boolean)) && clock.now.getTime() - Date.parse(s.startedAt ?? '') < MIDNIGHT_HOLD_HOURS * 3_600_000
+    if (clock.today !== today && !holds) {
       setToday(clock.today)
       setChosenId(undefined)
       setOpenIdx('auto')
@@ -100,6 +103,7 @@ export function TreinoTab() {
   if (rest && !chosenId) {
     return (
       <div>
+        {unfinished && <UnfinishedCard session={unfinished} setLog={setLog} />}
         <div className="flex items-center justify-between"><div className="label-caps">{formatDayLabel(today)}</div>{pastLink}</div>
         <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Descanso marcado">
           <p className="max-w-[260px] text-sm text-text-2">Hoje é dia de recuperar. Quer treinar mesmo assim?</p>
@@ -244,7 +248,7 @@ export function TreinoTab() {
         {session?.completedAt ? (
           <Button variant="secondary" className="h-11 w-full rounded-[13px] font-bold" disabled><Check aria-hidden="true" /> Treino concluído</Button>
         ) : (
-          <Button className="h-11 w-full rounded-[13px] font-bold" onClick={session ? conclude : start}>{session ? <><Check aria-hidden="true" /> Concluir treino</> : 'Iniciar treino'}</Button>
+          <Button className="h-11 w-full rounded-[13px] font-bold" disabled={!!session && stats.done === 0} onClick={session ? conclude : start}>{session ? <><Check aria-hidden="true" /> Concluir treino</> : 'Iniciar treino'}</Button>
         )}
       </div>
       {switching === 'list' && <SwitchWorkout workouts={plan.workouts} shownId={view.workoutId} nextId={next?.id} onPick={pick} onClose={() => setSwitching(undefined)} />}

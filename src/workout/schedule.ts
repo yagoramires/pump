@@ -9,9 +9,11 @@ export const nextWorkout = (plan: WorkoutPlan, log: WorkoutLog): Workout | undef
   return plan.workouts[i < 0 ? 0 : (i + 1) % plan.workouts.length]
 }
 
-/** sessão de dia anterior com série marcada que ficou sem concluir */
-export const unfinishedSession = (log: WorkoutLog, today: string): WorkoutSession | undefined =>
-  Object.values(log)
-    .filter((s) => s.date < today && !s.completedAt && !s.rest && s.exercises.some((e) => e.sets.some(Boolean)))
+/** sessão de dia anterior, posterior à última concluída, com série marcada que ficou sem concluir (as mais antigas ficam como estão) */
+export const unfinishedSession = (log: WorkoutLog, today: string): WorkoutSession | undefined => {
+  const lastDone = Object.values(log).filter((s) => s.completedAt && !s.rest).sort(byRecent).at(-1)?.date ?? ''
+  return Object.values(log)
+    .filter((s) => s.date > lastDone && s.date < today && !s.completedAt && !s.rest && s.exercises.some((e) => e.sets.some(Boolean)))
     .sort(byRecent)
     .at(-1)
+}

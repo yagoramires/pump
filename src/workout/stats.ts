@@ -26,7 +26,7 @@ export const previousSets = (log: WorkoutLog, today: string, exerciseId: string)
   const dates = Object.keys(log).filter((d) => d < today).sort().reverse()
   for (const d of dates) {
     const ex = log[d].exercises.find((e) => e.exerciseId === exerciseId)
-    if (ex) return ex.sets
+    if (ex?.sets.some(Boolean)) return ex.sets
   }
   return []
 }

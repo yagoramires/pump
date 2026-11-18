@@ -31,3 +31,10 @@ test('unfinishedSession: só dia anterior, com série marcada, não concluída',
   expect(unfinishedSession(log(withSet(open('2026-11-17', 'A'), true)), '2026-11-18')?.date).toBe('2026-11-17')
   expect(unfinishedSession(log(withSet(open('2026-11-10', 'A'), true), withSet(open('2026-11-15', 'B'), true)), '2026-11-18')?.date).toBe('2026-11-15')
 })
+test('unfinishedSession: sessão aberta anterior a uma concluída fica como está', () => {
+  expect(unfinishedSession(log(withSet(open('2026-11-10', 'A'), true), done('2026-11-12', 'B')), '2026-11-18')).toBeUndefined()
+  const l = log(withSet(open('2026-11-10', 'A'), true), done('2026-11-12', 'B'), withSet(open('2026-11-15', 'C'), true))
+  expect(unfinishedSession(l, '2026-11-18')?.date).toBe('2026-11-15')
+  const { '2026-11-15': _x, ...resolved } = l
+  expect(unfinishedSession({ ...resolved, '2026-11-15': done('2026-11-15', 'C') }, '2026-11-18')).toBeUndefined()
+})

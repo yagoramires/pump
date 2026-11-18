@@ -33,3 +33,8 @@ test('sessionStats: startedAt ilegível dá null e tempo negativo vira 0', () =>
   const fut = startSession(workoutOf([{ sets: 1 }]), '2026-11-16', new Date(2026, 10, 16, 19, 0))
   expect(sessionStats(fut, new Date(2026, 10, 16, 18, 0)).minutes).toBe(0)
 })
+test('previousSets ignora sessão anterior sem série marcada', () => {
+  const mk = (date: string, sets: (SetDone | null)[]) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [{ ...pe({ exerciseId: 'Supino' }), sets }] })
+  const log = { '2026-11-12': mk('2026-11-12', [{ reps: '10', weightKg: 40 }]), '2026-11-14': mk('2026-11-14', [null, null]) }
+  expect(previousSets(log, '2026-11-16', 'Supino')).toEqual([{ reps: '10', weightKg: 40 }])
+})

@@ -84,6 +84,7 @@ test('editar carga inline e marcar; editar série feita grava a partir da guarda
   expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]).toEqual({ reps: '8', weightKg: 45 })
 })
 test('treino em andamento passa da meia-noite e segue no mesmo dia ao voltar', async () => {
+  vi.setSystemTime(new Date(2026, 10, 16, 20, 0))
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
   await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
@@ -93,6 +94,7 @@ test('treino em andamento passa da meia-noite e segue no mesmo dia ao voltar', a
   expect(screen.getByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
 })
 test('check recém-feito, ainda gravando, segura o dia ao voltar depois da meia-noite', async () => {
+  vi.setSystemTime(new Date(2026, 10, 16, 20, 0))
   await renderLoaded(<TreinoTab />)
   const s1 = await screen.findByRole('button', { name: 'Série 1 de Supino reto' })
   vi.mocked(idb.set).mockReturnValueOnce(new Promise(() => {})) // a gravação no IndexedDB nunca termina
@@ -250,7 +252,7 @@ test('abre no próximo treino da fila e Iniciar treino grava a sessão com start
     expect(s?.workoutId).toBe('b')
     expect(s?.startedAt).toBeDefined()
   })
-  expect(screen.getByRole('button', { name: 'Concluir treino' })).toBeEnabled()
+  expect(screen.getByRole('button', { name: 'Concluir treino' })).toBeDisabled()
   expect(screen.queryByRole('button', { name: 'Descansar hoje' })).not.toBeInTheDocument()
 })
 test('trocar antes de iniciar só muda o treino mostrado', async () => {
@@ -310,6 +312,7 @@ test('Descartar remove a sessão, a fila fica no mesmo treino e Desfazer restaur
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-15']).toBeDefined())
 })
 test('treino de hoje em andamento que passa da meia-noite não vira cartão de sem concluir', async () => {
+  vi.setSystemTime(new Date(2026, 10, 16, 20, 0))
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
   await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
@@ -325,4 +328,53 @@ test('link Treinos anteriores abre e fecha a lista', async () => {
   expect(screen.getByText('Nenhum treino concluído ainda')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Voltar' }))
   expect(await screen.findByRole('button', { name: 'Iniciar treino' })).toBeInTheDocument()
+})
+test('sessão iniciada sem séries às 23h não segura o dia: de manhã mostra o próximo treino de hoje', async () => {
+  await save('workoutPlan', plano2)
+  vi.setSystemTime(new Date(2026, 10, 16, 23, 0))
+  const user = userEvent.setup()
+  await renderLoaded(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: 'Iniciar treino' }))
+  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16']).toBeDefined())
+  vi.setSystemTime(new Date(2026, 10, 17, 7, 0))
+  await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
+  expect(await screen.findByText(new RegExp(formatDayLabel('2026-11-17')))).toBeInTheDocument()
+  expect(screen.queryByText(/ficou sem concluir/)).not.toBeInTheDocument()
+})
+test('sessão com séries iniciada há mais de 6h vira o dia e aparece o cartão', async () => {
+  vi.setSystemTime(new Date(2026, 10, 16, 20, 0))
+  const user = userEvent.setup()
+  await renderLoaded(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16']).toBeDefined())
+  vi.setSystemTime(new Date(2026, 10, 17, 6, 30))
+  await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
+  expect(await screen.findByText(`Treino A de ${formatDayLabel('2026-11-16')} ficou sem concluir`)).toBeInTheDocument()
+})
+test('Concluir treino fica desabilitado sem série marcada', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: 'Iniciar treino' }))
+  expect(await screen.findByRole('button', { name: 'Concluir treino' })).toBeDisabled()
+})
+test('dia de descanso também mostra o cartão de treino sem concluir', async () => {
+  await save('workoutPlan', plano2)
+  await save('workoutLog', { ...logOntem(), '2026-11-16': restRecord('2026-11-16') })
+  await renderLoaded(<TreinoTab />)
+  expect(await screen.findByText('Descanso marcado')).toBeInTheDocument()
+  expect(screen.getByText(`Treino A de ${formatDayLabel('2026-11-15')} ficou sem concluir`)).toBeInTheDocument()
+})
+test('Concluir do cartão avisa e Desfazer restaura a sessão aberta', async () => {
+  await save('workoutPlan', plano2)
+  await save('workoutLog', logOntem())
+  const user = userEvent.setup()
+  await renderLoaded(<><TreinoTab /><Toaster /></>)
+  await user.click(await screen.findByRole('button', { name: 'Concluir' }))
+  expect(await within(screen.getByRole('region', { name: /Notifications/ })).findByText('Treino concluído')).toBeInTheDocument()
+  await user.click(await screen.findByRole('button', { name: 'Desfazer' }))
+  await waitFor(async () => {
+    const s = (await load('workoutLog'))?.['2026-11-15']
+    expect(s?.completedAt).toBeUndefined()
+    expect(s?.startedAt).toBeDefined()
+  })
 })

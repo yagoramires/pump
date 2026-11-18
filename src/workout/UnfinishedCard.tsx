@@ -11,9 +11,11 @@ export function UnfinishedCard({ session, setLog }: { session: WorkoutSession; s
   const conclude = () => {
     const [y, m, d] = date.split('-').map(Number)
     setLog((prev) => {
+      if (!prev[date]) return prev
       const { startedAt: _s, ...rest } = prev[date]
       return { ...prev, [date]: { ...rest, completedAt: new Date(y, m - 1, d, 23, 59).toISOString(), restEndsAt: undefined } }
     })
+    toast('Treino concluído', { action: { label: 'Desfazer', onClick: () => setLog((prev) => ({ ...prev, [date]: session })) } })
   }
   const discard = () => {
     setLog(({ [date]: _gone, ...others }) => others)
