@@ -318,3 +318,11 @@ test('treino de hoje em andamento que passa da meia-noite não vira cartão de s
   await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
   expect(screen.queryByText(/ficou sem concluir/)).not.toBeInTheDocument()
 })
+test('link Treinos anteriores abre e fecha a lista', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: /Treinos anteriores/ }))
+  expect(screen.getByText('Nenhum treino concluído ainda')).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Voltar' }))
+  expect(await screen.findByRole('button', { name: 'Iniciar treino' })).toBeInTheDocument()
+})

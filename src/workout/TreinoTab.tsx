@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowLeftRight, Check, ChevronRight, Dumbbell, HeartPulse, Moon, Undo2 } from 'lucide-react'
+import { ArrowLeftRight, Check, ChevronRight, Dumbbell, HeartPulse, History, Moon, Undo2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { SetDone, WorkoutLog, WorkoutSession } from './types'
 import { usePersisted } from '@/storage/db'
@@ -24,6 +24,7 @@ import { unlockAudio } from './restTimer'
 import { isCardio } from './cardio'
 import { UnfinishedCard } from './UnfinishedCard'
 import { SwitchWorkout } from './SwitchWorkout'
+import { PastWorkouts } from './PastWorkouts'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import type { Workout } from './types'
 
@@ -38,6 +39,7 @@ export function TreinoTab() {
   const [chosenId, setChosenId] = useState<string>()
   const [editingPlan, setEditingPlan] = useState(false)
   const [switching, setSwitching] = useState<'list' | Workout>()
+  const [pastOpen, setPastOpen] = useState(false)
   const [preview, setPreview] = useState<number>()
   const [openIdx, setOpenIdx] = useState<'auto' | number | null>('auto')
   const [restTotal, setRestTotal] = useState<number>()
@@ -76,6 +78,7 @@ export function TreinoTab() {
   const finishRest = useCallback(() => patch((s) => (s.restEndsAt === undefined ? s : { ...s, restEndsAt: undefined })), [patch])
   const closePreview = useCallback(() => setPreview(undefined), [])
 
+  if (pastOpen) return <Overlay><PastWorkouts onClose={() => setPastOpen(false)} /></Overlay>
   if (editingPlan) return <Overlay><PlanEditor initial={plan} onSave={(p) => { setPlan(p); setEditingPlan(false) }} onCancel={() => setEditingPlan(false)} /></Overlay>
   if (plan.workouts.length === 0) {
     return (
@@ -96,7 +99,7 @@ export function TreinoTab() {
   if (rest && !chosenId) {
     return (
       <div>
-        <div className="label-caps">{formatDayLabel(today)}</div>
+        <div className="flex items-center justify-between"><div className="label-caps">{formatDayLabel(today)}</div><Button variant="ghost" className="h-8 px-1 text-[13px] text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /> Treinos anteriores</Button></div>
         <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Descanso marcado">
           <p className="max-w-[260px] text-sm text-text-2">Hoje é dia de recuperar. Quer treinar mesmo assim?</p>
           <Button variant="outline" className="h-11 rounded-[13px]" onClick={undoRest}><Undo2 aria-hidden="true" /> Desfazer</Button>
@@ -177,7 +180,7 @@ export function TreinoTab() {
   return (
     <div className="pb-24">
       {unfinished && <UnfinishedCard session={unfinished} setLog={setLog} />}
-      <div className="label-caps">{`${formatDayLabel(today)} · TREINO ${view.workoutLabel}`}</div>
+      <div className="flex items-center justify-between"><div className="label-caps">{`${formatDayLabel(today)} · TREINO ${view.workoutLabel}`}</div><Button variant="ghost" className="h-8 px-1 text-[13px] text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /> Treinos anteriores</Button></div>
       <h1 className="mt-0.5 mb-3 text-[26px] font-bold tracking-tight text-strong">{view.workoutName}</h1>
       {!session?.completedAt && plan.workouts.length > 1 && (
         <Button variant="ghost" className="-mt-2 mb-2 h-8 px-1 text-[13px] text-accent" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>
