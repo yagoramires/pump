@@ -1,0 +1,7375 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`golden dietOnly @ 2026-10-20 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": undefined,
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-3",
+      "progress": "falta 3",
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-7",
+      "progress": "falta 7",
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-10",
+      "progress": "falta 10",
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 50",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 100",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-small",
+      "progress": "falta 1 kg",
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 5 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-7",
+      "progress": "falta 7",
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "water-7",
+      "progress": "falta 7",
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": null,
+    "diet": {
+      "achievements": [],
+      "avgGoal": undefined,
+      "avgKcal": 0,
+      "days": 0,
+      "freeUses": 0,
+      "fullDays": 0,
+      "waterDays": undefined,
+    },
+    "period": {
+      "days": -30,
+      "end": "2026-10-20",
+      "start": "2026-11-20",
+    },
+    "photoPairs": [],
+    "summary": {
+      "fat": undefined,
+      "fatDelta": undefined,
+      "volumeTons": 0,
+      "weight": undefined,
+      "weightDelta": undefined,
+      "workouts": 0,
+    },
+    "training": {
+      "achievements": [],
+      "perWeek": 0,
+      "topLifts": [],
+      "workouts": 0,
+    },
+  },
+}
+`;
+
+exports[`golden dietOnly @ 2026-11-30 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": undefined,
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-3",
+      "progress": "falta 3",
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-7",
+      "progress": "falta 7",
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-10",
+      "progress": "falta 10",
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 50",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 100",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-small",
+      "progress": "falta 1 kg",
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 5 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-7",
+      "progress": "falta 4",
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "water-7",
+      "progress": "falta 5",
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": null,
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+      ],
+      "avgGoal": 2000,
+      "avgKcal": 600,
+      "days": 11,
+      "freeUses": 2,
+      "fullDays": 9,
+      "waterDays": 3,
+    },
+    "period": {
+      "days": 11,
+      "end": "2026-11-30",
+      "start": "2026-11-20",
+    },
+    "photoPairs": [],
+    "summary": {
+      "fat": undefined,
+      "fatDelta": undefined,
+      "volumeTons": 0,
+      "weight": undefined,
+      "weightDelta": undefined,
+      "workouts": 0,
+    },
+    "training": {
+      "achievements": [],
+      "perWeek": 0,
+      "topLifts": [],
+      "workouts": 0,
+    },
+  },
+}
+`;
+
+exports[`golden dietOnly @ 2026-12-20 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": undefined,
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-3",
+      "progress": "falta 3",
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-7",
+      "progress": "falta 7",
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-10",
+      "progress": "falta 10",
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 50",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 100",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-small",
+      "progress": "falta 1 kg",
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 5 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": "2026-12-15",
+      "id": "diet-7",
+      "progress": undefined,
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": "2026-12-10",
+      "id": "water-7",
+      "progress": undefined,
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": null,
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+        {
+          "earnedAt": "2026-12-15",
+          "title": "7 dias na dieta",
+        },
+        {
+          "earnedAt": "2026-12-10",
+          "title": "Água 7 dias",
+        },
+      ],
+      "avgGoal": 1896,
+      "avgKcal": 592,
+      "days": 31,
+      "freeUses": 3,
+      "fullDays": 23,
+      "waterDays": 20,
+    },
+    "period": {
+      "days": 31,
+      "end": "2026-12-20",
+      "start": "2026-11-20",
+    },
+    "photoPairs": [],
+    "summary": {
+      "fat": undefined,
+      "fatDelta": undefined,
+      "volumeTons": 0,
+      "weight": undefined,
+      "weightDelta": undefined,
+      "workouts": 0,
+    },
+    "training": {
+      "achievements": [],
+      "perWeek": 0,
+      "topLifts": [],
+      "workouts": 0,
+    },
+  },
+}
+`;
+
+exports[`golden dietOnly @ 2027-01-29 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": undefined,
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-3",
+      "progress": "falta 3",
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-7",
+      "progress": "falta 7",
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-10",
+      "progress": "falta 10",
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 50",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 100",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-small",
+      "progress": "falta 1 kg",
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 5 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": "2026-12-15",
+      "id": "diet-7",
+      "progress": undefined,
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": "2026-12-10",
+      "id": "water-7",
+      "progress": undefined,
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": null,
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+        {
+          "earnedAt": "2026-12-15",
+          "title": "7 dias na dieta",
+        },
+        {
+          "earnedAt": "2026-12-10",
+          "title": "Água 7 dias",
+        },
+      ],
+      "avgGoal": 1896,
+      "avgKcal": 592,
+      "days": 71,
+      "freeUses": 3,
+      "fullDays": 23,
+      "waterDays": 20,
+    },
+    "period": {
+      "days": 71,
+      "end": "2027-01-29",
+      "start": "2026-11-20",
+    },
+    "photoPairs": [],
+    "summary": {
+      "fat": undefined,
+      "fatDelta": undefined,
+      "volumeTons": 0,
+      "weight": undefined,
+      "weightDelta": undefined,
+      "workouts": 0,
+    },
+    "training": {
+      "achievements": [],
+      "perWeek": 0,
+      "topLifts": [],
+      "workouts": 0,
+    },
+  },
+}
+`;
+
+exports[`golden female @ 2026-10-20 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 23",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-small",
+      "progress": "falta 1 kg",
+      "title": "+1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 3 kg",
+      "title": "+3 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-7",
+      "progress": "falta 7",
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "water-7",
+      "progress": "falta 7",
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": false,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.7,
+          "first": 38.9,
+          "good": true,
+          "label": "Gordura",
+          "last": 35.2,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": false,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": false,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": true,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [],
+      "avgGoal": undefined,
+      "avgKcal": 0,
+      "days": 0,
+      "freeUses": 0,
+      "fullDays": 0,
+      "waterDays": undefined,
+    },
+    "period": {
+      "days": 16,
+      "end": "2026-10-20",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 35.2,
+      "fatDelta": -3.7,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 13.1,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden female @ 2026-11-30 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 23",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-small",
+      "progress": "falta 1 kg",
+      "title": "+1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 3 kg",
+      "title": "+3 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-7",
+      "progress": "falta 4",
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "water-7",
+      "progress": "falta 5",
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": false,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.7,
+          "first": 38.9,
+          "good": true,
+          "label": "Gordura",
+          "last": 35.2,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": false,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": false,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": true,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+      ],
+      "avgGoal": 2000,
+      "avgKcal": 600,
+      "days": 11,
+      "freeUses": 2,
+      "fullDays": 9,
+      "waterDays": 3,
+    },
+    "period": {
+      "days": 57,
+      "end": "2026-11-30",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 35.2,
+      "fatDelta": -3.7,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 3.7,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden female @ 2026-12-20 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-small",
+      "progress": "falta 1 kg",
+      "title": "+1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 3 kg",
+      "title": "+3 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": "2026-12-15",
+      "id": "diet-7",
+      "progress": undefined,
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": "2026-12-10",
+      "id": "water-7",
+      "progress": undefined,
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": false,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.7,
+          "first": 38.9,
+          "good": true,
+          "label": "Gordura",
+          "last": 35.2,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": false,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": false,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": true,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+        {
+          "earnedAt": "2026-12-15",
+          "title": "7 dias na dieta",
+        },
+        {
+          "earnedAt": "2026-12-10",
+          "title": "Água 7 dias",
+        },
+      ],
+      "avgGoal": 1896,
+      "avgKcal": 592,
+      "days": 31,
+      "freeUses": 3,
+      "fullDays": 23,
+      "waterDays": 20,
+    },
+    "period": {
+      "days": 77,
+      "end": "2026-12-20",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 35.2,
+      "fatDelta": -3.7,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 2.7,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden female @ 2027-01-29 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-small",
+      "progress": "falta 1 kg",
+      "title": "+1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 3 kg",
+      "title": "+3 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": "2026-12-15",
+      "id": "diet-7",
+      "progress": undefined,
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": "2026-12-10",
+      "id": "water-7",
+      "progress": undefined,
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": false,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.7,
+          "first": 38.9,
+          "good": true,
+          "label": "Gordura",
+          "last": 35.2,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": false,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": false,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": true,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+        {
+          "earnedAt": "2026-12-15",
+          "title": "7 dias na dieta",
+        },
+        {
+          "earnedAt": "2026-12-10",
+          "title": "Água 7 dias",
+        },
+      ],
+      "avgGoal": 1896,
+      "avgKcal": 592,
+      "days": 71,
+      "freeUses": 3,
+      "fullDays": 23,
+      "waterDays": 20,
+    },
+    "period": {
+      "days": 117,
+      "end": "2027-01-29",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 35.2,
+      "fatDelta": -3.7,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 1.8,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden gain @ 2026-10-20 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 23",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-small",
+      "progress": "falta 1 kg",
+      "title": "+1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 3 kg",
+      "title": "+3 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-7",
+      "progress": "falta 7",
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "water-7",
+      "progress": "falta 7",
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": false,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": false,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": false,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": true,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [],
+      "avgGoal": undefined,
+      "avgKcal": 0,
+      "days": 0,
+      "freeUses": 0,
+      "fullDays": 0,
+      "waterDays": undefined,
+    },
+    "period": {
+      "days": 16,
+      "end": "2026-10-20",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 13.1,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden gain @ 2026-11-30 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 23",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-small",
+      "progress": "falta 1 kg",
+      "title": "+1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 3 kg",
+      "title": "+3 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-7",
+      "progress": "falta 4",
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "water-7",
+      "progress": "falta 5",
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": false,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": false,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": false,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": true,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+      ],
+      "avgGoal": 2000,
+      "avgKcal": 600,
+      "days": 11,
+      "freeUses": 2,
+      "fullDays": 9,
+      "waterDays": 3,
+    },
+    "period": {
+      "days": 57,
+      "end": "2026-11-30",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 3.7,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden gain @ 2026-12-20 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-small",
+      "progress": "falta 1 kg",
+      "title": "+1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 3 kg",
+      "title": "+3 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": "2026-12-15",
+      "id": "diet-7",
+      "progress": undefined,
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": "2026-12-10",
+      "id": "water-7",
+      "progress": undefined,
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": false,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": false,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": false,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": true,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+        {
+          "earnedAt": "2026-12-15",
+          "title": "7 dias na dieta",
+        },
+        {
+          "earnedAt": "2026-12-10",
+          "title": "Água 7 dias",
+        },
+      ],
+      "avgGoal": 1896,
+      "avgKcal": 592,
+      "days": 31,
+      "freeUses": 3,
+      "fullDays": 23,
+      "waterDays": 20,
+    },
+    "period": {
+      "days": 77,
+      "end": "2026-12-20",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 2.7,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden gain @ 2027-01-29 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-small",
+      "progress": "falta 1 kg",
+      "title": "+1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 3 kg",
+      "title": "+3 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": "2026-12-15",
+      "id": "diet-7",
+      "progress": undefined,
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": "2026-12-10",
+      "id": "water-7",
+      "progress": undefined,
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": false,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": false,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": false,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": true,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+        {
+          "earnedAt": "2026-12-15",
+          "title": "7 dias na dieta",
+        },
+        {
+          "earnedAt": "2026-12-10",
+          "title": "Água 7 dias",
+        },
+      ],
+      "avgGoal": 1896,
+      "avgKcal": 592,
+      "days": 71,
+      "freeUses": 3,
+      "fullDays": 23,
+      "waterDays": 20,
+    },
+    "period": {
+      "days": 117,
+      "end": "2027-01-29",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 1.8,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden loss @ 2026-10-20 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 23",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-7",
+      "progress": "falta 7",
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "water-7",
+      "progress": "falta 7",
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [],
+      "avgGoal": undefined,
+      "avgKcal": 0,
+      "days": 0,
+      "freeUses": 0,
+      "fullDays": 0,
+      "waterDays": undefined,
+    },
+    "period": {
+      "days": 16,
+      "end": "2026-10-20",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 13.1,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden loss @ 2026-11-30 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 23",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-7",
+      "progress": "falta 4",
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "water-7",
+      "progress": "falta 5",
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+      ],
+      "avgGoal": 2000,
+      "avgKcal": 600,
+      "days": 11,
+      "freeUses": 2,
+      "fullDays": 9,
+      "waterDays": 3,
+    },
+    "period": {
+      "days": 57,
+      "end": "2026-11-30",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 3.7,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden loss @ 2026-12-20 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": "2026-12-15",
+      "id": "diet-7",
+      "progress": undefined,
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": "2026-12-10",
+      "id": "water-7",
+      "progress": undefined,
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+        {
+          "earnedAt": "2026-12-15",
+          "title": "7 dias na dieta",
+        },
+        {
+          "earnedAt": "2026-12-10",
+          "title": "Água 7 dias",
+        },
+      ],
+      "avgGoal": 1896,
+      "avgKcal": 592,
+      "days": 31,
+      "freeUses": 3,
+      "fullDays": 23,
+      "waterDays": 20,
+    },
+    "period": {
+      "days": 77,
+      "end": "2026-12-20",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 2.7,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden loss @ 2027-01-29 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": "2026-12-15",
+      "id": "diet-7",
+      "progress": undefined,
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": "2026-12-10",
+      "id": "water-7",
+      "progress": undefined,
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+        {
+          "earnedAt": "2026-12-15",
+          "title": "7 dias na dieta",
+        },
+        {
+          "earnedAt": "2026-12-10",
+          "title": "Água 7 dias",
+        },
+      ],
+      "avgGoal": 1896,
+      "avgKcal": 592,
+      "days": 71,
+      "freeUses": 3,
+      "fullDays": 23,
+      "waterDays": 20,
+    },
+    "period": {
+      "days": 117,
+      "end": "2027-01-29",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 1.8,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden noDiet @ 2026-10-20 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 23",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": null,
+    "period": {
+      "days": 16,
+      "end": "2026-10-20",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 13.1,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden noDiet @ 2026-11-30 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 23",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": null,
+    "period": {
+      "days": 57,
+      "end": "2026-11-30",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 3.7,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden noDiet @ 2026-12-20 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": null,
+    "period": {
+      "days": 77,
+      "end": "2026-12-20",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 2.7,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden noDiet @ 2027-01-29 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": null,
+    "period": {
+      "days": 117,
+      "end": "2027-01-29",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 1.8,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden noHeight @ 2026-10-20 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 23",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-7",
+      "progress": "falta 7",
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "water-7",
+      "progress": "falta 7",
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [],
+      "avgGoal": undefined,
+      "avgKcal": 0,
+      "days": 0,
+      "freeUses": 0,
+      "fullDays": 0,
+      "waterDays": undefined,
+    },
+    "period": {
+      "days": 16,
+      "end": "2026-10-20",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": undefined,
+      "fatDelta": undefined,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+      ],
+      "perWeek": 13.1,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden noHeight @ 2026-11-30 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 23",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-7",
+      "progress": "falta 4",
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "water-7",
+      "progress": "falta 5",
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+      ],
+      "avgGoal": 2000,
+      "avgKcal": 600,
+      "days": 11,
+      "freeUses": 2,
+      "fullDays": 9,
+      "waterDays": 3,
+    },
+    "period": {
+      "days": 57,
+      "end": "2026-11-30",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": undefined,
+      "fatDelta": undefined,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+      ],
+      "perWeek": 3.7,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden noHeight @ 2026-12-20 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": "2026-12-15",
+      "id": "diet-7",
+      "progress": undefined,
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": "2026-12-10",
+      "id": "water-7",
+      "progress": undefined,
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+        {
+          "earnedAt": "2026-12-15",
+          "title": "7 dias na dieta",
+        },
+        {
+          "earnedAt": "2026-12-10",
+          "title": "Água 7 dias",
+        },
+      ],
+      "avgGoal": 1896,
+      "avgKcal": 592,
+      "days": 31,
+      "freeUses": 3,
+      "fullDays": 23,
+      "waterDays": 20,
+    },
+    "period": {
+      "days": 77,
+      "end": "2026-12-20",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": undefined,
+      "fatDelta": undefined,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+      ],
+      "perWeek": 2.7,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden noHeight @ 2027-01-29 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": "2026-12-15",
+      "id": "diet-7",
+      "progress": undefined,
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": "2026-12-10",
+      "id": "water-7",
+      "progress": undefined,
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+        {
+          "earnedAt": "2026-12-15",
+          "title": "7 dias na dieta",
+        },
+        {
+          "earnedAt": "2026-12-10",
+          "title": "Água 7 dias",
+        },
+      ],
+      "avgGoal": 1896,
+      "avgKcal": 592,
+      "days": 71,
+      "freeUses": 3,
+      "fullDays": 23,
+      "waterDays": 20,
+    },
+    "period": {
+      "days": 117,
+      "end": "2027-01-29",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": undefined,
+      "fatDelta": undefined,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+      ],
+      "perWeek": 1.8,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden waterOutsideDiet @ 2026-10-20 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 23",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-7",
+      "progress": "falta 7",
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "water-7",
+      "progress": "falta 7",
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [],
+      "avgGoal": undefined,
+      "avgKcal": 0,
+      "days": 0,
+      "freeUses": 0,
+      "fullDays": 0,
+      "waterDays": undefined,
+    },
+    "period": {
+      "days": 16,
+      "end": "2026-10-20",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 13.1,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden waterOutsideDiet @ 2026-11-30 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 23",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "diet-7",
+      "progress": "falta 4",
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "water-7",
+      "progress": "falta 7",
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+      ],
+      "avgGoal": 2000,
+      "avgKcal": 600,
+      "days": 30,
+      "freeUses": 2,
+      "fullDays": 9,
+      "waterDays": 1,
+    },
+    "period": {
+      "days": 57,
+      "end": "2026-11-30",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 3.7,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden waterOutsideDiet @ 2026-12-20 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": "2026-12-15",
+      "id": "diet-7",
+      "progress": undefined,
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "water-7",
+      "progress": "falta 7",
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+        {
+          "earnedAt": "2026-12-15",
+          "title": "7 dias na dieta",
+        },
+      ],
+      "avgGoal": 1896,
+      "avgKcal": 592,
+      "days": 50,
+      "freeUses": 3,
+      "fullDays": 23,
+      "waterDays": 1,
+    },
+    "period": {
+      "days": 77,
+      "end": "2026-12-20",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 2.7,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
+
+exports[`golden waterOutsideDiet @ 2027-01-29 1`] = `
+{
+  "achievements": [
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-workout",
+      "progress": undefined,
+      "title": "Primeiro treino",
+    },
+    {
+      "earnedAt": "2026-10-09",
+      "id": "streak-3",
+      "progress": undefined,
+      "title": "3 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-19",
+      "id": "streak-7",
+      "progress": undefined,
+      "title": "7 treinos seguidos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "streak-30",
+      "progress": "falta 30",
+      "title": "30 treinos seguidos",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "workouts-10",
+      "progress": undefined,
+      "title": "10 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-50",
+      "progress": "falta 20",
+      "title": "50 treinos",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "workouts-100",
+      "progress": "falta 70",
+      "title": "100 treinos",
+    },
+    {
+      "earnedAt": "2026-10-12",
+      "id": "record",
+      "progress": undefined,
+      "title": "Recorde de carga",
+    },
+    {
+      "earnedAt": "2026-10-05",
+      "id": "first-photo",
+      "progress": undefined,
+      "title": "Primeira foto",
+    },
+    {
+      "earnedAt": "2026-10-26",
+      "id": "weight-small",
+      "progress": undefined,
+      "title": "−1 kg",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "weight-big",
+      "progress": "falta 0,7 kg",
+      "title": "−5 kg",
+    },
+    {
+      "earnedAt": "2026-11-16",
+      "id": "fat-1",
+      "progress": undefined,
+      "title": "−1 ponto de gordura",
+    },
+    {
+      "earnedAt": "2026-11-20",
+      "id": "diet-day",
+      "progress": undefined,
+      "title": "Dia no plano",
+    },
+    {
+      "earnedAt": "2026-12-15",
+      "id": "diet-7",
+      "progress": undefined,
+      "title": "7 dias na dieta",
+    },
+    {
+      "earnedAt": undefined,
+      "id": "water-7",
+      "progress": "falta 7",
+      "title": "Água 7 dias",
+    },
+  ],
+  "report": {
+    "body": {
+      "rows": [
+        {
+          "delta": -4.3,
+          "first": 88,
+          "good": true,
+          "label": "Peso",
+          "last": 83.7,
+          "unit": "kg",
+        },
+        {
+          "delta": -3.3,
+          "first": 26.2,
+          "good": true,
+          "label": "Gordura",
+          "last": 22.9,
+          "unit": "%",
+        },
+        {
+          "delta": -0.5,
+          "first": 40,
+          "good": false,
+          "label": "Pescoço",
+          "last": 39.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -5.5,
+          "first": 98,
+          "good": true,
+          "label": "Cintura",
+          "last": 92.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -3,
+          "first": 104,
+          "good": true,
+          "label": "Quadril",
+          "last": 101,
+          "unit": "cm",
+        },
+        {
+          "delta": 0.5,
+          "first": 36,
+          "good": false,
+          "label": "Braço",
+          "last": 36.5,
+          "unit": "cm",
+        },
+        {
+          "delta": -2,
+          "first": 104,
+          "good": false,
+          "label": "Peito",
+          "last": 102,
+          "unit": "cm",
+        },
+        {
+          "delta": 0,
+          "first": 58,
+          "good": false,
+          "label": "Coxa",
+          "last": 58,
+          "unit": "cm",
+        },
+      ],
+      "weight": [
+        {
+          "date": "2026-10-05",
+          "value": 88,
+        },
+        {
+          "date": "2026-10-26",
+          "value": 86.9,
+        },
+        {
+          "date": "2026-11-16",
+          "value": 85.2,
+        },
+        {
+          "date": "2026-12-14",
+          "value": 83.7,
+        },
+      ],
+    },
+    "diet": {
+      "achievements": [
+        {
+          "earnedAt": "2026-11-20",
+          "title": "Dia no plano",
+        },
+        {
+          "earnedAt": "2026-12-15",
+          "title": "7 dias na dieta",
+        },
+      ],
+      "avgGoal": 1896,
+      "avgKcal": 592,
+      "days": 90,
+      "freeUses": 3,
+      "fullDays": 23,
+      "waterDays": 1,
+    },
+    "period": {
+      "days": 117,
+      "end": "2027-01-29",
+      "start": "2026-10-05",
+    },
+    "photoPairs": [
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p5",
+        },
+        "angle": "frente",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p1",
+        },
+      },
+      {
+        "after": {
+          "date": "2026-12-14",
+          "id": "p6",
+        },
+        "angle": "costas",
+        "before": {
+          "date": "2026-10-05",
+          "id": "p3",
+        },
+      },
+    ],
+    "summary": {
+      "fat": 22.9,
+      "fatDelta": -3.3,
+      "volumeTons": 152.2,
+      "weight": 83.7,
+      "weightDelta": -4.3,
+      "workouts": 30,
+    },
+    "training": {
+      "achievements": [
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeiro treino",
+        },
+        {
+          "earnedAt": "2026-10-09",
+          "title": "3 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-19",
+          "title": "7 treinos seguidos",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "10 treinos",
+        },
+        {
+          "earnedAt": "2026-10-12",
+          "title": "Recorde de carga",
+        },
+        {
+          "earnedAt": "2026-10-05",
+          "title": "Primeira foto",
+        },
+        {
+          "earnedAt": "2026-10-26",
+          "title": "−1 kg",
+        },
+        {
+          "earnedAt": "2026-11-16",
+          "title": "−1 ponto de gordura",
+        },
+      ],
+      "perWeek": 1.8,
+      "topLifts": [
+        {
+          "first": 62.5,
+          "max": 87.5,
+          "name": "Agachamento",
+        },
+        {
+          "first": 40,
+          "max": 52.5,
+          "name": "Supino reto",
+        },
+        {
+          "first": 12,
+          "max": 14,
+          "name": "Rosca",
+        },
+      ],
+      "workouts": 30,
+    },
+  },
+}
+`;
