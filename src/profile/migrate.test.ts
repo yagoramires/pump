@@ -64,8 +64,13 @@ test('importBackupFile migra um backup antigo', async () => {
   expect((await readCurrent('profile')).focus).toBe('condicionamento')
 })
 test('falha ao gravar a migração não rejeita; o cache já tem o valor migrado', async () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   await set('profile', OLD.profile)
+  await set('settings', { lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01' })
   vi.mocked(idb.set).mockRejectedValueOnce(new Error("cheio"))
   await expect(migrationFor(readKey('profile'))).resolves.toBeUndefined()
   expect(await readCurrent('profile')).not.toHaveProperty('weightKg')
+  expect(await readCurrent('measurements')).toMatchObject([{ date: '2026-11-01', weightKg: 82.4 }])
+  expect(warn).toHaveBeenCalled()
+  warn.mockRestore()
 })

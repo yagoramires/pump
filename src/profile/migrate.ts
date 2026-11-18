@@ -40,9 +40,9 @@ export function migrateData(data: Record<string, unknown>, today: string): Recor
 export async function migrateStored(): Promise<void> {
   const before = { profile: await readCurrent('profile'), measurements: await readCurrent('measurements'), settings: await readCurrent('settings') }
   const after = migrateData(before, todayKey())
-  for (const k of ['profile', 'measurements'] as const) {
-    if (JSON.stringify(after[k]) !== JSON.stringify(before[k])) await save(k, after[k] as never)
-  }
+  // todas as gravações começam antes de qualquer await: cada save põe o valor no cache na hora, mesmo que outra falhe
+  const changed = (['measurements', 'profile'] as const).filter((k) => JSON.stringify(after[k]) !== JSON.stringify(before[k]))
+  await Promise.all(changed.map((k) => save(k, after[k] as never)))
 }
 
 const runs = new WeakMap<Promise<unknown>, Promise<void>>()
@@ -50,6 +50,6 @@ const runs = new WeakMap<Promise<unknown>, Promise<void>>()
 export const migrationFor = (profileRead: Promise<unknown>): Promise<void> => {
   let p = runs.get(profileRead)
   // escrita que falhou não derruba o app: o cache já tem o valor migrado e a gravação se repete na próxima abertura
-  if (!p) { p = migrateStored().catch(() => {}); runs.set(profileRead, p) }
+  if (!p) { p = migrateStored().catch((e) => console.warn('migração do perfil não gravada', e)); runs.set(profileRead, p) }
   return p
 }
