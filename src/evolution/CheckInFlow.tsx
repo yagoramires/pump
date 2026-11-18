@@ -16,7 +16,7 @@ import { ANGLES } from './types'
 type Step = 'measure' | 'photos' | 'summary' | 'compare'
 
 export function CheckInFlow({ onClose }: { onClose: () => void }) {
-  const today = todayKey()
+  const [today] = useState(todayKey) // fixa o dia: virar a meia-noite no fluxo não pode esvaziar o resumo
   const [list] = usePersisted('measurements')
   const [profile] = usePersisted('profile')
   const { sets } = usePhotoSets()

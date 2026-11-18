@@ -43,6 +43,20 @@ test('cartão de check-in no dia e fluxo até o resumo', async () => {
   expect(screen.queryByText('Atualizar semana')).not.toBeInTheDocument()
 })
 
+test('virar a meia-noite durante o fluxo mantém o resumo da data do check-in', async () => {
+  const user = userEvent.setup()
+  vi.setSystemTime(new Date(2026, 10, 18, 23, 59))
+  await settings({ checkInDay: weekday(today) })
+  await save('measurements', old)
+  await renderLoaded(<EvolutionTab />)
+  await user.click(await screen.findByRole('button', { name: 'Atualizar' }))
+  await user.type(screen.getByLabelText('Peso'), '81,6')
+  await user.click(screen.getByRole('button', { name: 'Continuar' }))
+  vi.setSystemTime(new Date(2026, 10, 19, 0, 1))
+  await user.click(screen.getByRole('button', { name: 'Voltar' }))
+  expect(screen.getByText('−0,8 kg')).toBeInTheDocument()
+})
+
 test('check-in atrasado diz "Era"', async () => {
   await settings({ checkInDay: weekday(addDays(today, -1)) })
   await save('measurements', [{ id: 'a', date: addDays(today, -8), weightKg: 82.4 }])
