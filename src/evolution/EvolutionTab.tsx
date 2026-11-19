@@ -36,8 +36,8 @@ import { generatePdf } from './pdf/generate'
 import { shareFile } from '@/lib/share'
 
 type View = 'checkin' | 'anamnesis' | 'capture' | 'compare' | 'achievements' | 'history'
-const LINK = 'px-2 text-meta text-accent disabled:text-faint'
-const RANGES = [{ v: '30', label: '30 d' }, { v: '90', label: '90 d' }, { v: 'all', label: 'Tudo' }]
+const LINK = 'text-meta text-accent disabled:text-faint'
+const RANGES = [{ v: '7', label: '7 d' }, { v: '30', label: '30 d' }, { v: '90', label: '90 d' }, { v: 'all', label: 'Tudo' }]
 const KPI: Metric[] = ['weightKg', 'fat']
 function Kpi({ label, value, children }: { label: string; value: string; children: ReactNode }) {
   return (
@@ -186,8 +186,8 @@ export function EvolutionTab() {
         <CardHeader>
           <CardTitle>Fotos</CardTitle>
           <CardAction className="flex gap-1">
-            <Button type="button" variant="ghost" size="sm" className={LINK} onClick={() => setView('capture')}>Nova foto</Button>
-            <Button type="button" variant="ghost" size="sm" className={LINK} disabled={input.photoSets.length < 2} onClick={() => setView('compare')}>Comparar</Button>
+            <Button type="button" variant="link" className={LINK} onClick={() => setView('capture')}>Nova foto</Button>
+            <Button type="button" variant="link" className={LINK} disabled={input.photoSets.length < 2} onClick={() => setView('compare')}>Comparar</Button>
           </CardAction>
         </CardHeader>
         <div className="grid grid-cols-3 gap-2 px-3.5 pb-3.5">
@@ -202,7 +202,7 @@ export function EvolutionTab() {
       <Card size="flush">
         <div className="flex min-h-11 items-center justify-between pl-3.5 pr-2">
           <span className="text-body font-semibold text-strong">Conquistas</span>
-          <Button type="button" variant="ghost" size="sm" className={LINK} onClick={() => setView('achievements')}>Ver todas</Button>
+          <Button type="button" variant="link" className={LINK} onClick={() => setView('achievements')}>Ver todas</Button>
         </div>
         <div className="flex gap-2.5 px-3.5 pb-3.5">
           {Array.from({ length: 4 }, (_, i) => earned[i]).map((x, i) =>

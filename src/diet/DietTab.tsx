@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, Droplet, ListChecks, MoreHorizontal, Pencil, Sparkles } from 'lucide-react'
+import { Check, Droplet, ListChecks, MoreHorizontal, Pencil, ShoppingCart, Sparkles } from 'lucide-react'
 import { usePersisted } from '@/storage/db'
 import { formatDayLabel } from '@/lib/date'
 import { Button } from '@/components/ui/button'
@@ -19,6 +19,7 @@ import { useDietToday } from './useDietToday'
 import { useWater } from './useWater'
 import { DietEditor } from './DietEditor'
 import { DietStart } from './DietStart'
+import { ShoppingList } from './ShoppingList'
 import { MealScreen } from './MealScreen'
 import { WaterCard } from './WaterCard'
 
@@ -30,12 +31,14 @@ export function DietTab() {
   const [, setPlan] = usePersisted('dietPlan')
   const water = useWater()
   const [editing, setEditing] = useState(false)
+  const [shopping, setShopping] = useState(false)
   const [openId, setOpenId] = useState<string>()
   const [confirmMenu, setConfirmMenu] = useState<{ menuId: string; date: string }>()
   const [sheet, setSheet] = useState<'more' | 'menus' | 'water'>()
   if (openId && !day?.meals.some((m) => m.id === openId)) setOpenId(undefined)
 
   const close = () => setEditing(false)
+  if (shopping) return <Overlay><ShoppingList onClose={() => setShopping(false)} /></Overlay>
   if (editing) return <Overlay><DietEditor initial={plan} onSave={(next) => { setPlan((p) => savePlan(p, next)); close() }} onCancel={close} /></Overlay>
 
   if (!day || !plan.menus.length) {
@@ -164,6 +167,7 @@ export function DietTab() {
                   <Card size="flush" variant="inset"><ul>
                     {plan.menus.length > 1 && <SheetRow icon={<ListChecks size={18} className="text-accent" aria-hidden="true" />} label="Cardápio de hoje" onClick={() => setSheet('menus')} />}
                     <SheetRow icon={<Sparkles size={18} className="text-accent" aria-hidden="true" />} label={day.free ? 'Desfazer dia livre' : 'Dia livre'} onClick={() => { setSheet(undefined); act((d) => ({ ...d, free: !d.free })) }} />
+                    <SheetRow icon={<ShoppingCart size={18} className="text-accent" aria-hidden="true" />} label="Lista de compras" onClick={() => { setSheet(undefined); setShopping(true) }} />
                     <SheetRow icon={<Pencil size={18} className="text-accent" aria-hidden="true" />} label="Editar cardápio" onClick={() => { setSheet(undefined); setEditing(true) }} />
                   </ul></Card>
                 </>

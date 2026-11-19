@@ -83,6 +83,14 @@ test('gráfico: filtro de período com menos de 2 pesos avisa que é o período,
   await user.click(screen.getByRole('tab', { name: 'Tudo' }))
   expect(screen.getByRole('img', { name: 'Gráfico de peso' })).toBeInTheDocument()
 })
+test('gráfico: 7 d mostra só a última semana', async () => {
+  const user = userEvent.setup()
+  await save('measurements', [{ id: 'a', date: '2026-11-01', weightKg: 82 }, { id: 'b', date: '2026-11-10', weightKg: 80 }])
+  await renderLoaded(<EvolutionTab />)
+  expect(await screen.findByRole('img', { name: 'Gráfico de peso' })).toBeInTheDocument()
+  await user.click(screen.getByRole('tab', { name: '7 d' }))
+  expect(screen.getByText('Poucos registros nesse período')).toBeInTheDocument()
+})
 test('PDF offline: avisa que precisa de internet', async () => {
   const user = userEvent.setup()
   vi.mocked(generatePdf).mockRejectedValueOnce(new TypeError('Failed to fetch dynamically imported module: /assets/x.js'))

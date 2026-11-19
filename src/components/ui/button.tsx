@@ -19,7 +19,8 @@ const buttonVariants = cva(
           "font-medium hover:bg-hover",
         // nav: item da barra de abas; ativo = cor + barrinha no topo, hover neutro e mais leve que o ativo
         nav: "relative text-micro font-medium text-faint after:absolute after:inset-x-6 after:top-0 after:h-0.5 after:rounded-full after:bg-accent after:opacity-0 hover:bg-hover/50 hover:text-text aria-[current=page]:text-accent aria-[current=page]:after:opacity-100 aria-[current=page]:hover:bg-transparent",
-        link: "h-auto rounded-sm px-0 py-1 font-medium text-primary underline-offset-4 hover:underline",
+        // link: ação de texto sem caixa no hover; o ::after estende o alvo de toque pra 44px sem desenhar nada
+        link: "relative rounded-sm font-medium text-primary underline-offset-4 after:absolute after:-inset-x-2 after:-inset-y-3 after:content-[''] hover:underline",
       },
       size: {
         default: "h-11 px-4 py-2 has-[>svg]:px-3",
@@ -33,6 +34,7 @@ const buttonVariants = cva(
         "icon-lg": "size-12",
       },
     },
+    compoundVariants: [{ variant: "link", class: "h-auto px-0 py-1 has-[>svg]:px-0" }],
     defaultVariants: {
       variant: "default",
       size: "default",
