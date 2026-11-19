@@ -107,7 +107,7 @@ test('gerar com IA e converter: descrição e 5 passos', async () => {
   expect(screen.getByText(/O Pump não tem IA própria/).compareDocumentPosition(screen.getByRole('radio', { name: 'Em casa' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   expect(screen.getByText('ChatGPT, Gemini, Claude…')).toBeInTheDocument()
   expect(screen.getByText('Revise e salve')).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Copie seu plano' })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Copie seu plano' })).not.toBeInTheDocument()
   unmount()
   await renderLoaded(<PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
   expect(await screen.findByRole('heading', { name: 'Converter ficha' })).toBeInTheDocument()
@@ -115,7 +115,6 @@ test('gerar com IA e converter: descrição e 5 passos', async () => {
   expect(screen.getByText('Junto com sua ficha (PDF, foto ou texto)')).toBeInTheDocument()
   expect(screen.getByText('Volte aqui e cole abaixo')).toBeInTheDocument()
   expect(screen.queryByRole('radio', { name: 'Em casa' })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Copie seu plano' })).not.toBeInTheDocument()
 })
 
 test('converter: Copiar leva o prompt de conversão e colar JSON funciona', async () => {
