@@ -1,7 +1,7 @@
 import { countInWeekBefore, hhmm } from '@/lib/date'
 import type { DayItem, DayMeal, DietDay, DietItem, DietLog, DietPlan, Meal, MealOption, Menu } from './types'
 import { round1 } from '@/lib/number'
-import { OPTION_LETTERS } from './limits'
+import { currentMenu, sortedMeals } from './plan'
 import { itemKcal, itemMacros } from './food'
 
 /** campos que só existem no dia; qualquer um preenchido = a pessoa mexeu no dia */
@@ -19,8 +19,6 @@ export const dayFromMenu = (menu: Menu): DietDay => ({
   goalKcal: menu.goalKcal,
   goalMacros: menu.goalMacros && { ...menu.goalMacros },
 })
-
-export const currentMenu = (plan: DietPlan): Menu | undefined => plan.menus.find((m) => m.id === plan.lastMenuId) ?? plan.menus[0]
 
 export const touched = (d: DietDay) =>
   !!d.free || d.meals.some((m) => DAY_MEAL_FLAGS.some((k) => m[k]) || m.items.some((i) => DAY_ITEM_FLAGS.some((k) => i[k])))
@@ -75,8 +73,6 @@ export const chooseOption = (d: DietDay, mealId: string, option: MealOption): Di
 }
 export const setMealFree = (d: DietDay, mealId: string, free: boolean): DietDay => mapMeal(d, mealId, (m) => ({ ...m, free, done: free }))
 
-export const optionLetter = (i: number) => OPTION_LETTERS[i]
-
 export const mealOptions = (plan: DietPlan, day: DietDay, mealId: string) => {
   const meal = day.meals.find((m) => m.id === mealId)
   const options = plan.menus.find((m) => m.id === day.menuId)?.meals.find((m) => m.id === mealId)?.options ?? []
@@ -114,8 +110,6 @@ export const dayStatus = (log: DietLog, date: string): 'full' | 'free-ok' | 'off
   if (s.free > allowed) return 'off'
   return s.mealsTotal > 0 && day.meals.every((m) => m.done || m.free) && s.extras === 0 ? 'full' : 'off'
 }
-
-export const sortedMeals = <T extends { time: string }>(meals: T[]): T[] => [...meals].sort((a, b) => a.time.localeCompare(b.time))
 
 export const currentMealId = (meals: DayMeal[], now: Date): string | undefined => {
   const t = hhmm(now)

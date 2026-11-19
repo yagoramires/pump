@@ -1,12 +1,16 @@
 import { use, useCallback, useSyncExternalStore } from 'react'
-import { delMany, entries, get, keys, set, setMany } from 'idb-keyval'
+import { createStore, entries, get, promisifyRequest, set } from 'idb-keyval'
 import { DEFAULTS, isUserKey, type UserData } from '@/schema'
 
 type Key = keyof UserData
 type Value<K extends Key> = UserData[K]
 
+// Estes são os nomes que o idb-keyval já usava para guardar os dados dos aparelhos.
+export const pumpStore = createStore('keyval-store', 'keyval')
+
 // só chaves do schema: fotos não passam pelo cache, loadPhoto lê direto do banco e o base64 aqui só gastaria memória
 const cache = new Map<Key, unknown>()
+const savesDuringRestore = new Set<Set<Key>>()
 const reads = new Map<Key, Promise<unknown>>()
 const listeners = new Map<Key, Set<() => void>>()
 const errorListeners = new Set<(message: string) => void>()
@@ -39,7 +43,7 @@ export async function guarded<T>(fn: () => Promise<T>): Promise<T> {
 export function readKey<K extends Key>(k: K): Promise<Value<K>> {
   const cached = reads.get(k)
   if (cached) return cached as Promise<Value<K>>
-  const p = get<Value<K>>(k).then(
+  const p = get<Value<K>>(k, pumpStore).then(
     (v) => {
       if (!cache.has(k) && v !== undefined) cache.set(k, v)
       return current(k)
@@ -71,25 +75,42 @@ export async function load<K extends Key>(k: K): Promise<Value<K> | undefined> {
 }
 
 export function save<K extends Key>(k: K, v: Value<K>): Promise<void> {
+  for (const laterWrites of savesDuringRestore) laterWrites.add(k)
   cache.set(k, v)
   notify(k)
-  return guarded(() => set(k, v))
+  return guarded(() => set(k, v, pumpStore))
 }
 
 export async function allData(): Promise<Record<string, unknown>> {
-  return Object.fromEntries(await entries<string, unknown>())
+  return Object.fromEntries(await entries<string, unknown>(pumpStore))
 }
 
-// grava o novo primeiro e só depois apaga as sobras: uma falha no meio nunca deixa o banco vazio
 export async function replaceAll(data: Record<string, unknown>): Promise<void> {
-  const old = (await keys<string>()).filter((k) => !(k in data))
-  await guarded(async () => {
-    await setMany(Object.entries(data))
-    await delMany(old)
-  })
-  const touched = new Set([...cache.keys(), ...Object.keys(data).filter(isUserKey), ...old.filter(isUserKey)])
-  cache.clear()
-  Object.entries(data).forEach(([k, v]) => isUserKey(k) && cache.set(k, v))
+  const restored = new Map(Object.entries(data))
+  const laterWrites = new Set<Key>()
+  savesDuringRestore.add(laterWrites)
+  try {
+    await guarded(() => pumpStore('readwrite', (store) => {
+      try {
+        store.clear()
+        for (const [key, value] of restored) store.put(value, key)
+      } catch (error) {
+        store.transaction.abort()
+        throw error
+      }
+      return promisifyRequest(store.transaction)
+    }))
+  } finally {
+    savesDuringRestore.delete(laterWrites)
+  }
+
+  // Um save enfileirado depois da restauração já atualizou o cache de forma otimista.
+  const touched = new Set([...cache.keys(), ...listeners.keys(), ...restored.keys()].filter(isUserKey))
+  for (const key of touched) {
+    if (laterWrites.has(key)) continue
+    if (restored.has(key)) cache.set(key, restored.get(key))
+    else cache.delete(key)
+  }
   touched.forEach(notify)
 }
 

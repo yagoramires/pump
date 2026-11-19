@@ -1,4 +1,4 @@
-import { lazy, Suspense, use, useEffect, useState } from 'react'
+import { lazy, Suspense, use, useEffect, useState, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -20,11 +20,16 @@ import { EvolutionTab } from '@/evolution/EvolutionTab'
 import { Loading } from '@/components/Loading'
 import { OpenSettingsContext } from '@/components/openSettings'
 import { migrationFor } from '@/profile/migrate'
-import { USER_KEYS } from './schema'
+import { USER_KEYS, type Tab } from './schema'
 import { Alert } from '@/components/ui/alert'
 
 // dieta fora do chunk principal (orçamento de bundle); continua no precache
 const DietTab = lazy(() => import('@/diet/DietTab').then((m) => ({ default: m.DietTab })))
+const TAB_SCREENS = {
+  treino: <TreinoTab />,
+  evolucao: <EvolutionTab />,
+  dieta: <Suspense fallback={<Loading />}><DietTab /></Suspense>,
+} satisfies Record<Tab, ReactNode>
 
 const MAIN = 'mx-auto max-w-md px-4 pt-(--main-pt) pb-[calc(var(--nav-h)+28px+env(safe-area-inset-bottom))]'
 
@@ -60,6 +65,7 @@ function Shell() {
   if (!settings.onboardingDone) return <>{banner}<PreviewSync /><main className="mx-auto max-w-md px-4 pt-(--main-pt) pb-(--main-pb)"><Onboarding /></main></>
 
   const tab = settings.lastTab
+  const screen = Object.prototype.hasOwnProperty.call(TAB_SCREENS, tab) ? TAB_SCREENS[tab] : TAB_SCREENS.dieta
   const backupDays = backupDue(settings, todayKey())
   return (
     <>
@@ -76,7 +82,7 @@ function Shell() {
           <SettingsScreen onClose={() => setShowSettings(false)} />
         ) : (
           <OpenSettingsContext value={() => setShowSettings(true)}>
-            {tab === 'treino' ? <TreinoTab /> : tab === 'evolucao' ? <EvolutionTab /> : <Suspense fallback={<Loading />}><DietTab /></Suspense>}
+            {screen}
           </OpenSettingsContext>
         )}
       </main>

@@ -13,7 +13,6 @@ import { Alert } from '@/components/ui/alert'
 type Key = keyof MeasureFields
 const select = (e: React.FocusEvent<HTMLInputElement>) => e.currentTarget.select()
 
-/** Registro do dia: lê e grava as medidas sozinho. `profile` só é passado quando o perfil ainda é um rascunho (dia zero) */
 export function MeasureForm({ date, profile: draft, onSaved, submitLabel = 'Salvar', needWeight, children }: { date: string; profile?: Profile; onSaved: (status: UpsertStatus) => void; submitLabel?: string; needWeight?: boolean; children?: ReactNode }) {
   const [list, setList] = usePersisted('measurements')
   const [stored] = usePersisted('profile')

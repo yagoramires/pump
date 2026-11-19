@@ -1,27 +1,25 @@
-import { lazy, Suspense } from 'react'
 import { Droplet, FileInput, Sparkles, Utensils } from 'lucide-react'
 import { usePersisted } from '@/storage/db'
-import { formatDec } from '@/lib/number'
+import { liters } from './display'
+import { activeWater } from './water'
 import { BackHeader } from '@/components/BackHeader'
-import { Loading } from '@/components/Loading'
 import { SettingsRow, type OpenView } from '@/components/SettingsSection'
-import { savePlan } from './plan'
+import { useDietPlan } from './useDietPlan'
+import { DietEditor } from './DietEditor'
+import { DietImport } from './DietImport'
 import { WaterSettings } from './WaterSettings'
 
-const DietEditor = lazy(() => import('./DietEditor').then((m) => ({ default: m.DietEditor })))
-const DietImport = lazy(() => import('./DietImport').then((m) => ({ default: m.DietImport })))
-
 export function DietSettings({ open }: { open: OpenView }) {
-  const [dietPlan, setDietPlan] = usePersisted('dietPlan')
+  const { plan: dietPlan, replacePlan } = useDietPlan()
   const [settings] = usePersisted('settings')
-  const on = settings.water?.enabled ? settings.water : undefined
+  const on = activeWater(settings.water)
   const back = () => open()
   return (
     <>
-      <SettingsRow icon={<Utensils size={18} aria-hidden="true" />} color="var(--c7)" title="Cardápio" onClick={() => open(<Suspense fallback={<Loading />}><DietEditor initial={dietPlan} onSave={(next) => { setDietPlan((p) => savePlan(p, next)); back() }} onCancel={back} /></Suspense>)} />
-      <SettingsRow icon={<Sparkles size={18} aria-hidden="true" />} color="var(--c4)" title="Gerar com IA" onClick={() => open(<Suspense fallback={<Loading />}><DietImport mode="ia" onDone={back} onBack={back} /></Suspense>)} />
-      <SettingsRow icon={<FileInput size={18} aria-hidden="true" />} color="var(--c4)" title="Converter" onClick={() => open(<Suspense fallback={<Loading />}><DietImport mode="convert" onDone={back} onBack={back} /></Suspense>)} />
-      <SettingsRow icon={<Droplet size={18} aria-hidden="true" />} color="var(--c2)" title="Água" sub={on ? `${formatDec(on.goalMl / 1000)} L por dia` : 'Desligada'} onClick={() => open(<><BackHeader title="Água" onBack={back} /><WaterSettings /></>)} />
+      <SettingsRow icon={<Utensils size={18} aria-hidden="true" />} color="var(--c7)" title="Cardápio" onClick={() => open(<DietEditor initial={dietPlan} onSave={(next) => { replacePlan(next); back() }} onCancel={back} />)} />
+      <SettingsRow icon={<Sparkles size={18} aria-hidden="true" />} color="var(--c4)" title="Gerar com IA" onClick={() => open(<DietImport mode="ia" onDone={back} onBack={back} />)} />
+      <SettingsRow icon={<FileInput size={18} aria-hidden="true" />} color="var(--c4)" title="Converter" onClick={() => open(<DietImport mode="convert" onDone={back} onBack={back} />)} />
+      <SettingsRow icon={<Droplet size={18} aria-hidden="true" />} color="var(--c2)" title="Água" sub={on ? `${liters(on.goalMl)} L por dia` : 'Desligada'} onClick={() => open(<><BackHeader title="Água" onBack={back} /><WaterSettings /></>)} />
     </>
   )
 }

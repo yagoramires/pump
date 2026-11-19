@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import type { SessionExercise, SetDone } from './types'
 import { formatInput, formatKg, parseInRange } from '@/lib/number'
-import { MAX_KG } from './limits'
+import { MAX_KG, MIN_KG } from './limits'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
@@ -16,18 +16,23 @@ type Props = {
   onEdit: (i: number, p: Partial<SetDone>) => void
 }
 
-const parseKg = (v: string) => parseInRange(v, 0, MAX_KG)
+const parseKg = (v: string) => parseInRange(v, MIN_KG, MAX_KG)
 const TH = 'label-caps px-2 pb-1.5'
 
 export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
   const [drafts, setDrafts] = useState<Record<number, Draft>>({})
   const typed = useRef(false)
+  const sequence = ex.reps.trim().split(/\s*[-–—]\s*/)
+  // Dois números separados por hífen podem ser uma faixa, como 8–12.
+  const perSet = sequence.length >= 3 && sequence.length === ex.sets.length && sequence.every((value) => /^\d+$/.test(value))
+    ? sequence
+    : undefined
   const setDraft = (i: number, p: Draft) => { typed.current = true; setDrafts((d) => ({ ...d, [i]: { ...d[i], ...p } })) }
   const clearDraft = (i: number) => setDrafts((d) => ({ ...d, [i]: {} }))
 
   const check = (i: number) => {
     const d = drafts[i] ?? {}
-    onCheck(i, { reps: d.reps?.trim() || ex.reps, weightKg: parseKg(d.kg ?? '') ?? ex.weightKg })
+    onCheck(i, { reps: d.reps?.trim() || (perSet?.[i] ?? ex.reps), weightKg: parseKg(d.kg ?? '') ?? ex.weightKg })
     clearDraft(i)
   }
   const commit = (i: number) => {
@@ -82,7 +87,7 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
                 <Input
                   className={box(!!s)}
                   aria-label={`Reps da série ${n} de ${ex.name}`}
-                  value={drafts[i]?.reps ?? (s ? s.reps : ex.reps)}
+                  value={drafts[i]?.reps ?? (s?.reps ?? perSet?.[i] ?? ex.reps)}
                   onChange={(e) => setDraft(i, { reps: e.target.value })}
                   {...inputProps(i)}
                 />

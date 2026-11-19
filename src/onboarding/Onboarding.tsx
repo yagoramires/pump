@@ -11,7 +11,7 @@ import { PlanEditor } from '@/workout/PlanEditor'
 import { PlanImport } from '@/workout/PlanImport'
 import { DietStart } from '@/diet/DietStart'
 import { BackHeader } from '@/components/BackHeader'
-import { useImportBackup } from '@/shell/useImportBackup'
+import { BackupRestore } from '@/storage/BackupRestore'
 import { BottomBar } from '@/components/BottomBar'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -35,11 +35,10 @@ export function Onboarding() {
   const [initial, setInitial] = useState<WorkoutPlan>(DEFAULTS.workoutPlan)
   const [, setPlan] = usePersisted('workoutPlan')
   const [error, setError] = useState<string>()
-  const [anamneseStep, setAnamneseStep] = useState(0)
+  const [resumeAtDayZero, setResumeAtDayZero] = useState(false)
   const [picked, setPicked] = useState(TEMPLATES[0].id)
   const finish = () => setSettings((s) => ({ ...s, onboardingDone: true, firstUseAt: s.firstUseAt ?? todayKey() }))
   const template = TEMPLATES.find((t) => t.id === picked)!
-  const backup = useImportBackup()
 
   const startTemplate = async () => {
     setError(undefined)
@@ -61,15 +60,14 @@ export function Onboarding() {
     return (
       <AnamnesisFlow
         total={ONBOARDING_STEPS}
-        step={anamneseStep}
+        resumeAtDayZero={resumeAtDayZero}
         onDone={() => setStep('treino')}
         footer={(
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center text-center">
             {/* quem instalou o app no iPhone traz aqui os dados que usava no Safari */}
-            <Button type="button" variant="ghost" className="text-text-2" onClick={backup.pick}><Upload size={16} aria-hidden="true" />Restaurar backup</Button>
-            {backup.input}
-            {backup.error && <p role="alert" className="px-3.5 py-2 text-center text-sm text-negative">{backup.error}</p>}
-            {backup.confirm}
+            <BackupRestore trigger={(pick) => (
+              <Button type="button" variant="ghost" className="text-text-2" onClick={pick}><Upload size={16} aria-hidden="true" />Restaurar backup</Button>
+            )} />
           </div>
         )}
       />
@@ -87,7 +85,7 @@ export function Onboarding() {
   return (
     <div className="flex flex-col gap-3 pb-28">
       <StepHeader n={ANAMNESIS_STEPS + 1} onSkip={toDieta} />
-      <BackHeader title="Seu treino" onBack={() => { setAnamneseStep(2); setStep('anamnese') }} className="px-0 py-0" />
+      <BackHeader title="Seu treino" onBack={() => { setResumeAtDayZero(true); setStep('anamnese') }} className="px-0 py-0" />
       <Card size="flush">
         <RadioGroup value={picked} onValueChange={setPicked} aria-label="Planos" className="gap-0">
           {TEMPLATES.map((t) => (

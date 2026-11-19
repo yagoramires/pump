@@ -3,7 +3,6 @@ import type { Settings } from '@/schema'
 import { isObj } from '@/lib/utils'
 import type { DietGoal, Focus, Profile } from './types'
 import { readCurrent, save } from '@/storage/db'
-import { upsertMeasurement } from '@/evolution/measurements'
 import type { Measurement } from '@/evolution/types'
 
 type OldGoal = 'hipertrofia' | 'emagrecer' | 'forca' | 'saude'
@@ -19,7 +18,7 @@ const hasAny = (o: unknown, keys: string[]) => isObj(o) && keys.some((k) => k in
 type Migrated = Omit<StoredData, 'profile'> & { profile?: Profile }
 interface StoredData { profile?: unknown; measurements?: Measurement[]; settings?: Partial<Settings> }
 
-/** perfil/medições do formato antigo (objetivo e campos comuns dentro das anamneses, peso no perfil) para o atual; pura e idempotente */
+/** Migra o perfil anterior à separação das anamneses e à introdução das medições. */
 export function migrateData(data: StoredData, today: string): Migrated {
   if (!isObj(data.profile)) return data as Migrated
   const { weightKg, anamnesis, dietAnamnesis, ...profile }: Record<string, unknown> = data.profile
@@ -45,7 +44,10 @@ export function migrateData(data: StoredData, today: string): Migrated {
   if (typeof weightKg === 'number' && weightKg > 0) {
     const ms = data.measurements ?? []
     if (!ms.some((m) => m.weightKg !== undefined)) {
-      out.measurements = upsertMeasurement(ms, data.settings?.firstUseAt ?? today, { weightKg }).list
+      const date = data.settings?.firstUseAt ?? today
+      const existing = ms.find((m) => m.date === date)
+      const measurement = { ...(existing ?? { id: crypto.randomUUID(), date }), weightKg }
+      out.measurements = [...ms.filter((m) => m.date !== date), measurement].sort((a, b) => a.date.localeCompare(b.date))
     }
   }
   return out

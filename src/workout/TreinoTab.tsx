@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowLeftRight, Check, ChevronRight, Dumbbell, HeartPulse, History, Moon, Undo2 } from 'lucide-react'
+import { ArrowLeftRight, Check, ChevronRight, Dumbbell, History, Moon, Undo2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { SetDone, WorkoutLog, WorkoutSession } from './types'
 import { usePersisted } from '@/storage/db'
@@ -13,7 +13,6 @@ import { EmptyState } from '@/components/EmptyState'
 import { TabHeader } from '@/components/TabHeader'
 import { Badge } from '@/components/ui/badge'
 import { formatKg, plural } from '@/lib/number'
-import { IconDot } from '@/components/IconDot'
 import { PlanEditor } from './PlanEditor'
 import { Overlay } from '@/components/Overlay'
 import { ExerciseCard } from './ExerciseCard'
@@ -21,24 +20,27 @@ import { ExercisePreview } from './ExercisePreview'
 import { SetTable } from './SetTable'
 import { RestCard, RestPicker } from './RestCard'
 import { nextWorkout, unfinishedSession } from './schedule'
-import { clearRest, completeSession, pauseRest, resumeRest, setDone, startRest, startSession } from './session'
+import {
+  activeRest, changeRestDuration, clearRest, completeSession, completeUnfinishedSession, extendRest,
+  firstIncompleteExercise, hasMarkedSets, holdsTrainingDay, isExerciseComplete, reopenSession, restExerciseIndex,
+  setDone, startSession, toggleRestPause, toggleSetWithRest,
+} from './session'
 import { previousSets, sessionStats } from './stats'
 import { isRest, restRecord } from './rest'
 import { unlockAudio } from './restTimer'
 import { PLAN_DEFAULTS } from './exercises'
-import { isCardio } from './cardio'
+import { groupExercises } from './cardio'
+import { ExerciseIcon } from './ExerciseIcon'
+import { workoutDayLabel } from './display'
 import { UnfinishedCard } from './UnfinishedCard'
 import { SwitchWorkout } from './SwitchWorkout'
 import { PastWorkouts } from './PastWorkouts'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import type { Workout } from './types'
 
-const MIDNIGHT_HOLD_HOURS = 6
-const firstIncomplete = (s: WorkoutSession): number => s.exercises.findIndex((e) => !isCardio(e) && e.sets.includes(null))
-
 export function TreinoTab() {
   const clock = useToday()
-  const [today, setToday] = useState(clock.today) // treino que passa da meia-noite segue no mesmo dia
+  const [today, setToday] = useState(clock.today)
   const [seenAt, setSeenAt] = useState(clock.now)
   const [plan, setPlan] = usePersisted('workoutPlan')
   const [log, setLog] = usePersisted('workoutLog')
@@ -57,13 +59,9 @@ export function TreinoTab() {
     return () => clearInterval(id)
   }, [])
 
-  // voltou do segundo plano: troca de dia, menos com treino em andamento
   if (seenAt !== clock.now) {
     setSeenAt(clock.now)
-    const s = log[today]
-    // só segura o dia com treino de verdade (série marcada) e recente
-    const holds = s && !s.completedAt && !isRest(s) && s.exercises.some((e) => e.sets.some(Boolean)) && clock.now.getTime() - Date.parse(s.startedAt ?? '') < MIDNIGHT_HOLD_HOURS * 3_600_000
-    if (clock.today !== today && !holds) {
+    if (clock.today !== today && !holdsTrainingDay(log[today], clock.now)) {
       setToday(clock.today)
       setChosenId(undefined)
       setOpenIdx('auto')
@@ -77,7 +75,7 @@ export function TreinoTab() {
   const unfinished = unfinishedSession(log, today)
 
   const patch = useCallback(
-    (f: (s: NonNullable<typeof session>) => NonNullable<typeof session>) =>
+    (f: (s: WorkoutSession) => WorkoutSession) =>
       setLog((prev) => {
         const s = prev[today]
         return s && !isRest(s) ? { ...prev, [today]: f(s) } : prev
@@ -85,7 +83,7 @@ export function TreinoTab() {
     [setLog, today],
   )
   const finishRest = useCallback(
-    () => patch((s) => (s.restEndsAt === undefined && s.restPausedLeftMs === undefined ? s : clearRest(s))),
+    () => patch((s) => activeRest(s) ? clearRest(s) : s),
     [patch],
   )
   const closePreview = useCallback(() => setPreview(undefined), [])
@@ -113,11 +111,30 @@ export function TreinoTab() {
       return others
     })
 
+  const resolveUnfinished = (pending: WorkoutSession, action: 'complete' | 'discard') => {
+    const { date } = pending
+    setLog((prev) => {
+      if (action === 'complete') return prev[date] ? { ...prev, [date]: completeUnfinishedSession(prev[date]) } : prev
+      const { [date]: _removed, ...remaining } = prev
+      return remaining
+    })
+    toast(action === 'complete' ? 'Treino concluído' : 'Treino descartado', {
+      action: { label: 'Desfazer', onClick: () => setLog((prev) => ({ ...prev, [date]: pending })) },
+    })
+  }
+  const unresolved = unfinished && (
+    <UnfinishedCard
+      session={unfinished}
+      onConclude={() => resolveUnfinished(unfinished, 'complete')}
+      onDiscard={() => resolveUnfinished(unfinished, 'discard')}
+    />
+  )
+
   if (rest && !chosenId) {
     return (
       <div className="flex flex-col gap-2.5">
         <TabHeader eyebrow={formatDayLabel(today)} actions={pastLink} />
-        {unfinished && <UnfinishedCard session={unfinished} setLog={setLog} />}
+        {unresolved}
         <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Descanso marcado">
           <p className="max-w-64 text-sm text-text-2">Hoje é dia de recuperar. Quer treinar mesmo assim?</p>
           <Button variant="outline"  onClick={undoRest}><Undo2 aria-hidden="true" /> Desfazer</Button>
@@ -140,12 +157,12 @@ export function TreinoTab() {
   }
 
   const view = session ?? startSession(workout!, today)
+  const { strength, cardio } = groupExercises(view.exercises)
   const stats = sessionStats(view, now)
   const minutes = session ? stats.minutes : null
-  const restIdx = session?.restExIdx ?? Math.max(0, firstIncomplete(view)) // sem restExIdx (sessão antiga) vale o próximo a fazer
-  // descanso rodando: a RestCard fixa cobre a última série sem folga extra
-  const resting = !!session && (session.restEndsAt !== undefined || session.restPausedLeftMs !== undefined)
-  const open = openIdx === 'auto' ? firstIncomplete(view) : openIdx
+  const restIdx = restExerciseIndex(view)
+  const timer = activeRest(session)
+  const open = openIdx === 'auto' ? firstIncompleteExercise(view) : openIdx
   const current = (prev: WorkoutLog) => {
     const s = prev[today]
     return s && !isRest(s) ? s : startSession(workout!, today)
@@ -157,16 +174,11 @@ export function TreinoTab() {
 
   const check = (exIdx: number, setIdx: number, v: SetDone) => {
     unlockAudio() // dentro do toque: o iOS só libera áudio num gesto
-    const restSec = view.exercises[exIdx].restSec
-    const saved = setLog((prev) => {
-      const s = current(prev)
-      const marked = !s.exercises[exIdx].sets[setIdx]
-      const next = setDone(s, exIdx, setIdx, marked ? v : null)
-      return { ...prev, [today]: marked ? startRest(next, exIdx, restSec * 1000, Date.now()) : next }
-    })
-    if (!saved[today]?.exercises[exIdx].sets[setIdx]) return
-    setRestTotal(restSec)
-    if (view.exercises[exIdx].sets.every((d, j) => j === setIdx || d)) setOpenIdx('auto')
+    const saved = setLog((prev) => ({ ...prev, [today]: toggleSetWithRest(current(prev), exIdx, setIdx, v, Date.now()) }))
+    const exercise = saved[today].exercises[exIdx]
+    if (!exercise.sets[setIdx]) return
+    setRestTotal(exercise.restSec)
+    if (isExerciseComplete(exercise)) setOpenIdx('auto')
   }
   const start = () => setLog((prev) => ({ ...prev, [today]: current(prev) }))
   const switchTo = (w: Workout) => {
@@ -176,7 +188,7 @@ export function TreinoTab() {
   }
   const pick = (w: Workout) => {
     if (w.id === view.workoutId) return setSwitching(undefined)
-    if (session?.exercises.some((e) => e.sets.some(Boolean))) return setSwitching(w)
+    if (session && hasMarkedSets(session)) return setSwitching(w)
     switchTo(w)
     setSwitching(undefined)
   }
@@ -184,7 +196,7 @@ export function TreinoTab() {
     setLog((prev) => {
       const s = current(prev)
       const e = s.exercises[exIdx]
-      return { ...prev, [today]: setDone(s, exIdx, 0, e.sets[0] ? null : { reps: e.reps, weightKg: 0 }) }
+      return { ...prev, [today]: toggleSetWithRest(s, exIdx, 0, { reps: e.reps, weightKg: 0 }, Date.now()) }
     })
   const edit = (exIdx: number, setIdx: number, p: Partial<SetDone>) =>
     patch((s) => {
@@ -194,14 +206,14 @@ export function TreinoTab() {
   const conclude = () => {
     patch((s) => completeSession(s, new Date()))
     toast('Treino concluído', {
-      action: { label: 'Desfazer', onClick: () => patch((s) => ({ ...s, completedAt: undefined })) },
+      action: { label: 'Desfazer', onClick: () => patch(reopenSession) },
     })
   }
 
   return (
-    <div className={cn('flex flex-col gap-2.5', resting ? 'pb-44' : 'pb-24')}>
-      <TabHeader eyebrow={`${formatDayLabel(today)} · TREINO ${view.workoutLabel}`} title={view.workoutName} actions={pastLink} />
-      {unfinished && <UnfinishedCard session={unfinished} setLog={setLog} />}
+    <div className={cn('flex flex-col gap-2.5', timer ? 'pb-44' : 'pb-24')}>
+      <TabHeader eyebrow={workoutDayLabel(today, view.workoutLabel)} title={view.workoutName} actions={pastLink} />
+      {unresolved}
       {!session?.completedAt && plan.workouts.length > 1 && (
         <Button variant="link" className="min-h-11 self-start" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>
       )}
@@ -226,16 +238,16 @@ export function TreinoTab() {
         <Button variant="outline" className="w-full" onClick={markRest}><Moon aria-hidden="true" /> Descansar hoje</Button>
       )}
 
-      {view.exercises.map((e, i) => !isCardio(e) && (
+      {strength.map(({ exercise: e, index: i }) => (
         <ExerciseCard key={i} ex={e} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
           <SetTable ex={e} prev={previousSets(log, today, e.exerciseId)} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} />
         </ExerciseCard>
       ))}
-      {view.exercises.some(isCardio) && <div className="label-caps">Cardio</div>}
-      {view.exercises.map((e, i) => isCardio(e) && (
+      {cardio.length > 0 && <div className="label-caps">Cardio</div>}
+      {cardio.map(({ exercise: e, index: i }) => (
         <Card size="sm" key={i} className="flex-row items-center gap-1.5">
           <Button variant="ghost" size="icon" aria-label={`Ver ${e.name}`} onClick={() => setPreview(i)}>
-            <IconDot color="var(--c1)" size={32}><HeartPulse size={16} aria-hidden="true" /></IconDot>
+            <ExerciseIcon muscles={e.muscles} cardio size={32} />
           </Button>
           <span className="min-w-0 flex-1">
             <span className="block text-body font-semibold break-words text-strong">{e.name}</span>
@@ -246,18 +258,17 @@ export function TreinoTab() {
       ))}
 
       <div className="pointer-events-none fixed bottom-[calc(var(--nav-h)+env(safe-area-inset-bottom))] left-1/2 h-24 w-full max-w-md -translate-x-1/2 bg-linear-to-b from-transparent to-bg to-60%" />
-      {session && resting && (
+      {timer && (
         <RestCard
-          endAt={session.restEndsAt}
-          pausedLeftMs={session.restPausedLeftMs}
+          timer={timer}
           totalSec={restTotal}
           restSec={view.exercises[restIdx]?.restSec ?? PLAN_DEFAULTS.restSec}
           onDone={finishRest}
           onAdd15={() => {
-            patch((s) => (s.restPausedLeftMs !== undefined ? { ...s, restPausedLeftMs: s.restPausedLeftMs + 15_000 } : { ...s, restEndsAt: (s.restEndsAt ?? Date.now()) + 15_000 }))
+            patch((s) => extendRest(s, 15_000))
             setRestTotal((t) => t && t + 15)
           }}
-          onTogglePause={() => patch((s) => (s.restPausedLeftMs !== undefined ? resumeRest(s, Date.now()) : pauseRest(s, Date.now())))}
+          onTogglePause={() => patch((s) => toggleRestPause(s, Date.now()))}
           onPickDuration={() => setPickIdx(restIdx)}
         />
       )}
@@ -268,7 +279,7 @@ export function TreinoTab() {
         onPick={(sec) => {
           const idx = pickIdx ?? restIdx
           const exId = view.exercises[idx]?.exerciseId
-          patch((s) => ({ ...startRest(s, idx, sec * 1000, Date.now()), exercises: s.exercises.map((e, i) => (i === idx ? { ...e, restSec: sec } : e)) }))
+          patch((s) => changeRestDuration(s, idx, sec, Date.now()))
           // o plano pode ter sido editado no meio do treino: acha o exercício pelo id, não pela posição
           setPlan((p) => ({ workouts: p.workouts.map((w) => (w.id === view.workoutId ? { ...w, exercises: w.exercises.map((e) => (e.exerciseId === exId ? { ...e, restSec: sec } : e)) } : w)) }))
           setRestTotal(sec)

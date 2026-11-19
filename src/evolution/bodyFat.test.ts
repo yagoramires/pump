@@ -20,3 +20,7 @@ test('goalDirection: perder/ganhar pelo objetivo da dieta; manter ou sem objetiv
   expect(goalDirection({ ...p, dietGoal: 'perder-rapido' })).toBe('loss')
   expect(goalDirection({ ...p, dietGoal: 'ganhar-rapido' })).toBe('gain')
 })
+
+test('goalDirection: ignora objetivos desconhecidos em backups', () => {
+  expect(goalDirection({ ...p, dietGoal: 'constructor' as Profile['dietGoal'] })).toBeNull()
+})

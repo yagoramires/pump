@@ -1,16 +1,20 @@
+import { useState, type ReactNode } from 'react'
 import { screen } from '@testing-library/react'
-import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
+import { renderLoaded } from '../../test/render'
 import { WorkoutSettings } from './WorkoutSettings'
 
+function Settings() {
+  const [view, setView] = useState<ReactNode>()
+  return view ?? <WorkoutSettings open={(next) => setView(next)} />
+}
 
 test('linhas Gerar com IA e Converter abrem cada tela', async () => {
   const user = userEvent.setup()
-  const open = vi.fn()
-  await renderLoaded(<WorkoutSettings open={open} />)
-  expect(screen.queryByText('Importar/exportar via IA')).not.toBeInTheDocument()
-  await user.click(await screen.findByText('Gerar com IA'))
-  await user.click(screen.getByText('Converter'))
-  expect(open.mock.calls[0][0].props.mode).toBe('ia')
-  expect(open.mock.calls[1][0].props.mode).toBe('convert')
+  await renderLoaded(<Settings />)
+  await user.click(await screen.findByRole('button', { name: /Gerar com IA/ }))
+  expect(await screen.findByRole('heading', { name: 'Gerar com IA' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Voltar' }))
+  await user.click(await screen.findByRole('button', { name: 'Converter' }))
+  expect(await screen.findByRole('heading', { name: 'Converter ficha' })).toBeInTheDocument()
 })

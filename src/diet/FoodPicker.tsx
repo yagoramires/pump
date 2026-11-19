@@ -14,8 +14,8 @@ import { Toggle } from '@/components/ui/toggle'
 import { todayKey } from '@/lib/date'
 import { formatDec, parseDecimal } from '@/lib/number'
 import { cn } from '@/lib/utils'
-import { asFood, type Food, fromTaco, iaLabel, recentFoods } from './food'
-import { foodKey } from './match'
+import { asFood, type Food, foodKey, fromTaco, recentFoods } from './food'
+import { MACRO_LABELS, iaLabel } from './display'
 import { GRAMS } from './limits'
 
 type Props = {
@@ -34,13 +34,14 @@ function Rows({ label, foods, selected, onSelect }: { label: string; foods: Food
     <Card size="flush" variant="inset"><ul aria-label={label}>
       {foods.map((f) => {
         const on = foodKey(f.name) === selected
+        const source = iaLabel(f)
         return (
           <li key={f.name} className="border-t border-line first:border-t-0">
             <Toggle pressed={on} onPressedChange={() => onSelect(f)} className="h-auto min-h-14 w-full justify-start gap-3 rounded-none px-3.5 py-2.5 text-left font-normal">
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-body font-semibold text-strong">{f.name}</span>
                 <span className="block text-caption tabular-nums text-text-2">{Math.round(f.per100.kcal)} kcal · P {formatDec(f.per100.p)} g por 100 g</span>
-                {iaLabel(f) && <span className="block text-caption text-c7">{iaLabel(f)}</span>}
+                {source && <span className="block text-caption text-c7">{source}</span>}
               </span>
               <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-full', on ? 'bg-accent text-on-accent' : 'text-accent')}>{on ? <Check size={16} /> : <Plus size={18} />}</span>
             </Toggle>
@@ -99,9 +100,9 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
               <p className="text-caption text-text-2">Valores por 100 g</p>
               <div className="grid grid-cols-2 gap-2">
                 {field('kcal', 'kcal por 100 g', 'kcal')}
-                {field('p', 'Proteína por 100 g', 'Proteína (g)')}
-                {field('c', 'Carbo por 100 g', 'Carbo (g)')}
-                {field('f', 'Gordura por 100 g', 'Gordura (g)')}
+                {field('p', `${MACRO_LABELS.p} por 100 g`, `${MACRO_LABELS.p} (g)`)}
+                {field('c', `${MACRO_LABELS.c} por 100 g`, `${MACRO_LABELS.c} (g)`)}
+                {field('f', `${MACRO_LABELS.f} por 100 g`, `${MACRO_LABELS.f} (g)`)}
               </div>
               <div className="flex gap-2">
                 <Button type="button" variant="outline" className="flex-1" onClick={() => setCreating(false)}>Cancelar</Button>

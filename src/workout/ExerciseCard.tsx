@@ -1,28 +1,28 @@
 import type { ReactNode } from 'react'
-import { Check, ChevronDown, Dumbbell } from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 import type { SessionExercise } from './types'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { IconDot } from '@/components/IconDot'
-import { muscleColor } from '@/catalog/muscles'
-import { formatKg } from '@/lib/number'
+import { ExerciseIcon } from './ExerciseIcon'
+import { exerciseSummary, restSecondsLabel } from './display'
+import { isExerciseComplete, markedSets } from './session'
 import { cn } from '@/lib/utils'
 
 type Props = { ex: SessionExercise; open: boolean; onToggle: () => void; onPreview: () => void; children?: ReactNode }
 
 export function ExerciseCard({ ex, open, onToggle, onPreview, children }: Props) {
-  const done = ex.sets.filter(Boolean).length
-  const complete = done === ex.sets.length
+  const done = markedSets(ex).length
+  const complete = isExerciseComplete(ex)
   const sub = open
-    ? [ex.muscles[0], `descanso ${ex.restSec} s`].filter(Boolean).join(' · ')
-    : `${ex.sets.length} × ${ex.reps} · ${formatKg(ex.weightKg)} kg`
+    ? [ex.muscles[0], `descanso ${restSecondsLabel(ex.restSec)}`].filter(Boolean).join(' · ')
+    : exerciseSummary(ex)
   return (
     <Collapsible asChild open={open} onOpenChange={onToggle}>
       <Card size="flush" className={cn(open && 'border-accent-line')}>
         <div className="flex items-center pl-1.5 pr-3">
           <Button variant="ghost" size="icon" aria-label={`Ver ${ex.name}`} onClick={onPreview}>
-            <IconDot color={muscleColor(ex.muscles)} size={32}><Dumbbell size={16} aria-hidden="true" /></IconDot>
+            <ExerciseIcon muscles={ex.muscles} size={32} />
           </Button>
           <CollapsibleTrigger asChild>
             <Button variant="ghost" className="h-auto min-h-14 min-w-0 flex-1 justify-start gap-2 py-2.5 pl-1.5 text-left font-normal whitespace-normal hover:bg-transparent">

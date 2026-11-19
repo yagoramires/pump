@@ -1,38 +1,50 @@
 import type { Profile } from '@/profile/types'
-import type { Extra, Level, Muscle, Place, Split } from './types'
+import { EXTRA_LABEL, LEVEL_LABEL, MUSCLE_LABEL, PLACE_LABEL, SPLIT_LABEL } from './anamnesis'
 import { HEADER, str } from '@/format/envelope'
 import { FOCUS, label, names, profileLines } from '@/profile/promptLines'
 import { EXERCISE_LIST_URL } from '@/catalog/urls'
 import { listRule as rule } from '@/format/listRule'
-import { SETS } from './limits'
+import { MIN_IMPORTED_REST_SEC, MIN_KG, SETS } from './limits'
 
-const LEVELS: Record<Level, string> = { iniciante: 'iniciante', intermediario: 'intermediário', avancado: 'avançado' }
-const PLACES: Record<Place, string> = { academia: 'academia completa', casa: 'em casa, com pouco equipamento' }
-const SPLITS: Record<Split, string> = { fullbody: 'full body (corpo todo em cada treino)', ab: 'AB (superiores e inferiores)', abc: 'ABC', abcd: 'ABCD', abcde: 'ABCDE', ppl: 'push/pull/legs (empurrar, puxar, pernas)' }
-const MUSCLES: Record<Muscle, string> = { peito: 'peito', costas: 'costas', ombros: 'ombros', biceps: 'bíceps', triceps: 'tríceps', pernas: 'pernas', gluteos: 'glúteos', panturrilha: 'panturrilha' }
-const EXTRAS: Record<Extra, string> = { cardio: 'cardio', abdomen: 'abdômen', mobilidade: 'mobilidade/alongamento' }
+const PLACES = {
+  academia: `${PLACE_LABEL.academia.toLowerCase()} completa`,
+  casa: `${PLACE_LABEL.casa.toLowerCase()}, com pouco equipamento`,
+}
+const SPLITS = {
+  ...SPLIT_LABEL,
+  fullbody: `${SPLIT_LABEL.fullbody.toLowerCase()} (corpo todo em cada treino)`,
+  ab: `${SPLIT_LABEL.ab} (superiores e inferiores)`,
+  ppl: `${SPLIT_LABEL.ppl.replaceAll('\u200b', '').toLowerCase()} (empurrar, puxar, pernas)`,
+}
+const EXTRAS = { ...EXTRA_LABEL, mobilidade: `${EXTRA_LABEL.mobilidade}/alongamento` }
 
 function aboutMe(p?: Profile): string[] {
   const a = p?.anamnesis ?? {}
+  const focus = label(FOCUS, p?.focus)
+  const level = label(LEVEL_LABEL, a.level)
+  const place = label(PLACES, a.place)
+  const split = label(SPLITS, a.split)
+  const extras = names(a.extras, EXTRAS).toLowerCase()
+  const muscles = names(a.weak, MUSCLE_LABEL).toLowerCase()
+  const notes = str(p?.notes)
   return [
     ...profileLines(p),
     ...[
-      label(FOCUS, p?.focus) && `Foco: ${label(FOCUS, p?.focus)}`,
-      label(LEVELS, a.level) && `Nível: ${label(LEVELS, a.level)}`,
-      label(PLACES, a.place) && `Onde treino: ${label(PLACES, a.place)}`,
+      focus && `Foco: ${focus}`,
+      typeof level === 'string' && level && `Nível: ${level.toLowerCase()}`,
+      place && `Onde treino: ${place}`,
       p?.daysPerWeek ? `Dias por semana: ${p.daysPerWeek}` : '',
-      label(SPLITS, a.split) && `Divisão preferida: ${label(SPLITS, a.split)}`,
-      names(a.extras, EXTRAS) && `Incluir também: ${names(a.extras, EXTRAS)}`,
-      names(a.weak, MUSCLES) && `Pontos fracos (quero priorizar): ${names(a.weak, MUSCLES)}`,
+      split && `Divisão preferida: ${split}`,
+      extras && `Incluir também: ${extras}`,
+      muscles && `Pontos fracos (quero priorizar): ${muscles}`,
       a.minutes ? `Tempo por treino: até ${a.minutes} min${a.extras?.includes('cardio') ? ', contando o cardio' : ''}` : '',
-      str(p?.notes) && `Lesões, limitações ou observações: ${str(p?.notes)}`,
+      notes && `Lesões, limitações ou observações: ${notes}`,
     ].filter(Boolean).map((l) => `- ${l}`),
   ]
 }
 
 const listRule = (fallback: string) => rule(EXERCISE_LIST_URL, 'exercício', '. Copie a linha inteira da lista, do jeito que está, com o equipamento entre parênteses (o app reconhece).', fallback)
 
-// formato e exemplo, iguais em gerar e converter
 const FORMAT = `Formato:
 - "formato": sempre "${HEADER.formato}".
 - "versao": sempre ${HEADER.versao}.
@@ -43,8 +55,8 @@ const FORMAT = `Formato:
     - "nome": nome do exercício (obrigatório).
     - "series": número inteiro de ${SETS[0]} a ${SETS[1]} (obrigatório).
     - "reps": repetições como texto, ex.: "8-12" ou "10" (obrigatório).
-    - "cargaKg": carga inicial em kg, número maior ou igual a 0 (opcional).
-    - "descansoSeg": descanso entre séries em segundos, número inteiro maior ou igual a 0 (opcional).
+    - "cargaKg": carga inicial em kg, número maior ou igual a ${MIN_KG} (opcional).
+    - "descansoSeg": descanso entre séries em segundos, número inteiro maior ou igual a ${MIN_IMPORTED_REST_SEC} (opcional).
     - "obs": observação curta (opcional).
 
 Exemplo:

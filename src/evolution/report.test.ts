@@ -1,5 +1,5 @@
 import { dietDay, evolutionInput, pe } from '../../test/helpers'
-import { buildReport, change, type Report } from './report'
+import { buildReport, type Report } from './report'
 
 const row = (r: Report, key: string) => r.body?.rows.find((x) => x.key === key)
 const session = (date: string, kg: number) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', completedAt: `${date}T19:00:00.000Z`, exercises: [{ ...pe({ exerciseId: 'Supino', name: 'Supino reto' }), sets: [{ reps: '10', weightKg: kg }] }] })
@@ -13,14 +13,13 @@ test('buildReport: período, resumo, pares de fotos e corpo', () => {
     profile: { sex: 'M', heightCm: 178, dietGoal: 'perder' },
   }), '2026-12-12')
   expect(r.period).toEqual({ start: '2026-11-15', end: '2026-12-12', days: 28 })
-  expect(change(row(r, 'weightKg'))).toBe(-1.6)
   expect(r.training).toMatchObject({ workouts: 2, volumeTons: 0.9 })
   expect(r.lastSet?.id).toBe('b')
   expect(r.photoPairs).toEqual([{ angle: 'frente', before: { date: '2026-11-15', id: 'p1' }, after: { date: '2026-12-10', id: 'p3' } }])
   expect(r.training.topLifts[0]).toEqual({ name: 'Supino reto', first: 40, max: 50 })
   expect(row(r, 'weightKg')).toMatchObject({ first: { value: 80 }, last: { value: 78.4 }, delta: -1.6, good: true })
   expect(row(r, 'fat')).toMatchObject({ unit: '%', good: true })
-  expect(change(row(r, 'fat'))).toBeLessThan(0)
+  expect(row(r, 'fat')?.delta).toBeLessThan(0)
 })
 
 test('buildReport sem altura: sem linha de gordura e sem fatDelta', () => {
@@ -82,4 +81,14 @@ test('PDF sem dieta registrada mesmo com cardápio (§159); a aba mostra o cart�
   const r = buildReport(evolutionInput({ measurements: [{ id: '1', date: '2026-12-05', weightKg: 80 }], dietPlan: { menus: [{ id: 'm', name: 'Padrão', meals: [] }] } }), '2026-12-12')
   expect(r.hasDiet).toBe(true)
   expect(r.diet).toBeNull()
+})
+
+test('distingue uma única medição de uma mudança de zero entre dois dias', () => {
+  const first = { id: 'a', date: '2026-11-15', waistCm: 88 }
+  const second = { id: 'b', date: '2026-12-10', waistCm: 88 }
+  const today = '2026-12-12'
+  const single = buildReport(evolutionInput({ measurements: [first] }), today)
+  expect(row(single, 'waistCm')?.delta).toBeUndefined()
+  const repeated = buildReport(evolutionInput({ measurements: [first, second] }), today)
+  expect(row(repeated, 'waistCm')?.delta).toBe(0)
 })

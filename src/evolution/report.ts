@@ -3,27 +3,22 @@ import { daysBetween } from '@/lib/date'
 import { round1 } from '@/lib/number'
 import { completedSessions, maxLoad, sessionVolume } from '@/workout/stats'
 import { computeAchievements, type Achievement } from './achievements'
-import { goalDirection, isGood } from './bodyFat'
-import { byDate, FAT, FIELDS, WEIGHT, fatSeries, series, type Field, type Point } from './measurements'
+import { goalDirection } from './bodyFat'
+import { BODY_FIELDS, WEIGHT, byDate, metricRow, metricSeries, series, type BodyRow, type Point } from './measurements'
 import { dietStats, hasDiet, type DietStats } from './dietStats'
 import { ANGLES } from './types'
 
 type Earned = { title: string; earnedAt: string }
-export interface BodyRow extends Field { first: Point; last: Point; delta: number; good: boolean }
 export interface Report {
   period: { start: string; end: string; days: number }
   achievements: Achievement[]
   hasDiet: boolean
   lastSet?: PhotoSet
   photoPairs: { angle: Angle; before: { date: string; id: string }; after: { date: string; id: string } }[]
-  /** rows: Peso, Gordura, depois as medidas em cm; só as que têm registro */
   body: { weight: Point[]; rows: BodyRow[] } | null
   training: { workouts: number; perWeek: number; volumeTons: number; topLifts: { name: string; first: number; max: number }[]; achievements: Earned[] }
-  /** seção do PDF (§159): só com dias de dieta no período */
   diet: (DietStats & { achievements: Earned[] }) | null
 }
-
-export const change = (r?: BodyRow) => (r && r.first.date !== r.last.date ? r.delta : undefined)
 
 export function buildReport(d: EvolutionInput, today: string): Report {
   const sessions = completedSessions(d.workoutLog)
@@ -33,15 +28,14 @@ export function buildReport(d: EvolutionInput, today: string): Report {
   const start = [sessions[0]?.date, ms[0]?.date, sets[0]?.date, dietDays[0], Object.keys(d.waterLog).sort()[0]].filter((x): x is string => !!x).sort()[0] ?? today
   const dir = goalDirection(d.profile)
 
-  const row = (f: Field, points: Point[]): BodyRow[] => {
-    const [first, last] = [points[0], points[points.length - 1]]
-    if (!first) return []
-    const delta = round1(last.value - first.value)
-    return [{ ...f, first, last, delta, good: isGood(f.key, dir, delta) }]
-  }
-  const weight = series(ms, 'weightKg')
-  const cmFields = FIELDS.filter((f) => f !== WEIGHT)
-  const body = ms.length ? { weight, rows: [...row(WEIGHT, weight), ...row(FAT, fatSeries(d.profile, ms)), ...cmFields.flatMap((f) => row(f, series(ms, f.key)))] } : null
+  const weight = series(ms, WEIGHT.key)
+  const rows = BODY_FIELDS.flatMap((field) => {
+    const points = field.key === WEIGHT.key ? weight : metricSeries(d.profile, ms, field)
+    const first = points[0]
+    const last = points.at(-1)
+    return first && last ? [metricRow(field, dir, first, last)] : []
+  })
+  const body = ms.length ? { weight, rows } : null
 
   const [before, after] = [sets[0], sets[sets.length - 1]]
   const photoPairs = before && after && before !== after

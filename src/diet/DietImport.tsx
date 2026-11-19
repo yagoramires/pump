@@ -6,10 +6,11 @@ import { usePersisted } from '@/storage/db'
 import { fetchTaco } from '@/catalog/catalog'
 import { FOOD_LIST } from '@/catalog/urls'
 import { buildDietConvertPrompt, buildDietPrompt } from './prompt'
-import { DIET_NOT_FOUND, dietFromFormat, matchLabel, parseDietFormat } from './dietFormat'
-import { optionLetter } from './day'
-import { itemKcal, kcalOf, macroText, portionText } from './food'
-import { savePlan } from './plan'
+import { DIET_NOT_FOUND, dietFromFormat, parseDietFormat } from './dietFormat'
+import { itemKcalText, macroText, matchLabel, optionLabel, portionText } from './display'
+import { planItems, preparePlan } from './plan'
+import { foodKey, kcalOf } from './food'
+import { useDietPlan } from './useDietPlan'
 import { DietAnamnesisForm } from './DietAnamnesisForm'
 import { DietEditor } from './DietEditor'
 import { FoodPicker } from './FoodPicker'
@@ -30,7 +31,6 @@ import { Alert } from '@/components/ui/alert'
 
 type Props = { mode: 'ia' | 'convert'; onDone: () => void; onBack: () => void }
 
-const allItems = (plan: DietPlan) => plan.menus.flatMap((m) => m.meals.flatMap((ml) => ml.options.flatMap((o) => o.items)))
 const replaceItem = (plan: DietPlan, id: string, next: DietItem): DietPlan => ({
   ...plan,
   menus: plan.menus.map((m) => ({ ...m, meals: m.meals.map((ml) => ({ ...ml, options: ml.options.map((o) => ({ ...o, items: o.items.map((i) => (i.id === id ? next : i)) })) })) })),
@@ -38,7 +38,7 @@ const replaceItem = (plan: DietPlan, id: string, next: DietItem): DietPlan => ({
 
 export function DietImport({ mode, onDone, onBack }: Props) {
   const [profile, setProfile] = usePersisted('profile')
-  const [saved, setPlan] = usePersisted('dietPlan')
+  const { plan: saved, replacePlan } = useDietPlan()
   const [foods] = usePersisted('foods')
   const [measurements] = usePersisted('measurements')
   const [edited, setEdited] = useState<DietAnamnesis>()
@@ -47,8 +47,9 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   const [replacing, setReplacing] = useState<DietPlan>()
   const [editing, setEditing] = useState(false)
   const paste = usePastedReview(parseDietFormat, async (file) => {
-    const r = dietFromFormat(file, await fetchTaco().catch(() => null), foods)
-    return { ...r, plan: savePlan(saved, r.plan) }
+    const taco = await fetchTaco().then((list) => list, () => null)
+    const review = dietFromFormat(file, taco, foods)
+    return { ...review, plan: preparePlan(review.plan) }
   }, DIET_NOT_FOUND)
   const review = paste.result
   const anamnesis = edited ?? profile.dietAnamnesis ?? {}
@@ -65,7 +66,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   }
 
   const commit = (next: DietPlan) => {
-    setPlan((p) => savePlan(p, next))
+    replacePlan(next)
     onDone()
   }
   const offer = (next: DietPlan) => (saved.menus.length && next.menus.length ? setReplacing(next) : commit(next))
@@ -81,7 +82,12 @@ export function DietImport({ mode, onDone, onBack }: Props) {
 
   if (review) {
     const menu = review.plan.menus[tab] ?? review.plan.menus[0]
-    const outsideNames = [...new Set(allItems(review.plan).filter((i) => i.source === 'ia').map((i) => i.name))]
+    const originalNames = new Map<string, string>()
+    for (const item of planItems(review.plan)) {
+      const key = foodKey(item.name)
+      if (item.source === 'ia' && !originalNames.has(key)) originalNames.set(key, item.name)
+    }
+    const outsideNames = [...originalNames.values()]
     const outside = outsideNames.length
     return (
       <div className="flex flex-col gap-3 pb-28">
@@ -112,7 +118,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
               <div key={o.id} className="pb-1.5">
                 {meal.options.length > 1 && (
                   <div className="label-caps px-3.5 pt-2">
-                    {`Opção ${optionLetter(oi)}${o.name ? ` · ${o.name}` : ''} · ${kcalOf(o.items)} kcal`}
+                    {`${optionLabel(oi, o.name)} · ${kcalOf(o.items)} kcal`}
                   </div>
                 )}
                 {o.items.map((i) => {
@@ -126,7 +132,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
                         <span className="block text-caption text-text-2">{portionText(i)}</span>
                         {l && <span className={cn('block text-caption', l.warn ? 'text-c7' : 'text-faint')}>{l.text}</span>}
                       </span>
-                      <span className="shrink-0 text-meta tabular-nums text-text-2">{`${Math.round(itemKcal(i))} kcal`}</span>
+                      <span className="shrink-0 text-meta tabular-nums text-text-2">{itemKcalText(i)}</span>
                     </>
                   )
                   return i.source === 'ia'
@@ -184,6 +190,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
       </Card>
       <CopyListButton file={FOOD_LIST} noun="alimentos" ok="Lista copiada" report={toast} />
       <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", "dieta": ... }'>
+        {paste.failed && <Alert variant="destructive">Não consegui revisar o cardápio. Tente colar ou escolher o arquivo novamente.</Alert>}
         {paste.reviewing && <p role="status" className="text-meta text-text-2">Conferindo na TACO…</p>}
       </PasteBox>
       {mode === 'ia' && (

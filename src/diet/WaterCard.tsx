@@ -1,6 +1,6 @@
 import { Droplet } from 'lucide-react'
 import type { WaterSettings } from './types'
-import { formatDec } from '@/lib/number'
+import { liters } from './display'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
@@ -12,7 +12,7 @@ export function WaterCard({ ml, settings, onAdd, onRemove }: { ml: number; setti
   const { full, total } = cupsShown(ml, settings)
   return (
     <Card className="gap-3">
-      <div className="text-body font-semibold text-strong">{`Água · ${formatDec(ml / 1000)} de ${formatDec(settings.goalMl / 1000)} L`}</div>
+      <div className="text-body font-semibold text-strong">{`Água · ${liters(ml)} de ${liters(settings.goalMl)} L`}</div>
       <div className="flex flex-wrap gap-1.5">
         {Array.from({ length: total }, (_, i) =>
           i < full - 1 ? (

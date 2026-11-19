@@ -1,20 +1,19 @@
 import { useRef, useState } from 'react'
-import { ChevronRight, Dumbbell, HeartPulse, MoreHorizontal, Plus } from 'lucide-react'
+import { ChevronRight, MoreHorizontal, Plus } from 'lucide-react'
 import type { PlanExercise, Workout, WorkoutPlan } from './types'
 import { CatalogPicker } from './CatalogPicker'
 import { toPlanExercise } from './exercises'
 import { ExerciseDrawer } from './ExerciseDrawer'
-import { isCardio } from './cardio'
-import { IconDot } from '@/components/IconDot'
+import { groupExercises } from './cardio'
+import { ExerciseIcon } from './ExerciseIcon'
 import { BackHeader } from '@/components/BackHeader'
-import { muscleColor } from '@/catalog/muscles'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
-import { formatKg } from '@/lib/number'
+import { exerciseSummary, restSecondsLabel } from './display'
 
 type Props = { initial: WorkoutPlan; onSave: (plan: WorkoutPlan) => void; onCancel: () => void }
 
@@ -60,17 +59,17 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
             <Input id={`name-${w.id}`} className="min-w-0 flex-1 border-transparent bg-transparent px-2 font-semibold focus-visible:bg-surface" aria-label={`Nome do treino ${w.label}`} autoComplete="off" enterKeyHint="done" value={w.name} onChange={(e) => patchWorkout(w.id, (x) => ({ ...x, name: e.target.value }))} />
             <Button variant="ghost" size="icon" className="text-text-2" aria-label={`Mais ações do treino ${w.label}`} onClick={() => setMenuFor(w.id)}><MoreHorizontal size={20} /></Button>
           </div>
-          {[false, true].map((cardio) => {
-            const items = w.exercises.map((e, i) => ({ e, i })).filter(({ e }) => isCardio(e) === cardio)
+          {Object.entries(groupExercises(w.exercises)).map(([kind, items]) => {
+            const cardio = kind === 'cardio'
             return items.length > 0 && (
-              <div key={String(cardio)} className={cn('flex flex-col', cardio ? 'gap-2' : 'border-t border-line')}>
+              <div key={kind} className={cn('flex flex-col', cardio ? 'gap-2' : 'border-t border-line')}>
                 {cardio && <div className="label-caps border-t border-line pt-2">Cardio</div>}
-                {items.map(({ e, i }) => (
+                {items.map(({ exercise: e, index: i }) => (
                   <Button key={`${e.exerciseId}-${i}`} variant="ghost" className="h-auto min-h-14 justify-start gap-3 rounded-none border-t border-line px-0 text-left font-normal first:border-t-0" onClick={() => setEditing({ wid: w.id, i })}>
-                    <IconDot color={cardio ? 'var(--c1)' : muscleColor(e.muscles)} size={36}>{cardio ? <HeartPulse size={16} /> : <Dumbbell size={16} />}</IconDot>
+                    <ExerciseIcon muscles={e.muscles} cardio={cardio} size={36} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-body font-semibold text-strong">{e.name}</span>
-                      <span className="block text-caption tabular-nums text-text-2">{cardio ? e.reps : `${e.sets} × ${e.reps} · ${formatKg(e.weightKg)} kg · ${e.restSec} s`}</span>
+                      <span className="block text-caption tabular-nums text-text-2">{cardio ? e.reps : `${exerciseSummary(e)} · ${restSecondsLabel(e.restSec)}`}</span>
                     </span>
                     <ChevronRight size={16} className="text-faint" />
                   </Button>

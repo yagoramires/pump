@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Check, Droplet, ListChecks, MoreHorizontal, Pencil, ShoppingCart, Sparkles } from 'lucide-react'
-import { usePersisted } from '@/storage/db'
 import { formatDayLabel } from '@/lib/date'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -12,11 +11,13 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { SheetBody, SheetRow } from '@/components/SheetRow'
 import { formatDec } from '@/lib/number'
 import { cn } from '@/lib/utils'
-import { currentMealId, daySummary, mealOptions, optionLetter, sortedMeals, toggleMeal } from './day'
+import { currentMealId, daySummary, mealOptions, toggleMeal } from './day'
 import { kcalOf } from './food'
-import { savePlan } from './plan'
+import { liters, macroProgress, optionLetter } from './display'
+import { sortedMeals } from './plan'
 import { useDietToday } from './useDietToday'
 import { useWater } from './useWater'
+import { activeWater } from './water'
 import { DietEditor } from './DietEditor'
 import { DietStart } from './DietStart'
 import { ShoppingList } from './ShoppingList'
@@ -27,9 +28,9 @@ const RING_R = 19
 const RING_C = 2 * Math.PI * RING_R
 
 export function DietTab() {
-  const { now, today, tick, plan, day, menu: dayMenu, act, pickMenu, switchMenu } = useDietToday()
-  const [, setPlan] = usePersisted('dietPlan')
+  const { now, today, tick, plan, replacePlan, day, menu: dayMenu, act, pickMenu, switchMenu } = useDietToday()
   const water = useWater()
+  const waterSettings = activeWater(water.settings)
   const [editing, setEditing] = useState(false)
   const [shopping, setShopping] = useState(false)
   const [openId, setOpenId] = useState<string>()
@@ -39,7 +40,7 @@ export function DietTab() {
 
   const close = () => setEditing(false)
   if (shopping) return <Overlay><ShoppingList onClose={() => setShopping(false)} /></Overlay>
-  if (editing) return <Overlay><DietEditor initial={plan} onSave={(next) => { setPlan((p) => savePlan(p, next)); close() }} onCancel={close} /></Overlay>
+  if (editing) return <Overlay><DietEditor initial={plan} onSave={(next) => { replacePlan(next); close() }} onCancel={close} /></Overlay>
 
   if (!day || !plan.menus.length) {
     return (
@@ -54,8 +55,7 @@ export function DietTab() {
   const pick = (menuId: string) => setConfirmMenu(pickMenu(menuId))
 
   const goal = day.goalKcal
-  const gm = day.goalMacros
-  const macros = ([['P', s.p, gm?.p], ['C', s.c, gm?.c], ['G', s.f, gm?.f]] as const).map(([l, done, t]) => `${l} ${Math.round(done)}${t ? `/${Math.round(t)}` : ''}`)
+  const macros = macroProgress(s, day.goalMacros)
   const pct = goal ? Math.min(100, Math.round((s.kcal / goal) * 100)) : 0
   const nowId = day.free ? undefined : currentMealId(day.meals, now)
 
@@ -97,12 +97,12 @@ export function DietTab() {
             {day.free ? 'Dia livre' : macros.map((m) => <span key={m} className="whitespace-nowrap">{m}</span>)}
           </div>
         </div>
-        {water.on && (
+        {waterSettings && (
           <Button
-            variant="outline" aria-label={`Água: ${formatDec(water.ml / 1000)} de ${formatDec(water.on.goalMl / 1000)} litros`} onClick={() => setSheet('water')}
+            variant="outline" aria-label={`Água: ${liters(water.ml)} de ${liters(waterSettings.goalMl)} litros`} onClick={() => setSheet('water')}
             className="border-c2/40 bg-c2/15 px-3 text-caption tabular-nums text-c2 hover:bg-c2/25 hover:text-c2"
           >
-            <Droplet aria-hidden="true" />{`${formatDec(water.ml / 1000)}/${formatDec(water.on.goalMl / 1000)} L`}
+            <Droplet aria-hidden="true" />{`${liters(water.ml)}/${liters(waterSettings.goalMl)} L`}
           </Button>
         )}
       </Card>
@@ -135,7 +135,7 @@ export function DietTab() {
       </ul>
       </Card>
 
-      {!water.on && (
+      {!waterSettings && (
         <Button variant="link" className="w-full text-accent" onClick={water.turnOn}>
           Ligar contador de água
         </Button>
@@ -145,11 +145,11 @@ export function DietTab() {
         <Drawer open onOpenChange={(o) => !o && setSheet(undefined)}>
           <DrawerContent>
             <SheetBody>
-              {sheet === 'water' && water.on ? (
+              {sheet === 'water' && waterSettings ? (
                 <>
                   <DrawerTitle className="sr-only">Água</DrawerTitle>
                   <DrawerDescription className="sr-only">Copos de água de hoje</DrawerDescription>
-                  <WaterCard ml={water.ml} settings={water.on} onAdd={() => water.act(1)} onRemove={() => water.act(-1)} />
+                  <WaterCard ml={water.ml} settings={waterSettings} onAdd={() => water.act(1)} onRemove={() => water.act(-1)} />
                 </>
               ) : sheet === 'menus' ? (
                 <>

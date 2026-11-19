@@ -1,5 +1,5 @@
 import type { Settings, UserData } from '@/schema'
-import { backupDue, buildBackup, daysWithoutBackup, exportBackup, importBackupFile, parseBackup } from './backup'
+import { backupDue, buildBackup, exportBackup, importBackupFile, parseBackup } from './backup'
 import { allData, load, replaceAll, save } from './db'
 import { loadPhoto, savePhoto } from './photos'
 
@@ -42,6 +42,7 @@ test('backupDue com 14 dias de calendário', () => {
   expect(backupDue(s, '2026-11-14')).toBeUndefined()
   expect(backupDue(s, '2026-11-15')).toBe(14)
   expect(backupDue({ ...s, lastBackupAt: '2026-11-10' }, '2026-11-15')).toBeUndefined()
+  expect(backupDue({ ...s, lastBackupAt: '2026-11-10' }, '2026-11-26')).toBe(16)
   expect(backupDue({ lastTab: 'treino', onboardingDone: false }, '2026-11-15')).toBeUndefined()
 })
 
@@ -63,12 +64,6 @@ test('erro ao enviar o backup vira mensagem em pt-BR', async () => {
   vi.spyOn(console, 'error').mockImplementation(() => {})
   await expect(exportBackup()).rejects.toThrow('Não consegui enviar o backup')
 })
-test('daysWithoutBackup conta desde o último backup ou o primeiro uso', () => {
-  expect(daysWithoutBackup({ lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01' }, '2026-11-17')).toBe(16)
-  expect(daysWithoutBackup({ lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01', lastBackupAt: '2026-11-10' }, '2026-11-17')).toBe(7)
-  expect(daysWithoutBackup({ lastTab: 'treino', onboardingDone: true }, '2026-11-17')).toBeUndefined()
-})
-
 test('backup com dieta: ida e volta', async () => {
   const saved: Partial<UserData> = {
     dietPlan: { menus: [{ id: 'A', name: 'Cardápio', meals: [{ id: 'm1', name: 'Café', time: '07:00', options: [{ id: 'o1', items: [] }] }] }], lastMenuId: 'A' },

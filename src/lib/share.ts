@@ -8,7 +8,6 @@ export async function copyText(text: string): Promise<boolean> {
 }
 
 export const COPY_FAIL = 'Não consegui copiar. Tente de novo.'
-/** copia e avisa pelo canal da tela (toast ou aviso na própria tela) */
 export const makeCopy = (report: (msg: string) => unknown) => async (text: string, ok: string) => { report((await copyText(text)) ? ok : COPY_FAIL) }
 
 export async function shareFile(file: File): Promise<'shared' | 'downloaded' | 'cancelled'> {

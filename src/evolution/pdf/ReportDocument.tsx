@@ -3,10 +3,10 @@ import { Document, Font, Image, Page, Path, Polyline, StyleSheet, Svg, Text, Vie
 import { formatDayMonth, parseDayKey } from '@/lib/date'
 import { formatDec, formatSigned, plural } from '@/lib/number'
 import type { Metric } from '@/evolution/bodyFat'
-import { FAT, WEIGHT, type Point } from '@/evolution/measurements'
+import { FAT, WEIGHT, deltaUnit, type BodyRow, type Field, type Point } from '@/evolution/measurements'
 import { ANGLE_LABEL } from '@/evolution/types'
 import { scalePoints } from '@/evolution/chart'
-import { change, type BodyRow, type Report } from '@/evolution/report'
+import type { Report } from '@/evolution/report'
 
 // cores do mockup (docs/design/evolucao-e-pdf.html); medidas = mockup × 2,2 pra virar A4 (595 × 842 pt)
 const BG = '#0b0c0d'
@@ -96,9 +96,10 @@ function WeightChart({ points }: { points: Point[] }) {
   )
 }
 
-function Change({ label, unit, row }: { label: string; unit: string; row?: BodyRow }) {
-  const d = change(row)
-  return <Big label={label} value={d === undefined ? '—' : formatSigned(d, '–')} unit={d === undefined ? undefined : unit} accent={d !== undefined && row?.good} />
+const formatChange = (row?: BodyRow) => row?.delta === undefined ? '—' : formatSigned(row.delta, '–')
+
+function Change({ field, row }: { field: Field; row?: BodyRow }) {
+  return <Big label={field.label} value={formatChange(row)} unit={row?.delta === undefined ? undefined : deltaUnit(field)} accent={row?.good} />
 }
 
 function Badges({ list }: { list: { title: string; earnedAt: string }[] }) {
@@ -137,8 +138,8 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
         </View>
         <Text style={[s.lb, { marginTop: 4 }]}>{`${plural(r.period.days, 'dia', 'dias')} de acompanhamento`}</Text>
         <View style={[s.grid, { marginTop: 62 }]}>
-          <Change label={WEIGHT.label} unit={WEIGHT.unit} row={row(WEIGHT.key)} />
-          <Change label={FAT.label} unit={FAT.deltaUnit} row={row(FAT.key)} />
+          <Change field={WEIGHT} row={row(WEIGHT.key)} />
+          <Change field={FAT} row={row(FAT.key)} />
           <Big label="Treinos" value={String(r.training.workouts)} />
           <Big label="Volume" value={formatDec(r.training.volumeTons)} unit="t" />
         </View>
@@ -173,7 +174,7 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
 
   if (r.body) {
     pages.push({
-      note: row('fat') ? '% de gordura: estimativa (US Navy)' : undefined,
+      note: row(FAT.key) ? '% de gordura: estimativa (US Navy)' : undefined,
       body: (
         <>
           <Text style={s.lb}>Corpo</Text>
@@ -183,8 +184,8 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
             <View key={x.key} style={s.row}>
               <Text>{x.label}</Text>
               <View style={s.val}>
-                <FromTo first={x.first.value} last={x.last.value} unit={x.unit} digits={x.digits} spaced={x.spaced} />
-                <Text style={{ marginLeft: 11, color: x.good ? ACC : T2 }}>{formatSigned(x.delta, '–')}</Text>
+                <FromTo first={x.first.value} last={x.last.value} unit={x.unit} digits={x.pdfDigits} spaced={x.spaced} />
+                <Text style={{ marginLeft: 11, color: x.good ? ACC : T2 }}>{formatChange(x)}</Text>
               </View>
             </View>
           ))}

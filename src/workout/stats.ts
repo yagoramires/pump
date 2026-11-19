@@ -1,10 +1,14 @@
+import { hasMarkedSet, markedSets } from './session'
+import { isRest } from './rest'
 import type { SessionExercise, SetDone, WorkoutLog, WorkoutSession } from './types'
 
 const repsNumber = (reps: string): number => Number(/\d+/.exec(reps)?.[0] ?? 0)
 
-const doneSets = (s: WorkoutSession) => s.exercises.flatMap((e) => e.sets).filter((d): d is SetDone => d !== null)
+const doneSets = (s: WorkoutSession) => s.exercises.flatMap(markedSets)
 
-export const completedSessions = (log: WorkoutLog) => Object.values(log).filter((s) => s.completedAt).sort((a, b) => a.date.localeCompare(b.date))
+export const completedSessions = (log: WorkoutLog) => Object.values(log)
+  .filter((s) => !isRest(s) && s.completedAt)
+  .sort((a, b) => a.date.localeCompare(b.date) || (a.completedAt ?? '').localeCompare(b.completedAt ?? ''))
 
 export const maxLoad = (e: SessionExercise) => Math.max(0, ...e.sets.map((x) => x?.weightKg ?? 0))
 
@@ -26,7 +30,7 @@ export const previousSets = (log: WorkoutLog, today: string, exerciseId: string)
   const dates = Object.keys(log).filter((d) => d < today).sort().reverse()
   for (const d of dates) {
     const ex = log[d].exercises.find((e) => e.exerciseId === exerciseId)
-    if (ex?.sets.some(Boolean)) return ex.sets
+    if (ex && hasMarkedSet(ex)) return ex.sets
   }
   return []
 }

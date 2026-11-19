@@ -2,12 +2,13 @@ import type { DietDay } from './types'
 import { usePersisted } from '@/storage/db'
 import { useToday } from '@/lib/useToday'
 import { dayOf, resetDay, touched, updateDay } from './day'
+import { useDietPlan } from './useDietPlan'
 
 type Act = (f: (d: DietDay) => DietDay) => void
 
 export function useDietToday() {
   const { now, today, tick } = useToday()
-  const [plan, setPlan] = usePersisted('dietPlan')
+  const { plan, replacePlan, selectMenu } = useDietPlan()
   const [log, setLog] = usePersisted('dietLog')
   const day = dayOf(log, plan, today)
   const menu = day && plan.menus.find((m) => m.id === day.menuId)
@@ -18,7 +19,7 @@ export function useDietToday() {
   }
   const switchMenu = (menuId: string, date: string) => {
     setLog((l) => resetDay(l, date))
-    setPlan((p) => ({ ...p, lastMenuId: menuId }))
+    selectMenu(menuId)
   }
   const pickMenu = (menuId: string): { menuId: string; date: string } | undefined => {
     const date = tick()
@@ -27,5 +28,5 @@ export function useDietToday() {
     switchMenu(menuId, date)
   }
 
-  return { now, today, tick, plan, day, menu, act, pickMenu, switchMenu }
+  return { now, today, tick, plan, replacePlan, day, menu, act, pickMenu, switchMenu }
 }

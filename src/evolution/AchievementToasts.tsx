@@ -5,7 +5,6 @@ import { todayKey } from '@/lib/date'
 import { computeAchievements } from './achievements'
 import { useEvolution } from './useEvolution'
 
-/** toast de conquista nova; na primeira vez só marca as já ganhas como vistas */
 export function AchievementToasts() {
   const input = useEvolution()
   const [settings, setSettings] = usePersisted('settings')

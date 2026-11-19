@@ -13,7 +13,6 @@ export type AchievementId = 'first-workout' | 'streak-3' | 'streak-7' | 'streak-
 /** `diet`: só aparece (e só conta no "de N") com cardápio ou dia de dieta (§167) */
 export interface Achievement { id: AchievementId; title: string; earnedAt?: string; progress?: string; diet?: true }
 
-// kg na direção do objetivo: [limite, título] da pequena e da grande
 const WEIGHT_BADGES = { loss: [[1, '−1 kg'], [5, '−5 kg']], gain: [[1, '+1 kg'], [3, '+3 kg']] } as const
 
 const EPS = 1e-9

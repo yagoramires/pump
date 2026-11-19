@@ -76,8 +76,14 @@ test('dieta junto com treinos gera o aviso da aba Dieta', () =>
   expect(planFromFormat({ ...parsePlanFormat(JSON.stringify(ok)), dieta: {} }, catalog, []).ignoredDiet).toBe(true))
 test('importa arquivo com dias e exporta sem dias', () => {
   const r = planFromFormat(parsePlanFormat(JSON.stringify(ok)), catalog, [])
-  expect(r.plan.workouts[0]).not.toHaveProperty('weekdays')
-  expect(exportPlanFormat(r.plan)).not.toContain('dias')
+  expect(JSON.parse(exportPlanFormat(r.plan)).treinos[0]).toEqual({
+    letra: 'A',
+    nome: 'Peito',
+    exercicios: [
+      { nome: 'Supino reto com barra', series: 4, reps: '10', cargaKg: 40, descansoSeg: 90 },
+      { nome: 'Remada na máquina do Zé', series: 3, reps: '12', cargaKg: 0, descansoSeg: 90, obs: 'banco 3' },
+    ],
+  })
 })
 test('nome com equipamento entre parênteses (da lista do catálogo) casa com o exercício', () => {
   const f = parsePlanFormat(JSON.stringify({ ...ok, treinos: [{ letra: 'A', nome: 'Peito', exercicios: [{ nome: 'Supino reto com barra (barra)', series: 3, reps: '10' }] }] }))

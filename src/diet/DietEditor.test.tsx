@@ -5,6 +5,7 @@ import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { resetStoreForTests, save } from '@/storage/db'
 import { DietEditor } from './DietEditor'
+import { savePlan } from './plan'
 
 const shake: DietItem = { id: 'f1', name: 'Meu shake', grams: 100, per100: { kcal: 120, p: 20, c: 5, f: 2 }, source: 'custom' }
 const pao: DietItem = { id: 'i1', name: 'Pão francês', grams: 50, portion: '1 un', per100: { kcal: 300, p: 8, c: 58, f: 3 }, source: 'taco', tacoId: 9 }
@@ -140,7 +141,7 @@ test('DietEditor recusa opção vazia e meta fora da faixa; Salvar apara os text
   await user.clear(kcal)
   await user.type(kcal, '2100')
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
-  const menu = saved(onSave).menus[0]
+  const menu = savePlan(initial, saved(onSave)).menus[0]
   expect(menu).toMatchObject({ name: 'Dia de treino', goalKcal: 2100 })
   expect(menu.meals[0].name).toBe('Café')
   expect(menu.meals[0].options).toHaveLength(1)
@@ -189,4 +190,15 @@ test('trocar de cardápio mostra a meta do outro, e voltar mostra a do primeiro'
   expect(kcal()).toHaveValue('')
   await user.click(screen.getByRole('button', { name: 'Dia de treino' }))
   expect(kcal()).toHaveValue('2000')
+})
+
+test('pede correção de uma meta fracionária legada antes de salvar', async () => {
+  const initial = plan()
+  initial.menus[0].goalKcal = 2000.5
+  const onSave = vi.fn()
+  const user = setup()
+  await renderLoaded(<DietEditor initial={initial} onSave={onSave} onCancel={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: 'Salvar' }))
+  expect(screen.getByRole('alert')).toHaveTextContent('Dia de treino: informe a meta em kcal inteiras')
+  expect(onSave).not.toHaveBeenCalled()
 })

@@ -1,5 +1,3 @@
-export const remainingSec = (endAt: number, now: number): number => Math.max(0, Math.ceil((endAt - now) / 1000))
-
 type AudioCtor = typeof AudioContext
 let ctx: AudioContext | undefined
 

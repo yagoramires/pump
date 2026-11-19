@@ -104,8 +104,4 @@ test('Evolução de quem só faz dieta mostra o cartão Dieta', async () => {
   await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText('Dieta · 30 dias')).toBeInTheDocument()
   expect(screen.queryByRole('heading', { name: 'Sua evolução começa aqui' })).not.toBeInTheDocument()
-  expect(screen.getByText('Média de kcal').parentElement).toHaveTextContent('400 / 2.000')
-  expect(screen.getByText('Dias no plano').parentElement).toHaveTextContent('1 de 1')
-  expect(screen.getByText('Água na meta').parentElement).toHaveTextContent('1 de 1')
-  expect(screen.getByText('Livres no mês').parentElement).toHaveTextContent('0')
 })

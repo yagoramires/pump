@@ -3,8 +3,8 @@ import { CalendarDays, Camera, ChevronRight, FileText, Plus, Ruler, Share2, Tren
 import { toast } from 'sonner'
 import type { EvolutionInput } from './types'
 import { loadPhoto } from '@/storage/photos'
-import { daysBetween, formatDayMonth } from '@/lib/date'
-import { formatDec, formatKg, plural } from '@/lib/number'
+import { daysBetween, formatDayMonth, todayKey } from '@/lib/date'
+import { formatDec, plural } from '@/lib/number'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
@@ -13,7 +13,7 @@ import { TabHeader } from '@/components/TabHeader'
 import { EmptyState } from '@/components/EmptyState'
 import { IconDot } from '@/components/IconDot'
 import type { Metric } from './bodyFat'
-import { FAT, WEIGHT } from './measurements'
+import { FAT, WEIGHT, deltaUnit, formatMetric, metricUnit } from './measurements'
 import { WeightChart } from './WeightChart'
 import { MeasureDrawer } from './MeasureDrawer'
 import { Delta } from './Delta'
@@ -26,19 +26,19 @@ import { AchievementsScreen } from './AchievementsScreen'
 import { HistoryScreen } from './HistoryScreen'
 import { DietCard } from './DietCard'
 import { CheckInFlow, CheckInCard } from './CheckInFlow'
-import { AnamnesisCard } from './AnamnesisCard'
+import { AnamnesisCard } from '@/profile/AnamnesisCard'
 import { useCheckIn } from './useCheckIn'
 import { Overlay } from '@/components/Overlay'
 import { ANAMNESIS_STEPS, AnamnesisFlow } from '@/profile/AnamnesisFlow'
 import { useEvolution } from './useEvolution'
-import { buildReport, change } from './report'
+import { buildReport } from './report'
 import { generatePdf } from './pdf/generate'
 import { shareFile } from '@/lib/share'
 
-type View = 'checkin' | 'anamnesis' | 'capture' | 'compare' | 'achievements' | 'history'
+type View = 'checkin' | 'anamnesis' | 'compare' | 'achievements' | 'history'
 const LINK = 'text-meta text-accent disabled:text-faint'
 const RANGES = [{ v: '7', label: '7 d' }, { v: '30', label: '30 d' }, { v: '90', label: '90 d' }, { v: 'all', label: 'Tudo' }]
-const KPI: Metric[] = ['weightKg', 'fat']
+const KPI: Metric[] = [WEIGHT.key, FAT.key]
 function Kpi({ label, value, children }: { label: string; value: string; children: ReactNode }) {
   return (
     <Card size="sm" className="min-w-0 gap-0.5">
@@ -53,15 +53,16 @@ export function EvolutionTab() {
   const input = useEvolution()
   const [range, setRange] = useState('90')
   const [choosing, setChoosing] = useState(false)
-  const [measuring, setMeasuring] = useState(false)
+  const [measurementDate, setMeasurementDate] = useState<string>()
+  const [photoDate, setPhotoDate] = useState<string>()
   const [view, setView] = useState<View>()
   const [busy, setBusy] = useState(false)
   const [pdf, setPdf] = useState<{ blob: Blob; input: EvolutionInput; today: string }>()
-  const { today, due, anamnesisPending } = useCheckIn()
+  const { today, due } = useCheckIn()
 
   if (view === 'checkin') return <CheckInFlow onClose={() => setView(undefined)} />
   if (view === 'anamnesis') return <Overlay><AnamnesisFlow total={ANAMNESIS_STEPS} onDone={() => setView(undefined)} onCancel={() => setView(undefined)} /></Overlay>
-  if (view === 'capture') return <PhotoCapture date={today} onClose={() => setView(undefined)} />
+  if (photoDate) return <PhotoCapture date={photoDate} onClose={() => setPhotoDate(undefined)} />
   if (view === 'compare') return <PhotoCompare onClose={() => setView(undefined)} />
   if (view === 'achievements') return <AchievementsScreen onClose={() => setView(undefined)} />
   if (view === 'history') return <HistoryScreen onClose={() => setView(undefined)} />
@@ -74,23 +75,21 @@ export function EvolutionTab() {
             <DrawerTitle className="pt-1 text-title font-semibold text-strong">Registrar</DrawerTitle>
             <DrawerDescription className="sr-only">Escolha o que registrar hoje</DrawerDescription>
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" className="h-20 flex-col gap-1.5 bg-surface" onClick={() => { setChoosing(false); setMeasuring(true) }}><Ruler aria-hidden="true" className="size-5" />Medidas</Button>
-              <Button variant="outline" className="h-20 flex-col gap-1.5 bg-surface" onClick={() => { setChoosing(false); setView('capture') }}><Camera aria-hidden="true" className="size-5" />Fotos</Button>
+              <Button variant="outline" className="h-20 flex-col gap-1.5 bg-surface" onClick={() => { setChoosing(false); setMeasurementDate(todayKey()) }}><Ruler aria-hidden="true" className="size-5" />Medidas</Button>
+              <Button variant="outline" className="h-20 flex-col gap-1.5 bg-surface" onClick={() => { setChoosing(false); setPhotoDate(todayKey()) }}><Camera aria-hidden="true" className="size-5" />Fotos</Button>
             </div>
           </div>
         </DrawerContent>
       </Drawer>
-      <MeasureDrawer open={measuring} onClose={() => setMeasuring(false)} date={today} />
+      {measurementDate && <MeasureDrawer onClose={() => setMeasurementDate(undefined)} date={measurementDate} />}
     </>
   )
 
   const cards = (
-    (anamnesisPending || due) && (
-      <>
-        {anamnesisPending && <AnamnesisCard onStart={() => setView('anamnesis')} />}
-        {due && <CheckInCard due={due} today={today} onStart={() => setView('checkin')} />}
-      </>
-    )
+    <>
+      <AnamnesisCard onStart={() => setView('anamnesis')} />
+      {due && <CheckInCard due={due} today={today} onStart={() => setView('checkin')} />}
+    </>
   )
 
   const report = buildReport(input, today)
@@ -111,8 +110,8 @@ export function EvolutionTab() {
 
   const weights = body?.weight ?? []
   const points = weights.filter((p) => range === 'all' || daysBetween(p.date, today) <= Number(range))
-  const weight = body?.rows.find((r) => r.key === 'weightKg')
-  const fat = body?.rows.find((r) => r.key === 'fat')
+  const weight = body?.rows.find((r) => r.key === WEIGHT.key)
+  const fat = body?.rows.find((r) => r.key === FAT.key)
   const rows = body?.rows.filter((r) => !KPI.includes(r.key)) ?? []
   const earned = report.achievements.filter((x) => x.earnedAt)
 
@@ -140,11 +139,11 @@ export function EvolutionTab() {
       {cards}
 
       <div className="grid grid-cols-3 gap-2">
-        <Kpi label={WEIGHT.label} value={weight ? `${formatKg(weight.last.value)} ${WEIGHT.unit}` : '—'}>
-          <Delta value={change(weight)} good={!!weight?.good} unit={WEIGHT.unit} />
+        <Kpi label={WEIGHT.label} value={weight ? `${formatMetric(WEIGHT, weight.last.value)}${metricUnit(WEIGHT)}` : '—'}>
+          <Delta value={weight?.delta} good={!!weight?.good} unit={deltaUnit(WEIGHT)} />
         </Kpi>
-        <Kpi label={FAT.label} value={fat ? `${formatDec(fat.last.value)}${FAT.unit}` : '—'}>
-          <Delta value={change(fat)} good={!!fat?.good} unit={FAT.deltaUnit} />
+        <Kpi label={FAT.label} value={fat ? `${formatMetric(FAT, fat.last.value)}${metricUnit(FAT)}` : '—'}>
+          <Delta value={fat?.delta} good={!!fat?.good} unit={deltaUnit(FAT)} />
         </Kpi>
         <Kpi label="Treinos" value={String(training.workouts)}>
           <span className={training.workouts ? 'text-accent' : 'text-text-2'}>{training.workouts ? `${formatDec(training.perWeek, 1)}/sem` : '—'}</span>
@@ -172,8 +171,8 @@ export function EvolutionTab() {
             <div key={r.key} className="flex items-center justify-between gap-3 border-t border-line px-3.5 py-2.5 text-sm">
               <span className="text-text-2">{r.label}</span>
               <span className="tabular-nums">
-                <b className="font-semibold text-strong">{`${formatKg(r.first.value)} → ${formatKg(r.last.value)} ${r.unit}`}</b>
-                <Delta value={change(r)} good={r.good} unit={r.unit} className="ml-2 text-meta" />
+                <b className="font-semibold text-strong">{`${formatMetric(r, r.first.value)} → ${formatMetric(r, r.last.value)}${metricUnit(r)}`}</b>
+                <Delta value={r.delta} good={r.good} unit={deltaUnit(r)} className="ml-2 text-meta" />
               </span>
             </div>
           ))}
@@ -186,7 +185,7 @@ export function EvolutionTab() {
         <CardHeader>
           <CardTitle>Fotos</CardTitle>
           <CardAction className="flex gap-4">
-            <Button type="button" variant="link" className={LINK} onClick={() => setView('capture')}>Nova foto</Button>
+            <Button type="button" variant="link" className={LINK} onClick={() => setPhotoDate(todayKey())}>Nova foto</Button>
             <Button type="button" variant="link" className={LINK} disabled={input.photoSets.length < 2} onClick={() => setView('compare')}>Comparar</Button>
           </CardAction>
         </CardHeader>

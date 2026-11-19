@@ -1,12 +1,11 @@
-import { useRef, useState } from 'react'
-import { importBackupFile } from '@/storage/backup'
+import { useId, useState, type ReactNode } from 'react'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { importBackupFile } from './backup'
 
-/** restaurar backup: quem chama desenha o botão (`pick`) e o erro, e põe `input` e `confirm` na tela */
-export function useImportBackup() {
+export function BackupRestore({ trigger }: { trigger: (pick: () => void) => ReactNode }) {
   const [error, setError] = useState<string>()
   const [file, setFile] = useState<File>()
-  const fileRef = useRef<HTMLInputElement>(null)
+  const inputId = useId()
 
   const restore = async () => {
     if (!file) return
@@ -19,15 +18,15 @@ export function useImportBackup() {
     }
   }
 
-  return {
-    pick: () => fileRef.current?.click(),
-    error,
-    input: <input ref={fileRef} type="file" accept=".json,application/json" hidden aria-label="Arquivo de backup" onChange={(e) => { setFile(e.target.files?.[0]); e.target.value = '' }} />,
-    confirm: (
+  return (
+    <>
+      {trigger(() => document.getElementById(inputId)?.click())}
+      <input id={inputId} type="file" accept=".json,application/json" hidden aria-label="Arquivo de backup" onChange={(e) => { setFile(e.target.files?.[0]); e.target.value = '' }} />
+      {error && <p role="alert" className="px-3.5 py-2 text-sm text-negative">{error}</p>}
       <ConfirmDialog
         open={!!file} title="Restaurar backup?" text="Isso substitui todos os seus dados. Continuar?" confirm="Restaurar" destructive
         onConfirm={() => void restore()} onCancel={() => setFile(undefined)}
       />
-    ),
-  }
+    </>
+  )
 }

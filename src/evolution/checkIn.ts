@@ -1,27 +1,23 @@
 import type { Settings } from '@/schema'
 import type { Profile } from '@/profile/types'
 import type { Measurement, PhotoSet } from './types'
-import { round1 } from '@/lib/number'
-import { addDays, daysBetween, weekStart, weekday, weeksBetween } from '@/lib/date'
-import { FAT, FIELDS, WEIGHT, fatSeries, series, type Point } from './measurements'
-import { goalDirection, isGood, type Metric } from './bodyFat'
+import { addDays, daysBetween, weekStart, weeksBetween } from '@/lib/date'
+import { BODY_FIELDS, WEIGHT, deltaUnit, metricRow, metricSeries, series } from './measurements'
+import { goalDirection } from './bodyFat'
 import { ANGLES } from './types'
-
-export const checkInDayOf = (settings: Settings, today: string): number => settings.checkInDay ?? weekday(today)
 
 export function checkInDue(settings: Settings, measurements: Measurement[], today: string): string | undefined {
   const day = settings.checkInDay
-  const weights = series(measurements, 'weightKg')
+  const weights = series(measurements, WEIGHT.key)
   if (day === undefined || !weights.length) return undefined
   let d = addDays(weekStart(today), day)
   if (d > today) d = addDays(d, -7)
   return weights.some((w) => w.date >= d) ? undefined : d
 }
 
-/** até quantos dias a medição anterior ainda é "a semana passada" */
-export const LAST_WEEK_MAX_DAYS = 8
+const LAST_WEEK_MAX_DAYS = 8
 
-export interface WeekSummary {
+interface WeekSummary {
   week: number
   weight: number
   sincePrev?: number
@@ -34,35 +30,31 @@ export interface WeekSummary {
 }
 
 export function weekSummary(profile: Profile, measurements: Measurement[], photoSets: PhotoSet[], today: string): WeekSummary | undefined {
-  const weights = series(measurements, 'weightKg')
+  const weights = series(measurements, WEIGHT.key)
   const now = weights.find((w) => w.date === today)
   if (!now) return undefined
   const dir = goalDirection(profile)
   const first = weights[0]
   const prev = weights.filter((w) => w.date < today).pop()
-  const delta = (pts: Point[]) => {
-    const cur = pts.find((p) => p.date === today)
-    const before = pts.filter((p) => p.date < today).pop()
-    return cur && before ? round1(cur.value - before.value) : undefined
-  }
-  const metrics: { key: Metric; label: string; unit: string; pts: Point[] }[] = [
-    { key: 'fat', label: FAT.label, unit: FAT.deltaUnit, pts: fatSeries(profile, measurements) },
-    ...FIELDS.filter((f) => f.key !== WEIGHT.key).map((f) => ({ key: f.key, label: f.label, unit: f.unit, pts: series(measurements, f.key) })),
-  ]
-  const rows = metrics.flatMap(({ key, label, unit, pts }) => {
-    const d = delta(pts)
-    return d ? [{ label, unit, delta: d, good: isGood(key, dir, d) }] : []
+  const previousWeight = prev && metricRow(WEIGHT, dir, prev, now)
+  const rows = BODY_FIELDS.filter((field) => field.key !== WEIGHT.key).flatMap((field) => {
+    const points = metricSeries(profile, measurements, field)
+    const before = points.filter((p) => p.date < today).pop()
+    const current = points.find((p) => p.date === today)
+    if (!before || !current) return []
+    const { label, delta, good } = metricRow(field, dir, before, current)
+    return delta ? [{ label, unit: deltaUnit(field), delta, good }] : []
   })
-  const sincePrev = delta(weights)
+  const photos = photoSets.find((set) => set.date === today)
   return {
     week: weeksBetween(first.date, today),
     weight: now.value,
-    sincePrev,
-    weightGood: sincePrev !== undefined && isGood('weightKg', dir, sincePrev),
+    sincePrev: previousWeight?.delta,
+    weightGood: previousWeight?.good ?? false,
     prevDate: prev?.date,
     prevIsLastWeek: !!prev && daysBetween(prev.date, today) <= LAST_WEEK_MAX_DAYS,
-    sinceStart: first.date === today ? undefined : round1(now.value - first.value),
+    sinceStart: metricRow(WEIGHT, dir, first, now).delta,
     rows,
-    photos: ANGLES.filter((a) => photoSets.find((p) => p.date === today)?.[a]).length,
+    photos: ANGLES.filter((angle) => photos?.[angle]).length,
   }
 }

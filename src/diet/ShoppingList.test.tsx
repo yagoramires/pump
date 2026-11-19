@@ -62,7 +62,7 @@ test('marcação persiste, remonta e limpa', async () => {
   await waitFor(async () => expect((await load('settings'))?.shoppingChecked).toEqual([]))
 })
 
-test('copiar lista usa o helper de cópia', async () => {
+test('copia a lista de compras', async () => {
   await save('dietPlan', plan)
   const user = setupUser()
   await renderLoaded(<ShoppingList onClose={() => {}} />)
@@ -78,7 +78,8 @@ test('marcas de itens que não existem mais não aparecem nem contam', async () 
   await screen.findByRole('checkbox', { name: 'Arroz' })
   expect(screen.queryByRole('button', { name: 'Limpar marcações' })).not.toBeInTheDocument()
   await user.click(screen.getByRole('checkbox', { name: 'Arroz' }))
-  await waitFor(async () => expect((await load('settings'))?.shoppingChecked).toEqual(['n:arroz']))
+  expect(screen.getByRole('checkbox', { name: 'Arroz' })).toBeChecked()
+  expect(screen.getByRole('checkbox', { name: 'Ovo' })).not.toBeChecked()
 })
 
 test('com marcas copia só o que falta', async () => {
@@ -102,4 +103,16 @@ test('tudo marcado desabilita a cópia', async () => {
   expect(btn).toBeDisabled()
   await user.click(btn)
   expect(writeText).not.toHaveBeenCalled()
+})
+
+test('mantém compras distintas e a marcação salva de nomes não latinos', async () => {
+  const withJapaneseNames = structuredClone(plan)
+  const items = withJapaneseNames.menus[0].meals[0].options[0].items
+  items[0].name = '豆腐'
+  items[1].name = '味噌'
+  await save('dietPlan', withJapaneseNames)
+  await save('settings', { ...DEFAULTS.settings, shoppingChecked: ['n:豆腐'] })
+  await renderLoaded(<ShoppingList onClose={() => {}} />)
+  expect(await screen.findByRole('checkbox', { name: '豆腐' })).toBeChecked()
+  expect(screen.getByRole('checkbox', { name: '味噌' })).not.toBeChecked()
 })

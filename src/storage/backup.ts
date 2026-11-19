@@ -34,17 +34,13 @@ export function parseBackup(text: string): BackupFile {
   return b as unknown as BackupFile
 }
 
-export const daysWithoutBackup = (s: Settings, today: string): number | undefined => {
-  const since = s.lastBackupAt ?? s.firstUseAt
-  return since ? daysBetween(since, today) : undefined
-}
-
 const BACKUP_REMINDER_DAYS = 14
 
-/** dias sem backup, só quando já passou da hora de lembrar */
 export const backupDue = (s: Settings, today: string): number | undefined => {
-  const days = daysWithoutBackup(s, today)
-  return days !== undefined && days >= BACKUP_REMINDER_DAYS ? days : undefined
+  const since = s.lastBackupAt ?? s.firstUseAt
+  if (!since) return undefined
+  const days = daysBetween(since, today)
+  return days >= BACKUP_REMINDER_DAYS ? days : undefined
 }
 
 export async function exportBackup(now = new Date()): Promise<'shared' | 'downloaded' | 'cancelled'> {
@@ -56,7 +52,6 @@ export async function exportBackup(now = new Date()): Promise<'shared' | 'downlo
     await save('settings', { ...(await readCurrent('settings')), lastBackupAt: day })
     return result
   } catch (e) {
-    // quem chama mostra a mensagem na tela: nada de erro cru do navegador em inglês
     console.error(e)
     throw new Error('Não consegui enviar o backup. Tente de novo.', { cause: e })
   }

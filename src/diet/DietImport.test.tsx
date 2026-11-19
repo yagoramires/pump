@@ -119,6 +119,18 @@ test('substituir cardápio pede confirmação e preserva o que foi marcado hoje'
   expect(await get('dietLog')).toEqual(log)
 })
 
+test('uma falha na revisão é visível e dá para tentar o mesmo arquivo novamente', async () => {
+  vi.mocked(fetchTaco).mockResolvedValueOnce([null as unknown as TacoFood]).mockResolvedValue(TACO)
+  await renderLoaded(<DietImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
+
+  await paste(json([PAO]))
+  expect(await screen.findByRole('alert')).toHaveTextContent('Não consegui revisar o cardápio')
+
+  await paste(json([PAO]))
+  expect(await screen.findByRole('heading', { name: 'Revisar cardápio' })).toBeInTheDocument()
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+})
+
 test('enquanto a TACO carrega mostra "Conferindo na TACO…"', async () => {
   let resolve!: (t: TacoFood[]) => void
   vi.mocked(fetchTaco).mockReturnValue(new Promise((r) => { resolve = r }))
@@ -188,9 +200,9 @@ test('converter: título, 3 passos, Copiar leva o prompt de conversão e lista o
   expect(screen.getByText('Whey protein, Pão francês')).toBeInTheDocument()
 })
 
-test('fora da TACO: nome repetido aparece e conta uma vez só', async () => {
+test('fora da TACO: variações do mesmo nome contam uma vez só', async () => {
   await renderLoaded(<DietImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
-  await paste(json([WHEY, WHEY, PAO]))
+  await paste(json([WHEY, { ...WHEY, nome: 'Whey, protein' }, PAO]))
   expect(await screen.findByText('2 itens fora da TACO usam os números da IA. Toque pra trocar.')).toBeInTheDocument()
   expect(screen.getByText('Whey protein, Pão francês')).toBeInTheDocument()
 })

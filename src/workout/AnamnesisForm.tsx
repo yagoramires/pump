@@ -1,13 +1,8 @@
-import type { Anamnesis, Extra, Level, Muscle, Place, Split } from './types'
+import type { Anamnesis } from './types'
+import { EXTRA_LABEL, LEVEL_LABEL, MUSCLE_LABEL, PLACE_LABEL, SPLIT_LABEL } from './anamnesis'
 import { Chips, MultiChips } from '@/components/Chips'
 import { Card } from '@/components/ui/card'
 import { NumberField } from '@/components/NumberField'
-
-const LEVEL_LABEL: Record<Level, string> = { iniciante: 'Iniciante', intermediario: 'Intermediário', avancado: 'Avançado' }
-const PLACE_LABEL: Record<Place, string> = { academia: 'Academia', casa: 'Em casa' }
-const SPLIT_LABEL: Record<Split, string> = { fullbody: 'Full body', ab: 'AB', abc: 'ABC', abcd: 'ABCD', abcde: 'ABCDE', ppl: 'Push/\u200bPull/\u200bLegs' } // \u200b deixa quebrar na barra em tela estreita
-const EXTRA_LABEL: Record<Extra, string> = { cardio: 'Cardio', abdomen: 'Abdômen', mobilidade: 'Mobilidade' }
-const MUSCLE_LABEL: Record<Muscle, string> = { peito: 'Peito', costas: 'Costas', ombros: 'Ombros', biceps: 'Bíceps', triceps: 'Tríceps', pernas: 'Pernas', gluteos: 'Glúteos', panturrilha: 'Panturrilha' }
 
 export function AnamnesisForm({ value, onChange }: { value: Anamnesis; onChange: (a: Anamnesis) => void }) {
   const set = <K extends keyof Anamnesis>(k: K, v: Anamnesis[K]) => onChange({ ...value, [k]: v })

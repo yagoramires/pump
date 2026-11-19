@@ -12,7 +12,7 @@ beforeEach(async () => {
 afterEach(() => vi.useRealTimers())
 const TODAY = '2026-11-18'
 
-const open = () => renderLoaded(<><MeasureDrawer open onClose={vi.fn()} date={TODAY} /><Toaster /></>)
+const open = () => renderLoaded(<><MeasureDrawer onClose={vi.fn()} date={TODAY} /><Toaster /></>)
 
 test('medidas com vírgula: grava, mostra a gordura e guarda o peso', async () => {
   const user = userEvent.setup()

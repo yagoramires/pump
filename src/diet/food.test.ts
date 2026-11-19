@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 import type { DietItem } from './types'
-import { asFood, hasValues, iaLabel, itemKcal, itemMacros, recentFoods } from './food'
+import { asFood, hasValues, itemKcal, itemMacros, recentFoods } from './food'
+import { iaLabel } from './display'
 
 const it = (name: string, over: Partial<DietItem> = {}): DietItem => ({ id: name, name, grams: 200, per100: { kcal: 130, p: 10, c: 20, f: 5 }, source: 'custom', ...over })
 

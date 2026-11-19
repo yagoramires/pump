@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { History } from 'lucide-react'
 import { usePersisted } from '@/storage/db'
-import { formatDayLabel } from '@/lib/date'
 import { formatKg } from '@/lib/number'
 import { BackHeader } from '@/components/BackHeader'
 import { EmptyState } from '@/components/EmptyState'
@@ -9,6 +8,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Card } from '@/components/ui/card'
 import { completedSessions } from './stats'
 import { isCardio } from './cardio'
+import { workoutDayLabel } from './display'
+import { markedSets } from './session'
 import { WorkoutDayLine } from './WorkoutDayLine'
 
 export function PastWorkouts({ onClose }: { onClose: () => void }) {
@@ -27,13 +28,13 @@ export function PastWorkouts({ onClose }: { onClose: () => void }) {
               <AccordionItem key={s.date} value={s.date} className="border-line">
                 <AccordionTrigger className="min-h-14 items-center gap-3 rounded-none px-3.5 py-2.5 font-normal hover:no-underline [&>svg]:translate-y-0 [&>svg]:text-faint">
                   <span className="block min-w-0 flex-1">
-                    <span className="label-caps block">{`${formatDayLabel(s.date)} · TREINO ${s.workoutLabel}`}</span>
+                    <span className="label-caps block">{workoutDayLabel(s.date, s.workoutLabel)}</span>
                     <WorkoutDayLine session={s} now={new Date(s.completedAt!)} />
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-1.5 px-3.5 pb-3">
                   {s.exercises.map((e, i) => {
-                    const done = e.sets.filter((d) => d !== null)
+                    const done = markedSets(e)
                     if (done.length === 0) return null
                     return (
                       <div key={i}>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Share } from 'lucide-react'
 import { allData } from '@/storage/db'
 import { useBackupExport } from './useBackupExport'
-import { CenteredScreen } from './ErrorBoundary'
+import { CenteredScreen } from './CenteredScreen'
 import { EmptyState } from '@/components/EmptyState'
 import { Button } from '@/components/ui/button'
 

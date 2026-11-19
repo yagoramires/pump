@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { ArrowDown, ArrowUp, Copy, Plus, Share2, Trash2 } from 'lucide-react'
 import { DEFAULTS } from '@/schema'
 import type { DietItem, DietPlan, Macros, Meal, MealOption, Menu } from './types'
-import { currentMenu, optionLetter, sortedMeals } from './day'
-import { iaLabel, itemKcal, kcalOf } from './food'
-import { emptyMenu } from './plan'
-import { exportDietFormat } from './dietFormat'
-import { GOAL_KCAL, GRAMS, HHMM, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
+import { MACRO_KEYS, MACRO_LABELS, iaLabel, itemKcalText, optionLabel, optionLetter } from './display'
+import { kcalOf } from './food'
+import { currentMenu, emptyMeal, emptyMenu, emptyOption, preparePlan } from './plan'
+import { exportDietFormat, planProblem } from './dietFormat'
+import { GRAMS, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 import { FoodPicker } from './FoodPicker'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -28,44 +28,21 @@ const CONFIRM = {
 }
 
 const fresh = <T extends { id: string }>(x: T): T => ({ ...x, id: crypto.randomUUID() })
-const newMenu = (n: number): Menu => ({ id: crypto.randomUUID(), name: `Cardápio ${n}`, meals: [] })
-const copyMenu = (m: Menu): Menu => {
-  const c = structuredClone(m)
-  return { ...fresh(c), name: `${m.name} (cópia)`, meals: c.meals.map((ml) => ({ ...fresh(ml), options: ml.options.map((o) => ({ ...fresh(o), items: o.items.map(fresh) })) })) }
+const copyMenu = (menu: Menu): Menu => {
+  const m = structuredClone(menu)
+  const meals = m.meals.map((meal) => ({
+    ...fresh(meal),
+    options: meal.options.map((option) => ({ ...fresh(option), items: option.items.map(fresh) })),
+  }))
+  return { ...fresh(m), name: `${m.name} (cópia)`, meals }
 }
 const setMacro = (m: Menu, k: keyof Macros, n?: number): Menu => {
   const g = { p: 0, c: 0, f: 0, ...m.goalMacros, [k]: n ?? 0 }
   return { ...m, goalMacros: g.p || g.c || g.f ? g : undefined }
 }
-const problemOf = (plan: DietPlan): { menuId: string; text: string } | undefined => {
-  for (const m of plan.menus) {
-    const n = m.name.trim()
-    const text = !n ? 'Dê um nome a cada cardápio'
-      : !m.meals.length ? `${n}: adicione uma refeição`
-      : m.meals.some((ml) => !ml.name.trim() || !HHMM.test(ml.time)) ? `${n}: preencha nome e horário (HH:MM) de cada refeição`
-      : m.meals.some((ml) => ml.options.some((o) => !o.items.length)) ? `${n}: cada opção precisa de ao menos 1 alimento`
-      : m.goalKcal !== undefined && (m.goalKcal < GOAL_KCAL[0] || m.goalKcal > GOAL_KCAL[1]) ? `${n}: meta fora da faixa (${GOAL_KCAL[0]} a ${GOAL_KCAL[1]} kcal)`
-      : m.goalMacros && Object.values(m.goalMacros).some((g) => g < MACRO_G[0] || g > MACRO_G[1]) ? `${n}: macros fora da faixa (${MACRO_G[0]} a ${MACRO_G[1]} g)`
-      : ''
-    if (text) return { menuId: m.id, text }
-  }
-}
-const tidy = (s?: string) => s?.trim() || undefined
-const tidyPlan = (plan: DietPlan): DietPlan => ({
-  ...plan,
-  menus: plan.menus.map((m) => ({
-    ...m,
-    name: m.name.trim(),
-    meals: sortedMeals(m.meals).map((ml) => ({
-      ...ml,
-      name: ml.name.trim(),
-      options: ml.options.map((o) => ({ ...o, name: tidy(o.name), items: o.items.map((i) => ({ ...i, portion: tidy(i.portion) })) })),
-    })),
-  })),
-})
 
 export function DietEditor({ initial, onSave, onCancel }: Props) {
-  const [plan, setPlan] = useState<DietPlan>(() => (initial.menus.length ? structuredClone(initial) : { menus: [emptyMenu(1)] }))
+  const [plan, setPlan] = useState<DietPlan>(() => (initial.menus.length ? structuredClone(initial) : { menus: [emptyMenu(1, [emptyMeal(1)])] }))
   const [menuId, setMenuId] = useState(() => (currentMenu(plan) ?? plan.menus[0]).id)
   const [optOf, setOptOf] = useState<Record<string, number>>({})
   const [picking, setPicking] = useState<{ mealId: string; oi: number; name: string }>()
@@ -90,9 +67,9 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
     setMenuId(rest[0].id)
   }
   const addMeal = () =>
-    patchMenu((m) => ({ ...m, meals: [...m.meals, { id: crypto.randomUUID(), name: `Refeição ${m.meals.length + 1}`, time: '', options: [{ id: crypto.randomUUID(), items: [] }] }] }))
+    patchMenu((m) => ({ ...m, meals: [...m.meals, emptyMeal(m.meals.length + 1)] }))
   const addOption = (meal: Meal) => {
-    patchMeal(meal.id, (m) => ({ ...m, options: [...m.options, { id: crypto.randomUUID(), items: [] }] }))
+    patchMeal(meal.id, (m) => ({ ...m, options: [...m.options, emptyOption()] }))
     setOptOf((o) => ({ ...o, [meal.id]: meal.options.length }))
   }
   const removeOption = (meal: Meal, oi: number) => {
@@ -101,14 +78,14 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
   }
 
   const save = () => {
-    const problem = problemOf(plan)
+    const problem = planProblem(plan)
     if (problem) {
       setError(problem.text)
       return setMenuId(problem.menuId)
     }
-    onSave(tidyPlan(plan))
+    onSave(plan)
   }
-  const copy = () => makeCopy(setNotice)(exportDietFormat(tidyPlan(plan)), 'Cardápio copiado. Cole na IA pra pedir ajustes.')
+  const copy = () => makeCopy(setNotice)(exportDietFormat(preparePlan(plan)), 'Cardápio copiado. Cole na IA pra pedir ajustes.')
   const confirmed = () => (confirm === 'menu' ? removeMenu() : onSave(DEFAULTS.dietPlan))
 
   return (
@@ -124,7 +101,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
             {m.name.trim() || 'Sem nome'}
           </Toggle>
         ))}
-        <Button variant="outline" size="sm" className="border-dashed border-border-strong text-text-2" disabled={plan.menus.length >= MAX_MENUS} onClick={() => addMenu(newMenu(plan.menus.length + 1))}><Plus aria-hidden="true" /> Novo cardápio</Button>
+        <Button variant="outline" size="sm" className="border-dashed border-border-strong text-text-2" disabled={plan.menus.length >= MAX_MENUS} onClick={() => addMenu(emptyMenu(plan.menus.length + 1))}><Plus aria-hidden="true" /> Novo cardápio</Button>
       </div>
 
       <Card size="sm" className="gap-2.5">
@@ -138,10 +115,10 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
           <NumberField className="w-28 text-center" aria-label="Meta diária em kcal" placeholder="opcional" autoComplete="off" enterKeyHint="done" min={0} max={Infinity} value={menu.goalKcal} onChange={(n) => n !== null && patchMenu((m) => ({ ...m, goalKcal: n === undefined ? undefined : Math.round(n) }))} />
         </div>
         <div className="grid grid-cols-3 gap-2">
-          {(['p', 'c', 'f'] as const).map((k) => (
+          {MACRO_KEYS.map((k) => (
             <label key={k} className="flex flex-col gap-1">
-              <span className="label-caps">{{ p: 'Proteína', c: 'Carbo', f: 'Gordura' }[k]} (g)</span>
-              <NumberField className="text-center" aria-label={`Meta de ${{ p: 'proteína', c: 'carbo', f: 'gordura' }[k]} em g`} placeholder="—" autoComplete="off" enterKeyHint="done" min={0} max={Infinity} value={menu.goalMacros?.[k] || undefined} onChange={(n) => n !== null && patchMenu((m) => setMacro(m, k, n))} />
+              <span className="label-caps">{MACRO_LABELS[k]} (g)</span>
+              <NumberField className="text-center" aria-label={`Meta de ${MACRO_LABELS[k].toLowerCase()} em g`} placeholder="—" autoComplete="off" enterKeyHint="done" min={0} max={Infinity} value={menu.goalMacros?.[k] || undefined} onChange={(n) => n !== null && patchMenu((m) => setMacro(m, k, n))} />
             </label>
           ))}
         </div>
@@ -161,7 +138,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
             <div className="flex flex-wrap items-center gap-1.5">
               {meal.options.map((o, j) => (
                 <Toggle key={o.id} variant="outline" className="px-2.5 text-caption font-semibold" pressed={j === oi} onPressedChange={() => setOptOf((s) => ({ ...s, [meal.id]: j }))}>
-                  Opção {optionLetter(j)}
+                  {optionLabel(j)}
                 </Toggle>
               ))}
               {meal.options.length < MAX_OPTIONS && <Button variant="ghost" size="icon" className="text-accent" aria-label={`Adicionar opção na refeição ${mi + 1}`} onClick={() => addOption(meal)}><Plus aria-hidden="true" /></Button>}
@@ -176,7 +153,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
                 <li key={it.id} className="flex flex-col gap-1.5 border-t border-line py-2.5">
                   <div className="flex items-baseline gap-2">
                     <span className="min-w-0 flex-1 truncate text-body text-strong">{it.name}</span>
-                    <span className="text-caption tabular-nums text-text-2">{Math.round(itemKcal(it))} kcal</span>
+                    <span className="text-caption tabular-nums text-text-2">{itemKcalText(it)}</span>
                   </div>
                   {iaLabel(it) && <span className="text-caption text-c7">{iaLabel(it)}</span>}
                   <div className="flex flex-wrap items-center gap-1.5">

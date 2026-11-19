@@ -1,18 +1,14 @@
 import { toast } from 'sonner'
-import { formatDayMonth, todayKey } from '@/lib/date'
-import { Badge } from '@/components/ui/badge'
+import { formatDayMonth } from '@/lib/date'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { MeasureForm } from './MeasureForm'
 
-export function MeasureDrawer({ open, onClose, date }: { open: boolean; onClose: () => void; date: string }) {
+export function MeasureDrawer({ onClose, date }: { onClose: () => void; date: string }) {
   return (
-    <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
+    <Drawer open onOpenChange={(o) => !o && onClose()}>
       <DrawerContent>
         <div className="flex flex-col gap-2 overflow-y-auto px-4 pb-5">
-          <div className="flex items-center justify-between gap-2 pt-1">
-            <DrawerTitle className="text-title font-semibold text-strong">Registrar · {formatDayMonth(date)}</DrawerTitle>
-            {date === todayKey() && <Badge variant="outline" className="rounded-md text-caption text-text-2">hoje</Badge>}
-          </div>
+          <DrawerTitle className="pt-1 text-title font-semibold text-strong">Registrar · {formatDayMonth(date)}</DrawerTitle>
           <DrawerDescription className="sr-only">Peso e medidas do dia</DrawerDescription>
           <MeasureForm
             date={date}

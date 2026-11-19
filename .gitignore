@@ -5,3 +5,16 @@ dist
 dist-ssr
 *.local
 .DS_Store
+
+# Documentação local e ferramentas de IA
+/docs/
+superpowers/
+.claude/
+.codex/
+.agents/
+.cursor/
+CLAUDE.md
+AGENTS.md
+GEMINI.md
+graphify-out/
+.those-guys/

@@ -1,10 +1,11 @@
 import { isObj } from '@/lib/utils'
 // só tipos das features: importar valores daqui criaria o ciclo schema → feature → db → schema
-import type { Tab } from './shell/BottomNav'
 import type { Profile } from './profile/types'
 import type { CustomExercise, WorkoutLog, WorkoutPlan } from './workout/types'
 import type { DietItem, DietLog, DietPlan, WaterLog, WaterSettings } from './diet/types'
 import type { Measurement, PhotoSet } from './evolution/types'
+
+export type Tab = 'treino' | 'evolucao' | 'dieta'
 
 /** datas = todayKey */
 interface CoreSettings { lastTab: Tab; onboardingDone: boolean; firstUseAt?: string; lastBackupAt?: string; installDismissed?: boolean }

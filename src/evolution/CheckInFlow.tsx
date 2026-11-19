@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { usePersisted } from '@/storage/db'
 import { WEEKDAY_LONG, formatDayMonth, todayKey, weekday } from '@/lib/date'
-import { formatKg, formatSigned, plural } from '@/lib/number'
+import { formatSigned, plural } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -11,6 +11,7 @@ import { MeasureForm } from './MeasureForm'
 import { PhotoCapture } from './PhotoCapture'
 import { PhotoCompare } from './PhotoCompare'
 import { Delta } from './Delta'
+import { WEIGHT, formatMetric, metricUnit } from './measurements'
 import { weekSummary } from './checkIn'
 import { usePhotoSets } from './photoSets'
 import { ANGLES } from './types'
@@ -25,6 +26,7 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
   const [step, setStep] = useState<Step>('measure')
 
   const s = weekSummary(profile, list, sets, today)
+  const kg = metricUnit(WEIGHT)
 
   if (step === 'photos') return <PhotoCapture date={today} onClose={() => setStep('summary')} />
   if (step === 'compare') return <PhotoCompare onClose={() => setStep('summary')} />
@@ -42,11 +44,11 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
       <BackHeader title={`Semana ${s.week}`} onBack={onClose} />
       <Card className="gap-2">
         {s.sincePrev === undefined ? (
-          <div className="text-display font-semibold text-strong tabular-nums">{`${formatKg(s.weight)} kg`}</div>
+          <div className="text-display font-semibold text-strong tabular-nums">{`${formatMetric(WEIGHT, s.weight)}${kg}`}</div>
         ) : (
           <>
-            <div className={cn('text-display font-semibold tabular-nums', s.weightGood ? 'text-accent' : 'text-strong')}>{`${formatSigned(s.sincePrev)} kg`}</div>
-            <div className="text-meta text-text-2">{`${s.prevIsLastWeek ? 'desde a semana passada' : `desde ${formatDayMonth(s.prevDate!)}`} · ${formatKg(s.weight)} kg`}</div>
+            <div className={cn('text-display font-semibold tabular-nums', s.weightGood ? 'text-accent' : 'text-strong')}>{`${formatSigned(s.sincePrev)}${kg}`}</div>
+            <div className="text-meta text-text-2">{`${s.prevIsLastWeek ? 'desde a semana passada' : `desde ${formatDayMonth(s.prevDate!)}`} · ${formatMetric(WEIGHT, s.weight)}${kg}`}</div>
           </>
         )}
         {s.rows.map((r) => (
@@ -59,7 +61,7 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
           <span className="text-text-2">Fotos · {s.photos} de {ANGLES.length}</span>
         </div>
         {s.sinceStart !== undefined && (
-          <p className="text-meta text-text-2">{`Desde o dia zero: ${formatSigned(s.sinceStart)} kg em ${plural(s.week, 'semana', 'semanas')}.`}</p>
+          <p className="text-meta text-text-2">{`Desde o dia zero: ${formatSigned(s.sinceStart)}${kg} em ${plural(s.week, 'semana', 'semanas')}.`}</p>
         )}
       </Card>
       <div className="grid gap-2">

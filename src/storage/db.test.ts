@@ -3,7 +3,7 @@ import { createElement, Suspense, type ReactNode } from 'react'
 import * as idb from 'idb-keyval'
 import { DEFAULTS, type UserData } from '@/schema'
 import { renderHookLoaded } from '../../test/render'
-import { allData, load, onStorageError, readKey, replaceAll, resetStoreForTests, save, StorageReadError, usePersisted } from './db'
+import { allData, load, onStorageError, readCurrent, readKey, replaceAll, resetStoreForTests, save, StorageReadError, usePersisted } from './db'
 
 vi.mock('idb-keyval', async (orig) => {
   const m = await orig<typeof import('idb-keyval')>()
@@ -26,6 +26,22 @@ test('save/load ida e volta; replaceAll grava e remove sobras', async () => {
   await replaceAll({ settings: { lastTab: 'dieta', onboardingDone: true } })
   expect(await load('profile')).toBeUndefined()
   expect(Object.keys(await allData())).toEqual(['settings'])
+})
+test('replaceAll mantém todos os dados se uma gravação falhar', async () => {
+  const settings = { ...DEFAULTS.settings, lastTab: 'dieta' as const }
+  const profile = { sex: 'M' as const, heightCm: 178 }
+  await save('settings', settings)
+  await save('profile', profile)
+  await expect(replaceAll({ settings: DEFAULTS.settings, invalid: () => {} })).rejects.toThrow()
+  expect(await allData()).toEqual({ settings, profile })
+})
+test('replaceAll preserva uma gravação enfileirada depois da restauração', async () => {
+  const settings = { ...DEFAULTS.settings, lastTab: 'dieta' as const }
+  const restore = replaceAll({ settings: DEFAULTS.settings })
+  const subsequentSave = save('settings', settings)
+  await Promise.all([restore, subsequentSave])
+  expect(await allData()).toEqual({ settings })
+  expect(await readCurrent('settings')).toEqual(settings)
 })
 test('chave nunca gravada lê DEFAULTS', async () => {
   const h = await persisted('workoutLog')

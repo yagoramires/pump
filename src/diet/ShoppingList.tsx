@@ -19,11 +19,14 @@ export function ShoppingList({ onClose }: { onClose: () => void }) {
   const [days, setDays] = useState('30')
   const items = shoppingList(plan, Number(days))
   const keys = new Set(items.map((i) => i.key))
-  // só vale o que está na lista de agora; marcas de planos antigos são podadas a cada alteração
-  const checked = (settings.shoppingChecked ?? []).filter((k) => keys.has(k))
-  const setChecked = (next: string[]) => setSettings((s) => ({ ...s, shoppingChecked: next.filter((k) => keys.has(k)) }))
-  const toggle = (key: string) => setChecked(checked.includes(key) ? checked.filter((k) => k !== key) : [...checked, key])
-  const missing = items.filter((i) => !checked.includes(i.key))
+  const currentChecks = (saved: string[] = []) => new Set(saved.filter((key) => keys.has(key)))
+  const checked = currentChecks(settings.shoppingChecked)
+  const toggle = (key: string) => setSettings((s) => {
+    const next = currentChecks(s.shoppingChecked)
+    if (!next.delete(key)) next.add(key)
+    return { ...s, shoppingChecked: [...next] }
+  })
+  const missing = items.filter((i) => !checked.has(i.key))
   return (
     <>
       <BackHeader title="Lista de compras" onBack={onClose} />
@@ -41,7 +44,7 @@ export function ShoppingList({ onClose }: { onClose: () => void }) {
           <Card size="flush"><ul>
             {items.map((i) => (
               <li key={i.key} className="flex items-center gap-3 border-t border-line px-3.5 py-2 first:border-t-0">
-                <Checkbox size="check" checked={checked.includes(i.key)} aria-label={i.name} onCheckedChange={() => toggle(i.key)} />
+                <Checkbox size="check" checked={checked.has(i.key)} aria-label={i.name} onCheckedChange={() => toggle(i.key)} />
                 <span className="min-w-0 flex-1 text-body font-medium text-strong">{i.name}</span>
                 <span className="shrink-0 text-right">
                   <span className="block text-body font-semibold text-strong">{formatAmount(i.grams)}</span>
@@ -50,8 +53,8 @@ export function ShoppingList({ onClose }: { onClose: () => void }) {
               </li>
             ))}
           </ul></Card>
-          <Button variant="outline" disabled={!missing.length} onClick={() => makeCopy(toast)(shoppingText(checked.length ? missing : items), 'Lista copiada')}>{!missing.length ? 'Tudo comprado' : checked.length ? 'Copiar o que falta' : 'Copiar lista'}</Button>
-          {checked.length > 0 && <Button variant="link" onClick={() => setChecked([])}>Limpar marcações</Button>}
+          <Button variant="outline" disabled={!missing.length} onClick={() => makeCopy(toast)(shoppingText(missing), 'Lista copiada')}>{!missing.length ? 'Tudo comprado' : checked.size ? 'Copiar o que falta' : 'Copiar lista'}</Button>
+          {checked.size > 0 && <Button variant="link" onClick={() => setSettings((s) => ({ ...s, shoppingChecked: [] }))}>Limpar marcações</Button>}
         </div>
       )}
     </>

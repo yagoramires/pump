@@ -1,8 +1,5 @@
-import { normalize } from '@/lib/text'
+import { foodKey } from './food'
 import type { DietItem, TacoFood } from './types'
-
-/** Identidade de um alimento (import, alimento próprio repetido, recentes): como `normalize`, mas pontuação vira espaço e a comparação é por palavras. */
-export const foodKey = (s: string): string => normalize(s).replace(/[^a-z0-9]+/g, ' ').trim()
 
 // só conectivos; "com", "sem", "cru", "cozido" mudam o alimento
 const IGNORED = new Set(['de', 'da', 'do', 'e', 'em'])

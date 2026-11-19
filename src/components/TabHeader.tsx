@@ -3,7 +3,6 @@ import { Settings as SettingsIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useOpenSettings } from './openSettings'
 
-/** cabeçalho único das abas: linha eyebrow + ações (engrenagem por último), título embaixo */
 export function TabHeader({ eyebrow, title, actions }: { eyebrow: ReactNode; title?: string; actions?: ReactNode }) {
   const openSettings = useOpenSettings()
   return (

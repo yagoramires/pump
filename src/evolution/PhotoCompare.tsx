@@ -3,7 +3,7 @@ import { Check, ChevronDown, ImageOff } from 'lucide-react'
 import type { Angle } from './types'
 import { usePersisted } from '@/storage/db'
 import { formatDayMonth } from '@/lib/date'
-import { formatDec, formatKg, plural, round1 } from '@/lib/number'
+import { plural } from '@/lib/number'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -12,9 +12,9 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/compone
 import { Overlay } from '@/components/Overlay'
 import { BackHeader } from '@/components/BackHeader'
 import { cn } from '@/lib/utils'
-import { goalDirection, isGood } from './bodyFat'
+import { goalDirection } from './bodyFat'
 import { Delta } from './Delta'
-import { byDate, FAT, FIELDS, WEIGHT, fatSeries, pointAt, series, type Field, type Point } from './measurements'
+import { FAT, WAIST, WEIGHT, byDate, deltaUnit, formatMetric, metricRow, metricSeries, metricUnit, pointAt } from './measurements'
 import { ANGLES } from './types'
 import { AngleTabs } from './AngleTabs'
 import { PhotoThumb } from './PhotoThumb'
@@ -45,17 +45,13 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
   if (!before || !after) return <Overlay>{header}<p className="text-sm text-text-2">Nenhuma foto ainda.</p></Overlay>
 
   const dir = goalDirection(profile)
-  const row = (f: Field, points: Point[], fmt: (n: number) => string) => ({
-    label: f.label, metric: f.key, unit: f.spaced === false ? f.unit : ` ${f.unit}`, delta: f.deltaUnit ?? f.unit,
-    from: pointAt(points, before.date), to: pointAt(points, after.date), fmt,
+  const rows = [WEIGHT, WAIST, FAT].flatMap((field) => {
+    const points = metricSeries(profile, ms, field)
+    const from = pointAt(points, before.date)
+    const to = pointAt(points, after.date)
+    if (from === undefined || to === undefined) return []
+    return [metricRow(field, dir, { date: before.date, value: from }, { date: after.date, value: to })]
   })
-  const waist = FIELDS.find((f) => f.key === 'waistCm')!
-  const rows = [
-    row(WEIGHT, series(ms, 'weightKg'), formatKg),
-    row(waist, series(ms, 'waistCm'), formatKg),
-    row(FAT, fatSeries(profile, ms), (n) => formatDec(n)),
-  ]
-  const shown = rows.flatMap((r) => (r.from !== undefined && r.to !== undefined ? [{ ...r, from: r.from, to: r.to, d: round1(r.to - r.from) }] : []))
 
   return (
     <Overlay>
@@ -71,14 +67,14 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
         <Button type="button" variant="outline" size="sm" className="border-accent bg-accent-bg font-normal text-accent hover:bg-accent-bg hover:text-accent" onClick={() => setPicking('after')}>{`Depois: ${formatDayMonth(after.date)}`}<ChevronDown size={14} aria-hidden="true" /></Button>
       </div>
 
-      {shown.length > 0 && (
+      {rows.length > 0 && (
         <Card size="flush">
-          {shown.map((r, k) => (
-            <div key={r.metric} className={cn('flex items-center justify-between gap-3 px-3.5 py-2.5 text-sm', k > 0 && 'border-t border-line')}>
+          {rows.map((r, k) => (
+            <div key={r.key} className={cn('flex items-center justify-between gap-3 px-3.5 py-2.5 text-sm', k > 0 && 'border-t border-line')}>
               <span className="text-text-2">{r.label}</span>
               <span className="tabular-nums">
-                <b className="font-semibold text-strong">{`${r.fmt(r.from)} → ${r.fmt(r.to)}${r.unit}`}</b>
-                <Delta value={r.d} good={isGood(r.metric, dir, r.d)} unit={r.delta} className="ml-2 text-meta" />
+                <b className="font-semibold text-strong">{`${formatMetric(r, r.first.value)} → ${formatMetric(r, r.last.value)}${metricUnit(r)}`}</b>
+                <Delta value={r.delta ?? 0} good={r.good} unit={deltaUnit(r)} className="ml-2 text-meta" />
               </span>
             </div>
           ))}

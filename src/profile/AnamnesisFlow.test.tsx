@@ -95,3 +95,34 @@ test('sexo F mostra Quadril no dia zero', async () => {
   await next(user)
   expect(screen.getByLabelText('Quadril')).toBeInTheDocument()
 })
+
+test('dia zero conserva a data de início ao passar da meia-noite', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<AnamnesisFlow total={3} onDone={vi.fn()} />)
+  await user.type(screen.getByLabelText('Altura'), '178')
+  await next(user)
+  await next(user)
+
+  vi.setSystemTime(new Date(2026, 10, 19, 0, 5))
+  await user.click(screen.getByRole('radio', { name: 'Quinta' }))
+  await user.type(screen.getByLabelText('Peso'), '82,4')
+  await next(user)
+
+  expect(await readCurrent('measurements')).toMatchObject([{ date: today, weightKg: 82.4 }])
+  expect(await readCurrent('settings')).toMatchObject({ checkInDay: 4, anamnesisAt: today })
+})
+
+test('dia zero usa o novo dia quando a etapa anterior passou da meia-noite', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<AnamnesisFlow total={3} onDone={vi.fn()} />)
+  await user.type(screen.getByLabelText('Altura'), '178')
+  await next(user)
+
+  vi.setSystemTime(new Date(2026, 10, 19, 0, 5))
+  await next(user)
+  await user.type(screen.getByLabelText('Peso'), '82,4')
+  await next(user)
+
+  expect(await readCurrent('measurements')).toMatchObject([{ date: '2026-11-19', weightKg: 82.4 }])
+  expect(await readCurrent('settings')).toMatchObject({ checkInDay: 4, anamnesisAt: '2026-11-19' })
+})

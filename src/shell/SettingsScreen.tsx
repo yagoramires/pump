@@ -16,7 +16,7 @@ import { ProfileScreen } from '@/profile/ProfileScreen'
 import { WorkoutSettings } from '@/workout/WorkoutSettings'
 import { DietSettings } from '@/diet/DietSettings'
 import { useBackupExport } from './useBackupExport'
-import { useImportBackup } from './useImportBackup'
+import { BackupRestore } from '@/storage/BackupRestore'
 import { Alert } from '@/components/ui/alert'
 
 export function SettingsScreen({ onClose }: { onClose: () => void }) {
@@ -49,7 +49,9 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
       </SettingsSection>
       <SettingsSection title="SEUS DADOS">
         <SettingsRow icon={<Share2 size={18} aria-hidden="true" />} color="var(--c6)" title="Enviar backup" sub={`WhatsApp, Arquivos… · ${last}`} onClick={backup.send} />
-        <RestoreRow />
+        <BackupRestore trigger={(pick) => (
+          <SettingsRow icon={<Upload size={18} aria-hidden="true" />} color="var(--c5)" title="Restaurar backup" onClick={pick} />
+        )} />
       </SettingsSection>
       <Alert role="note" className="mt-2.5">Seus dados ficam só neste aparelho. Envie um backup de vez em quando.</Alert>
       <Card size="flush" className="mt-2.5">
@@ -63,17 +65,5 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         onConfirm={() => { setSettings((s) => ({ ...s, onboardingDone: false })); onClose() }} onCancel={() => setConfirmRedo(false)}
       />
     </Overlay>
-  )
-}
-
-function RestoreRow() {
-  const restore = useImportBackup()
-  return (
-    <>
-      <SettingsRow icon={<Upload size={18} aria-hidden="true" />} color="var(--c5)" title="Restaurar backup" onClick={restore.pick} />
-      {restore.input}
-      {restore.error && <p role="alert" className="px-3.5 py-2 text-sm text-negative">{restore.error}</p>}
-      {restore.confirm}
-    </>
   )
 }

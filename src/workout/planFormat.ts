@@ -2,7 +2,7 @@ import type { CustomExercise, Exercise, PlanExercise, WorkoutPlan } from './type
 import { normalize } from '@/lib/text'
 import { FormatError, headerProblems, readEnvelope, str, writeEnvelope, HEADER } from '@/format/envelope'
 import { isObj } from '@/lib/utils'
-import { SETS } from './limits'
+import { MIN_IMPORTED_REST_SEC, MIN_KG, SETS } from './limits'
 import { PLAN_DEFAULTS, newCustomExercise, toPlanExercise } from './exercises'
 
 export const PLAN_NOT_FOUND = 'Não encontrei um plano em JSON no texto'
@@ -41,9 +41,9 @@ export function parsePlanFormat(text: string): PumpPlanoFile {
       const reps = typeof x.reps === 'number' ? String(x.reps) : str(x.reps)
       if (!reps) problems.push(`${at}: "reps" vazio`)
       const carga = x.cargaKg as number | undefined
-      if (carga != null && !(Number.isFinite(carga) && carga >= 0)) problems.push(`${at}: "cargaKg" precisa ser um número maior ou igual a 0`)
+      if (carga != null && !(Number.isFinite(carga) && carga >= MIN_KG)) problems.push(`${at}: "cargaKg" precisa ser um número maior ou igual a ${MIN_KG}`)
       const desc = x.descansoSeg as number | undefined
-      if (desc != null && !(Number.isInteger(desc) && desc >= 0)) problems.push(`${at}: "descansoSeg" precisa ser um número inteiro maior ou igual a 0`)
+      if (desc != null && !(Number.isInteger(desc) && desc >= MIN_IMPORTED_REST_SEC)) problems.push(`${at}: "descansoSeg" precisa ser um número inteiro maior ou igual a ${MIN_IMPORTED_REST_SEC}`)
       const obs = str(x.obs)
       return { nome, series, reps, ...(carga != null && { cargaKg: carga }), ...(desc != null && { descansoSeg: desc }), ...(obs && { obs }) }
     })

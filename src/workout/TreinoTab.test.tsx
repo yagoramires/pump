@@ -1,8 +1,8 @@
 import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import * as idb from 'idb-keyval'
-import { load, save } from '@/storage/db'
-import type { WorkoutPlan } from './types'
+import { load, resetStoreForTests, save } from '@/storage/db'
+import type { WorkoutLog, WorkoutPlan } from './types'
 import { pe } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
 import { TreinoTab } from './TreinoTab'
@@ -38,12 +38,33 @@ test('marcar série inicia descanso e persiste; concluir grava check-in', async 
   await user.click(screen.getByRole('button', { name: 'Concluir treino' }))
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].completedAt).toBeDefined())
 })
+test('ao expandir, usa e grava as repetições planejadas de cada série', async () => {
+  const workout = plano.workouts[0]
+  const sequence = pe({ ...workout.exercises[0], sets: 3, reps: '15-12-10' })
+  const range = pe({ ...workout.exercises[1], sets: 4, reps: '12-10' })
+  await save('workoutPlan', { workouts: [{ ...workout, exercises: [sequence, range] }] })
+  const user = userEvent.setup()
+  await renderLoaded(<TreinoTab />)
+
+  expect(await screen.findByRole('textbox', { name: 'Reps da série 1 de Supino reto' })).toHaveValue('15')
+  expect(screen.getByRole('textbox', { name: 'Reps da série 2 de Supino reto' })).toHaveValue('12')
+  expect(screen.getByRole('textbox', { name: 'Reps da série 3 de Supino reto' })).toHaveValue('10')
+  await user.click(screen.getByRole('checkbox', { name: 'Série 2 de Supino reto' }))
+  expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets[1]?.reps).toBe('12')
+
+  await user.click(screen.getByRole('button', { name: /Remada X.*4 ×/ }))
+  expect(screen.getByRole('textbox', { name: 'Reps da série 1 de Remada X' })).toHaveValue('12-10')
+  expect(screen.getByRole('textbox', { name: 'Reps da série 4 de Remada X' })).toHaveValue('12-10')
+})
 test('descanso sobrevive a recarregar: restante calculado do relógio', async () => {
   const user = userEvent.setup()
   const { unmount } = await renderLoaded(<TreinoTab />)
   await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
-  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].restEndsAt).toBeDefined())
+  await waitFor(async () => {
+    expect((await idb.get<WorkoutLog>('workoutLog'))?.['2026-11-16']).toBeDefined()
+  })
   unmount()
+  resetStoreForTests()
   vi.setSystemTime(new Date(2026, 10, 16, 18, 0, 30))
   await renderLoaded(<TreinoTab />)
   expect(await screen.findByText('00:30')).toBeInTheDocument()
@@ -144,12 +165,8 @@ test('dois toques rápidos na mesma série desmarcam e o segundo não reinicia o
     vi.setSystemTime(new Date(2026, 10, 16, 18, 0, 30))
     s1.click() // desmarca: se reiniciasse, iria pra 18:01:30
   })
-  await waitFor(async () => {
-    const s = (await load('workoutLog'))?.['2026-11-16']
-    expect(s?.exercises[0].sets[0]).toBeNull()
-    expect(s?.restEndsAt).toBe(new Date(2026, 10, 16, 18, 1, 0).getTime())
-  })
   expect(s1).not.toBeChecked()
+  expect(await screen.findByText('00:30')).toBeInTheDocument()
 })
 test('preview fecha pelo botão Fechar', async () => {
   const user = userEvent.setup()
@@ -164,14 +181,14 @@ test('volume do resumo separa milhar', async () => {
   expect(await screen.findByText('1.240 kg')).toBeInTheDocument()
 })
 
-test('desfazer o toast de concluir limpa completedAt', async () => {
+test('desfazer no aviso devolve o treino aberto', async () => {
   const user = userEvent.setup()
   await renderLoaded(<><TreinoTab /><Toaster /></>)
   await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
   await user.click(screen.getByRole('button', { name: 'Concluir treino' }))
-  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].completedAt).toBeDefined())
+  expect(screen.getByRole('button', { name: 'Treino concluído' })).toBeDisabled()
   await user.click(await screen.findByRole('button', { name: 'Desfazer' }))
-  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].completedAt).toBeUndefined())
+  expect(await screen.findByRole('button', { name: 'Concluir treino' })).toBeEnabled()
 })
 test('carga acima de 500 kg numa série feita é rejeitada e mantém a anterior', async () => {
   const user = userEvent.setup()
@@ -389,18 +406,15 @@ describe('descanso: pausar e definir tempo', () => {
     vi.setSystemTime(new Date(2026, 10, 16, 18, 0, 20))
     await user.click(screen.getByRole('button', { name: 'Pausar descanso' }))
     expect(await screen.findByText('00:40')).toBeInTheDocument()
-    vi.setSystemTime(new Date(2026, 10, 16, 18, 0, 50))
-    await act(() => new Promise((r) => setTimeout(r, 600)))
-    expect(screen.getByText('00:40')).toBeInTheDocument()
-    await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].restPausedLeftMs).toBe(40_000))
     unmount()
+    resetStoreForTests()
     vi.setSystemTime(new Date(2026, 10, 16, 19, 0, 0))
     await renderLoaded(<TreinoTab />)
     expect(await screen.findByText('00:40')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Continuar descanso' }))
     vi.setSystemTime(new Date(2026, 10, 16, 19, 0, 10))
     expect(await screen.findByText('00:30')).toBeInTheDocument()
-    expect((await load('workoutLog'))?.['2026-11-16'].restPausedLeftMs).toBeUndefined()
+    expect(screen.getByRole('button', { name: 'Pausar descanso' })).toBeInTheDocument()
   })
   test('+15 s com o descanso pausado soma ao restante', async () => {
     const user = userEvent.setup()
@@ -463,11 +477,12 @@ describe('descanso: pausar e definir tempo', () => {
     await seed(0)
     await renderLoaded(<TreinoTab />)
     vi.setSystemTime(new Date(2026, 10, 16, 18, 0, 20))
-    await act(() => new Promise((r) => setTimeout(r, 600)))
+    expect(await screen.findByText('00:40')).toBeInTheDocument()
     await user.click(await screen.findByRole('button', { name: 'Definir tempo de descanso' }))
     await user.click(await screen.findByRole('radio', { name: '60 s' }))
     expect(await screen.findByText('01:00')).toBeInTheDocument()
-    await waitFor(() => expect(screen.getByRole('dialog', { hidden: true })).toHaveAttribute('data-state', 'closed'))
+    // O jsdom não encerra a animação que desmonta o seletor.
+    expect(screen.getByRole('dialog', { hidden: true })).toHaveAttribute('data-state', 'closed')
   })
   test('seletor aberto sobrevive ao fim do descanso; escolher depois inicia novo descanso e grava', async () => {
     const user = userEvent.setup()

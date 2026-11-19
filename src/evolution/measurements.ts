@@ -1,23 +1,27 @@
 import type { Profile } from '@/profile/types'
 import type { MeasureFields, Measurement } from './types'
-import { bodyFat, type Metric } from './bodyFat'
+import { formatDec, formatKg, round1 } from '@/lib/number'
+import { bodyFat, isGood, type GoalDirection, type Metric } from './bodyFat'
 
 export type Point = { date: string; value: number }
 type Key = keyof MeasureFields
-/** `digits` = casas no PDF; `spaced: false` cola a unidade no número ("22,9%"); `deltaUnit` = unidade da diferença quando não é a do valor */
-export interface Field { key: Metric; label: string; unit: string; digits: number; spaced?: false; deltaUnit?: string }
+export interface Field { key: Metric; label: string; unit: string; pdfDigits: number; spaced?: false; deltaUnit?: string }
+export interface BodyRow extends Field { first: Point; last: Point; delta?: number; good: boolean }
 
-export const WEIGHT = { key: 'weightKg', label: 'Peso', unit: 'kg', digits: 1 } satisfies Field & { key: Key }
-export const FIELDS: (Field & { key: Key })[] = [
-  WEIGHT,
-  { key: 'neckCm', label: 'Pescoço', unit: 'cm', digits: 0 },
-  { key: 'waistCm', label: 'Cintura', unit: 'cm', digits: 0 },
-  { key: 'hipCm', label: 'Quadril', unit: 'cm', digits: 0 },
-  { key: 'armCm', label: 'Braço', unit: 'cm', digits: 0 },
-  { key: 'chestCm', label: 'Peito', unit: 'cm', digits: 0 },
-  { key: 'thighCm', label: 'Coxa', unit: 'cm', digits: 0 },
+export const WEIGHT = { key: 'weightKg', label: 'Peso', unit: 'kg', pdfDigits: 1 } satisfies Field & { key: Key }
+export const WAIST = { key: 'waistCm', label: 'Cintura', unit: 'cm', pdfDigits: 0 } satisfies Field & { key: Key }
+const CM_FIELDS: (Field & { key: Key })[] = [
+  { key: 'neckCm', label: 'Pescoço', unit: 'cm', pdfDigits: 0 },
+  WAIST,
+  { key: 'hipCm', label: 'Quadril', unit: 'cm', pdfDigits: 0 },
+  { key: 'armCm', label: 'Braço', unit: 'cm', pdfDigits: 0 },
+  { key: 'chestCm', label: 'Peito', unit: 'cm', pdfDigits: 0 },
+  { key: 'thighCm', label: 'Coxa', unit: 'cm', pdfDigits: 0 },
 ]
-export const FAT = { key: 'fat', label: 'Gordura', unit: '%', digits: 1, spaced: false, deltaUnit: 'pt' } satisfies Field
+export const FIELDS = [WEIGHT, ...CM_FIELDS]
+export const FAT = { key: 'fat', label: 'Gordura', unit: '%', pdfDigits: 1, spaced: false, deltaUnit: 'pt' } satisfies Field
+
+export const BODY_FIELDS: Field[] = [WEIGHT, FAT, ...CM_FIELDS]
 
 export const byDate = <T extends { date: string }>(l: T[]) => [...l].sort((a, b) => a.date.localeCompare(b.date))
 
@@ -43,6 +47,20 @@ export const series = (ms: Measurement[], key: Key): Point[] => byDate(ms).flatM
 export const fatSeries = (p: Profile, ms: Measurement[]): Point[] =>
   byDate(ms).flatMap((m) => { const value = bodyFat(p.sex, p.heightCm, m); return value === null ? [] : [{ date: m.date, value }] })
 
-export const latestWeight = (ms: Measurement[]): number | undefined => series(ms, 'weightKg').at(-1)?.value
+export const latestWeight = (ms: Measurement[]): number | undefined => series(ms, WEIGHT.key).at(-1)?.value
 
 export const pointAt = (points: Point[], date: string) => (points.filter((p) => p.date <= date).pop() ?? points[0])?.value
+
+export const metricSeries = (p: Profile, ms: Measurement[], { key }: Field): Point[] =>
+  key === FAT.key ? fatSeries(p, ms) : series(ms, key)
+
+export function metricRow(field: Field, direction: GoalDirection, first: Point, last: Point): BodyRow {
+  const delta = first.date !== last.date ? round1(last.value - first.value) : undefined
+  return { ...field, first, last, delta, good: delta !== undefined && isGood(field.key, direction, delta) }
+}
+
+export const deltaUnit = (field: Field) => field.deltaUnit ?? field.unit
+
+export const formatMetric = (field: Field, value: number) => (field.key === FAT.key ? formatDec(value) : formatKg(value))
+
+export const metricUnit = (field: Field) => field.spaced === false ? field.unit : ` ${field.unit}`

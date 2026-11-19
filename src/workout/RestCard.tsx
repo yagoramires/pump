@@ -6,16 +6,16 @@ import { Progress } from '@/components/ui/progress'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Chips } from '@/components/Chips'
 import { SheetBody } from '@/components/SheetRow'
-import { beep, remainingSec } from './restTimer'
+import { beep } from './restTimer'
+import { restRemainingSeconds, type ActiveRest } from './session'
+import { restClock, restSecondsLabel } from './display'
+import { REST_CHOICES } from './limits'
 
-const mmss = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
-const ms = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
-const DURATIONS = { '30': '30 s', '45': '45 s', '60': '60 s', '90': '90 s', '120': '2 min', '180': '3 min', '300': '5 min' }
+const DURATIONS = Object.fromEntries(REST_CHOICES.map((sec) => [String(sec), sec < 120 ? restSecondsLabel(sec) : `${sec / 60} min`]))
 
-/** totalSec: descanso do exercício marcado; sem ele (app reaberto) a barra parte do restante ao montar. restSec: tempo configurado do exercício */
+/** Ao reabrir o app, a barra parte do tempo restante ao montar. */
 type Props = {
-  endAt?: number
-  pausedLeftMs?: number
+  timer: ActiveRest
   totalSec?: number
   restSec: number
   onAdd15: () => void
@@ -24,11 +24,10 @@ type Props = {
   onPickDuration: () => void
 }
 
-export function RestCard({ endAt, pausedLeftMs, totalSec, restSec, onAdd15, onDone, onTogglePause, onPickDuration }: Props) {
+export function RestCard({ timer, totalSec, restSec, onAdd15, onDone, onTogglePause, onPickDuration }: Props) {
   const [now, setNow] = useState(() => Date.now())
   const seenRunning = useRef(false)
-  const paused = pausedLeftMs !== undefined
-  const left = paused ? remainingSec(pausedLeftMs, 0) : remainingSec(endAt ?? 0, now)
+  const left = restRemainingSeconds(timer, now)
   const [initial] = useState(left)
 
   useEffect(() => {
@@ -61,13 +60,13 @@ export function RestCard({ endAt, pausedLeftMs, totalSec, restSec, onAdd15, onDo
         </Button>
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex items-baseline gap-1.5 whitespace-nowrap">
-            <b className="text-title leading-none font-bold text-accent tabular-nums">{mmss(left)}</b>
-            <span className="text-caption text-text-2 tabular-nums">de {ms(restSec)}</span>
+            <b className="text-title leading-none font-bold text-accent tabular-nums">{restClock(left, true)}</b>
+            <span className="text-caption text-text-2 tabular-nums">de {restClock(restSec)}</span>
           </div>
           <Progress value={pct} aria-label="Descanso restante" className="h-1 bg-line" />
         </div>
-        <Button variant="outline" size="icon-sm" aria-label={paused ? 'Continuar descanso' : 'Pausar descanso'} onClick={onTogglePause}>
-          {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
+        <Button variant="outline" size="icon-sm" aria-label={timer.paused ? 'Continuar descanso' : 'Pausar descanso'} onClick={onTogglePause}>
+          {timer.paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
         </Button>
         <Button variant="outline" size="icon-sm" className="w-auto px-2 text-xs" onClick={onAdd15}>+15 s</Button>
         <Button variant="outline" size="icon-sm" aria-label="Pular descanso" onClick={onDone}><SkipForward aria-hidden="true" /></Button>
@@ -84,8 +83,8 @@ export function RestPicker({ open, restSec, onClose, onPick }: { open: boolean; 
         <SheetBody>
           <DrawerTitle className="shrink-0 pb-1 text-title font-semibold text-strong">Tempo de descanso</DrawerTitle>
           <DrawerDescription className="pb-3 text-meta text-text-2">Vale pra este exercício, agora e nos próximos treinos.</DrawerDescription>
-          {/* tocar no valor já marcado manda '' (desmarcar): conta como escolher o atual */}
-          <Chips label="Tempo" options={DURATIONS} value={String(restSec)} cols="grid-cols-4" onChange={(v) => { onPick(v ? Number(v) : restSec); onClose() }} />
+          {/* Tocar no tempo selecionado reinicia a contagem com o mesmo valor. */}
+          <Chips label="Tempo" options={DURATIONS} value={String(restSec)} cols="grid-cols-4" onChange={(v) => { onPick(v === undefined ? restSec : Number(v)); onClose() }} />
         </SheetBody>
       </DrawerContent>
     </Drawer>

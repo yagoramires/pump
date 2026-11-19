@@ -12,8 +12,9 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { formatDec } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { FoodPicker } from './FoodPicker'
-import { addExtra, chooseOption, mealOptions, optionLetter, removeItem, setMealFree, skipItem, swapItem, swapMeal, toggleMeal, undoSwap } from './day'
-import { iaLabel, itemKcal, itemMacros, kcalOf, macroText, portionText } from './food'
+import { addExtra, chooseOption, mealOptions, removeItem, setMealFree, skipItem, swapItem, swapMeal, toggleMeal, undoSwap } from './day'
+import { itemKcal, itemMacros, kcalOf } from './food'
+import { iaLabel, macroText, optionLabel, optionLetter, portionText } from './display'
 import { useDietToday } from './useDietToday'
 
 const LABEL = 'label-caps'
@@ -93,7 +94,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
             {options[0] && !free && <Button variant="link" size="sm" className="text-accent" onClick={() => act((d) => chooseOption(d, meal.id, options[0]))}>Voltar às opções</Button>}
           </div>
         ) : (
-          options.length > 1 && <p className="text-meta text-text-2">{[`Opção ${optionLetter(selIdx)}`, selected.name].filter(Boolean).join(' · ')}</p>
+          options.length > 1 && <p className="text-meta text-text-2">{optionLabel(selIdx, selected.name)}</p>
         )}
 
         <Card size="flush" className={cn(free && 'opacity-60')}>

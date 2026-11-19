@@ -91,8 +91,6 @@ test('gerar e converter dieta usam a lista de alimentos e dividem o formato', ()
   expect(buildDietConvertPrompt()).toContain('sem mudar')
   expect(buildDietConvertPrompt()).toContain('mantenha o nome original')
   expect(buildDietConvertPrompt()).toContain('uma opção de cada refeição')
-  expect(buildDietConvertPrompt()).not.toContain('faça 2')
-  expect(buildDietConvertPrompt()).not.toContain('sempre dizendo o preparo')
   expect(buildDietConvertPrompt()).toContain('Responda SOMENTE com o JSON')
   expect(buildDietConvertPrompt().length).toBeLessThanOrEqual(6000)
 })
@@ -102,11 +100,6 @@ test('converter: avisa os limites do formato (vindos das constantes) e o que faz
   for (const n of [MAX_MENUS, MAX_MEALS, MAX_ITEMS, MAX_OPTIONS, ...GOAL_KCAL, ...MACRO_G]) expect(p).toContain(String(n))
   expect(p).toContain(`mais de ${MAX_MENUS} cardápios, fique com os ${MAX_MENUS} primeiros`)
   expect(p).toContain('arredonde para inteiro')
-})
-
-test('converter mantém o nome original: o formato compartilhado não pede o padrão da TACO', () => {
-  expect(buildDietConvertPrompt()).not.toContain('padrão da TACO')
-  expect(buildDietPrompt(undefined, [], '2026-01-01')).not.toContain('padrão da TACO')
 })
 
 test('as listas pedem pra colar a lista se a IA não abrir o link', () => {

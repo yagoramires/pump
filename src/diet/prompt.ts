@@ -1,5 +1,5 @@
-import type { DietGoal, Profile } from '@/profile/types'
-import type { DietAnamnesis, Restriction } from './types'
+import { DIET_GOAL_PROMPT_LABEL, type Profile } from '@/profile/types'
+import { EAT_OUT_PROMPT, RESTRICTIONS } from './anamnesisLabels'
 import { HEADER, str } from '@/format/envelope'
 import type { Measurement } from '@/evolution/types'
 import { FIELDS, WEIGHT, fatSeries, latestWeight, series } from '@/evolution/measurements'
@@ -28,9 +28,6 @@ export const TACO_EXAMPLES: string[] = [
   'Azeite, de oliva, extra virgem',
 ]
 
-const DIET_GOALS: Record<DietGoal, string> = { 'perder-rapido': 'perder peso rápido', perder: 'perder peso', manter: 'manter o peso', ganhar: 'ganhar peso', 'ganhar-rapido': 'ganhar peso rápido' }
-const RESTRICTIONS: Record<Restriction, string> = { lactose: 'sem lactose', gluten: 'sem glúten', vegetariano: 'vegetariano', vegano: 'vegano' }
-const EAT_OUT: Record<NonNullable<DietAnamnesis['eatOut']>, string> = { casa: 'em casa', fora: 'fora de casa', misto: 'misto (em casa e fora)' }
 
 function bodyLines(p: Profile | undefined, ms: Measurement[], today: string): string[] {
   const last = (pts: { value: number }[]) => pts.at(-1)?.value
@@ -51,19 +48,22 @@ function bodyLines(p: Profile | undefined, ms: Measurement[], today: string): st
 
 function aboutMe(p: Profile | undefined, ms: Measurement[], today: string): string[] {
   const d = p?.dietAnamnesis ?? {}
+  const dietGoal = label(DIET_GOAL_PROMPT_LABEL, p?.dietGoal)
+  const restrictions = names(d.restrictions, RESTRICTIONS).toLowerCase()
+  const eatOut = label(EAT_OUT_PROMPT, d.eatOut)
   return [
     ...profileLines(p),
     ...bodyLines(p, ms, today),
     ...[
       p?.daysPerWeek ? `Dias de treino por semana: ${p.daysPerWeek}` : '',
-      label(DIET_GOALS, p?.dietGoal) && `Objetivo da dieta: ${label(DIET_GOALS, p?.dietGoal)}`,
+      dietGoal && `Objetivo da dieta: ${dietGoal}`,
       d.meals ? `Refeições por dia: ${d.meals}` : '',
       str(p?.wake) && `Acordo às ${str(p?.wake)}`,
       str(p?.train) && `Treino às ${str(p?.train)}`,
       str(p?.sleep) && `Durmo às ${str(p?.sleep)}`,
-      names(d.restrictions, RESTRICTIONS) && `Restrições: ${names(d.restrictions, RESTRICTIONS)}`,
+      restrictions && `Restrições: ${restrictions}`,
       str(d.avoid) && `Não como: ${str(d.avoid)}`,
-      label(EAT_OUT, d.eatOut) && `Onde como: ${label(EAT_OUT, d.eatOut)}`,
+      eatOut && `Onde como: ${eatOut}`,
       str(p?.notes) && `Observações gerais: ${str(p?.notes)}`,
       str(d.notes) && `Observações: ${str(d.notes)}`,
     ].filter(Boolean).map((l) => `- ${l}`),
@@ -72,7 +72,6 @@ function aboutMe(p: Profile | undefined, ms: Measurement[], today: string): stri
 
 const listRule = (fallback: string) => rule(FOOD_LIST_URL, 'alimento', ` (nomes da tabela TACO 4ª edição, no padrão "Alimento, tipo, preparo"; exemplos: ${TACO_EXAMPLES.map((n) => `"${n}"`).join(', ')}).`, fallback)
 
-// formato e exemplo, iguais em gerar e converter
 const FORMAT = `Formato:
 - "formato": sempre "${HEADER.formato}".
 - "versao": sempre ${HEADER.versao}.

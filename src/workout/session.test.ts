@@ -1,4 +1,4 @@
-import { completeSession, setDone, startSession } from './session'
+import { activeRest, completeSession, setDone, startSession, toggleSetWithRest } from './session'
 import { workoutOf } from '../../test/helpers'
 
 test('sessão é cópia completa: editar o plano depois não muda a sessão', () => {
@@ -28,4 +28,14 @@ test('startSession grava startedAt', () => {
 test('completeSession também limpa um descanso pausado', () => {
   const s = { ...startSession(workoutOf([{}]), '2026-11-16'), restPausedLeftMs: 30_000, restExIdx: 0 }
   expect(completeSession(s, new Date(2026, 10, 16, 19))).toMatchObject({ restPausedLeftMs: undefined, restExIdx: undefined, restEndsAt: undefined })
+})
+
+test('marcar inicia o descanso do exercício certo e desmarcar mantém o tempo que já corria', () => {
+  const initial = startSession(workoutOf([{ restSec: 90 }, { restSec: 60 }]), '2026-11-16')
+  const set = { reps: '10', weightKg: 40 }
+  const marked = toggleSetWithRest(initial, 1, 0, set, 1_000)
+  const unmarked = toggleSetWithRest(marked, 1, 0, set, 15_000)
+  expect(marked.exercises[1].sets[0]).toEqual(set)
+  expect(unmarked.exercises[1].sets[0]).toBeNull()
+  expect(activeRest(unmarked)).toEqual({ paused: false, endAt: 61_000 })
 })

@@ -4,7 +4,7 @@ import { EXERCISE_LIST_URL } from '@/catalog/urls'
 test('treino não leva objetivo da dieta nem peso', () => {
   const p = buildPrompt({ sex: 'M', heightCm: 178, dietGoal: 'perder', focus: 'hipertrofia' })
   expect(p).toContain('- Foco: hipertrofia (ganhar massa muscular)')
-  expect(p).not.toMatch(/perder peso/)
+  expect(p).toBe(buildPrompt({ sex: 'M', heightCm: 178, focus: 'hipertrofia' }))
 })
 test('prompt leva perfil e anamnese; sem dados manda a IA perguntar', () => {
   const p = buildPrompt({ sex: 'F', heightCm: 165, age: 34, focus: 'hipertrofia', daysPerWeek: 3, notes: ' joelho ', anamnesis: { level: 'iniciante', place: 'casa', split: 'ppl', extras: ['cardio', 'abdomen'], weak: ['peito', 'panturrilha'], minutes: 45 } })
@@ -18,15 +18,12 @@ test('prompt leva perfil e anamnese; sem dados manda a IA perguntar', () => {
 })
 test('anamnese inválida vinda de backup não quebra nem gera linha vazia', () => {
   const p = buildPrompt({ sex: 'M', heightCm: 170, notes: 3 as never, anamnesis: { extras: 'cardio', weak: ['xyz'] } as never })
-  expect(p).not.toContain('Incluir também')
-  expect(p).not.toContain('Pontos fracos')
-  expect(p).not.toContain('Lesões, limitações ou observações:')
+  expect(p).toBe(buildPrompt({ sex: 'M', heightCm: 170 }))
 })
 test('gerar: ficha pronta só preserva os números, os nomes seguem a lista', () => {
   expect(buildPrompt(undefined)).toContain('transcreva sem mudar os números (séries, repetições, cargas)')
 })
-test('prompt do treino não pede dias', () => {
-  expect(buildPrompt(undefined)).not.toContain('"dias"')
+test('prompt orienta a ordem da fila de treinos', () => {
   expect(buildPrompt(undefined)).toContain('na ordem da lista')
 })
 test('gerar e converter usam a lista do catálogo, só o nome, e dividem o formato', () => {
@@ -35,10 +32,8 @@ test('gerar e converter usam a lista do catálogo, só o nome, e dividem o forma
     expect(p).toContain('exatamente um nome')
     expect(p).toContain('não conseguir abrir o link')
     expect(p).toContain('Copie a linha inteira da lista, do jeito que está, com o equipamento entre parênteses')
-    expect(p).not.toContain('sem o que está entre parênteses')
     expect(p).toContain('"formato": sempre "pump-plano"')
   }
-  expect(buildPrompt(undefined)).not.toContain('como se fala em academia')
   expect(buildConvertPrompt()).toContain('sem mudar')
   expect(buildConvertPrompt()).toContain('mantenha o nome original')
   expect(buildConvertPrompt()).toContain('Responda SOMENTE com o JSON')
