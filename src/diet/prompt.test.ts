@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs'
 import type { TacoFood } from './types'
 import { parseDietFormat } from './dietFormat'
-import { buildDietPrompt, TACO_EXAMPLES } from './prompt'
+import { buildDietConvertPrompt, buildDietPrompt, TACO_EXAMPLES } from './prompt'
+import { FOOD_LIST_URL } from '@/catalog/urls'
 
 const T = '2026-11-18'
 
@@ -67,4 +68,17 @@ test('sem pescoço/cintura não tem gordura nem massa magra; uma medição só n
   expect(p).not.toContain('Gordura')
   expect(p).not.toContain('Massa magra')
   expect(p).not.toContain('Variação')
+})
+
+test('gerar e converter dieta usam a lista de alimentos e dividem o formato', () => {
+  for (const p of [buildDietPrompt(undefined, [], T), buildDietConvertPrompt()]) {
+    expect(p).toContain(FOOD_LIST_URL)
+    expect(p).toContain('exatamente um nome')
+    expect(p).toContain('não conseguir abrir o link')
+    expect(p).toContain('"formato": sempre "pump-plano"')
+    expect(p).toContain('Pão, trigo, francês')
+  }
+  expect(buildDietConvertPrompt()).toContain('sem mudar')
+  expect(buildDietConvertPrompt()).toContain('Responda SOMENTE com o JSON')
+  expect(buildDietConvertPrompt().length).toBeLessThanOrEqual(6000)
 })

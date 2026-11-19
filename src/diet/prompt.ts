@@ -5,6 +5,7 @@ import type { Measurement } from '@/evolution/types'
 import { FIELDS, WEIGHT, fatSeries, latestWeight, series } from '@/evolution/measurements'
 import { addDays, daysBetween, weeksBetween } from '@/lib/date'
 import { formatDec, formatKg, formatSigned, plural } from '@/lib/number'
+import { FOOD_LIST_URL } from '@/catalog/urls'
 import { label, names, profileLines } from '@/profile/promptLines'
 import { GOAL_KCAL, GRAMS, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 
@@ -68,28 +69,10 @@ function aboutMe(p: Profile | undefined, ms: Measurement[], today: string): stri
   ]
 }
 
-export const buildDietPrompt = (profile: Profile | undefined, measurements: Measurement[], today: string): string => {
-  const me = aboutMe(profile, measurements, today)
-  const menus = profile?.daysPerWeek
-    ? 'Faça 2 cardápios: "Dia de treino" e "Descanso", cada um com sua meta (no descanso, em geral menos calorias e carboidrato).'
-    : 'Faça 1 cardápio.'
-  return `Você é um nutricionista. Monte meu cardápio no formato "Pump".
+const LIST_RULE = `Abra a lista em ${FOOD_LIST_URL} e use exatamente um nome dela para cada alimento (nomes da tabela TACO 4ª edição, no padrão "Alimento, tipo, preparo"; exemplos: ${TACO_EXAMPLES.map((n) => `"${n}"`).join(', ')}). Só use outro nome se nenhum da lista servir, escrevendo no mesmo padrão e sempre dizendo o preparo. Se não conseguir abrir o link, me diga isso antes de responder, em vez de inventar nomes.`
 
-Sobre mim:
-${me.length ? me.join('\n') : '- (ainda não contei nada)'}
-
-Como fazer:
-1. Se eu colar uma dieta pronta (de nutricionista, por exemplo), só transcreva ela pro formato, sem mudar as quantidades.
-2. Senão, se faltar algo importante pra montar um bom cardápio (objetivo, peso, altura, idade, refeições por dia, horários), me pergunte primeiro, tudo numa mensagem só, e espere minha resposta. Nessa hora não mande JSON.
-3. ${menus}
-4. Calcule uma meta diária de calorias e de macros (proteína, carboidrato e gordura) coerente com meu objetivo e meu perfil.
-5. Distribua as refeições nos meus horários, respeite minhas restrições e o que não como, e use comida simples do dia a dia no Brasil.
-6. Dê 2 opções em cada refeição (ex.: "Ovos com pão" e "Iogurte com aveia"), com calorias e macros parecidos, pra eu poder variar.
-7. Escreva o nome de cada alimento no padrão da tabela TACO 4ª edição: "Alimento, tipo, preparo", sempre dizendo o preparo (cru, cozido, grelhado, assado, frito...). Exemplos de nomes da TACO: ${TACO_EXAMPLES.map((n) => `"${n}"`).join(', ')}.
-8. Pra cada alimento, informe as gramas, a porção caseira e os valores da quantidade indicada (não por 100 g): kcal, proteína, carboidrato e gordura.
-9. Com o cardápio pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
-
-Formato:
+// formato e exemplo, iguais em gerar e converter
+const FORMAT = `Formato:
 - "formato": sempre "${HEADER.formato}".
 - "versao": sempre ${HEADER.versao}.
 - "dieta":
@@ -148,4 +131,37 @@ Exemplo (um cardápio e uma refeição, só pra mostrar o formato):
 \`\`\`
 
 Quando for mandar o cardápio, responda só com o JSON.`
+
+export const buildDietPrompt = (profile: Profile | undefined, measurements: Measurement[], today: string): string => {
+  const me = aboutMe(profile, measurements, today)
+  const menus = profile?.daysPerWeek
+    ? 'Faça 2 cardápios: "Dia de treino" e "Descanso", cada um com sua meta (no descanso, em geral menos calorias e carboidrato).'
+    : 'Faça 1 cardápio.'
+  return `Você é um nutricionista. Monte meu cardápio no formato "Pump".
+
+Sobre mim:
+${me.length ? me.join('\n') : '- (ainda não contei nada)'}
+
+Como fazer:
+1. Se eu colar uma dieta pronta (de nutricionista, por exemplo), só transcreva ela pro formato, sem mudar as quantidades.
+2. Senão, se faltar algo importante pra montar um bom cardápio (objetivo, peso, altura, idade, refeições por dia, horários), me pergunte primeiro, tudo numa mensagem só, e espere minha resposta. Nessa hora não mande JSON.
+3. ${menus}
+4. Calcule uma meta diária de calorias e de macros (proteína, carboidrato e gordura) coerente com meu objetivo e meu perfil.
+5. Distribua as refeições nos meus horários, respeite minhas restrições e o que não como, e use comida simples do dia a dia no Brasil.
+6. Dê 2 opções em cada refeição (ex.: "Ovos com pão" e "Iogurte com aveia"), com calorias e macros parecidos, pra eu poder variar.
+7. ${LIST_RULE}
+8. Pra cada alimento, informe as gramas, a porção caseira e os valores da quantidade indicada (não por 100 g): kcal, proteína, carboidrato e gordura.
+9. Com o cardápio pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
+
+${FORMAT}`
 }
+
+export const buildDietConvertPrompt = (): string => `Vou te mandar minha dieta (PDF, foto ou texto). Transcreva ela para o formato "Pump", sem mudar as quantidades, as gramas, as refeições nem os horários.
+
+Como fazer:
+1. Mantenha as refeições, as opções e a ordem como estão na dieta.
+2. ${LIST_RULE}
+3. Pra cada alimento, informe as gramas, a porção caseira e os valores da quantidade indicada (não por 100 g): kcal, proteína, carboidrato e gordura. Se a dieta não trouxer a meta diária, some a dos alimentos.
+4. Responda SOMENTE com o JSON, sem explicação antes ou depois.
+
+${FORMAT}`

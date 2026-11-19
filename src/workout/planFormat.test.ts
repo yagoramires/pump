@@ -48,7 +48,7 @@ test('os nomes de exemplo do prompt existem no catálogo', () => {
   const names = new Set((JSON.parse(readFileSync('public/catalog/exercises.json', 'utf8')) as { name: string }[]).map((e) => normalize(e.name)))
   const examples = [...buildPrompt().matchAll(/"nome": "([^"]+)"|\(ex\.: ([^)]+)\)/g)].flatMap((m) => m[1] ? [m[1]] : [...m[2].matchAll(/"([^"]+)"/g)].map((q) => q[1]))
   const exercises = examples.filter((n) => n !== 'Peito e tríceps')
-  expect(exercises.length).toBeGreaterThan(4)
+  expect(exercises.length).toBeGreaterThanOrEqual(2)
   expect(exercises.filter((n) => !names.has(normalize(n)))).toEqual([])
 })
 test('casa com o catálogo ignorando acento/caixa; o resto vira exercício seu', () => {
@@ -78,4 +78,11 @@ test('importa arquivo com dias e exporta sem dias', () => {
   const r = planFromFormat(parsePlanFormat(JSON.stringify(ok)), catalog, [])
   expect(r.plan.workouts[0]).not.toHaveProperty('weekdays')
   expect(exportPlanFormat(r.plan)).not.toContain('dias')
+})
+test('nome com equipamento entre parênteses (da lista do catálogo) casa com o exercício', () => {
+  const f = parsePlanFormat(JSON.stringify({ ...ok, treinos: [{ letra: 'A', nome: 'Peito', exercicios: [{ nome: 'Supino reto com barra (barra)', series: 3, reps: '10' }] }] }))
+  const r = planFromFormat(f, catalog, [])
+  expect(r.unmatched).toEqual([])
+  expect(r.newCustoms).toEqual([])
+  expect(r.plan.workouts[0].exercises[0].exerciseId).toBe('Barbell_Bench_Press_-_Medium_Grip')
 })

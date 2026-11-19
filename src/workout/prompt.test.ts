@@ -1,4 +1,5 @@
-import { buildPrompt } from './prompt'
+import { buildConvertPrompt, buildPrompt } from './prompt'
+import { EXERCISE_LIST_URL } from '@/catalog/urls'
 
 test('treino não leva objetivo da dieta nem peso', () => {
   const p = buildPrompt({ sex: 'M', heightCm: 178, dietGoal: 'perder', focus: 'hipertrofia' })
@@ -24,4 +25,16 @@ test('anamnese inválida vinda de backup não quebra nem gera linha vazia', () =
 test('prompt do treino não pede dias', () => {
   expect(buildPrompt(undefined)).not.toContain('"dias"')
   expect(buildPrompt(undefined)).toContain('na ordem da lista')
+})
+test('gerar e converter usam a lista do catálogo, só o nome, e dividem o formato', () => {
+  for (const p of [buildPrompt(undefined), buildConvertPrompt()]) {
+    expect(p).toContain(EXERCISE_LIST_URL)
+    expect(p).toContain('exatamente um nome')
+    expect(p).toContain('não conseguir abrir o link')
+    expect(p).toContain('sem o que está entre parênteses')
+    expect(p).toContain('"formato": sempre "pump-plano"')
+  }
+  expect(buildPrompt(undefined)).not.toContain('como se fala em academia')
+  expect(buildConvertPrompt()).toContain('sem mudar')
+  expect(buildConvertPrompt()).toContain('Responda SOMENTE com o JSON')
 })

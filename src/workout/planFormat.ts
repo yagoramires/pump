@@ -71,7 +71,8 @@ export function planFromFormat(
       name: t.nome,
       exercises: t.exercicios.map((x): PlanExercise => {
         const key = normalize(x.nome)
-        let found = known.get(key)
+        // a lista do catálogo traz "nome (equipamento)": tenta de novo sem o parêntese final
+        let found = known.get(key) ?? known.get(normalize(x.nome.replace(/\s*\([^)]*\)\s*$/, '')))
         if (!found) {
           found = newCustomExercise(x.nome, [], x.obs)
           known.set(key, found)
