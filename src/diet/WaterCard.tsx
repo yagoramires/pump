@@ -11,8 +11,8 @@ const CUP = 'border disabled:opacity-100'
 export function WaterCard({ ml, settings, onAdd, onRemove }: { ml: number; settings: WaterSettings; onAdd: () => void; onRemove: () => void }) {
   const { full, total } = cupsShown(ml, settings)
   return (
-    <Card className="gap-3 p-3.5">
-      <div className="text-[15px] font-semibold text-strong">{`Água · ${formatDec(ml / 1000)} de ${formatDec(settings.goalMl / 1000)} L`}</div>
+    <Card className="gap-3">
+      <div className="text-body font-semibold text-strong">{`Água · ${formatDec(ml / 1000)} de ${formatDec(settings.goalMl / 1000)} L`}</div>
       <div className="flex flex-wrap gap-1.5">
         {Array.from({ length: total }, (_, i) =>
           i < full - 1 ? (

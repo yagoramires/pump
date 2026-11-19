@@ -98,7 +98,7 @@ export function TreinoTab() {
       <div className="flex flex-col gap-2.5">
         <TabHeader eyebrow={formatDayLabel(today)} title="Treino" />
         <EmptyState icon={<Dumbbell size={30} aria-hidden="true" />} title="Nenhum treino montado">
-          <p className="max-w-[260px] text-sm text-text-2">Monte seu treino pra começar a marcar as séries.</p>
+          <p className="max-w-64 text-sm text-text-2">Monte seu treino pra começar a marcar as séries.</p>
           <Button className="w-full max-w-xs" onClick={() => setEditingPlan(true)}>Montar treino</Button>
         </EmptyState>
       </div>
@@ -118,17 +118,17 @@ export function TreinoTab() {
         <TabHeader eyebrow={formatDayLabel(today)} actions={pastLink} />
         {unfinished && <UnfinishedCard session={unfinished} setLog={setLog} />}
         <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Descanso marcado">
-          <p className="max-w-[260px] text-sm text-text-2">Hoje é dia de recuperar. Quer treinar mesmo assim?</p>
+          <p className="max-w-64 text-sm text-text-2">Hoje é dia de recuperar. Quer treinar mesmo assim?</p>
           <Button variant="outline"  onClick={undoRest}><Undo2 aria-hidden="true" /> Desfazer</Button>
         </EmptyState>
         <div className="label-caps">Escolher um treino</div>
-        <Card className="overflow-hidden">
+        <Card size="flush">
           {plan.workouts.map((w) => (
             <Button key={w.id} variant="ghost" onClick={() => setChosenId(w.id)} className="h-auto min-h-14 w-full justify-start gap-3 rounded-none border-t border-line px-3.5 py-2.5 text-left font-normal first:border-t-0">
               <Badge variant="tile">{w.label}</Badge>
               <span className="block min-w-0 flex-1">
-                <span className="block text-[15px] font-semibold text-strong">{w.name}</span>
-                <span className="block text-[13px] text-text-2">{plural(w.exercises.length, 'exercício', 'exercícios')}</span>
+                <span className="block text-body font-semibold text-strong">{w.name}</span>
+                <span className="block text-meta text-text-2">{plural(w.exercises.length, 'exercício', 'exercícios')}</span>
               </span>
               <ChevronRight size={16} className="text-faint" aria-hidden="true" />
             </Button>
@@ -205,20 +205,20 @@ export function TreinoTab() {
         <Button variant="link" className="min-h-11 self-start" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>
       )}
 
-      <Card className="flex-row items-center gap-3.5 p-3.5">
+      <Card className="flex-row items-center gap-3.5">
         <div
-          className="flex size-[72px] shrink-0 items-center justify-center rounded-full"
+          className="flex size-18 shrink-0 items-center justify-center rounded-full"
           style={{ background: `conic-gradient(var(--color-accent) 0 ${stats.total ? (stats.done / stats.total) * 100 : 0}%, var(--color-line) 0)` }}
         >
-          <div className="flex size-[58px] flex-col items-center justify-center rounded-full bg-panel">
-            <span className="text-[15px] leading-none font-bold text-strong tabular-nums">{stats.done}/{stats.total}</span>
-            <span className="text-[10px] text-faint">séries</span>
+          <div className="flex size-14.5 flex-col items-center justify-center rounded-full bg-panel">
+            <span className="text-body leading-none font-bold text-strong tabular-nums">{stats.done}/{stats.total}</span>
+            <span className="text-micro text-faint">séries</span>
           </div>
         </div>
         <div>
-          <div className="text-[13px] text-text-2">Volume de hoje</div>
+          <div className="text-meta text-text-2">Volume de hoje</div>
           <div className="text-lg font-semibold text-strong tabular-nums">{`${formatKg(stats.volumeKg)} kg`}</div>
-          <div className="text-[13px] text-text-2">{minutes === null ? plural(view.exercises.length, 'exercício', 'exercícios') : `${minutes} min · ${plural(view.exercises.length, 'exercício', 'exercícios')}`}</div>
+          <div className="text-meta text-text-2">{minutes === null ? plural(view.exercises.length, 'exercício', 'exercícios') : `${minutes} min · ${plural(view.exercises.length, 'exercício', 'exercícios')}`}</div>
         </div>
       </Card>
       {!log[today] && workout && (
@@ -232,13 +232,13 @@ export function TreinoTab() {
       ))}
       {view.exercises.some(isCardio) && <div className="label-caps">Cardio</div>}
       {view.exercises.map((e, i) => isCardio(e) && (
-        <Card key={i} className="flex-row items-center gap-1.5 py-1.5 pr-2 pl-1.5">
+        <Card size="sm" key={i} className="flex-row items-center gap-1.5">
           <Button variant="ghost" size="icon" aria-label={`Ver ${e.name}`} onClick={() => setPreview(i)}>
             <IconDot color="var(--c1)" size={32}><HeartPulse size={16} aria-hidden="true" /></IconDot>
           </Button>
           <span className="min-w-0 flex-1">
-            <span className="block text-[15px] font-semibold break-words text-strong">{e.name}</span>
-            <span className="block text-[13px] text-text-2">{e.reps}</span>
+            <span className="block text-body font-semibold break-words text-strong">{e.name}</span>
+            <span className="block text-meta text-text-2">{e.reps}</span>
           </span>
           <Checkbox size="check" className="mr-1.5" checked={!!e.sets[0]} aria-label={`${e.name} feito`} onCheckedChange={() => toggleCardio(i)} />
         </Card>

@@ -15,6 +15,7 @@ import { BackHeader } from '@/components/BackHeader'
 import { BottomBar } from '@/components/BottomBar'
 import { CopyListButton, PasteBox, Step } from '@/components/ImportFlow'
 import { usePastedReview } from '@/components/usePastedReview'
+import { Alert } from '@/components/ui/alert'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -50,7 +51,7 @@ export function PlanImport({ mode, onDone, onBack }: { mode: 'ia' | 'convert'; o
     <div className="flex flex-col gap-3 pb-28">
       <BackHeader title={mode === 'ia' ? 'Gerar com IA' : 'Converter ficha'} onBack={onBack} className="min-h-11" />
       {mode === 'ia' && <AnamnesisForm value={profile.anamnesis ?? {}} onChange={(anamnesis) => setProfile((p) => ({ ...p, anamnesis }))} />}
-      <Card className="overflow-hidden">
+      <Card size="flush">
         <Step n={1} title="Copie o prompt" sub={mode === 'ia' ? 'Cole no ChatGPT (e sua ficha, se tiver)' : 'Cole no ChatGPT'}>
           <Button type="button" variant="outline" size="sm" onClick={() => copy(mode === 'ia' ? buildPrompt(profile) : buildConvertPrompt(), 'Prompt copiado. Cole na sua IA.')}><Copy size={14} aria-hidden="true" />Copiar</Button>
         </Step>
@@ -59,24 +60,24 @@ export function PlanImport({ mode, onDone, onBack }: { mode: 'ia' | 'convert'; o
       </Card>
       <CopyListButton file="exercicios.txt" noun="exercícios" copy={(t) => copy(t, 'Lista copiada. Cole na sua IA.')} fail={setNotice} />
       <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", ... }'>
-        {(notice || paste.failed) && <p role="status" className="text-[13px] text-text-2">{notice || 'Precisa de internet pra casar os exercícios com o catálogo'}</p>}
+        {(notice || paste.failed) && <p role="status" className="text-meta text-text-2">{notice || 'Precisa de internet pra casar os exercícios com o catálogo'}</p>}
       </PasteBox>
       {review && (
-        <Card className="flex-row items-center gap-3 border-accent-line bg-accent-bg p-3.5">
+        <Alert variant="accent" role="status" className="flex items-center gap-3 p-3.5">
           <IconDot size={36} color="var(--color-accent)"><Check size={18} aria-hidden="true" /></IconDot>
           <div>
-            <div className="text-[15px] font-semibold text-strong">{`${plural(review.plan.workouts.length, 'treino', 'treinos')} · ${plural(exCount, 'exercício', 'exercícios')}`}</div>
+            <div className="text-body font-semibold text-strong">{`${plural(review.plan.workouts.length, 'treino', 'treinos')} · ${plural(exCount, 'exercício', 'exercícios')}`}</div>
             {noPreview.length > 0 && (
-              <div className="text-[13px] text-text-2">
+              <div className="text-meta text-text-2">
                 <div>{`${plural(noPreview.length, 'exercício', 'exercícios')} sem prévia (fora do catálogo)`}</div>
                 <div>{namesText(noPreview)}</div>
               </div>
             )}
           </div>
-        </Card>
+        </Alert>
       )}
-      {review?.ignoredDiet && <p className="text-[13px] text-text-2">A dieta deste arquivo pode ser importada na aba Dieta</p>}
-      {mode === 'ia' && <p className="text-[13px] text-text-2">Ou ajuste seu plano atual: <Button type="button" variant="link" className="h-auto min-h-11 p-0 text-[13px]" onClick={() => copy(exportPlanFormat(plan), 'Plano copiado.')}>copiar meu plano</Button></p>}
+      {review?.ignoredDiet && <p className="text-meta text-text-2">A dieta deste arquivo pode ser importada na aba Dieta</p>}
+      {mode === 'ia' && <p className="text-meta text-text-2">Ou ajuste seu plano atual: <Button type="button" variant="link" className="h-auto min-h-11 p-0 text-meta" onClick={() => copy(exportPlanFormat(plan), 'Plano copiado.')}>copiar meu plano</Button></p>}
       <BottomBar>
         <Button type="button" className="w-full" disabled={!review} onClick={() => setEditing(true)}>Revisar plano</Button>
       </BottomBar>

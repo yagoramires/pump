@@ -17,13 +17,16 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-hover hover:text-strong",
         ghost:
           "font-medium hover:bg-hover",
+        // nav: item da barra de abas; ativo = cor + barrinha no topo, hover neutro e mais leve que o ativo
+        nav: "relative text-micro font-medium text-faint after:absolute after:inset-x-6 after:top-0 after:h-0.5 after:rounded-full after:bg-accent after:opacity-0 hover:bg-hover/50 hover:text-text aria-[current=page]:text-accent aria-[current=page]:after:opacity-100 aria-[current=page]:hover:bg-transparent",
         link: "h-auto rounded-sm px-0 py-1 font-medium text-primary underline-offset-4 hover:underline",
       },
       size: {
         default: "h-11 px-4 py-2 has-[>svg]:px-3",
         xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-11 gap-1.5 rounded-xl px-3 text-[13px] has-[>svg]:px-2.5",
+        sm: "h-11 gap-1.5 rounded-xl px-3 text-meta has-[>svg]:px-2.5",
         lg: "h-12 rounded-xl px-6 has-[>svg]:px-4",
+        tab: "h-auto min-h-11 flex-1 flex-col gap-1 rounded-none px-2 py-2",
         icon: "size-11",
         "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
         "icon-sm": "size-9",

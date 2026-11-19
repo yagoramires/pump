@@ -27,20 +27,20 @@ type Props = {
   extraAction?: { label: string; onClick: () => void }
 }
 
-const LABEL = 'label-caps tracking-[.04em]'
+const LABEL = 'label-caps'
 
 function Rows({ label, foods, selected, onSelect }: { label: string; foods: Food[]; selected?: string; onSelect: (f: Food) => void }) {
   return (
-    <Card variant="inset" className="overflow-hidden"><ul aria-label={label}>
+    <Card size="flush" variant="inset"><ul aria-label={label}>
       {foods.map((f) => {
         const on = foodKey(f.name) === selected
         return (
           <li key={f.name} className="border-t border-line first:border-t-0">
             <Toggle pressed={on} onPressedChange={() => onSelect(f)} className="h-auto min-h-14 w-full justify-start gap-3 rounded-none px-3.5 py-2.5 text-left font-normal">
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-[15px] font-semibold text-strong">{f.name}</span>
-                <span className="block text-[12.5px] tabular-nums text-text-2">{Math.round(f.per100.kcal)} kcal · P {formatDec(f.per100.p)} g por 100 g</span>
-                {iaLabel(f) && <span className="block text-[12px] text-c7">{iaLabel(f)}</span>}
+                <span className="block truncate text-body font-semibold text-strong">{f.name}</span>
+                <span className="block text-caption tabular-nums text-text-2">{Math.round(f.per100.kcal)} kcal · P {formatDec(f.per100.p)} g por 100 g</span>
+                {iaLabel(f) && <span className="block text-caption text-c7">{iaLabel(f)}</span>}
               </span>
               <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-full', on ? 'bg-accent text-on-accent' : 'text-accent')}>{on ? <Check size={16} /> : <Plus size={18} />}</span>
             </Toggle>
@@ -89,14 +89,14 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
     <Drawer open onOpenChange={(o) => !o && onClose()}>
       <DrawerContent>
         <div className="flex min-h-0 flex-col gap-3 px-4 pt-2 pb-5">
-          <DrawerTitle className="shrink-0 truncate text-[19px] font-semibold text-strong">{title}</DrawerTitle>
+          <DrawerTitle className="shrink-0 truncate text-title font-semibold text-strong">{title}</DrawerTitle>
           <DrawerDescription className="sr-only">Escolha um alimento e a quantidade</DrawerDescription>
           {creating ? (
             <form className="flex flex-col gap-3" onSubmit={(e) => { e.preventDefault(); create() }}>
-              <h2 className="text-[15px] font-semibold text-strong">Alimento próprio</h2>
+              <h2 className="text-body font-semibold text-strong">Alimento próprio</h2>
               {field('name', 'Nome do alimento', 'Nome', false)}
-              {dup && <p role="alert" className="text-[13px] text-negative">Já existe um alimento com esse nome</p>}
-              <p className="text-[12.5px] text-text-2">Valores por 100 g</p>
+              {dup && <p role="alert" className="text-meta text-negative">Já existe um alimento com esse nome</p>}
+              <p className="text-caption text-text-2">Valores por 100 g</p>
               <div className="grid grid-cols-2 gap-2">
                 {field('kcal', 'kcal por 100 g', 'kcal')}
                 {field('p', 'Proteína por 100 g', 'Proteína (g)')}
@@ -111,7 +111,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
           ) : (
             <>
               <SearchField className="shrink-0" placeholder="Buscar alimento" aria-label="Buscar alimento" value={q} onChange={(e) => setQ(e.target.value)} />
-              {offline && <p className="text-[13px] text-text-2">Sem internet para buscar na TACO</p>}
+              {offline && <p className="text-meta text-text-2">Sem internet para buscar na TACO</p>}
               <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {shownRecents.length > 0 && (
                   <div className="flex flex-col gap-1.5">
@@ -125,7 +125,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
                     <Rows label="Resultados da TACO" foods={results} selected={sel && foodKey(sel.name)} onSelect={setSel} />
                   </div>
                 )}
-                {!shownRecents.length && !results.length && <p className="text-[13px] text-text-2">{q.trim() ? 'Nada encontrado' : 'Busque um alimento'}</p>}
+                {!shownRecents.length && !results.length && <p className="text-meta text-text-2">{q.trim() ? 'Nada encontrado' : 'Busque um alimento'}</p>}
               </div>
               <div className="flex shrink-0 items-center justify-between gap-3">
                 <span className="text-sm text-text-2">Quantidade</span>
@@ -143,7 +143,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
               <Button variant="ghost" className="text-accent" onClick={() => setCreating(true)}>Criar alimento próprio</Button>
             </>
           )}
-          <p className="text-center text-[11px] text-faint">Valores: TACO 4ª ed. (NEPA/UNICAMP)</p>
+          <p className="text-center text-caption text-faint">Valores: TACO 4ª ed. (NEPA/UNICAMP)</p>
         </div>
       </DrawerContent>
     </Drawer>

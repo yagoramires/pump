@@ -10,8 +10,8 @@ export function MeasureDrawer({ open, onClose, date }: { open: boolean; onClose:
       <DrawerContent>
         <div className="flex flex-col gap-2 overflow-y-auto px-4 pb-5">
           <div className="flex items-center justify-between gap-2 pt-1">
-            <DrawerTitle className="text-[19px] font-semibold text-strong">Registrar · {formatDayMonth(date)}</DrawerTitle>
-            {date === todayKey() && <Badge variant="outline" className="rounded-md text-[11px] text-text-2">hoje</Badge>}
+            <DrawerTitle className="text-title font-semibold text-strong">Registrar · {formatDayMonth(date)}</DrawerTitle>
+            {date === todayKey() && <Badge variant="outline" className="rounded-md text-caption text-text-2">hoje</Badge>}
           </div>
           <DrawerDescription className="sr-only">Peso e medidas do dia</DrawerDescription>
           <MeasureForm

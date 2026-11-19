@@ -17,6 +17,7 @@ import { WorkoutSettings } from '@/workout/WorkoutSettings'
 import { DietSettings } from '@/diet/DietSettings'
 import { useBackupExport } from './useBackupExport'
 import { useImportBackup } from './useImportBackup'
+import { Alert } from '@/components/ui/alert'
 
 export function SettingsScreen({ onClose }: { onClose: () => void }) {
   const [settings, setSettings] = usePersisted('settings')
@@ -50,11 +51,11 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         <SettingsRow icon={<Share2 size={18} aria-hidden="true" />} color="var(--c6)" title="Enviar backup" sub={`WhatsApp, Arquivos… · ${last}`} onClick={backup.send} />
         <RestoreRow />
       </SettingsSection>
-      <Card className="mt-2.5 rounded-[11px] bg-surface px-3 py-2.5 text-[13px] text-text-2">Seus dados ficam só neste aparelho. Envie um backup de vez em quando.</Card>
-      <Card className="mt-2.5 overflow-hidden">
+      <Alert role="note" className="mt-2.5">Seus dados ficam só neste aparelho. Envie um backup de vez em quando.</Alert>
+      <Card size="flush" className="mt-2.5">
         <Button type="button" variant="ghost" className="h-auto min-h-14 w-full justify-start gap-3 rounded-none px-3.5 py-2 text-left" onClick={() => setConfirmRedo(true)}>
           <IconDot size={36} color="var(--color-negative)"><RotateCcw size={18} aria-hidden="true" /></IconDot>
-          <span className="text-[15px] font-semibold text-negative">Refazer montagem</span>
+          <span className="text-body font-semibold text-negative">Refazer montagem</span>
         </Button>
       </Card>
       <ConfirmDialog

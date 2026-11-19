@@ -7,6 +7,6 @@ export const SheetBody = ({ children }: { children: ReactNode }) => (
 
 export const SheetRow = ({ icon, label, onClick }: { icon: ReactNode; label: string; onClick: () => void }) => (
   <li className="border-t border-line first:border-t-0">
-    <Button type="button" variant="ghost" className="h-auto min-h-14 w-full justify-start gap-3 rounded-none px-3 text-[15px] font-normal text-strong" onClick={onClick}>{icon}{label}</Button>
+    <Button type="button" variant="ghost" className="h-auto min-h-14 w-full justify-start gap-3 rounded-none px-3 text-body font-normal text-strong" onClick={onClick}>{icon}{label}</Button>
   </li>
 )

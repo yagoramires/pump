@@ -21,7 +21,7 @@ export function WaterSettings() {
     const bad = n === null || n < min || n > max
     return (
       <div className="flex flex-col gap-1.5">
-        <Label className="text-[13px] normal-case tracking-normal text-text-2">{label}</Label>
+        <Label className="text-meta normal-case tracking-normal text-text-2">{label}</Label>
         <Input
           aria-label={label} inputMode="numeric" autoComplete="off" aria-invalid={bad} value={draft[k]}
           onChange={(e) => {
@@ -31,14 +31,14 @@ export function WaterSettings() {
             if (on && x !== null && x >= min && x <= max) save({ ...on, [k]: Math.round(x) })
           }}
         />
-        {bad && <span className="text-[12.5px] text-negative">{`Entre ${formatDec(min)} e ${formatDec(max)} ml`}</span>}
+        {bad && <span className="text-caption text-negative">{`Entre ${formatDec(min)} e ${formatDec(max)} ml`}</span>}
       </div>
     )
   }
   return (
     <div className="flex flex-col gap-3">
-      <Card className="min-h-14 flex-row items-center gap-3 px-3.5 py-2.5">
-        <Label htmlFor="water-switch" className="flex-1 text-[15px] font-semibold normal-case tracking-normal text-strong">Contador de água</Label>
+      <Card className="min-h-14 flex-row items-center gap-3">
+        <Label htmlFor="water-switch" className="flex-1 text-body font-semibold normal-case tracking-normal text-strong">Contador de água</Label>
         <Switch id="water-switch" checked={!!on} onCheckedChange={toggle} />
       </Card>
       {on && (
@@ -47,7 +47,7 @@ export function WaterSettings() {
           {field('cupMl', 'Copo (ml)')}
         </div>
       )}
-      <p className="text-[13px] text-text-2">{`Na primeira vez, a meta é ${ML_PER_KG} ml por kg do seu peso. Os copos aparecem na aba Dieta.`}</p>
+      <p className="text-meta text-text-2">{`Na primeira vez, a meta é ${ML_PER_KG} ml por kg do seu peso. Os copos aparecem na aba Dieta.`}</p>
     </div>
   )
 }

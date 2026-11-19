@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
-const LABEL = 'label-caps tracking-[0.08em]'
+const LABEL = 'label-caps tracking-caps-wide'
 const FIELD = 'flex flex-col gap-1.5'
 const TIMES = [['wake', 'Acorda'], ['train', 'Treina'], ['sleep', 'Dorme']] as const
 const DAYS = [1, 2, 3, 4, 5, 6, 7] as const

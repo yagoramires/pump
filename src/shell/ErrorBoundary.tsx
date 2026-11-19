@@ -9,7 +9,7 @@ function FatalScreen({ title, text, children }: { title: string; text: string; c
   return (
     <main role="alert" className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4">
       <EmptyState icon={<AlertTriangle size={30} aria-hidden="true" />} title={title} tone="negative">
-        <p className="max-w-[300px] text-sm text-text-2">{text}</p>
+        <p className="max-w-xs text-sm text-text-2">{text}</p>
         <div className="mt-3 flex w-full max-w-xs flex-col gap-2">{children}</div>
       </EmptyState>
     </main>

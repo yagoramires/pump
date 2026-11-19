@@ -17,7 +17,7 @@ type Props = {
 }
 
 const parseKg = (v: string) => parseInRange(v, 0, MAX_KG)
-const TH = 'label-caps px-2 pb-1.5 tracking-[.04em]'
+const TH = 'label-caps px-2 pb-1.5'
 
 export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
   const [drafts, setDrafts] = useState<Record<number, Draft>>({})
@@ -67,7 +67,7 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
           return (
             <tr key={i} className={cn('border-t border-line text-center', s && 'bg-accent-bg')}>
               <td className="py-1.5 text-sm text-text-2">{n}</td>
-              <td className="py-1.5 text-[13px] text-faint">{p ? `${formatKg(p.weightKg)}×${p.reps}` : '—'}</td>
+              <td className="py-1.5 text-meta text-faint">{p ? `${formatKg(p.weightKg)}×${p.reps}` : '—'}</td>
               <td className="py-1.5">
                 <Input
                   className={box(!!s)}

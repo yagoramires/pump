@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
-export const LABEL = 'label-caps tracking-[0.08em]'
+export const LABEL = 'label-caps tracking-caps-wide'
 
 type Options<T extends string | number> = [T] extends [string] ? Record<T, string> : readonly T[]
 const entries = <T extends string | number>(o: Options<T>): [T, string][] =>

@@ -25,7 +25,7 @@ function Chips({ values, value, onChange, label }: { values: string[]; value?: s
   return (
     <div className="flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label={label}>
       {values.map((v) => (
-        <Toggle key={v} variant="outline" className="shrink-0 text-[13px]" pressed={value === v} onPressedChange={() => onChange(value === v ? undefined : v)}>
+        <Toggle key={v} variant="outline" className="shrink-0 text-meta" pressed={value === v} onPressedChange={() => onChange(value === v ? undefined : v)}>
           {v}
         </Toggle>
       ))}
@@ -37,17 +37,17 @@ function Row({ e, mine, onPick }: { e: Exercise | CustomExercise; mine?: boolean
   const img = isCustom(e) ? undefined : e.images[0]
   return (
     <li className="flex items-center gap-3 border-t border-line px-3 py-2 first:border-t-0">
-      {img ? <img src={imageUrl(img)} alt="" loading="lazy" className="size-10 shrink-0 rounded-[10px] bg-surface object-cover" /> : <IconDot color={muscleColor(e.muscles)} size={36}><Dumbbell size={16} /></IconDot>}
+      {img ? <img src={imageUrl(img)} alt="" loading="lazy" className="size-10 shrink-0 rounded-lg bg-surface object-cover" /> : <IconDot color={muscleColor(e.muscles)} size={36}><Dumbbell size={16} /></IconDot>}
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[15px] font-semibold text-strong">{e.name}</span>
-        <span className="block truncate text-[12.5px] text-text-2">{e.muscles.join(', ')}{mine ? ' · seu exercício' : ''}</span>
+        <span className="block truncate text-body font-semibold text-strong">{e.name}</span>
+        <span className="block truncate text-caption text-text-2">{e.muscles.join(', ')}{mine ? ' · seu exercício' : ''}</span>
       </span>
       <Button variant="ghost" size="icon" className="text-accent" aria-label={`Adicionar ${e.name}`} onClick={onPick}><Plus /></Button>
     </li>
   )
 }
 
-const LABEL = 'label-caps px-4 pt-3 pb-1 tracking-[.04em]'
+const LABEL = 'label-caps px-4 pt-3 pb-1'
 
 export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | CustomExercise) => void; onClose: () => void }) {
   const { list: catalog, offline } = useCatalog(fetchExercises)
@@ -80,18 +80,18 @@ export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | Cust
         <Chips label="Músculo" values={muscles} value={muscle} onChange={setMuscle} />
         <Chips label="Aparelho" values={equipments} value={equipment} onChange={setEquipment} />
       </div>
-      {offline && <p className="px-4 pt-2 text-[13px] text-text-2">Sem internet: só seus exercícios aparecem</p>}
+      {offline && <p className="px-4 pt-2 text-meta text-text-2">Sem internet: só seus exercícios aparecem</p>}
       <div className="flex-1 overflow-y-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {shownMine.length > 0 && (
           <>
             <h2 className={LABEL}>Seus exercícios</h2>
-            <Card className="mx-4 overflow-hidden"><ul>{shownMine.map((e) => <Row key={e.id} e={e} mine onPick={() => onPick(e)} />)}</ul></Card>
+            <Card size="flush" className="mx-4"><ul>{shownMine.map((e) => <Row key={e.id} e={e} mine onPick={() => onPick(e)} />)}</ul></Card>
           </>
         )}
         {list.length > 0 && (
           <>
             <h2 className={LABEL}>Catálogo</h2>
-            <Card className="mx-4 overflow-hidden"><ul>{list.map((e) => <Row key={e.id} e={e} onPick={() => onPick(e)} />)}</ul></Card>
+            <Card size="flush" className="mx-4"><ul>{list.map((e) => <Row key={e.id} e={e} onPick={() => onPick(e)} />)}</ul></Card>
           </>
         )}
       </div>
@@ -101,7 +101,7 @@ export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | Cust
       <Drawer open={creating} onOpenChange={setCreating}>
         <DrawerContent>
           <form className="flex flex-col gap-3 px-4 pb-5" onSubmit={(e) => { e.preventDefault(); create() }}>
-            <DrawerTitle className="text-[19px] font-semibold text-strong">Exercício próprio</DrawerTitle>
+            <DrawerTitle className="text-title font-semibold text-strong">Exercício próprio</DrawerTitle>
             <DrawerDescription className="sr-only">Crie um exercício e adicione ao treino</DrawerDescription>
             <Input aria-label="Nome do exercício" placeholder="Nome" autoComplete="off" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
             <Select value={draft.muscle} onValueChange={(muscle) => setDraft({ ...draft, muscle })}>

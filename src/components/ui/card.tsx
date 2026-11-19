@@ -6,15 +6,17 @@ const cardVariants = cva("flex flex-col rounded-card border border-border text-c
   variants: {
     // inset: lista dentro de gaveta (o fundo da gaveta já é o do card)
     variant: { default: "bg-card", inset: "bg-surface" },
+    // flush: listas/linhas que vão de borda a borda (o conteúdo cuida do próprio padding)
+    size: { default: "p-3.5", sm: "p-3", flush: "overflow-hidden p-0" },
   },
-  defaultVariants: { variant: "default" },
+  defaultVariants: { variant: "default", size: "default" },
 })
 
-function Card({ className, variant, ...props }: React.ComponentProps<"div"> & VariantProps<typeof cardVariants>) {
+function Card({ className, variant, size, ...props }: React.ComponentProps<"div"> & VariantProps<typeof cardVariants>) {
   return (
     <div
       data-slot="card"
-      className={cn(cardVariants({ variant }), className)}
+      className={cn(cardVariants({ variant, size }), className)}
       {...props}
     />
   )
@@ -37,7 +39,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn("text-[15px] leading-none font-semibold text-strong", className)}
+      className={cn("text-body leading-none font-semibold text-strong", className)}
       {...props}
     />
   )
@@ -70,7 +72,7 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-content"
-      className={cn("px-6", className)}
+      className={cn("px-3.5", className)}
       {...props}
     />
   )
@@ -80,7 +82,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-footer"
-      className={cn("flex items-center px-6 [.border-t]:pt-6", className)}
+      className={cn("flex items-center px-3.5", className)}
       {...props}
     />
   )

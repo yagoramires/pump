@@ -25,7 +25,7 @@ export function DayZero({ profile, onDone }: { profile: Profile; onDone: (checkI
       <MeasureForm date={today} profile={profile} needWeight submitLabel="Continuar" onSaved={() => onDone(day)}>
         <div className="grid grid-cols-3 gap-2">
           {ANGLES.map((a) => (
-            <Button key={a} type="button" variant="outline" aria-label={ANGLE_LABEL[a]} onClick={() => setCapturing(true)} className="block h-auto overflow-hidden rounded-[11px] p-0 text-[12px] font-normal text-text-2 has-[>svg]:px-0">
+            <Button key={a} type="button" variant="outline" aria-label={ANGLE_LABEL[a]} onClick={() => setCapturing(true)} className="block h-auto overflow-hidden rounded-lg p-0 text-caption font-normal text-text-2 has-[>svg]:px-0">
               <PhotoThumb id={todaySet?.[a]} alt={ANGLE_LABEL[a]} empty={<Camera size={18} className="absolute inset-0 m-auto text-faint" />}>
                 <span className="absolute inset-x-0 bottom-0 bg-bg/70 py-0.5 text-center">{ANGLE_LABEL[a]}</span>
               </PhotoThumb>

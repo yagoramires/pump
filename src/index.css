@@ -29,6 +29,16 @@
   --color-hover: #23252b;
   --font-sans: -apple-system, "SF Pro Display", Inter, sans-serif;
   --radius-card: 14px;
+  --tracking-caps: 0.05em;
+  --tracking-caps-wide: 0.08em;
+  --breakpoint-xs: 23.75rem;
+  /* escala tipográfica: micro 10, caption 11-12.5, meta 13, body 14-15, title 19, display 26-28 */
+  --text-micro: 10px; --text-micro--line-height: 1.2;
+  --text-caption: 12px; --text-caption--line-height: 1.35;
+  --text-meta: 13px; --text-meta--line-height: 1.4;
+  --text-body: 15px; --text-body--line-height: 1.4;
+  --text-title: 19px; --text-title--line-height: 1.25;
+  --text-display: 26px; --text-display--line-height: 1.1;
 }
 
 :root {
@@ -92,7 +102,7 @@ body { background: var(--color-bg); color: var(--color-text); font-family: var(-
 *::-webkit-scrollbar { display: none; }
 
 @utility label-caps {
-  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--color-faint);
+  font-size: var(--text-micro); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--color-faint);
 }
 
 @layer base {

@@ -1,7 +1,6 @@
 import { Dumbbell, TrendingUp, Utensils } from 'lucide-react'
 import type { Tab } from '@/types'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
 
 const TABS = [
   { id: 'treino', label: 'Treino', Icon: Dumbbell },
@@ -15,12 +14,12 @@ export function BottomNav({ tab, onChange, alerts = {} }: { tab: Tab; onChange: 
       {TABS.map(({ id, label, Icon }) => (
         <Button
           key={id}
-          variant="ghost"
+          variant="nav"
+          size="tab"
           type="button"
           aria-label={alerts[id] ? `${label}, ${alerts[id]}` : label}
           aria-current={tab === id ? 'page' : undefined}
           onClick={() => onChange(id)}
-          className={cn('h-auto min-h-11 flex-1 flex-col gap-1 rounded-none text-[10px] font-medium', tab === id ? 'text-accent' : 'text-faint hover:text-text')}
         >
           <span className="relative">
             <Icon size={20} aria-hidden="true" />

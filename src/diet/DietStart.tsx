@@ -17,7 +17,7 @@ export function DietStart({ hint, onDone }: { hint: string; onDone?: () => void 
   if (view) return <Overlay><DietImport mode={view} onDone={done} onBack={close} /></Overlay>
   return (
     <EmptyState icon={<Utensils size={30} aria-hidden="true" />} title="Monte seu cardápio">
-      <p className="max-w-[240px] text-sm text-text-2">{hint}</p>
+      <p className="max-w-64 text-sm text-text-2">{hint}</p>
       <Button className="mt-3 w-full max-w-xs" onClick={() => setView('ia')}><Sparkles aria-hidden="true" />Gerar com IA</Button>
       <div className="grid w-full max-w-xs grid-cols-2 gap-2">
         <Button variant="outline" className="h-16 flex-col gap-1" onClick={() => setView('edit')}><Plus aria-hidden="true" />Do zero</Button>

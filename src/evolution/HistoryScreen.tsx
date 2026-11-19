@@ -21,7 +21,7 @@ import { dayRecords } from './dayRecords'
 import { PhotoThumb } from './PhotoThumb'
 
 const ROW = 'flex items-center gap-3 border-t border-line px-3.5 py-2.5 first:border-t-0'
-const DEL = 'shrink-0 px-1 text-[13px] text-destructive hover:text-destructive'
+const DEL = 'shrink-0 px-1 text-meta text-destructive hover:text-destructive'
 const CONFIRM = {
   measures: { title: 'Apagar medidas?', text: 'As medidas deste dia somem do histórico e dos gráficos.' },
   photos: { title: 'Apagar fotos?', text: 'As fotos deste dia são apagadas do aparelho.' },
@@ -69,8 +69,8 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
       <span id={`${descId}t`} hidden>treino</span>
       <span id={`${descId}r`} hidden>com registro</span>
       <div className="flex flex-col gap-3">
-      <Card className="grid grid-cols-7 gap-1 p-2.5 text-center">
-        {WEEKDAY_SHORT.map((w, i) => <span key={i} aria-hidden="true" className="pb-1 text-[11px] font-semibold text-faint">{w[0]}</span>)}
+      <Card size="sm" className="grid grid-cols-7 gap-1 text-center">
+        {WEEKDAY_SHORT.map((w, i) => <span key={i} aria-hidden="true" className="pb-1 text-caption font-semibold text-faint">{w[0]}</span>)}
         {Array.from({ length: month.getDay() }, (_, i) => <span key={`x${i}`} />)}
         {keys.map((k, i) => {
           const r = records(k)
@@ -84,7 +84,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
               aria-current={k === today ? 'date' : undefined}
               aria-describedby={[trained && `${descId}t`, dot && `${descId}r`].filter(Boolean).join(' ') || undefined}
               className={cn(
-                'relative h-11 min-w-0 rounded-[10px] border px-0 text-sm tabular-nums',
+                'relative h-11 min-w-0 rounded-lg border px-0 text-sm tabular-nums',
                 trained ? 'border-accent-line bg-accent-bg font-semibold text-accent' : 'border-transparent text-text-2',
                 k === today && 'shadow-[inset_0_0_0_1px_var(--color-strong)]',
                 k === day && 'ring-2 ring-accent/50',
@@ -105,7 +105,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
           {!done && !rest && !meals && !drank && !measure && !photos ? (
             <p className="px-0.5 text-sm text-text-2">Nada registrado neste dia.</p>
           ) : (
-            <Card className="overflow-hidden">
+            <Card size="flush">
               {done && (
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c2)"><Dumbbell size={16} aria-hidden="true" /></IconDot>
@@ -115,7 +115,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
               {rest && (
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c2)"><Moon size={16} aria-hidden="true" /></IconDot>
-                  <div className="min-w-0 flex-1 text-[15px] font-semibold text-strong">Descanso</div>
+                  <div className="min-w-0 flex-1 text-body font-semibold text-strong">Descanso</div>
                 </div>
               )}
               {meals && (
@@ -128,7 +128,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
               {drank && (
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c6)"><GlassWater size={16} aria-hidden="true" /></IconDot>
-                  <div className="min-w-0 flex-1 text-[15px] font-semibold text-strong tabular-nums">{`Água · ${formatDec(drank.ml / 1000)} L`}</div>
+                  <div className="min-w-0 flex-1 text-body font-semibold text-strong tabular-nums">{`Água · ${formatDec(drank.ml / 1000)} L`}</div>
                   <Button type="button" variant="ghost" size="sm" className={DEL} onClick={() => setConfirm('water')}>Apagar água</Button>
                 </div>
               )}
@@ -136,8 +136,8 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                 <div className={ROW}>
                   <IconDot size={32} color="var(--color-accent)"><Ruler size={16} aria-hidden="true" /></IconDot>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[15px] font-semibold text-strong">Medidas</div>
-                    <div className="text-[13px] text-text-2 tabular-nums">
+                    <div className="text-body font-semibold text-strong">Medidas</div>
+                    <div className="text-meta text-text-2 tabular-nums">
                       {FIELDS.filter((f) => measure[f.key] !== undefined).map((f) => `${f.label} ${formatKg(measure[f.key]!)} ${f.unit}`).join(' · ')}
                     </div>
                   </div>
@@ -148,12 +148,12 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                 <div className="border-t border-line px-3.5 py-2.5 first:border-t-0">
                   <div className="flex items-center gap-3">
                     <IconDot size={32} color="var(--c4)"><Camera size={16} aria-hidden="true" /></IconDot>
-                    <span className="flex-1 text-[15px] font-semibold text-strong">Fotos</span>
+                    <span className="flex-1 text-body font-semibold text-strong">Fotos</span>
                     <Button type="button" variant="ghost" size="sm" className={DEL} onClick={() => setConfirm('photos')}>Apagar fotos</Button>
                   </div>
                   {hasPhoto(photos) && (
                     <div className="mt-3 grid grid-cols-3 gap-2">
-                      {ANGLES.filter((k) => photos[k]).map((k) => <PhotoThumb key={k} id={photos[k]} alt={`Foto de ${k}`} className="rounded-[10px]" />)}
+                      {ANGLES.filter((k) => photos[k]).map((k) => <PhotoThumb key={k} id={photos[k]} alt={`Foto de ${k}`} className="rounded-lg" />)}
                     </div>
                   )}
                 </div>

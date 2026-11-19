@@ -2,16 +2,16 @@ import type { ReactNode } from 'react'
 import { FileUp, ListChecks } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
+import { Alert } from '@/components/ui/alert'
 
 export function Step({ n, title, sub, children }: { n: number; title: string; sub: string; children?: ReactNode }) {
   return (
     <div className="flex items-center gap-3 border-t border-line p-3.5 first:border-t-0">
-      <Badge variant="outline" className="size-8 shrink-0 rounded-[9px] border-accent-line bg-accent-bg text-sm font-bold text-accent">{n}</Badge>
+      <Badge variant="outline" className="size-8 shrink-0 rounded-lg border-accent-line bg-accent-bg text-sm font-bold text-accent">{n}</Badge>
       <div className="min-w-0 flex-1">
-        <div className="text-[15px] font-semibold text-strong">{title}</div>
-        <div className="text-[13px] text-text-2">{sub}</div>
+        <div className="text-body font-semibold text-strong">{title}</div>
+        <div className="text-meta text-text-2">{sub}</div>
       </div>
       {children}
     </div>
@@ -44,9 +44,9 @@ export function PasteBox({ text, onText, onFile, problems, placeholder, children
       </Button>
       {children}
       {problems.length > 0 && (
-        <Card role="alert" className="p-3.5 text-[13px] text-negative">
+        <Alert variant="destructive">
           <ul className="flex flex-col gap-1">{problems.map((p) => <li key={p}>{p}</li>)}</ul>
-        </Card>
+        </Alert>
       )}
     </>
   )
@@ -72,7 +72,7 @@ export function CopyListButton({ file, noun, copy, fail }: { file: string; noun:
       <ListChecks size={16} aria-hidden="true" />
       <span>
         <span className="block text-sm font-medium">{`Copiar a lista de ${noun}`}</span>
-        <span className="block text-[13px] font-normal text-text-2">Se sua IA não abrir o link</span>
+        <span className="block text-meta font-normal text-text-2">Se sua IA não abrir o link</span>
       </span>
     </Button>
   )

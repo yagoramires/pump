@@ -25,6 +25,7 @@ import { namesText } from '@/lib/text'
 import { todayKey } from '@/lib/date'
 import { copyText } from '@/lib/share'
 import { cn } from '@/lib/utils'
+import { Alert } from '@/components/ui/alert'
 
 type Props = { mode: 'ia' | 'convert'; onDone: () => void; onBack: () => void }
 
@@ -83,32 +84,32 @@ export function DietImport({ mode, onDone, onBack }: Props) {
     return (
       <div className="flex flex-col gap-3 pb-28">
         <BackHeader title="Revisar cardápio" onBack={() => edit('')} className="min-h-11" />
-        {review.offline && <Card role="status" className="p-3.5 text-[13px] text-text-2">Sem internet: usei os números da IA. Dá pra trocar depois.</Card>}
+        {review.offline && <Alert role="status">Sem internet: usei os números da IA. Dá pra trocar depois.</Alert>}
         {review.plan.menus.length > 1 && (
           <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Cardápios">
             {review.plan.menus.map((m, n) => (
-              <Toggle key={m.id} variant="outline" className="shrink-0 text-[13px]" pressed={m.id === menu.id} onPressedChange={() => setTab(n)}>
+              <Toggle key={m.id} variant="outline" className="shrink-0 text-meta" pressed={m.id === menu.id} onPressedChange={() => setTab(n)}>
                 {m.name}
               </Toggle>
             ))}
           </div>
         )}
         {(menu.goalKcal !== undefined || menu.goalMacros) && (
-          <Card className="flex-row justify-between gap-3 p-3.5 text-[13px] tabular-nums text-text-2">
+          <Card className="flex-row justify-between gap-3 text-meta tabular-nums text-text-2">
             <span>{menu.goalKcal !== undefined ? `Meta · ${formatDec(menu.goalKcal)} kcal` : 'Meta'}</span>
             {menu.goalMacros && <span>{macroText(menu.goalMacros)}</span>}
           </Card>
         )}
         {menu.meals.map((meal) => (
-          <Card key={meal.id} role="region" aria-label={meal.name} className="overflow-hidden">
+          <Card size="flush" key={meal.id} role="region" aria-label={meal.name}>
             <div className="px-3.5 pt-3 pb-1">
-              <div className="text-[15px] font-semibold text-strong">{meal.name}</div>
-              <div className="text-[12.5px] text-text-2">{meal.time}</div>
+              <div className="text-body font-semibold text-strong">{meal.name}</div>
+              <div className="text-caption text-text-2">{meal.time}</div>
             </div>
             {meal.options.map((o, oi) => (
               <div key={o.id} className="pb-1.5">
                 {meal.options.length > 1 && (
-                  <div className="label-caps px-3.5 pt-2 tracking-[.04em]">
+                  <div className="label-caps px-3.5 pt-2">
                     {`Opção ${optionLetter(oi)}${o.name ? ` · ${o.name}` : ''} · ${kcalOf(o.items)} kcal`}
                   </div>
                 )}
@@ -119,11 +120,11 @@ export function DietImport({ mode, onDone, onBack }: Props) {
                   const body = (
                     <>
                       <span className="min-w-0 flex-1">
-                        <span className="block text-[14px] text-strong">{shown}</span>
-                        <span className="block text-[12.5px] text-text-2">{portionText(i)}</span>
-                        {l && <span className={cn('block text-[12px]', l.warn ? 'text-c7' : 'text-faint')}>{l.text}</span>}
+                        <span className="block text-body text-strong">{shown}</span>
+                        <span className="block text-caption text-text-2">{portionText(i)}</span>
+                        {l && <span className={cn('block text-caption', l.warn ? 'text-c7' : 'text-faint')}>{l.text}</span>}
                       </span>
-                      <span className="shrink-0 text-[13px] tabular-nums text-text-2">{`${Math.round(itemKcal(i))} kcal`}</span>
+                      <span className="shrink-0 text-meta tabular-nums text-text-2">{`${Math.round(itemKcal(i))} kcal`}</span>
                     </>
                   )
                   return i.source === 'ia'
@@ -135,7 +136,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
           </Card>
         ))}
         {outside > 0 && (
-          <Card className="flex-row items-start gap-2 p-3.5 text-[13px] text-text-2">
+          <Card className="flex-row items-start gap-2 text-meta text-text-2">
             <AlertTriangle size={16} className="mt-px shrink-0 text-c7" aria-hidden="true" />
             <span>
               {`${outside} ${outside === 1 ? 'item fora da TACO usa' : 'itens fora da TACO usam'} os números da IA. Toque pra trocar.`}
@@ -168,7 +169,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
     <div className="flex flex-col gap-3 pb-28">
       <BackHeader title={mode === 'ia' ? 'Gerar com IA' : 'Converter dieta'} onBack={onBack} className="min-h-11" />
       {mode === 'ia' && <DietAnamnesisForm value={anamnesis} onChange={setEdited} />}
-      <Card className="overflow-hidden">
+      <Card size="flush">
         {mode === 'ia'
           ? <Step n={1} title="Copie o prompt" sub="Botão lá embaixo; cole no ChatGPT" />
           : (
@@ -181,7 +182,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
       </Card>
       <CopyListButton file="alimentos.txt" noun="alimentos" copy={(t) => copy(t, 'Lista copiada')} fail={toast} />
       <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", "dieta": ... }'>
-        {paste.reviewing && <p role="status" className="text-[13px] text-text-2">Conferindo na TACO…</p>}
+        {paste.reviewing && <p role="status" className="text-meta text-text-2">Conferindo na TACO…</p>}
       </PasteBox>
       {mode === 'ia' && (
         <BottomBar>

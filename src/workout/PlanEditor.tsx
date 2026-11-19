@@ -54,7 +54,7 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
         <Button size="sm" onClick={() => onSave(plan)}>Salvar</Button>
       </BackHeader>
       {plan.workouts.map((w) => (
-        <Card key={w.id} className="gap-2 p-3">
+        <Card size="sm" key={w.id} className="gap-2">
           <div className="flex items-center gap-2">
             <Badge variant="tile">{w.label}</Badge>
             <Input id={`name-${w.id}`} className="min-w-0 flex-1 border-transparent bg-transparent px-2 font-semibold focus-visible:bg-surface" aria-label={`Nome do treino ${w.label}`} autoComplete="off" enterKeyHint="done" value={w.name} onChange={(e) => patchWorkout(w.id, (x) => ({ ...x, name: e.target.value }))} />
@@ -69,8 +69,8 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
                   <Button key={`${e.exerciseId}-${i}`} variant="ghost" className="h-auto min-h-14 justify-start gap-3 rounded-none border-t border-line px-0 text-left font-normal first:border-t-0" onClick={() => setEditing({ wid: w.id, i })}>
                     <IconDot color={cardio ? 'var(--c1)' : muscleColor(e.muscles)} size={36}>{cardio ? <HeartPulse size={16} /> : <Dumbbell size={16} />}</IconDot>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[15px] font-semibold text-strong">{e.name}</span>
-                      <span className="block text-[12.5px] tabular-nums text-text-2">{cardio ? e.reps : `${e.sets} × ${e.reps} · ${formatKg(e.weightKg)} kg · ${e.restSec} s`}</span>
+                      <span className="block truncate text-body font-semibold text-strong">{e.name}</span>
+                      <span className="block text-caption tabular-nums text-text-2">{cardio ? e.reps : `${e.sets} × ${e.reps} · ${formatKg(e.weightKg)} kg · ${e.restSec} s`}</span>
                     </span>
                     <ChevronRight size={16} className="text-faint" />
                   </Button>
@@ -103,7 +103,7 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
       >
         <DrawerContent>
           <div className="flex flex-col gap-1 px-4 pb-5">
-            <DrawerTitle className="text-[19px] font-semibold text-strong">{mw ? `Treino ${mw.label}` : ''}</DrawerTitle>
+            <DrawerTitle className="text-title font-semibold text-strong">{mw ? `Treino ${mw.label}` : ''}</DrawerTitle>
             <DrawerDescription className="sr-only">Ações do treino</DrawerDescription>
             <DrawerClose asChild><Button variant="ghost" className="justify-start" onClick={() => { renaming.current = menuFor }}>Renomear</Button></DrawerClose>
             <Button variant="ghost" className="justify-start text-negative" onClick={() => { setPlan((p) => ({ workouts: p.workouts.filter((x) => x.id !== menuFor) })); setMenuFor(undefined) }}>Remover treino</Button>

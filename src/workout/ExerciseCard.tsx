@@ -19,7 +19,7 @@ export function ExerciseCard({ ex, open, onToggle, onPreview, children }: Props)
     : `${ex.sets.length} × ${ex.reps} · ${formatKg(ex.weightKg)} kg`
   return (
     <Collapsible asChild open={open} onOpenChange={onToggle}>
-      <Card className={cn('overflow-hidden', open && 'border-accent-line')}>
+      <Card size="flush" className={cn(open && 'border-accent-line')}>
         <div className="flex items-center pl-1.5 pr-3">
           <Button variant="ghost" size="icon" aria-label={`Ver ${ex.name}`} onClick={onPreview}>
             <IconDot color={muscleColor(ex.muscles)} size={32}><Dumbbell size={16} aria-hidden="true" /></IconDot>
@@ -27,10 +27,10 @@ export function ExerciseCard({ ex, open, onToggle, onPreview, children }: Props)
           <CollapsibleTrigger asChild>
             <Button variant="ghost" className="h-auto min-h-14 min-w-0 flex-1 justify-start gap-2 py-2.5 pl-1.5 text-left font-normal whitespace-normal hover:bg-transparent">
               <span className="block min-w-0 flex-1">
-                <span className="block text-[15px] font-semibold break-words text-strong">{ex.name}</span>
-                <span className="block text-[13px] text-text-2 first-letter:uppercase">{sub}</span>
+                <span className="block text-body font-semibold break-words text-strong">{ex.name}</span>
+                <span className="block text-meta text-text-2 first-letter:uppercase">{sub}</span>
               </span>
-              <span className={cn('flex shrink-0 items-center gap-1.5 text-[13px] font-normal tabular-nums', complete ? 'text-accent' : 'text-faint')}>
+              <span className={cn('flex shrink-0 items-center gap-1.5 text-meta font-normal tabular-nums', complete ? 'text-accent' : 'text-faint')}>
                 {done}/{ex.sets.length}
                 {complete ? <Check size={14} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" className={cn('transition-transform', open && 'rotate-180')} />}
               </span>

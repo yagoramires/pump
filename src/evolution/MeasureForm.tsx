@@ -4,11 +4,11 @@ import type { MeasureFields } from './types'
 import { usePersisted } from '@/storage/db'
 import { formatInput, parseDecimal } from '@/lib/number'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { bodyFat } from './bodyFat'
 import { FIELDS, upsertMeasurement, type UpsertStatus } from './measurements'
+import { Alert } from '@/components/ui/alert'
 
 type Key = keyof MeasureFields
 const select = (e: React.FocusEvent<HTMLInputElement>) => e.currentTarget.select()
@@ -34,7 +34,7 @@ export function MeasureForm({ date, profile: draft, onSaved, submitLabel = 'Salv
       {fields.map(({ key, label, unit }) => (
         <Label key={key} className="justify-between gap-3 border-t border-line pt-2 text-sm first:border-t-0 first:pt-0 font-normal normal-case tracking-normal text-text-2">
           {label}
-          <span className="relative w-[120px]">
+          <span className="relative w-30">
             <Input
               className="pr-9 font-semibold tabular-nums"
               inputMode="decimal"
@@ -50,10 +50,10 @@ export function MeasureForm({ date, profile: draft, onSaved, submitLabel = 'Salv
           </span>
         </Label>
       ))}
-      <Card className="flex-row items-center justify-between rounded-[11px] bg-surface px-3 py-2.5 text-[13px] text-text-2">
+      <Alert role="note" className="flex items-center justify-between">
         <span>% de gordura (estimativa)</span>
         <b className={fat === null ? 'text-text-2' : 'text-accent'}>{fat === null ? '—' : `${formatInput(fat)}%`}</b>
-      </Card>
+      </Alert>
       {children}
       <Button className="w-full" disabled={invalid.length > 0 || (needWeight && !parsed.weightKg)} onClick={() => {
         const { list: next, status } = upsertMeasurement(list, date, parsed)

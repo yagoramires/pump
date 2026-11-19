@@ -36,15 +36,15 @@ import { generatePdf } from './pdf/generate'
 import { shareFile } from '@/lib/share'
 
 type View = 'checkin' | 'anamnesis' | 'capture' | 'compare' | 'achievements' | 'history'
-const LINK = 'px-2 text-[13px] text-accent disabled:text-faint'
+const LINK = 'px-2 text-meta text-accent disabled:text-faint'
 const RANGES = [{ v: '30', label: '30 d' }, { v: '90', label: '90 d' }, { v: 'all', label: 'Tudo' }]
 const KPI: Metric[] = ['weightKg', 'fat']
 function Kpi({ label, value, children }: { label: string; value: string; children: ReactNode }) {
   return (
-    <Card className="min-w-0 gap-0.5 rounded-xl px-3 py-2.5">
+    <Card size="sm" className="min-w-0 gap-0.5">
       <div className="text-xs text-faint">{label}</div>
       <div className="text-lg font-semibold text-strong tabular-nums">{value}</div>
-      <div className="text-[13px] tabular-nums">{children}</div>
+      <div className="text-meta tabular-nums">{children}</div>
     </Card>
   )
 }
@@ -71,7 +71,7 @@ export function EvolutionTab() {
       <Drawer open={choosing} onOpenChange={setChoosing}>
         <DrawerContent>
           <div className="flex flex-col gap-3 px-4 pb-5">
-            <DrawerTitle className="pt-1 text-[19px] font-semibold text-strong">Registrar</DrawerTitle>
+            <DrawerTitle className="pt-1 text-title font-semibold text-strong">Registrar</DrawerTitle>
             <DrawerDescription className="sr-only">Escolha o que registrar hoje</DrawerDescription>
             <div className="grid grid-cols-2 gap-2">
               <Button variant="outline" className="h-20 flex-col gap-1.5 bg-surface" onClick={() => { setChoosing(false); setMeasuring(true) }}><Ruler aria-hidden="true" className="size-5" />Medidas</Button>
@@ -101,7 +101,7 @@ export function EvolutionTab() {
         <TabHeader eyebrow="Evolução" />
         {cards}
         <EmptyState icon={<TrendingUp size={30} aria-hidden="true" />} title="Sua evolução começa aqui">
-          <p className="max-w-[260px] text-sm text-text-2">Registre peso, medidas e fotos pra acompanhar.</p>
+          <p className="max-w-64 text-sm text-text-2">Registre peso, medidas e fotos pra acompanhar.</p>
           <Button className="w-full max-w-xs" onClick={() => setChoosing(true)}>Registrar</Button>
         </EmptyState>
         {drawers}
@@ -151,7 +151,7 @@ export function EvolutionTab() {
         </Kpi>
       </div>
 
-      <Card className="overflow-hidden">
+      <Card size="flush">
         <CardHeader>
           <CardTitle>Peso</CardTitle>
           <CardAction>
@@ -166,14 +166,14 @@ export function EvolutionTab() {
       </Card>
 
       {rows.length > 0 && (
-        <Card className="overflow-hidden">
+        <Card size="flush">
           <CardHeader className="pt-3 pb-2"><CardTitle>Medidas</CardTitle></CardHeader>
           {rows.map((r) => (
             <div key={r.key} className="flex items-center justify-between gap-3 border-t border-line px-3.5 py-2.5 text-sm">
               <span className="text-text-2">{r.label}</span>
               <span className="tabular-nums">
                 <b className="font-semibold text-strong">{`${formatKg(r.first.value)} → ${formatKg(r.last.value)} ${r.unit}`}</b>
-                <Delta value={change(r)} good={r.good} unit={r.unit} className="ml-2 text-[13px]" />
+                <Delta value={change(r)} good={r.good} unit={r.unit} className="ml-2 text-meta" />
               </span>
             </div>
           ))}
@@ -182,7 +182,7 @@ export function EvolutionTab() {
 
       {report.hasDiet && <DietCard log={input.dietLog} water={input.waterLog} today={today} />}
 
-      <Card className="overflow-hidden">
+      <Card size="flush">
         <CardHeader>
           <CardTitle>Fotos</CardTitle>
           <CardAction className="flex gap-1">
@@ -192,33 +192,33 @@ export function EvolutionTab() {
         </CardHeader>
         <div className="grid grid-cols-3 gap-2 px-3.5 pb-3.5">
           {ANGLES.map((angle) => (
-            <PhotoThumb key={angle} id={lastSet?.[angle]} alt={`Foto de ${angle}`} className="flex items-end justify-center rounded-[10px] pb-1.5 text-xs text-text-2">
+            <PhotoThumb key={angle} id={lastSet?.[angle]} alt={`Foto de ${angle}`} className="flex items-end justify-center rounded-lg pb-1.5 text-xs text-text-2">
               <span className="relative">{angle}</span>
             </PhotoThumb>
           ))}
         </div>
       </Card>
 
-      <Card className="overflow-hidden">
+      <Card size="flush">
         <div className="flex min-h-11 items-center justify-between pl-3.5 pr-2">
-          <span className="text-[15px] font-semibold text-strong">Conquistas</span>
+          <span className="text-body font-semibold text-strong">Conquistas</span>
           <Button type="button" variant="ghost" size="sm" className={LINK} onClick={() => setView('achievements')}>Ver todas</Button>
         </div>
         <div className="flex gap-2.5 px-3.5 pb-3.5">
           {Array.from({ length: 4 }, (_, i) => earned[i]).map((x, i) =>
             x ? (
-              <span key={x.id} role="img" aria-label={x.title} title={x.title} className="flex size-[60px] items-center justify-center rounded-[18px] border border-accent-line bg-accent-bg text-accent"><AchievementIcon id={x.id} /></span>
+              <span key={x.id} role="img" aria-label={x.title} title={x.title} className="flex size-15 items-center justify-center rounded-2xl border border-accent-line bg-accent-bg text-accent"><AchievementIcon id={x.id} /></span>
             ) : (
-              <span key={i} aria-hidden="true" className="flex size-[60px] items-center justify-center rounded-[18px] border border-border bg-surface text-border-strong"><Trophy size={22} /></span>
+              <span key={i} aria-hidden="true" className="flex size-15 items-center justify-center rounded-2xl border border-border bg-surface text-border-strong"><Trophy size={22} /></span>
             ),
           )}
         </div>
       </Card>
 
-      <Card className="overflow-hidden">
+      <Card size="flush">
         <Button type="button" variant="ghost" className="h-auto min-h-14 w-full justify-start gap-3 rounded-none px-3.5 py-2 text-left" onClick={() => setView('history')}>
           <IconDot size={36} color="var(--c2)"><CalendarDays size={18} aria-hidden="true" /></IconDot>
-          <span className="flex-1 text-[15px] font-semibold text-strong">Histórico</span>
+          <span className="flex-1 text-body font-semibold text-strong">Histórico</span>
           <ChevronRight size={18} className="text-faint" aria-hidden="true" />
         </Button>
       </Card>

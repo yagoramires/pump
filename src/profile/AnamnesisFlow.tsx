@@ -25,7 +25,7 @@ export function AnamnesisFlow({ step: initial = 0, total, onDone, onCancel, foot
       {step === 0 && !onCancel ? (
         <div className="flex flex-col gap-3">
           <Steps n={1} total={total} />
-          <h1 className="text-[26px] font-bold tracking-tight text-strong">{title}</h1>
+          <h1 className="text-display font-bold tracking-tight text-strong">{title}</h1>
         </div>
       ) : (
         <div className="flex flex-col gap-3">

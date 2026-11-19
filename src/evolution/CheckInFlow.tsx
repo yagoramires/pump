@@ -40,13 +40,13 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
   return (
     <Overlay><div className="flex flex-col gap-3">
       <BackHeader title={`Semana ${s.week}`} onBack={onClose} />
-      <Card className="gap-2 p-4">
+      <Card className="gap-2">
         {s.sincePrev === undefined ? (
-          <div className="text-[28px] font-semibold text-strong tabular-nums">{`${formatKg(s.weight)} kg`}</div>
+          <div className="text-display font-semibold text-strong tabular-nums">{`${formatKg(s.weight)} kg`}</div>
         ) : (
           <>
-            <div className={cn('text-[28px] font-semibold tabular-nums', s.weightGood ? 'text-accent' : 'text-strong')}>{`${formatSigned(s.sincePrev)} kg`}</div>
-            <div className="text-[13px] text-text-2">{`${s.prevIsLastWeek ? 'desde a semana passada' : `desde ${formatDayMonth(s.prevDate!)}`} · ${formatKg(s.weight)} kg`}</div>
+            <div className={cn('text-display font-semibold tabular-nums', s.weightGood ? 'text-accent' : 'text-strong')}>{`${formatSigned(s.sincePrev)} kg`}</div>
+            <div className="text-meta text-text-2">{`${s.prevIsLastWeek ? 'desde a semana passada' : `desde ${formatDayMonth(s.prevDate!)}`} · ${formatKg(s.weight)} kg`}</div>
           </>
         )}
         {s.rows.map((r) => (
@@ -59,7 +59,7 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
           <span className="text-text-2">Fotos · {s.photos} de {ANGLES.length}</span>
         </div>
         {s.sinceStart !== undefined && (
-          <p className="text-[13px] text-text-2">{`Desde o dia zero: ${formatSigned(s.sinceStart)} kg em ${plural(s.week, 'semana', 'semanas')}.`}</p>
+          <p className="text-meta text-text-2">{`Desde o dia zero: ${formatSigned(s.sinceStart)} kg em ${plural(s.week, 'semana', 'semanas')}.`}</p>
         )}
       </Card>
       <div className="grid gap-2">
@@ -73,9 +73,9 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
 export function CheckInCard({ due, today, onStart }: { due: string; today: string; onStart: () => void }) {
   const dia = WEEKDAY_LONG[weekday(due)]
   return (
-    <Card className="gap-2 border-accent p-4">
-      <h2 className="text-[15px] font-semibold text-strong">Atualizar semana</h2>
-      <p className="text-[13px] text-text-2">{`${due === today ? 'Hoje é' : 'Era'} ${dia}, seu dia de atualizar.`}</p>
+    <Card className="gap-2 border-accent">
+      <h2 className="text-body font-semibold text-strong">Atualizar semana</h2>
+      <p className="text-meta text-text-2">{`${due === today ? 'Hoje é' : 'Era'} ${dia}, seu dia de atualizar.`}</p>
       <Button className="w-full" onClick={onStart}>Atualizar</Button>
     </Card>
   )

@@ -62,8 +62,8 @@ export function RestCard({ endAt, pausedLeftMs, totalSec, restSec, onAdd15, onDo
         </Button>
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex items-baseline gap-1.5 whitespace-nowrap">
-            <b className="text-[19px] leading-none font-bold text-accent tabular-nums">{mmss(left)}</b>
-            <span className="text-[12px] text-text-2 tabular-nums">de {ms(restSec)}</span>
+            <b className="text-title leading-none font-bold text-accent tabular-nums">{mmss(left)}</b>
+            <span className="text-caption text-text-2 tabular-nums">de {ms(restSec)}</span>
           </div>
           <Progress value={pct} aria-label="Descanso restante" className="h-1 bg-line" />
         </div>
@@ -76,8 +76,8 @@ export function RestCard({ endAt, pausedLeftMs, totalSec, restSec, onAdd15, onDo
       <Drawer open={picking} onOpenChange={setPicking}>
         <DrawerContent>
           <SheetBody>
-            <DrawerTitle className="shrink-0 pb-1 text-[19px] font-semibold text-strong">Tempo de descanso</DrawerTitle>
-            <DrawerDescription className="pb-3 text-[13px] text-text-2">Vale pra este exercício, agora e nos próximos treinos.</DrawerDescription>
+            <DrawerTitle className="shrink-0 pb-1 text-title font-semibold text-strong">Tempo de descanso</DrawerTitle>
+            <DrawerDescription className="pb-3 text-meta text-text-2">Vale pra este exercício, agora e nos próximos treinos.</DrawerDescription>
             <Chips label="Tempo" options={DURATIONS} value={String(restSec)} cols="grid-cols-4" onChange={(v) => { if (v) { onPickDuration(Number(v)); setPicking(false) } }} />
           </SheetBody>
         </DrawerContent>

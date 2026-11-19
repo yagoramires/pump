@@ -7,7 +7,7 @@ export function BackHeader({ title, onBack, label = 'Voltar', className, titleCl
   return (
     <header className={cn('flex items-center gap-3 py-2', className)}>
       <Button type="button" variant="outline" size="icon" aria-label={label} onClick={onBack}><ChevronLeft size={18} /></Button>
-      <h1 className={cn('flex-1 text-[19px] font-semibold text-strong', titleClassName)}>{title}</h1>
+      <h1 className={cn('flex-1 text-title font-semibold text-strong', titleClassName)}>{title}</h1>
       {children}
     </header>
   )

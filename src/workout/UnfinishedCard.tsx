@@ -23,8 +23,8 @@ export function UnfinishedCard({ session, setLog }: { session: WorkoutSession; s
     toast('Treino descartado', { action: { label: 'Desfazer', onClick: () => setLog((prev) => ({ ...prev, [date]: session })) } })
   }
   return (
-    <Card className="gap-2.5 p-3.5">
-      <p className="text-[14px] font-semibold text-strong">{`Treino ${session.workoutLabel} de ${formatDayLabel(date)} ficou sem concluir`}</p>
+    <Card className="gap-2.5">
+      <p className="text-body font-semibold text-strong">{`Treino ${session.workoutLabel} de ${formatDayLabel(date)} ficou sem concluir`}</p>
       <div className="flex gap-2">
         <Button className="flex-1" onClick={conclude}>Concluir</Button>
         <Button variant="outline" className="flex-1" onClick={discard}>Descartar</Button>

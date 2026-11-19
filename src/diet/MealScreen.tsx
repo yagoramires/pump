@@ -16,7 +16,7 @@ import { addExtra, chooseOption, mealOptions, optionLetter, removeItem, setMealF
 import { iaLabel, itemKcal, itemMacros, kcalOf, macroText, portionText } from './food'
 import { useDietToday } from './useDietToday'
 
-const LABEL = 'label-caps tracking-[.04em]'
+const LABEL = 'label-caps'
 export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () => void }) {
   const { plan, day, menu, act } = useDietToday()
   const [picking, setPicking] = useState<DayItem | 'extra'>()
@@ -46,10 +46,10 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
         {i.extra && <Plus size={12} className="shrink-0 text-accent" aria-hidden="true" />}
         <span className="min-w-0 flex-1 py-1.5">
           <span className={cn('block truncate text-sm', i.skipped ? 'text-faint line-through' : i.swappedFrom ? 'text-accent' : 'text-text')}>{i.name}</span>
-          <span className="block truncate text-[12.5px] text-faint">{portionText(i)}</span>
-          {iaLabel(i) && <span className="block text-[12px] text-c7">{iaLabel(i)}</span>}
+          <span className="block truncate text-caption text-faint">{portionText(i)}</span>
+          {iaLabel(i) && <span className="block text-caption text-c7">{iaLabel(i)}</span>}
         </span>
-        <span className="w-10 shrink-0 text-right text-[12.5px] tabular-nums text-text-2">{Math.round(itemKcal(i))}</span>
+        <span className="w-10 shrink-0 text-right text-caption tabular-nums text-text-2">{Math.round(itemKcal(i))}</span>
       </>
     )
     const undo = (label: string, aria: string, f: (d: DietDay) => DietDay) => (
@@ -89,14 +89,14 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
         )}
         {meal.swappedMeal ? (
           <div className="flex items-center gap-2">
-            <p className="min-w-0 flex-1 text-[13px] text-text-2">{`De outro cardápio: ${meal.swappedMeal}`}</p>
+            <p className="min-w-0 flex-1 text-meta text-text-2">{`De outro cardápio: ${meal.swappedMeal}`}</p>
             {options[0] && !free && <Button variant="ghost" size="sm" className="text-accent" onClick={() => act((d) => chooseOption(d, meal.id, options[0]))}>Voltar às opções</Button>}
           </div>
         ) : (
-          options.length > 1 && <p className="text-[13px] text-text-2">{[`Opção ${optionLetter(selIdx)}`, selected.name].filter(Boolean).join(' · ')}</p>
+          options.length > 1 && <p className="text-meta text-text-2">{[`Opção ${optionLetter(selIdx)}`, selected.name].filter(Boolean).join(' · ')}</p>
         )}
 
-        <Card className={cn('overflow-hidden', free && 'opacity-60')}>
+        <Card size="flush" className={cn(free && 'opacity-60')}>
         <ul>
           {meal.items.map(itemRow)}
           {!free && (
@@ -106,7 +106,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
           )}
         </ul>
         </Card>
-        <p className="flex justify-between gap-2 px-0.5 text-[13px] text-text-2">
+        <p className="flex justify-between gap-2 px-0.5 text-meta text-text-2">
           <span>Total</span>
           <b className="font-semibold text-strong tabular-nums">{total}</b>
         </p>
@@ -142,9 +142,9 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
             <SheetBody>
               {sheet === 'more' ? (
                 <>
-                  <DrawerTitle className="shrink-0 truncate pb-2 text-[19px] font-semibold text-strong">{meal.name}</DrawerTitle>
+                  <DrawerTitle className="shrink-0 truncate pb-2 text-title font-semibold text-strong">{meal.name}</DrawerTitle>
                   <DrawerDescription className="sr-only">Mais opções da refeição</DrawerDescription>
-                  <Card variant="inset" className="overflow-hidden"><ul>
+                  <Card size="flush" variant="inset"><ul>
                     {!free && <SheetRow icon={<ArrowLeftRight size={18} className="text-accent" aria-hidden="true" />} label="Trocar por refeição de outro cardápio" onClick={() => setSheet('swap')} />}
                     <SheetRow icon={<Sparkles size={18} className="text-accent" aria-hidden="true" />} label={meal.free ? 'Desfazer refeição livre' : 'Refeição livre'} onClick={() => {
                       setSheet(undefined)
@@ -155,18 +155,18 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
                 </>
               ) : (
                 <>
-                  <DrawerTitle className="shrink-0 truncate pb-1 text-[19px] font-semibold text-strong">{`Trocar refeição · ${meal.name}`}</DrawerTitle>
-                  <DrawerDescription className="pb-3 text-[13px] text-text-2">Só hoje. O cardápio não muda.</DrawerDescription>
-                  {!groups.length && <p className="text-[13px] text-text-2">Sem refeições em outros cardápios.</p>}
+                  <DrawerTitle className="shrink-0 truncate pb-1 text-title font-semibold text-strong">{`Trocar refeição · ${meal.name}`}</DrawerTitle>
+                  <DrawerDescription className="pb-3 text-meta text-text-2">Só hoje. O cardápio não muda.</DrawerDescription>
+                  {!groups.length && <p className="text-meta text-text-2">Sem refeições em outros cardápios.</p>}
                   {groups.map((g) => (
                     <div key={g.id} className="flex flex-col gap-1.5 pt-3">
                       <h3 className={LABEL}>{g.label}</h3>
-                      <Card variant="inset" className="overflow-hidden"><ul aria-label={g.label}>
+                      <Card size="flush" variant="inset"><ul aria-label={g.label}>
                         {g.rows.map((r) => (
                           <li key={r.id} className="border-t border-line first:border-t-0">
                             <Button variant="ghost" className="h-auto min-h-14 w-full flex-col items-start justify-center gap-0 rounded-none px-3.5 py-2.5 text-left font-normal" onClick={() => { act((d) => swapMeal(d, meal.id, { name: r.name, items: r.items })); setSheet(undefined) }}>
-                              <span className="text-[15px] font-semibold text-strong">{r.title}</span>
-                              <span className="max-w-full truncate text-[12.5px] text-text-2">{`${formatDec(kcalOf(r.items))} kcal · ${r.items.map((i) => i.name).join(' + ')}`}</span>
+                              <span className="text-body font-semibold text-strong">{r.title}</span>
+                              <span className="max-w-full truncate text-caption text-text-2">{`${formatDec(kcalOf(r.items))} kcal · ${r.items.map((i) => i.name).join(' + ')}`}</span>
                             </Button>
                           </li>
                         ))}

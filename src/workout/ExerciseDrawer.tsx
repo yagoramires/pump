@@ -52,8 +52,8 @@ export function ExerciseDrawer({ ex, onChange, onRemove, onMoveUp, onMoveDown, o
         <div className="flex flex-col gap-2 px-4 pb-5">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <DrawerTitle className="text-[19px] font-semibold text-strong">{ex.name}</DrawerTitle>
-              <DrawerDescription className="text-[13px] text-text-2 first-letter:uppercase">{ex.muscles.join(' · ')}</DrawerDescription>
+              <DrawerTitle className="text-title font-semibold text-strong">{ex.name}</DrawerTitle>
+              <DrawerDescription className="text-meta text-text-2 first-letter:uppercase">{ex.muscles.join(' · ')}</DrawerDescription>
             </div>
             <Button variant="ghost" size="icon" aria-label="Mais ações" aria-expanded={menu} onClick={() => setMenu((m) => !m)}><MoreHorizontal size={20} /></Button>
           </div>

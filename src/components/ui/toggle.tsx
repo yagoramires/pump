@@ -17,7 +17,7 @@ const toggleVariants = cva(
       size: {
         default: "h-11 min-w-11 px-3",
         // chip que quebra linha (grades de opções)
-        fill: "h-auto min-h-11 px-2 py-1 text-[13px] leading-tight whitespace-normal",
+        fill: "h-auto min-h-11 px-2 py-1 text-meta leading-tight whitespace-normal",
       },
     },
     defaultVariants: {

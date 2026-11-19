@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ANAMNESIS_STEPS, AnamnesisFlow } from '@/profile/AnamnesisFlow'
 import { Steps } from '@/components/Steps'
+import { Alert } from '@/components/ui/alert'
 
 const ONBOARDING_STEPS = ANAMNESIS_STEPS + 2
 type Step = 'anamnese' | 'treino' | 'editor' | 'ia' | 'convert' | 'dieta'
@@ -87,16 +88,16 @@ export function Onboarding() {
     <div className="flex flex-col gap-3 pb-28">
       <StepHeader n={ANAMNESIS_STEPS + 1} onSkip={toDieta} />
       <BackHeader title="Seu treino" onBack={() => { setAnamneseStep(2); setStep('anamnese') }} className="px-0 py-0" />
-      <Card className="overflow-hidden">
+      <Card size="flush">
         <RadioGroup value={picked} onValueChange={setPicked} aria-label="Planos" className="gap-0">
           {TEMPLATES.map((t) => (
             <Label key={t.id} className={cn('min-h-14 cursor-pointer items-center gap-3 border-t border-line px-3.5 py-2.5 first:border-t-0', t.id === picked && 'bg-accent-bg')}>
               <RadioGroupItem value={t.id} aria-label={t.name} />
               <span className="block min-w-0 flex-1 leading-normal">
-                <span className="block text-[15px] font-semibold text-strong">{t.name}</span>
-                <span className="block text-[13px] font-normal text-text-2">{t.description}</span>
+                <span className="block text-body font-semibold text-strong">{t.name}</span>
+                <span className="block text-meta font-normal text-text-2">{t.description}</span>
               </span>
-              <span className="text-[13px] font-normal text-text-2">{plural(t.workouts.length, 'treino', 'treinos')}</span>
+              <span className="text-meta font-normal text-text-2">{plural(t.workouts.length, 'treino', 'treinos')}</span>
             </Label>
           ))}
         </RadioGroup>
@@ -107,7 +108,7 @@ export function Onboarding() {
         <Button type="button" variant="outline" className="h-16 flex-col gap-1" onClick={() => setStep('convert')}><FileInput size={16} aria-hidden="true" />Converter</Button>
       </div>
       <BottomBar className="flex-col gap-2">
-        {error && <Card role="alert" className="rounded-[10px] px-3 py-2 text-sm text-negative">{error}</Card>}
+        {error && <Alert variant="destructive">{error}</Alert>}
         <Button type="button" onClick={() => void startTemplate()}>{`Usar ${template.name}`}</Button>
       </BottomBar>
     </div>

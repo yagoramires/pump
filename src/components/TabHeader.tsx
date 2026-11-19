@@ -15,7 +15,7 @@ export function TabHeader({ eyebrow, title, actions }: { eyebrow: ReactNode; tit
           {openSettings && <Button type="button" variant="outline" size="icon" aria-label="Configurações" onClick={openSettings}><SettingsIcon aria-hidden="true" /></Button>}
         </div>
       </div>
-      {title && <h1 className="text-[26px] font-bold tracking-tight text-strong">{title}</h1>}
+      {title && <h1 className="text-display font-bold tracking-tight text-strong">{title}</h1>}
     </header>
   )
 }

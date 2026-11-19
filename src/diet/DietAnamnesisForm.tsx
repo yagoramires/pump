@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 type Value = DietAnamnesis
 type EatOut = NonNullable<DietAnamnesis['eatOut']>
 
-const LABEL = 'label-caps tracking-[0.08em]'
+const LABEL = 'label-caps tracking-caps-wide'
 const MEALS = [3, 4, 5, 6, 7]
 const RESTRICTION_LABEL: Record<Restriction, string> = { lactose: 'Sem lactose', gluten: 'Sem glúten', vegetariano: 'Vegetariano', vegano: 'Vegano' }
 const EAT_OUT_LABEL: Record<EatOut, string> = { casa: 'Em casa', fora: 'Fora', misto: 'Misto' }
@@ -16,10 +16,10 @@ const EAT_OUT_LABEL: Record<EatOut, string> = { casa: 'Em casa', fora: 'Fora', m
 export function DietAnamnesisForm({ value, onChange }: { value: Value; onChange: (v: Value) => void }) {
   const set = <K extends keyof Value>(k: K, v: Value[K]) => onChange({ ...value, [k]: v })
   return (
-    <Card role="region" aria-labelledby="anamnese-dieta" className="gap-3 p-3.5">
+    <Card role="region" aria-labelledby="anamnese-dieta" className="gap-3">
       <div>
-        <h2 id="anamnese-dieta" className="text-[15px] font-semibold text-strong">Sobre sua dieta</h2>
-        <p className="text-[13px] text-text-2">Opcional. O que faltar a IA pergunta.</p>
+        <h2 id="anamnese-dieta" className="text-body font-semibold text-strong">Sobre sua dieta</h2>
+        <p className="text-meta text-text-2">Opcional. O que faltar a IA pergunta.</p>
       </div>
       <Chips label="Refeições por dia" options={MEALS} value={value.meals} onChange={(v) => set('meals', v)} />
       <MultiChips label="Restrições" options={RESTRICTION_LABEL} value={value.restrictions} onChange={(v) => set('restrictions', v)} cols="grid-cols-2" />

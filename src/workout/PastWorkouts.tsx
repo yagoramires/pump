@@ -21,7 +21,7 @@ export function PastWorkouts({ onClose }: { onClose: () => void }) {
       {sessions.length === 0 ? (
         <EmptyState icon={<History size={30} aria-hidden="true" />} title="Nenhum treino concluído ainda" />
       ) : (
-        <Card className="overflow-hidden">
+        <Card size="flush">
           <Accordion type="single" collapsible value={open ?? ''} onValueChange={(v) => setOpen(v || undefined)}>
             {sessions.map((s) => (
               <AccordionItem key={s.date} value={s.date} className="border-line">
@@ -38,7 +38,7 @@ export function PastWorkouts({ onClose }: { onClose: () => void }) {
                     return (
                       <div key={i}>
                         <div className="text-sm font-semibold text-strong">{e.name}</div>
-                        {isCardio(e) ? <div className="text-[13px] text-text-2">feito</div> : done.map((d, j) => <div key={j} className="text-[13px] text-text-2 tabular-nums">{`${formatKg(d.weightKg)} kg × ${d.reps}`}</div>)}
+                        {isCardio(e) ? <div className="text-meta text-text-2">feito</div> : done.map((d, j) => <div key={j} className="text-meta text-text-2 tabular-nums">{`${formatKg(d.weightKg)} kg × ${d.reps}`}</div>)}
                       </div>
                     )
                   })}

@@ -16,7 +16,7 @@ export function NumberField({ value, min, max, onChange, unit, ...rest }: Props)
   return (
     <div className="relative">
       {input}
-      <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[13px] text-faint">{unit}</span>
+      <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-meta text-faint">{unit}</span>
     </div>
   )
 }

@@ -124,12 +124,12 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
       <AngleTabs value={ANGLES[i]} onChange={(a) => goTo(ANGLES.indexOf(a))} />
 
       {camOk === false && !preview ? (
-        <Card className="aspect-[3/4] items-center justify-center gap-3 rounded-2xl bg-surface px-6 text-center text-sm text-text-2">
+        <Card variant="inset" className="aspect-3/4 items-center justify-center gap-3 text-center text-meta text-text-2">
           <CameraOff size={28} aria-hidden="true" />
           <p>Câmera indisponível — escolha da galeria.</p>
         </Card>
       ) : (
-        <div className="relative aspect-[3/4] overflow-hidden rounded-2xl border border-border bg-black">
+        <div className="relative aspect-3/4 overflow-hidden rounded-2xl border border-border bg-black">
           {camOk !== false && (
             <video ref={video} playsInline muted autoPlay onLoadedData={() => setReady(true)} className={cn('absolute inset-0 size-full object-cover', facing === 'user' && '-scale-x-100')} />
           )}
@@ -179,7 +179,7 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
               className="mx-auto size-16 rounded-full border-4 border-white bg-transparent p-0 hover:bg-transparent disabled:opacity-40"
               onClick={shutter}
             >
-              <span className="size-[50px] rounded-full bg-white" />
+              <span className="size-12.5 rounded-full bg-white" />
             </Button>
           )}
           <Button type="button" variant="outline" size="sm" className="justify-self-end font-medium" onClick={() => goTo(i + 1)}>Pular</Button>

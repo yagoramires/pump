@@ -17,6 +17,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { NumberField } from '@/components/NumberField'
 import { TimePicker } from '@/components/TimePicker'
 import { copyText } from '@/lib/share'
+import { Alert } from '@/components/ui/alert'
 
 /** "Apagar todos" também chega pelo `onSave`, com o plano vazio */
 type Props = { initial: DietPlan; onSave: (plan: DietPlan) => void; onCancel: () => void }
@@ -115,18 +116,18 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
       <BackHeader title="Cardápio" onBack={onCancel} label="Cancelar">
         <Button size="sm" onClick={save}>Salvar</Button>
       </BackHeader>
-      {error && <Card role="alert" className="border-negative/30 px-3 py-2 text-[13px] text-negative">{error}</Card>}
+      {error && <Alert variant="destructive">{error}</Alert>}
 
       <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Cardápios">
         {plan.menus.map((m) => (
-          <Toggle key={m.id} variant="outline" className="shrink-0 text-[13px]" pressed={m.id === menu.id} onPressedChange={() => setMenuId(m.id)}>
+          <Toggle key={m.id} variant="outline" className="shrink-0 text-meta" pressed={m.id === menu.id} onPressedChange={() => setMenuId(m.id)}>
             {m.name.trim() || 'Sem nome'}
           </Toggle>
         ))}
         <Button variant="outline" size="sm" className="border-dashed border-border-strong text-text-2" disabled={plan.menus.length >= MAX_MENUS} onClick={() => addMenu(newMenu(plan.menus.length + 1))}><Plus aria-hidden="true" /> Novo cardápio</Button>
       </div>
 
-      <Card className="gap-2.5 p-3">
+      <Card size="sm" className="gap-2.5">
         <div className="flex items-center gap-2">
           <Input className="min-w-0 flex-1 font-semibold" aria-label="Nome do cardápio" autoComplete="off" enterKeyHint="done" value={menu.name} onChange={(e) => patchMenu((m) => ({ ...m, name: e.target.value }))} />
           <Button variant="outline" size="icon" aria-label="Duplicar cardápio" disabled={plan.menus.length >= MAX_MENUS} onClick={() => addMenu(copyMenu(menu))}><Copy aria-hidden="true" /></Button>
@@ -139,7 +140,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
         <div className="grid grid-cols-3 gap-2">
           {(['p', 'c', 'f'] as const).map((k) => (
             <label key={k} className="flex flex-col gap-1">
-              <span className="label-caps tracking-[.04em]">{{ p: 'Proteína', c: 'Carbo', f: 'Gordura' }[k]} (g)</span>
+              <span className="label-caps">{{ p: 'Proteína', c: 'Carbo', f: 'Gordura' }[k]} (g)</span>
               <NumberField className="text-center" aria-label={`Meta de ${{ p: 'proteína', c: 'carbo', f: 'gordura' }[k]} em g`} placeholder="—" autoComplete="off" enterKeyHint="done" min={0} max={Infinity} value={menu.goalMacros?.[k] || undefined} onChange={(n) => n !== null && patchMenu((m) => setMacro(m, k, n))} />
             </label>
           ))}
@@ -151,7 +152,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
         const opt = meal.options[oi]
         const kcal = kcalOf(opt.items)
         return (
-          <Card key={meal.id} className="gap-2.5 p-3">
+          <Card size="sm" key={meal.id} className="gap-2.5">
             <div className="flex items-center gap-2">
               <Input className="min-w-0 flex-1 font-semibold" aria-label={`Nome da refeição ${mi + 1}`} autoComplete="off" enterKeyHint="done" value={meal.name} onChange={(e) => patchMeal(meal.id, (m) => ({ ...m, name: e.target.value }))} />
               <TimePicker className="w-28" aria-label={`Horário da refeição ${mi + 1}`} value={meal.time} onChange={(v) => patchMeal(meal.id, (m) => ({ ...m, time: v ?? '' }))} />
@@ -159,12 +160,12 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
               {meal.options.map((o, j) => (
-                <Toggle key={o.id} variant="outline" className="px-2.5 text-[12.5px] font-semibold" pressed={j === oi} onPressedChange={() => setOptOf((s) => ({ ...s, [meal.id]: j }))}>
+                <Toggle key={o.id} variant="outline" className="px-2.5 text-caption font-semibold" pressed={j === oi} onPressedChange={() => setOptOf((s) => ({ ...s, [meal.id]: j }))}>
                   Opção {optionLetter(j)}
                 </Toggle>
               ))}
               {meal.options.length < MAX_OPTIONS && <Button variant="ghost" size="icon" className="text-accent" aria-label={`Adicionar opção na refeição ${mi + 1}`} onClick={() => addOption(meal)}><Plus aria-hidden="true" /></Button>}
-              <span className="ml-auto text-[12.5px] tabular-nums text-text-2">{kcal} kcal</span>
+              <span className="ml-auto text-caption tabular-nums text-text-2">{kcal} kcal</span>
             </div>
             <div className="flex items-center gap-2">
               <Input className="min-w-0 flex-1" aria-label={`Nome da opção da refeição ${mi + 1}`} placeholder={`Nome da opção ${optionLetter(oi)} (opcional)`} autoComplete="off" value={opt.name ?? ''} onChange={(e) => patchOption(meal.id, oi, (o) => ({ ...o, name: e.target.value || undefined }))} />
@@ -174,14 +175,14 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
               {opt.items.map((it, i) => (
                 <li key={it.id} className="flex flex-col gap-1.5 border-t border-line py-2.5">
                   <div className="flex items-baseline gap-2">
-                    <span className="min-w-0 flex-1 truncate text-[14px] text-strong">{it.name}</span>
-                    <span className="text-[12.5px] tabular-nums text-text-2">{Math.round(itemKcal(it))} kcal</span>
+                    <span className="min-w-0 flex-1 truncate text-body text-strong">{it.name}</span>
+                    <span className="text-caption tabular-nums text-text-2">{Math.round(itemKcal(it))} kcal</span>
                   </div>
-                  {iaLabel(it) && <span className="text-[12px] text-c7">{iaLabel(it)}</span>}
+                  {iaLabel(it) && <span className="text-caption text-c7">{iaLabel(it)}</span>}
                   <div className="flex flex-wrap items-center gap-1.5">
                     <Input className="min-w-24 flex-1" aria-label={`Porção de ${it.name}`} placeholder="Porção" autoComplete="off" value={it.portion ?? ''} onChange={(e) => patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, portion: e.target.value || undefined } : x)))} />
                     <NumberField className="w-16 text-center" aria-label={`Gramas de ${it.name}`} autoComplete="off" enterKeyHint="done" min={GRAMS[0]} max={GRAMS[1]} value={it.grams} onChange={(n) => n != null && patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, grams: n } : x)))} />
-                    <span className="text-[12.5px] text-text-2">g</span>
+                    <span className="text-caption text-text-2">g</span>
                     <Button variant="outline" size="icon" aria-label={`Subir ${it.name}`} disabled={i === 0} onClick={() => patchItems(meal.id, oi, (xs) => { const a = [...xs]; [a[i - 1], a[i]] = [a[i], a[i - 1]]; return a })}><ArrowUp aria-hidden="true" /></Button>
                     <Button variant="outline" size="icon" aria-label={`Descer ${it.name}`} disabled={i === opt.items.length - 1} onClick={() => patchItems(meal.id, oi, (xs) => { const a = [...xs]; [a[i], a[i + 1]] = [a[i + 1], a[i]]; return a })}><ArrowDown aria-hidden="true" /></Button>
                     <Button variant="outline" size="icon" aria-label={`Remover ${it.name}`} onClick={() => patchItems(meal.id, oi, (xs) => xs.filter((x) => x.id !== it.id))}><Trash2 aria-hidden="true" /></Button>
@@ -196,7 +197,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
       <Button variant="outline" className="w-full border-dashed border-border-strong text-text-2" disabled={menu.meals.length >= MAX_MEALS} onClick={addMeal}><Plus aria-hidden="true" /> Refeição</Button>
 
       <Button variant="outline" onClick={copy}><Share2 /> Exportar cardápio</Button>
-      {notice && <p className="text-center text-[13px] text-text-2" role="status">{notice}</p>}
+      {notice && <p className="text-center text-meta text-text-2" role="status">{notice}</p>}
       <Button variant="ghost" className="text-negative hover:text-negative" onClick={() => setConfirm('all')}>Apagar todos os cardápios</Button>
 
       {picking && (

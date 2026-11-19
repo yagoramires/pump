@@ -23,8 +23,8 @@ const UNAVAILABLE = <div role="img" aria-label="Foto indisponível" className="a
 
 function Pane({ id, date, now }: { id?: string; date: string; now: boolean }) {
   return (
-    <PhotoThumb id={id} alt={`Foto de ${formatDayMonth(date)}`} className="rounded-[14px]" empty={UNAVAILABLE}>
-      <Badge className={cn('absolute top-2 left-2 rounded-md px-1.5 text-[11px]', now ? 'bg-accent font-bold text-on-accent' : 'bg-black/60 font-normal text-white')}>{formatDayMonth(date)}</Badge>
+    <PhotoThumb id={id} alt={`Foto de ${formatDayMonth(date)}`} className="rounded-card" empty={UNAVAILABLE}>
+      <Badge className={cn('absolute top-2 left-2 rounded-md px-1.5 text-caption', now ? 'bg-accent font-bold text-on-accent' : 'bg-black/60 font-normal text-white')}>{formatDayMonth(date)}</Badge>
     </PhotoThumb>
   )
 }
@@ -72,13 +72,13 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
       </div>
 
       {shown.length > 0 && (
-        <Card className="overflow-hidden">
+        <Card size="flush">
           {shown.map((r, k) => (
             <div key={r.metric} className={cn('flex items-center justify-between gap-3 px-3.5 py-2.5 text-sm', k > 0 && 'border-t border-line')}>
               <span className="text-text-2">{r.label}</span>
               <span className="tabular-nums">
                 <b className="font-semibold text-strong">{`${r.fmt(r.from)} → ${r.fmt(r.to)}${r.unit}`}</b>
-                <Delta value={r.d} good={isGood(r.metric, dir, r.d)} unit={r.delta} className="ml-2 text-[13px]" />
+                <Delta value={r.d} good={isGood(r.metric, dir, r.d)} unit={r.delta} className="ml-2 text-meta" />
               </span>
             </div>
           ))}
@@ -89,7 +89,7 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
       <Drawer open={!!picking} onOpenChange={(o) => !o && setPicking(undefined)}>
         <DrawerContent>
           <div className="overflow-y-auto px-4 pb-5">
-            <DrawerTitle className="pt-1 pb-3 text-[19px] font-semibold text-strong">{picking === 'before' ? 'Antes' : 'Depois'}</DrawerTitle>
+            <DrawerTitle className="pt-1 pb-3 text-title font-semibold text-strong">{picking === 'before' ? 'Antes' : 'Depois'}</DrawerTitle>
             <DrawerDescription className="sr-only">Escolha o registro de fotos</DrawerDescription>
             {sorted.map((s) => {
               const on = s.id === (picking === 'before' ? before : after).id
