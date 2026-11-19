@@ -66,7 +66,14 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   }
 
   const commit = (next: DietPlan) => {
-    replacePlan(next)
+    // mantém o id do cardápio de mesmo nome pra não zerar o último usado; cada id antigo vale uma vez só
+    const taken = new Set<string>()
+    const menus = next.menus.map((m) => {
+      const old = saved.menus.find((o) => o.name === m.name && !taken.has(o.id))
+      if (old) taken.add(old.id)
+      return old ? { ...m, id: old.id } : m
+    })
+    replacePlan({ ...next, menus })
     onDone()
   }
   const offer = (next: DietPlan) => (saved.menus.length && next.menus.length ? setReplacing(next) : commit(next))

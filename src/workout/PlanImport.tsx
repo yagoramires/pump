@@ -53,7 +53,14 @@ export function PlanImport({ mode, onDone, onBack }: { mode: 'ia' | 'convert'; o
     const used = new Set(saved.workouts.flatMap((w) => w.exercises.map((e) => e.exerciseId)))
     const added = review && !review.offline ? review.newCustoms.filter((c) => used.has(c.id)) : []
     if (added.length) setCustoms((prev) => [...prev, ...added])
-    setPlan(saved)
+    // mantém o id do treino de mesma letra pra não zerar a rotação; cada id antigo vale uma vez só
+    const taken = new Set<string>()
+    const workouts = saved.workouts.map((w) => {
+      const old = plan.workouts.find((o) => o.label === w.label && !taken.has(o.id))
+      if (old) taken.add(old.id)
+      return old ? { ...w, id: old.id } : w
+    })
+    setPlan({ ...saved, workouts })
     onDone()
   }
 

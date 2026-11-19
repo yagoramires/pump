@@ -117,6 +117,7 @@ test('ajustar dieta: leva regras e o cardápio atual, e a importação lê o tex
   expect(p).toContain('Mude só o que eu pedir')
   expect(p).toContain(FOOD_LIST_URL)
   expect(p).toContain(COPYABLE_JSON_RULE)
+  expect(p).toContain('Os valores (kcal, proteinaG, carboG, gorduraG) são da quantidade em gramas, não por 100 g: se mudar as gramas ou incluir um alimento, recalcule esses valores.')
   expect(p).toContain('"07:00"')
   expect(parseDietFormat(p).cardapios[0].nome).toBe('Corte')
 })
