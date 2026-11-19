@@ -4,6 +4,8 @@ import { toast } from 'sonner'
 import { savePhoto } from '@/storage/photos'
 import { formatDayMonth } from '@/lib/date'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Toggle } from '@/components/ui/toggle'
 import { Overlay } from '@/components/Overlay'
 import { BackHeader } from '@/components/BackHeader'
 import { cn } from '@/lib/utils'
@@ -12,7 +14,7 @@ import { usePhotoSets } from './photoSets'
 import { AngleTabs } from './AngleTabs'
 import { fileToJpeg, videoToJpeg } from './resize'
 
-const PILL = 'flex h-11 items-center justify-self-start rounded-[10px] border border-border px-3.5 text-[13px] font-medium text-text'
+const OVER = 'absolute top-2 size-11 rounded-full bg-black/50 text-white hover:bg-black/50 hover:text-white'
 const COUNTDOWN_S = 5
 // sem contexto seguro (http) ou navegador antigo, navigator.mediaDevices/getUserMedia não existe
 const hasCamera = () => typeof navigator.mediaDevices?.getUserMedia === 'function'
@@ -118,17 +120,16 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
   return (
     <Overlay>
       <BackHeader title={`Fotos · ${formatDayMonth(date)}`} onBack={close} />
-      <div className="mt-2">
-        <AngleTabs value={ANGLES[i]} onChange={(a) => goTo(ANGLES.indexOf(a))} />
-      </div>
+      <div className="flex flex-col gap-3">
+      <AngleTabs value={ANGLES[i]} onChange={(a) => goTo(ANGLES.indexOf(a))} />
 
       {camOk === false && !preview ? (
-        <div className="mb-3 flex aspect-[3/4] flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-surface px-6 text-center text-sm text-text-2">
+        <Card className="aspect-[3/4] items-center justify-center gap-3 rounded-2xl bg-surface px-6 text-center text-sm text-text-2">
           <CameraOff size={28} aria-hidden="true" />
           <p>Câmera indisponível — escolha da galeria.</p>
-        </div>
+        </Card>
       ) : (
-        <div className="relative mb-3 aspect-[3/4] overflow-hidden rounded-2xl border border-border bg-black">
+        <div className="relative aspect-[3/4] overflow-hidden rounded-2xl border border-border bg-black">
           {camOk !== false && (
             <video ref={video} playsInline muted autoPlay onLoadedData={() => setReady(true)} className={cn('absolute inset-0 size-full object-cover', facing === 'user' && '-scale-x-100')} />
           )}
@@ -138,18 +139,17 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
             <>
               <Silhouette />
               {count !== undefined && <span aria-live="polite" className="absolute inset-0 flex items-center justify-center text-7xl font-bold text-strong tabular-nums">{count}</span>}
-              <button
-                type="button"
+              <Toggle
                 aria-label={`Temporizador ${COUNTDOWN_S} s`}
-                aria-pressed={timer}
-                className={cn('absolute top-2 left-2 flex size-11 items-center justify-center rounded-full bg-black/50', timer ? 'text-accent' : 'text-white')}
-                onClick={() => { cancelCount(); setTimer((t) => !t) }}
+                pressed={timer}
+                className={cn(OVER, 'left-2 data-[state=on]:bg-black/50 data-[state=on]:text-accent')}
+                onPressedChange={() => { cancelCount(); setTimer((t) => !t) }}
               >
                 <Timer size={20} aria-hidden="true" />
-              </button>
-              <button type="button" aria-label="Trocar câmera" className="absolute top-2 right-2 flex size-11 items-center justify-center rounded-full bg-black/50 text-white" onClick={flip}>
+              </Toggle>
+              <Button type="button" variant="ghost" size="icon" aria-label="Trocar câmera" className={cn(OVER, 'right-2')} onClick={flip}>
                 <SwitchCamera size={20} aria-hidden="true" />
-              </button>
+              </Button>
             </>
           )}
         </div>
@@ -157,31 +157,35 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
 
       {preview ? (
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="outline" className="h-11 rounded-[13px] font-bold" onClick={() => setPreview(undefined)}>Refazer</Button>
-          <Button className="h-11 rounded-[13px] font-bold" disabled={saving} onClick={() => void use()}>Usar</Button>
+          <Button variant="outline" onClick={() => setPreview(undefined)}>Refazer</Button>
+          <Button disabled={saving} onClick={() => void use()}>Usar</Button>
         </div>
       ) : (
         <div className="grid grid-cols-3 items-center">
-          <label className={cn(PILL, 'focus-within:ring-2 focus-within:ring-accent/40')}>
-            Galeria
-            <input type="file" accept="image/*" aria-label="Escolher da galeria" className="sr-only" onChange={pick} />
-          </label>
+          <Button asChild variant="outline" size="sm" className="cursor-pointer justify-self-start font-medium focus-within:ring-[3px] focus-within:ring-ring/50">
+            <label>
+              Galeria
+              <input type="file" accept="image/*" aria-label="Escolher da galeria" className="sr-only" onChange={pick} />
+            </label>
+          </Button>
           {camOk === false ? (
             <span />
           ) : (
-            <button
+            <Button
               type="button"
+              variant="ghost"
               aria-label="Tirar foto"
               disabled={!ready || count !== undefined}
-              className="mx-auto flex size-16 items-center justify-center rounded-full border-4 border-white disabled:opacity-40"
+              className="mx-auto size-16 rounded-full border-4 border-white bg-transparent p-0 hover:bg-transparent disabled:opacity-40"
               onClick={shutter}
             >
               <span className="size-[50px] rounded-full bg-white" />
-            </button>
+            </Button>
           )}
-          <button type="button" className={cn(PILL, 'justify-self-end')} onClick={() => goTo(i + 1)}>Pular</button>
+          <Button type="button" variant="outline" size="sm" className="justify-self-end font-medium" onClick={() => goTo(i + 1)}>Pular</Button>
         </div>
       )}
+      </div>
     </Overlay>
   )
 }

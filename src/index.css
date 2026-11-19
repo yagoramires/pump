@@ -92,20 +92,8 @@ body { background: var(--color-bg); color: var(--color-text); font-family: var(-
 *::-webkit-scrollbar { display: none; }
 
 /* botão de ícone em caixa de 34px (mockup .icb); o ::after leva o toque a 44px */
-@utility icon-btn {
-  position: relative; display: flex; flex: none; align-items: center; justify-content: center;
-  width: 34px; height: 34px; border-radius: 10px;
-  border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-2);
-  &::after { content: ''; position: absolute; inset: -6px; }
-}
-
 @utility label-caps {
   font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--color-faint);
-}
-
-/* superfície de cartão (painel com borda) */
-@utility card {
-  @apply rounded-[14px] border border-border bg-panel;
 }
 
 @layer base {

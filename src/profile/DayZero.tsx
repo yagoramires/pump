@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Camera } from 'lucide-react'
 import type { Profile } from '@/profile/types'
+import { Button } from '@/components/ui/button'
 import { usePersisted } from '@/storage/db'
 import { todayKey } from '@/lib/date'
 import { checkInDayOf } from '@/evolution/checkIn'
@@ -22,16 +23,16 @@ export function DayZero({ profile, onDone }: { profile: Profile; onDone: (checkI
     <>
       {capturing && <PhotoCapture date={today} onClose={() => setCapturing(false)} />}
       <MeasureForm date={today} profile={profile} needWeight submitLabel="Continuar" onSaved={() => onDone(day)}>
-        <div className="mt-4 grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {ANGLES.map((a) => (
-            <button key={a} type="button" aria-label={ANGLE_LABEL[a]} onClick={() => setCapturing(true)} className="overflow-hidden rounded-[11px] border border-border text-[12px] text-text-2">
+            <Button key={a} type="button" variant="outline" aria-label={ANGLE_LABEL[a]} onClick={() => setCapturing(true)} className="block h-auto overflow-hidden rounded-[11px] p-0 text-[12px] font-normal text-text-2 has-[>svg]:px-0">
               <PhotoThumb id={todaySet?.[a]} alt={ANGLE_LABEL[a]} empty={<Camera size={18} className="absolute inset-0 m-auto text-faint" />}>
                 <span className="absolute inset-x-0 bottom-0 bg-bg/70 py-0.5 text-center">{ANGLE_LABEL[a]}</span>
               </PhotoThumb>
-            </button>
+            </Button>
           ))}
         </div>
-        <div className="mt-4"><CheckInDayChips value={day} onChange={setDay} /></div>
+        <CheckInDayChips value={day} onChange={setDay} />
       </MeasureForm>
     </>
   )

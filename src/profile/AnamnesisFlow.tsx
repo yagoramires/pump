@@ -23,12 +23,12 @@ export function AnamnesisFlow({ step: initial = 0, total, onDone, onCancel, foot
   return (
     <div className="flex flex-col gap-4 pb-20">
       {step === 0 && !onCancel ? (
-        <div>
+        <div className="flex flex-col gap-3">
           <Steps n={1} total={total} />
           <h1 className="text-[26px] font-bold tracking-tight text-strong">{title}</h1>
         </div>
       ) : (
-        <div>
+        <div className="flex flex-col gap-3">
           <Steps n={step + 1} total={total} />
           <BackHeader title={title} onBack={() => (step ? setStep(step - 1) : onCancel?.())} className="py-0" />
         </div>

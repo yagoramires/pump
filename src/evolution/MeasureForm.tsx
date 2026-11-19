@@ -4,6 +4,9 @@ import type { MeasureFields } from './types'
 import { usePersisted } from '@/storage/db'
 import { formatInput, parseDecimal } from '@/lib/number'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { bodyFat } from './bodyFat'
 import { FIELDS, upsertMeasurement, type UpsertStatus } from './measurements'
 
@@ -27,13 +30,13 @@ export function MeasureForm({ date, profile: draft, onSaved, submitLabel = 'Salv
   const fat = bodyFat(profile.sex, profile.heightCm, Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== null)))
 
   return (
-    <>
+    <div className="flex flex-col gap-2">
       {fields.map(({ key, label, unit }) => (
-        <label key={key} className="flex items-center justify-between gap-3 border-t border-line py-2">
-          <span className="text-sm text-text-2">{label}</span>
-          <span className="flex h-11 w-[120px] items-center rounded-[11px] border border-border bg-surface pr-3 focus-within:ring-2 focus-within:ring-accent/40 has-[[aria-invalid]]:border-negative">
-            <input
-              className="h-full min-w-0 flex-1 bg-transparent pl-3 text-base font-semibold tabular-nums text-strong outline-none"
+        <Label key={key} className="justify-between gap-3 border-t border-line pt-2 text-sm font-normal normal-case tracking-normal text-text-2">
+          {label}
+          <span className="relative w-[120px]">
+            <Input
+              className="pr-9 font-semibold tabular-nums"
               inputMode="decimal"
               enterKeyHint="done"
               autoComplete="off"
@@ -43,20 +46,20 @@ export function MeasureForm({ date, profile: draft, onSaved, submitLabel = 'Salv
               onFocus={select}
               onChange={(e) => setText((t) => ({ ...t, [key]: e.target.value }))}
             />
-            <small className="text-xs text-faint">{unit}</small>
+            <small className="absolute top-1/2 right-3 -translate-y-1/2 text-xs text-faint">{unit}</small>
           </span>
-        </label>
+        </Label>
       ))}
-      <div className="mt-2 flex items-center justify-between rounded-[11px] border border-border bg-surface px-3 py-2.5 text-[13px] text-text-2">
+      <Card className="flex-row items-center justify-between rounded-[11px] bg-surface px-3 py-2.5 text-[13px] text-text-2">
         <span>% de gordura (estimativa)</span>
         <b className={fat === null ? 'text-text-2' : 'text-accent'}>{fat === null ? '—' : `${formatInput(fat)}%`}</b>
-      </div>
+      </Card>
       {children}
-      <Button className="mt-3 h-11 w-full rounded-[13px] font-bold" disabled={invalid.length > 0 || (needWeight && !parsed.weightKg)} onClick={() => {
+      <Button className="w-full" disabled={invalid.length > 0 || (needWeight && !parsed.weightKg)} onClick={() => {
         const { list: next, status } = upsertMeasurement(list, date, parsed)
         if (status !== 'same') setList(next)
         onSaved(status)
       }}>{submitLabel}</Button>
-    </>
+    </div>
   )
 }

@@ -6,6 +6,7 @@ import { loadPhoto } from '@/storage/photos'
 import { daysBetween, formatDayMonth } from '@/lib/date'
 import { formatDec, formatKg, plural } from '@/lib/number'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { EmptyState } from '@/components/EmptyState'
@@ -34,17 +35,16 @@ import { generatePdf } from './pdf/generate'
 import { shareFile } from '@/lib/share'
 
 type View = 'checkin' | 'anamnesis' | 'capture' | 'compare' | 'achievements' | 'history'
-const CARD = 'mb-2.5 overflow-hidden card'
-const LINK = 'h-11 px-1 text-[13px] font-medium text-accent disabled:text-faint'
+const LINK = 'px-1 text-[13px] text-accent disabled:text-faint'
 const RANGES = [{ v: '30', label: '30 d' }, { v: '90', label: '90 d' }, { v: 'all', label: 'Tudo' }]
 const KPI: Metric[] = ['weightKg', 'fat']
 function Kpi({ label, value, children }: { label: string; value: string; children: ReactNode }) {
   return (
-    <div className="min-w-0 rounded-xl border border-border bg-panel px-3 py-2.5">
+    <Card className="min-w-0 gap-0.5 rounded-xl px-3 py-2.5">
       <div className="text-xs text-faint">{label}</div>
-      <div className="mt-0.5 text-lg font-semibold text-strong tabular-nums">{value}</div>
-      <div className="mt-px text-[13px] tabular-nums">{children}</div>
-    </div>
+      <div className="text-lg font-semibold text-strong tabular-nums">{value}</div>
+      <div className="text-[13px] tabular-nums">{children}</div>
+    </Card>
   )
 }
 
@@ -69,12 +69,12 @@ export function EvolutionTab() {
     <>
       <Drawer open={choosing} onOpenChange={setChoosing}>
         <DrawerContent>
-          <div className="px-4 pb-5">
-            <DrawerTitle className="pt-1 pb-3 text-[19px] font-semibold text-strong">Registrar</DrawerTitle>
+          <div className="flex flex-col gap-3 px-4 pb-5">
+            <DrawerTitle className="pt-1 text-[19px] font-semibold text-strong">Registrar</DrawerTitle>
             <DrawerDescription className="sr-only">Escolha o que registrar hoje</DrawerDescription>
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" className="h-20 flex-col gap-1.5 rounded-[14px] bg-surface" onClick={() => { setChoosing(false); setMeasuring(true) }}><Ruler aria-hidden="true" className="size-5" />Medidas</Button>
-              <Button variant="outline" className="h-20 flex-col gap-1.5 rounded-[14px] bg-surface" onClick={() => { setChoosing(false); setView('capture') }}><Camera aria-hidden="true" className="size-5" />Fotos</Button>
+              <Button variant="outline" className="h-20 flex-col gap-1.5 bg-surface" onClick={() => { setChoosing(false); setMeasuring(true) }}><Ruler aria-hidden="true" className="size-5" />Medidas</Button>
+              <Button variant="outline" className="h-20 flex-col gap-1.5 bg-surface" onClick={() => { setChoosing(false); setView('capture') }}><Camera aria-hidden="true" className="size-5" />Fotos</Button>
             </div>
           </div>
         </DrawerContent>
@@ -84,24 +84,26 @@ export function EvolutionTab() {
   )
 
   const cards = (
-    <>
-      {anamnesisPending && <AnamnesisCard onStart={() => setView('anamnesis')} />}
-      {due && <CheckInCard due={due} today={today} onStart={() => setView('checkin')} />}
-    </>
+    (anamnesisPending || due) && (
+      <>
+        {anamnesisPending && <AnamnesisCard onStart={() => setView('anamnesis')} />}
+        {due && <CheckInCard due={due} today={today} onStart={() => setView('checkin')} />}
+      </>
+    )
   )
 
   const report = buildReport(input, today)
   const { period, training, body, lastSet } = report
   if (!training.workouts && !input.measurements.length && !input.photoSets.length && !report.hasDiet) {
     return (
-      <>
+      <div className="flex flex-col gap-2.5">
         {cards}
         <EmptyState icon={<TrendingUp size={30} aria-hidden="true" />} title="Sua evolução começa aqui">
           <p className="max-w-[260px] text-sm text-text-2">Registre peso, medidas e fotos pra acompanhar.</p>
-          <Button className="mt-2 w-full max-w-xs" onClick={() => setChoosing(true)}>Registrar</Button>
+          <Button className="w-full max-w-xs" onClick={() => setChoosing(true)}>Registrar</Button>
         </EmptyState>
         {drawers}
-      </>
+      </div>
     )
   }
 
@@ -131,12 +133,14 @@ export function EvolutionTab() {
   }
 
   return (
-    <div className="pb-24">
-      <div className="label-caps">{`Desde ${formatDayMonth(period.start)} · ${plural(period.days, 'dia', 'dias')}`}</div>
-      <h1 className="mt-0.5 mb-3 text-[26px] font-bold tracking-tight text-strong">Evolução</h1>
+    <div className="flex flex-col gap-2.5 pb-24">
+      <div className="flex flex-col gap-0.5 pb-0.5">
+        <div className="label-caps">{`Desde ${formatDayMonth(period.start)} · ${plural(period.days, 'dia', 'dias')}`}</div>
+        <h1 className="text-[26px] font-bold tracking-tight text-strong">Evolução</h1>
+      </div>
       {cards}
 
-      <div className="mb-2.5 grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         <Kpi label={WEIGHT.label} value={weight ? `${formatKg(weight.last.value)} ${WEIGHT.unit}` : '—'}>
           <Delta value={change(weight)} good={!!weight?.good} unit={WEIGHT.unit} />
         </Kpi>
@@ -148,20 +152,20 @@ export function EvolutionTab() {
         </Kpi>
       </div>
 
-      <div className={CARD}>
-        <div className="flex items-center justify-between pl-3.5 pr-2">
+      <Card className="overflow-hidden">
+        <div className="flex min-h-11 items-center justify-between pl-3.5 pr-2">
           <span className="text-[15px] font-semibold text-strong">Peso</span>
-          <ToggleGroup type="single" value={range} onValueChange={(v) => v && setRange(v)} aria-label="Período do gráfico">
+          <ToggleGroup type="single" variant="segmented" value={range} onValueChange={(v) => v && setRange(v)} aria-label="Período do gráfico">
             {RANGES.map((r) => (
-              <ToggleGroupItem key={r.v} value={r.v} className="h-11 min-w-11 px-2 text-[13px] font-medium text-faint data-[state=on]:bg-transparent data-[state=on]:text-accent">{r.label}</ToggleGroupItem>
+              <ToggleGroupItem key={r.v} value={r.v} className="h-11 min-w-11 px-2">{r.label}</ToggleGroupItem>
             ))}
           </ToggleGroup>
         </div>
         <div className="px-3.5 pb-3"><WeightChart points={points} empty={weights.length >= 2 ? 'Poucos registros nesse período' : undefined} /></div>
-      </div>
+      </Card>
 
       {rows.length > 0 && (
-        <div className={CARD}>
+        <Card className="overflow-hidden">
           <div className="px-3.5 pt-3 pb-2 text-[15px] font-semibold text-strong">Medidas</div>
           {rows.map((r) => (
             <div key={r.key} className="flex items-center justify-between gap-3 border-t border-line px-3.5 py-2.5 text-sm">
@@ -172,17 +176,17 @@ export function EvolutionTab() {
               </span>
             </div>
           ))}
-        </div>
+        </Card>
       )}
 
       {report.hasDiet && <DietCard log={input.dietLog} water={input.waterLog} today={today} />}
 
-      <div className={CARD}>
-        <div className="flex items-center justify-between pl-3.5 pr-2">
+      <Card className="overflow-hidden">
+        <div className="flex min-h-11 items-center justify-between pl-3.5 pr-2">
           <span className="text-[15px] font-semibold text-strong">Fotos</span>
           <span className="flex gap-2">
-            <button type="button" className={LINK} onClick={() => setView('capture')}>Nova foto</button>
-            <button type="button" className={LINK} disabled={input.photoSets.length < 2} onClick={() => setView('compare')}>Comparar</button>
+            <Button type="button" variant="ghost" size="sm" className={LINK} onClick={() => setView('capture')}>Nova foto</Button>
+            <Button type="button" variant="ghost" size="sm" className={LINK} disabled={input.photoSets.length < 2} onClick={() => setView('compare')}>Comparar</Button>
           </span>
         </div>
         <div className="grid grid-cols-3 gap-2 px-3.5 pb-3.5">
@@ -192,12 +196,12 @@ export function EvolutionTab() {
             </PhotoThumb>
           ))}
         </div>
-      </div>
+      </Card>
 
-      <div className={CARD}>
-        <div className="flex items-center justify-between pl-3.5 pr-2">
+      <Card className="overflow-hidden">
+        <div className="flex min-h-11 items-center justify-between pl-3.5 pr-2">
           <span className="text-[15px] font-semibold text-strong">Conquistas</span>
-          <button type="button" className={LINK} onClick={() => setView('achievements')}>Ver todas</button>
+          <Button type="button" variant="ghost" size="sm" className={LINK} onClick={() => setView('achievements')}>Ver todas</Button>
         </div>
         <div className="flex gap-2.5 px-3.5 pb-3.5">
           {Array.from({ length: 4 }, (_, i) => earned[i]).map((x, i) =>
@@ -208,23 +212,23 @@ export function EvolutionTab() {
             ),
           )}
         </div>
-      </div>
+      </Card>
 
-      <div className={CARD}>
-        <button type="button" className="flex min-h-14 w-full items-center gap-3 px-3.5 py-2 text-left" onClick={() => setView('history')}>
+      <Card className="overflow-hidden">
+        <Button type="button" variant="ghost" className="h-auto min-h-14 w-full justify-start gap-3 rounded-none px-3.5 py-2 text-left" onClick={() => setView('history')}>
           <IconDot size={36} color="var(--c2)"><CalendarDays size={18} aria-hidden="true" /></IconDot>
           <span className="flex-1 text-[15px] font-semibold text-strong">Histórico</span>
           <ChevronRight size={18} className="text-faint" aria-hidden="true" />
-        </button>
-      </div>
+        </Button>
+      </Card>
 
       <div className="pointer-events-none fixed bottom-[calc(var(--nav-h)+env(safe-area-inset-bottom))] left-1/2 h-24 w-full max-w-md -translate-x-1/2 bg-linear-to-b from-transparent to-bg to-60%" />
       <div className="fixed bottom-[calc(var(--nav-h)+12px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) flex w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 gap-2">
-        <Button variant="secondary" className="h-11 flex-1 rounded-[13px] border border-border font-bold" onClick={() => setChoosing(true)}><Plus aria-hidden="true" /> Registrar</Button>
+        <Button variant="outline" className="flex-1" onClick={() => setChoosing(true)}><Plus aria-hidden="true" /> Registrar</Button>
         {blob ? (
-          <Button className="h-11 flex-1 rounded-[13px] font-bold" onClick={() => shareFile(new File([blob], `pump-evolucao-${today}.pdf`, { type: 'application/pdf' })).catch(() => toast.error('Não consegui compartilhar o PDF'))}><Share2 aria-hidden="true" /> Compartilhar PDF</Button>
+          <Button className="flex-1" onClick={() => shareFile(new File([blob], `pump-evolucao-${today}.pdf`, { type: 'application/pdf' })).catch(() => toast.error('Não consegui compartilhar o PDF'))}><Share2 aria-hidden="true" /> Compartilhar PDF</Button>
         ) : (
-          <Button className="h-11 flex-1 rounded-[13px] font-bold" disabled={busy} onClick={() => void makePdf()}><FileText aria-hidden="true" /> {busy ? 'Gerando…' : 'Gerar PDF'}</Button>
+          <Button className="flex-1" disabled={busy} onClick={() => void makePdf()}><FileText aria-hidden="true" /> {busy ? 'Gerando…' : 'Gerar PDF'}</Button>
         )}
       </div>
       {drawers}

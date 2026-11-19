@@ -2,6 +2,7 @@ import { lazy, Suspense, use, useEffect, useState } from 'react'
 import { Settings as SettingsIcon, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Toaster } from '@/components/ui/sonner'
 import { BottomNav } from '@/shell/BottomNav'
 import { InstallGate } from '@/shell/InstallGate'
@@ -46,10 +47,10 @@ function Shell() {
   }, [])
 
   const banner = storageError && (
-    <div role="alert" className="fixed inset-x-2 top-[max(0.5rem,env(safe-area-inset-top))] z-(--z-header) mx-auto flex max-w-md items-center gap-2 rounded-[14px] border border-negative/30 bg-panel py-1 pr-1 pl-4 text-[13px] text-negative">
+    <Card role="alert" className="fixed inset-x-2 top-[max(0.5rem,env(safe-area-inset-top))] z-(--z-header) mx-auto max-w-md flex-row items-center gap-2 border-negative/30 py-1 pr-1 pl-4 text-[13px] text-negative">
       <span className="flex-1">Não consegui salvar: {storageError}</span>
-      <button type="button" className="flex size-11 items-center justify-center" aria-label="Fechar aviso" onClick={() => setStorageError(undefined)}><X size={18} /></button>
-    </div>
+      <Button type="button" variant="ghost" size="icon" aria-label="Fechar aviso" onClick={() => setStorageError(undefined)}><X size={18} /></Button>
+    </Card>
   )
 
   if (isIOS() && !isStandalone() && !settings.installDismissed) {
@@ -63,17 +64,17 @@ function Shell() {
       {banner}
       <PreviewSync />
       {backupDue(settings, todayKey()) && (
-        <div className="mx-auto mt-3 max-w-md px-4"><div className="flex items-center gap-2 rounded-xl border border-accent-line bg-accent-bg py-1 pr-1 pl-3.5 text-[13px] text-text">
+        <div className="mx-auto mt-3 max-w-md px-4"><Card className="flex-row items-center gap-2 rounded-xl border-accent-line bg-accent-bg py-1 pr-1 pl-3.5 text-[13px] text-text">
           <span className="flex-1">{`Faz ${daysWithoutBackup(settings, todayKey())} dias sem backup`}</span>
           <Button type="button" variant="ghost" size="sm" className="text-accent" onClick={backup.send}>Enviar backup</Button>
-        </div></div>
+        </Card></div>
       )}
       <main className={MAIN}>
         {showSettings ? (
           <SettingsScreen onClose={() => setShowSettings(false)} />
         ) : (
           <>
-            <button type="button" className="icon-btn float-right mt-(--gear-offset)" aria-label="Configurações" onClick={() => setShowSettings(true)}><SettingsIcon size={17} /></button>
+            <Button type="button" variant="outline" size="icon" className="float-right mt-(--gear-offset)" aria-label="Configurações" onClick={() => setShowSettings(true)}><SettingsIcon size={17} /></Button>
             {tab === 'treino' ? <TreinoTab /> : tab === 'evolucao' ? <EvolutionTab /> : <Suspense fallback={<Loading />}><DietTab /></Suspense>}
           </>
         )}

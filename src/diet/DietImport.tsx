@@ -168,7 +168,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
     <div className="flex flex-col gap-3 pb-28">
       <BackHeader title={mode === 'ia' ? 'Gerar com IA' : 'Converter dieta'} onBack={onBack} className="min-h-11" />
       {mode === 'ia' && <DietAnamnesisForm value={anamnesis} onChange={setEdited} />}
-      <div className="overflow-hidden card">
+      <Card className="overflow-hidden">
         {mode === 'ia'
           ? <Step n={1} title="Copie o prompt" sub="Botão lá embaixo; cole no ChatGPT" />
           : (
@@ -178,7 +178,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
           )}
         {mode === 'convert' && <Step n={2} title="Mande pra sua IA junto com sua dieta" sub="PDF, foto ou texto" />}
         <Step n={mode === 'ia' ? 2 : 3} title="Cole a resposta aqui" sub="Pode colar o texto todo ou escolher o arquivo" />
-      </div>
+      </Card>
       <CopyListButton file="alimentos.txt" noun="alimentos" copy={(t) => copy(t, 'Lista copiada')} fail={toast} />
       <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", "dieta": ... }'>
         {paste.reviewing && <p role="status" className="text-[13px] text-text-2">Conferindo na TACO…</p>}

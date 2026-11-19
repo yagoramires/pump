@@ -4,6 +4,8 @@ import { WEEKDAY_LONG, formatDayMonth, todayKey, weekday } from '@/lib/date'
 import { formatKg, formatSigned, plural } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 import { BackHeader } from '@/components/BackHeader'
 import { MeasureForm } from './MeasureForm'
 import { PhotoCapture } from './PhotoCapture'
@@ -36,9 +38,9 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
   }
   if (!s) return null
   return (
-    <div>
+    <div className="flex flex-col gap-3">
       <BackHeader title={`Semana ${s.week}`} onBack={onClose} />
-      <div className="card mt-3 p-4">
+      <Card className="p-4">
         {s.sincePrev === undefined ? (
           <div className="text-[28px] font-semibold text-strong tabular-nums">{`${formatKg(s.weight)} kg`}</div>
         ) : (
@@ -48,19 +50,23 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
           </>
         )}
         {s.rows.map((r) => (
-          <div key={r.label} className="flex items-center justify-between border-t border-line py-2 text-sm">
-            <span className="text-text-2">{r.label}</span>
-            <Delta value={r.delta} good={r.good} unit={r.unit} />
+          <div key={r.label}>
+            <Separator />
+            <div className="flex items-center justify-between py-2 text-sm">
+              <span className="text-text-2">{r.label}</span>
+              <Delta value={r.delta} good={r.good} unit={r.unit} />
+            </div>
           </div>
         ))}
-        <div className="flex items-center justify-between border-t border-line py-2 text-sm">
+        <Separator />
+        <div className="flex items-center justify-between py-2 text-sm">
           <span className="text-text-2">Fotos · {s.photos} de {ANGLES.length}</span>
         </div>
         {s.sinceStart !== undefined && (
           <p className="text-[13px] text-text-2">{`Desde o dia zero: ${formatSigned(s.sinceStart)} kg em ${plural(s.week, 'semana', 'semanas')}.`}</p>
         )}
-      </div>
-      <div className="mt-4 grid gap-2">
+      </Card>
+      <div className="grid gap-2">
         <Button onClick={onClose}>Pronto</Button>
         <Button variant="outline" onClick={() => setStep('compare')}>Comparar fotos</Button>
       </div>
@@ -71,10 +77,10 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
 export function CheckInCard({ due, today, onStart }: { due: string; today: string; onStart: () => void }) {
   const dia = WEEKDAY_LONG[weekday(due)]
   return (
-    <div className="card mb-2.5 border-accent p-4">
+    <Card className="gap-1 border-accent p-4">
       <h2 className="text-[15px] font-semibold text-strong">Atualizar semana</h2>
-      <p className="mt-1 text-[13px] text-text-2">{`${due === today ? 'Hoje é' : 'Era'} ${dia}, seu dia de atualizar.`}</p>
-      <Button className="mt-3 w-full" onClick={onStart}>Atualizar</Button>
-    </div>
+      <p className="text-[13px] text-text-2">{`${due === today ? 'Hoje é' : 'Era'} ${dia}, seu dia de atualizar.`}</p>
+      <Button className="mt-2 w-full" onClick={onStart}>Atualizar</Button>
+    </Card>
   )
 }

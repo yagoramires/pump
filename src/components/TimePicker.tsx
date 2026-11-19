@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Toggle } from '@/components/ui/toggle'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 
@@ -30,7 +31,7 @@ export function TimePicker({ id, value, onChange, placeholder = '--:--', 'aria-l
     <ScrollArea className="h-56 flex-1">
       <div role="group" aria-label={label} className="flex flex-col gap-1 pr-2">
         {items.map((v) => (
-          <Button key={v} type="button" size="sm" variant={v === current ? 'default' : 'ghost'} aria-pressed={v === current} aria-label={`${v} ${unit}`} onClick={() => pick(v)}>{v}</Button>
+          <Toggle key={v} size="lg" pressed={v === current} aria-label={`${v} ${unit}`} onPressedChange={() => pick(v)}>{v}</Toggle>
         ))}
       </div>
     </ScrollArea>
