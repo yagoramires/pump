@@ -54,19 +54,23 @@ export function RestCard({ endAt, pausedLeftMs, totalSec, restSec, onAdd15, onDo
     <Card
       role="timer"
       aria-label="Descanso"
-      className="fixed bottom-[calc(var(--nav-h)+68px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 flex-row items-center gap-2 border-accent-line bg-surface py-1 pr-1 pl-2 shadow-lg"
+      className="fixed bottom-[calc(var(--nav-h)+68px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 gap-1.5 border-accent-line bg-surface p-1.5 shadow-lg"
     >
-      <Button variant="ghost" size="icon-sm" aria-label="Definir tempo de descanso" className="text-accent" onClick={() => setPicking(true)}>
-        <Timer aria-hidden="true" />
-      </Button>
-      <b className="text-[19px] font-bold text-accent tabular-nums">{mmss(left)}</b>
-      <Progress value={pct} aria-label="Descanso restante" className="h-1 flex-1 bg-line" />
-      <span className="text-[12px] text-text-2 tabular-nums">de {ms(restSec)}</span>
-      <Button variant="outline" size="icon-sm" aria-label={paused ? 'Continuar descanso' : 'Pausar descanso'} onClick={onTogglePause}>
-        {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
-      </Button>
-      <Button variant="outline" size="sm" onClick={onAdd15}>+15 s</Button>
-      <Button variant="outline" size="sm" onClick={onDone}>Pular</Button>
+      <Progress value={pct} aria-label="Descanso restante" className="h-1 bg-line" />
+      <div className="flex flex-wrap items-center gap-x-2">
+        <Button variant="ghost" size="icon-sm" aria-label="Definir tempo de descanso" className="text-accent" onClick={() => setPicking(true)}>
+          <Timer aria-hidden="true" />
+        </Button>
+        <b className="text-[19px] font-bold text-accent tabular-nums">{mmss(left)}</b>
+        <span className="shrink-0 text-[12px] whitespace-nowrap text-text-2 tabular-nums">de {ms(restSec)}</span>
+        <div className="ml-auto flex items-center gap-2">
+          <Button variant="outline" size="icon-sm" aria-label={paused ? 'Continuar descanso' : 'Pausar descanso'} onClick={onTogglePause}>
+            {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
+          </Button>
+          <Button variant="outline" size="sm" onClick={onAdd15}>+15 s</Button>
+          <Button variant="outline" size="sm" onClick={onDone}>Pular</Button>
+        </div>
+      </div>
       <Drawer open={picking} onOpenChange={setPicking}>
         <DrawerContent>
           <SheetBody>

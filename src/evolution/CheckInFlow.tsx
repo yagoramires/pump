@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { BackHeader } from '@/components/BackHeader'
+import { Overlay } from '@/components/Overlay'
 import { MeasureForm } from './MeasureForm'
 import { PhotoCapture } from './PhotoCapture'
 import { PhotoCompare } from './PhotoCompare'
@@ -30,17 +31,17 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
   if (step === 'compare') return <PhotoCompare onClose={() => setStep('summary')} />
   if (step === 'measure') {
     return (
-      <>
+      <Overlay>
         <BackHeader title="Atualizar semana" onBack={onClose} />
         <MeasureForm date={today} needWeight submitLabel="Continuar" onSaved={() => setStep('photos')} />
-      </>
+      </Overlay>
     )
   }
   if (!s) return null
   return (
-    <div className="flex flex-col gap-3">
+    <Overlay><div className="flex flex-col gap-3">
       <BackHeader title={`Semana ${s.week}`} onBack={onClose} />
-      <Card className="p-4">
+      <Card className="gap-2 p-4">
         {s.sincePrev === undefined ? (
           <div className="text-[28px] font-semibold text-strong tabular-nums">{`${formatKg(s.weight)} kg`}</div>
         ) : (
@@ -50,16 +51,16 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
           </>
         )}
         {s.rows.map((r) => (
-          <div key={r.label}>
+          <div key={r.label} className="flex flex-col gap-2">
             <Separator />
-            <div className="flex items-center justify-between py-2 text-sm">
+            <div className="flex items-center justify-between text-sm">
               <span className="text-text-2">{r.label}</span>
               <Delta value={r.delta} good={r.good} unit={r.unit} />
             </div>
           </div>
         ))}
         <Separator />
-        <div className="flex items-center justify-between py-2 text-sm">
+        <div className="flex items-center justify-between text-sm">
           <span className="text-text-2">Fotos · {s.photos} de {ANGLES.length}</span>
         </div>
         {s.sinceStart !== undefined && (
@@ -70,17 +71,17 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
         <Button onClick={onClose}>Pronto</Button>
         <Button variant="outline" onClick={() => setStep('compare')}>Comparar fotos</Button>
       </div>
-    </div>
+    </div></Overlay>
   )
 }
 
 export function CheckInCard({ due, today, onStart }: { due: string; today: string; onStart: () => void }) {
   const dia = WEEKDAY_LONG[weekday(due)]
   return (
-    <Card className="gap-1 border-accent p-4">
+    <Card className="gap-2 border-accent p-4">
       <h2 className="text-[15px] font-semibold text-strong">Atualizar semana</h2>
       <p className="text-[13px] text-text-2">{`${due === today ? 'Hoje é' : 'Era'} ${dia}, seu dia de atualizar.`}</p>
-      <Button className="mt-2 w-full" onClick={onStart}>Atualizar</Button>
+      <Button className="w-full" onClick={onStart}>Atualizar</Button>
     </Card>
   )
 }

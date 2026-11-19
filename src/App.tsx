@@ -18,6 +18,7 @@ import { todayKey } from '@/lib/date'
 import { useCheckIn } from '@/evolution/useCheckIn'
 import { AchievementToasts } from '@/evolution/AchievementToasts'
 import { EvolutionTab } from '@/evolution/EvolutionTab'
+import { cn } from '@/lib/utils'
 import { Loading } from '@/components/Loading'
 import { migrationFor } from '@/profile/migrate'
 import { USER_KEYS } from './schema'
@@ -69,12 +70,12 @@ function Shell() {
           <Button type="button" variant="ghost" size="sm" className="text-accent" onClick={backup.send}>Enviar backup</Button>
         </Card></div>
       )}
-      <main className={MAIN}>
+      <main className={cn(MAIN, 'relative', !showSettings && '[&>div:not(.fixed)>:first-child]:mr-12')}>
         {showSettings ? (
           <SettingsScreen onClose={() => setShowSettings(false)} />
         ) : (
           <>
-            <Button type="button" variant="outline" size="icon" className="float-right mt-(--gear-offset)" aria-label="Configurações" onClick={() => setShowSettings(true)}><SettingsIcon size={17} /></Button>
+            <Button type="button" variant="outline" size="icon" className="absolute top-[calc(var(--main-pt)+var(--gear-offset))] right-4" aria-label="Configurações" onClick={() => setShowSettings(true)}><SettingsIcon size={17} /></Button>
             {tab === 'treino' ? <TreinoTab /> : tab === 'evolucao' ? <EvolutionTab /> : <Suspense fallback={<Loading />}><DietTab /></Suspense>}
           </>
         )}

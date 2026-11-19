@@ -86,7 +86,7 @@ export function TreinoTab() {
   )
   const closePreview = useCallback(() => setPreview(undefined), [])
 
-  const pastLink = <Button variant="ghost" size="sm" className="text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /> Treinos anteriores</Button>
+  const pastLink = <Button variant="ghost" size="sm" className="-mr-2.5 text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /> Treinos anteriores</Button>
   if (pastOpen) return <Overlay><PastWorkouts onClose={() => setPastOpen(false)} /></Overlay>
   if (editingPlan) return <Overlay><PlanEditor initial={plan} onSave={(p) => { setPlan(p); setEditingPlan(false) }} onCancel={() => setEditingPlan(false)} /></Overlay>
   if (plan.workouts.length === 0) {
@@ -194,7 +194,7 @@ export function TreinoTab() {
       <div className="flex items-center justify-between"><div className="label-caps">{`${formatDayLabel(today)} · TREINO ${view.workoutLabel}`}</div>{pastLink}</div>
       <h1 className="text-[26px] font-bold tracking-tight text-strong">{view.workoutName}</h1>
       {!session?.completedAt && plan.workouts.length > 1 && (
-        <Button variant="ghost" size="sm" className="self-start text-accent" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>
+        <Button variant="ghost" size="sm" className="-ml-2.5 self-start text-accent" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>
       )}
 
       <Card className="flex-row items-center gap-3.5 p-3.5">

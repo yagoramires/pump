@@ -72,7 +72,7 @@ export function CopyListButton({ file, noun, copy, fail }: { file: string; noun:
       <ListChecks size={16} aria-hidden="true" />
       <span>
         <span className="block text-sm font-medium">{`Copiar a lista de ${noun}`}</span>
-        <span className="block text-[13px] text-text-2">Se sua IA não abrir o link</span>
+        <span className="block text-[13px] font-normal text-text-2">Se sua IA não abrir o link</span>
       </span>
     </Button>
   )

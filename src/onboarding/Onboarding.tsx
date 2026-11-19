@@ -25,12 +25,7 @@ const ONBOARDING_STEPS = ANAMNESIS_STEPS + 2
 type Step = 'anamnese' | 'treino' | 'editor' | 'ia' | 'convert' | 'dieta'
 
 function StepHeader({ n, onSkip }: { n: number; onSkip: () => void }) {
-  return (
-    <div className="flex items-start justify-between gap-3">
-      <div className="flex-1"><Steps n={n} total={ONBOARDING_STEPS} /></div>
-      <Button type="button" variant="ghost" className="text-text-2" onClick={onSkip}>Pular por agora</Button>
-    </div>
-  )
+  return <Steps n={n} total={ONBOARDING_STEPS} action={<Button type="button" variant="ghost" size="sm" className="text-text-2" onClick={onSkip}>Pular por agora</Button>} />
 }
 
 export function Onboarding() {
@@ -68,11 +63,11 @@ export function Onboarding() {
         step={anamneseStep}
         onDone={() => setStep('treino')}
         footer={(
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-center">
             {/* quem instalou o app no iPhone traz aqui os dados que usava no Safari */}
             <Button type="button" variant="ghost" className="text-text-2" onClick={backup.pick}><Upload size={16} aria-hidden="true" />Restaurar backup</Button>
             {backup.input}
-            {backup.error && <p role="alert" className="px-3.5 py-2 text-sm text-negative">{backup.error}</p>}
+            {backup.error && <p role="alert" className="px-3.5 py-2 text-center text-sm text-negative">{backup.error}</p>}
             {backup.confirm}
           </div>
         )}

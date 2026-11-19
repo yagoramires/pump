@@ -31,7 +31,7 @@ export function TimePicker({ id, value, onChange, placeholder = '--:--', 'aria-l
     <ScrollArea className="h-56 flex-1">
       <div role="group" aria-label={label} className="flex flex-col gap-1 pr-2">
         {items.map((v) => (
-          <Toggle key={v} size="lg" pressed={v === current} aria-label={`${v} ${unit}`} onPressedChange={() => pick(v)}>{v}</Toggle>
+          <Toggle key={v} ref={(el) => { if (v === current) el?.scrollIntoView?.({ block: 'center' }) }} size="lg" pressed={v === current} aria-label={`${v} ${unit}`} onPressedChange={() => pick(v)}>{v}</Toggle>
         ))}
       </div>
     </ScrollArea>

@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 export const LABEL = 'label-caps tracking-[0.08em]'
@@ -13,7 +14,7 @@ export function Chips<T extends string | number>({ label, options, value, onChan
   return (
     <div className="flex flex-col gap-1.5">
       <span className={LABEL}>{label}</span>
-      <ToggleGroup type="single" variant="segmented" size="fill" spacing={1} aria-label={label} value={value === undefined ? '' : String(value)} onValueChange={(v) => onChange(items.find(([k]) => String(k) === v)?.[0])} className={cols ?? 'grid grid-flow-col auto-cols-fr'}>
+      <ToggleGroup type="single" variant="segmented" size="fill" spacing={1} aria-label={label} value={value === undefined ? '' : String(value)} onValueChange={(v) => onChange(items.find(([k]) => String(k) === v)?.[0])} className={cn('grid', cols ?? 'grid-flow-col auto-cols-fr')}>
         {items.map(([k, text]) => <ToggleGroupItem key={k} value={String(k)}>{text}</ToggleGroupItem>)}
       </ToggleGroup>
     </div>
@@ -25,7 +26,7 @@ export function MultiChips<T extends string | number>({ label, options, value, o
   return (
     <div className="flex flex-col gap-1.5">
       <span className={LABEL}>{label}</span>
-      <ToggleGroup type="multiple" variant="segmented" size="fill" spacing={1} aria-label={label} value={Array.isArray(value) ? value.map(String) : []} onValueChange={(v) => onChange(v.length ? v.map((s) => items.find(([k]) => String(k) === s)![0]) : undefined)} className={cols ?? 'grid grid-flow-col auto-cols-fr'}>
+      <ToggleGroup type="multiple" variant="segmented" size="fill" spacing={1} aria-label={label} value={Array.isArray(value) ? value.map(String) : []} onValueChange={(v) => onChange(v.length ? v.map((s) => items.find(([k]) => String(k) === s)![0]) : undefined)} className={cn('grid', cols ?? 'grid-flow-col auto-cols-fr')}>
         {items.map(([k, text]) => <ToggleGroupItem key={k} value={String(k)}>{text}</ToggleGroupItem>)}
       </ToggleGroup>
     </div>

@@ -13,7 +13,7 @@ export function GoalsForm({ value, onChange }: { value: Profile; onChange: (p: P
         <p className={HINT}>Define a meta de calorias e se o peso descendo é bom ou ruim na Evolução.</p>
       </div>
       <div className="flex flex-col gap-1.5">
-        <Chips label="Foco do treino" options={FOCUS} cols="grid-cols-3" value={value.focus} onChange={(v) => onChange({ ...value, focus: v })} />
+        <Chips label="Foco do treino" options={FOCUS} cols="grid-cols-2 min-[380px]:grid-cols-3" value={value.focus} onChange={(v) => onChange({ ...value, focus: v })} />
         <p className={HINT}>Ganhar massa é o padrão, mesmo perdendo gordura na dieta.</p>
       </div>
     </div>

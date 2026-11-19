@@ -155,7 +155,7 @@ export function EvolutionTab() {
       <Card className="overflow-hidden">
         <div className="flex min-h-11 items-center justify-between pl-3.5 pr-2">
           <span className="text-[15px] font-semibold text-strong">Peso</span>
-          <ToggleGroup type="single" variant="segmented" value={range} onValueChange={(v) => v && setRange(v)} aria-label="Período do gráfico">
+          <ToggleGroup type="single" variant="segmented" spacing={1} value={range} onValueChange={(v) => v && setRange(v)} aria-label="Período do gráfico" className="data-[variant=segmented]:w-fit">
             {RANGES.map((r) => (
               <ToggleGroupItem key={r.v} value={r.v} className="h-11 min-w-11 px-2">{r.label}</ToggleGroupItem>
             ))}
