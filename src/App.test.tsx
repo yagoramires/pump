@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { renderLoaded } from '../test/render'
 import userEvent from '@testing-library/user-event'
 import * as idb from 'idb-keyval'
@@ -58,7 +58,12 @@ test('Configurações: grupo DIETA abre cardápio, IA e a tela da água, e cada 
   await user.click(screen.getByRole('button', { name: /Cardápio/ }))
   expect(await screen.findByRole('heading', { name: 'Cardápio' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Cancelar' }))
-  await user.click((await screen.findAllByRole('button', { name: /Gerar com IA/ })).at(-1)!) // o do grupo DIETA vem depois do do treino
+  const treino = within(screen.getByRole('group', { name: 'TREINO' }))
+  const dieta = within(screen.getByRole('group', { name: 'DIETA' }))
+  expect(treino.getByRole('button', { name: /Gerar com IA/ })).toBeInTheDocument()
+  expect(treino.getByRole('button', { name: /Converter/ })).toBeInTheDocument()
+  expect(dieta.getByRole('button', { name: /Converter/ })).toBeInTheDocument()
+  await user.click(dieta.getByRole('button', { name: /Gerar com IA/ }))
   expect(await screen.findByRole('heading', { name: 'Gerar com IA' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Voltar' }))
   await user.click(await screen.findByRole('button', { name: /Água/ }))

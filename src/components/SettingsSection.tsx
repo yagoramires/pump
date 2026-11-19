@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { IconDot } from './IconDot'
 
@@ -6,10 +6,11 @@ import { IconDot } from './IconDot'
 export type OpenView = (view?: ReactNode) => void
 
 export function SettingsSection({ title, children }: { title: string; children: ReactNode }) {
+  const id = useId()
   return (
     <>
-      <div className="label-caps px-1 pt-4 pb-1.5 tracking-[.08em]">{title}</div>
-      <div className="overflow-hidden card">{children}</div>
+      <div id={id} className="label-caps px-1 pt-4 pb-1.5 tracking-[.08em]">{title}</div>
+      <div role="group" aria-labelledby={id} className="overflow-hidden card">{children}</div>
     </>
   )
 }
