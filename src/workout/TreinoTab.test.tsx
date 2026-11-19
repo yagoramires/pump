@@ -2,7 +2,7 @@ import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import * as idb from 'idb-keyval'
 import { load, resetStoreForTests, save } from '@/storage/db'
-import type { WorkoutLog, WorkoutPlan } from './types'
+import type { SetDone, WorkoutLog, WorkoutPlan } from './types'
 import { pe } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
 import { TreinoTab } from './TreinoTab'
@@ -101,6 +101,30 @@ test('editar carga inline e marcar; editar série feita grava a partir da guarda
   await user.clear(kg); await user.type(kg, 'abc'); await user.tab()
   expect(kg).toHaveValue('45')
   expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]).toEqual({ reps: '8', weightKg: 45 })
+})
+
+const sessaoAnterior = (sets: (SetDone | null)[]): WorkoutLog => ({
+  '2026-11-09': { date: '2026-11-09', workoutId: 'outro', workoutLabel: 'C', workoutName: 'Outro', completedAt: '2026-11-09T19:00:00.000Z',
+    exercises: [{ ...pe({ exerciseId: 'Supino', name: 'Supino reto', weightKg: 40 }), sets }] },
+})
+test('carga começa com a do último treino, série por série; sem série anterior usa o plano', async () => {
+  await save('workoutLog', sessaoAnterior([{ reps: '10', weightKg: 50 }]))
+  await renderLoaded(<TreinoTab />)
+  expect(await screen.findByRole('textbox', { name: 'Carga da série 1 de Supino reto' })).toHaveValue('50')
+  expect(screen.getByRole('textbox', { name: 'Carga da série 2 de Supino reto' })).toHaveValue('40')
+})
+test('série em branco no último treino usa a carga do plano', async () => {
+  await save('workoutLog', sessaoAnterior([null, { reps: '8', weightKg: 55 }]))
+  await renderLoaded(<TreinoTab />)
+  expect(await screen.findByRole('textbox', { name: 'Carga da série 1 de Supino reto' })).toHaveValue('40')
+  expect(screen.getByRole('textbox', { name: 'Carga da série 2 de Supino reto' })).toHaveValue('55')
+})
+test('marcar sem digitar grava a carga do último treino', async () => {
+  const user = userEvent.setup()
+  await save('workoutLog', sessaoAnterior([{ reps: '10', weightKg: 50 }]))
+  await renderLoaded(<TreinoTab />)
+  await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
+  await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]).toEqual({ reps: '10', weightKg: 50 }))
 })
 test('treino em andamento passa da meia-noite e segue no mesmo dia ao voltar', async () => {
   vi.setSystemTime(new Date(2026, 10, 16, 20, 0))

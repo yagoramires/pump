@@ -32,7 +32,7 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
 
   const check = (i: number) => {
     const d = drafts[i] ?? {}
-    onCheck(i, { reps: d.reps?.trim() || (perSet?.[i] ?? ex.reps), weightKg: parseKg(d.kg ?? '') ?? ex.weightKg })
+    onCheck(i, { reps: d.reps?.trim() || (perSet?.[i] ?? ex.reps), weightKg: parseKg(d.kg ?? '') ?? prev[i]?.weightKg ?? ex.weightKg })
     clearDraft(i)
   }
   const commit = (i: number) => {
@@ -78,7 +78,7 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
                   className={box(!!s)}
                   inputMode="decimal"
                   aria-label={`Carga da série ${n} de ${ex.name}`}
-                  value={drafts[i]?.kg ?? formatInput(s ? s.weightKg : ex.weightKg)}
+                  value={drafts[i]?.kg ?? formatInput(s ? s.weightKg : (prev[i]?.weightKg ?? ex.weightKg))}
                   onChange={(e) => setDraft(i, { kg: e.target.value })}
                   {...inputProps(i)}
                 />
