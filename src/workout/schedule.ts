@@ -3,7 +3,11 @@ import { isUnfinishedWorkout } from './session'
 import { completedSessions } from './stats'
 
 export const nextWorkout = (plan: WorkoutPlan, log: WorkoutLog): Workout | undefined => {
-  const last = completedSessions(log).at(-1)
+  const done = completedSessions(log)
+  const { start } = plan
+  const chosen = start && !done.some((s) => s.completedAt! > start.since) && plan.workouts.find((w) => w.label === start.label)
+  if (chosen) return chosen
+  const last = done.at(-1)
   const i = last ? plan.workouts.findIndex((w) => w.id === last.workoutId) : -1
   return plan.workouts[i < 0 ? 0 : (i + 1) % plan.workouts.length]
 }

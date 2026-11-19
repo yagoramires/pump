@@ -24,6 +24,21 @@ test('sessão aberta não conta; descanso não conta', () =>
   expect(nextWorkout(p, log(done('2026-11-16', 'A'), open('2026-11-17', 'B'), restRecord('2026-11-18')))?.label).toBe('B'))
 test('treino da última sessão saiu da ficha → primeiro', () => expect(nextWorkout(plan(['A', 'B']), log(done('2026-11-16', 'Z')))?.label).toBe('A'))
 test('ficha vazia → undefined', () => expect(nextWorkout({ workouts: [] }, {})).toBeUndefined())
+test('trocou para outro treino e concluiu → o próximo segue a partir dele', () =>
+  expect(nextWorkout(plan(['A', 'B', 'C', 'D', 'E']), log(done('2026-11-19', 'D')))?.label).toBe('E'))
+describe('start (escolhido no import)', () => {
+  const comStart = (since: string, label = 'C') => ({ ...p, start: { label, since } })
+  test('sem treino concluído depois do import, vale o escolhido', () =>
+    expect(nextWorkout(comStart('2026-11-18T12:00:00'), log(done('2026-11-17', 'A')))?.label).toBe('C'))
+  test('treino concluído no mesmo dia, antes do import, não cancela', () =>
+    expect(nextWorkout(comStart('2026-11-18T20:00:00'), log(done('2026-11-18', 'A')))?.label).toBe('C'))
+  test('depois do primeiro treino concluído após o import, volta a regra normal', () =>
+    expect(nextWorkout(comStart('2026-11-18T08:00:00'), log(done('2026-11-18', 'C')))?.label).toBe('A'))
+  test('pendente de ontem concluído depois (23:59 do dia antigo) não cancela', () =>
+    expect(nextWorkout(comStart('2026-11-18T08:00:00'), log(sess('2026-11-17', 'A', { completedAt: '2026-11-17T23:59:00' })))?.label).toBe('C'))
+  test('letra que não existe mais → regra normal', () =>
+    expect(nextWorkout(comStart('2026-11-18T08:00:00', 'Z'), log(done('2026-11-17', 'A')))?.label).toBe('B'))
+})
 test('unfinishedSession: só dia anterior, com série marcada, não concluída', () => {
   expect(unfinishedSession(log(withSet(open('2026-11-18', 'A'), true)), '2026-11-18')).toBeUndefined()
   expect(unfinishedSession(log(withSet(open('2026-11-17', 'A'), false)), '2026-11-18')).toBeUndefined()
