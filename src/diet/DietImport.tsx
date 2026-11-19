@@ -31,7 +31,6 @@ import { Alert } from '@/components/ui/alert'
 
 type Props = { mode: ImportMode; onDone: () => void; onBack: () => void }
 
-/** o nome que a IA mandou, e a nota de como o item casou com a TACO */
 const itemLines = (i: DietItem, r?: ItemReport): { shown: string; note?: string; warn?: boolean } => {
   const shown = r?.match === 'words' ? r.aiName : i.name
   if (r?.match === 'none') return { shown, note: 'sem valores — escolha na TACO', warn: true }

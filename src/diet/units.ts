@@ -10,7 +10,6 @@ export const pluralWord = (w: string) => {
 }
 const SINGULAR_AO = Object.fromEntries(Object.entries(AO).map(([a, b]) => [b, a]))
 const SING_L: Record<string, string> = { ais: 'al', éis: 'el', óis: 'ol', uis: 'ul' }
-/** inverso de pluralWord (minúsculo); o que já está no singular fica */
 export const singularWord = (w: string) => {
   const l = w.toLowerCase()
   if (SINGULAR_AO[l]) return SINGULAR_AO[l]

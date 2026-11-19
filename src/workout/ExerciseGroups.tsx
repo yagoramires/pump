@@ -6,7 +6,6 @@ import { groupExercises } from './reps'
 
 type Shape = { sets: number | unknown[]; reps: string }
 
-/** força e depois cardio, com o título "Cardio"; `row` recebe a posição original do exercício */
 export function ExerciseGroups<T extends Shape>({ exercises, className, heading, row }: {
   exercises: T[]
   className?: (cardio: boolean) => string
@@ -21,7 +20,6 @@ export function ExerciseGroups<T extends Shape>({ exercises, className, heading,
   ))
 }
 
-/** ícone do grupo muscular com a foto por cima; sem foto (ou se ela não carregar) fica o ícone */
 export function ExerciseThumb({ muscles, image, cardio }: { muscles: string[]; image?: string; cardio: boolean }) {
   return (
     <span className="relative shrink-0">

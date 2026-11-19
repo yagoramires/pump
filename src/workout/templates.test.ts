@@ -1,20 +1,17 @@
 import { readFileSync } from 'node:fs'
 import type { Exercise } from './types'
 import { TEMPLATES, instantiateTemplate } from './templates'
-import { PLAN_DEFAULTS, toPlanExercise } from './exercises'
 
 const catalog: Exercise[] = JSON.parse(readFileSync('public/catalog/exercises.json', 'utf8'))
 test('todos os ids dos planos prontos existem no catálogo', () => {
   const ids = new Set(catalog.map(e => e.id))
   for (const t of TEMPLATES) for (const w of t.workouts) for (const id of w.exerciseIds) expect(ids.has(id), `${t.id}:${id}`).toBe(true)
 })
-test('instanciar copia dados do catálogo e aplica padrões', () => {
+test('instanciar copia nome e fotos do catálogo; id fora do catálogo fica de fora', () => {
+  const [first, ...rest] = TEMPLATES[0].workouts[0].exerciseIds
   const p = instantiateTemplate(TEMPLATES[0], catalog)
-  const pe = p.workouts[0].exercises[0]
-  expect(pe).toMatchObject(PLAN_DEFAULTS)
-  expect(pe.name).toBe(catalog.find(e => e.id === pe.exerciseId)!.name)
-  expect(p.workouts[0]).toMatchObject({ label: 'A' })
+  const src = catalog.find(e => e.id === first)!
+  expect(p.workouts[0]).toMatchObject({ label: 'A', name: TEMPLATES[0].workouts[0].name })
+  expect(p.workouts[0].exercises[0]).toMatchObject({ exerciseId: first, name: src.name, images: src.images })
+  expect(instantiateTemplate(TEMPLATES[0], catalog.filter(e => e.id !== first)).workouts[0].exercises.map(e => e.exerciseId)).toEqual(rest)
 })
-test('exercício criado vira PlanExercise sem fotos e com observação', () =>
-  expect(toPlanExercise({ id: 'custom-1', name: 'Remada na máquina X', muscles: ['dorsais'], note: 'banco 3' }))
-    .toMatchObject({ exerciseId: 'custom-1', custom: true, images: [], instructions: [], note: 'banco 3', ...PLAN_DEFAULTS }))

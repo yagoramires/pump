@@ -60,7 +60,6 @@ export function PlanImport({ mode, onDone, onBack }: { mode: ImportMode; onDone:
 
   if (review) {
     const workout = review.plan.workouts[tab] ?? review.plan.workouts[0]
-    // sem prévia = custom no plano revisado (novo ou já seu), uma vez por nome
     const noPreview = review.offline ? [] : [...new Set(review.plan.workouts.flatMap((w) => w.exercises.filter((e) => e.custom).map((e) => e.name)))]
     const exCount = review.plan.workouts.reduce((n, w) => n + w.exercises.length, 0)
     return (

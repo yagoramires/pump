@@ -51,7 +51,6 @@ export const fatSeries = (p: Profile, ms: Measurement[]): Point[] =>
 
 export const latestWeight = (ms: Measurement[]): number | undefined => series(ms, WEIGHT.key).at(-1)?.value
 
-/** o valor vigente na data (o primeiro, se a data é anterior a tudo), datado com ela */
 export const pointAt = (points: Point[], date: string): Point | undefined => {
   const p = points.filter((x) => x.date <= date).pop() ?? points[0]
   return p && { date, value: p.value }
