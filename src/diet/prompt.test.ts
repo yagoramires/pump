@@ -70,6 +70,15 @@ test('sem pescoço/cintura não tem gordura nem massa magra; uma medição só n
   expect(p).not.toContain('Variação')
 })
 
+test('converter dieta diz o que fazer quando a fonte não encaixa', () => {
+  const p = buildDietConvertPrompt()
+  expect(p).toContain('Se faltar a quantidade em gramas, estime pela porção caseira (e ponha a medida em "porcao")')
+  expect(p).toContain('se faltar o horário, use um horário comum')
+  expect(p).toContain('mais de 4 opções, fique com as 4 primeiras')
+})
+test('gerar dieta: dieta pronta preserva os números, nomes seguem a lista', () => {
+  expect(buildDietPrompt(undefined, [], T)).toContain('transcreva sem mudar os números (quantidades)')
+})
 test('gerar e converter dieta usam a lista de alimentos e dividem o formato', () => {
   for (const p of [buildDietPrompt(undefined, [], T), buildDietConvertPrompt()]) {
     expect(p).toContain(FOOD_LIST_URL)

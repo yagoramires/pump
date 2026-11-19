@@ -7,7 +7,7 @@ import type { FormatError } from '@/format/envelope'
 import { normalize } from '@/catalog/search'
 
 const ok = { formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'Peito', dias: ['seg', 'qui'], exercicios: [{ nome: 'supino reto com barra', series: 4, reps: 10, cargaKg: 40 }, { nome: 'Remada na máquina do Zé', series: 3, reps: '12', obs: 'banco 3' }] }] }
-const catalog = [ex('Supino reto com barra', { id: 'Barbell_Bench_Press_-_Medium_Grip' })]
+const catalog = [ex('Supino reto com barra', { id: 'Barbell_Bench_Press_-_Medium_Grip' }), ex('Elevação lateral', { equipment: 'halter' }), ex('Abdominal tradicional (crunch)', { equipment: 'peso do corpo' })]
 const noId = (p: WorkoutPlan) => p.workouts.map(({ id: _id, ...w }) => w)
 
 test('aceita JSON dentro de bloco de código da resposta da IA', () => {
@@ -85,4 +85,16 @@ test('nome com equipamento entre parênteses (da lista do catálogo) casa com o 
   expect(r.unmatched).toEqual([])
   expect(r.newCustoms).toEqual([])
   expect(r.plan.workouts[0].exercises[0].exerciseId).toBe('Barbell_Bench_Press_-_Medium_Grip')
+})
+test('parêntese que não é o equipamento do exercício não casa com a variante: vira exercício seu e avisa', () => {
+  const f = parsePlanFormat(JSON.stringify({ ...ok, treinos: [{ letra: 'A', nome: 'Ombro', exercicios: [{ nome: 'Elevação lateral (polia)', series: 3, reps: '12' }] }] }))
+  const r = planFromFormat(f, catalog, [])
+  expect(r.unmatched).toEqual(['Elevação lateral (polia)'])
+  expect(r.plan.workouts[0].exercises[0]).toMatchObject({ custom: true, name: 'Elevação lateral (polia)' })
+})
+test('nome do catálogo que já tem parênteses + equipamento casa', () => {
+  const f = parsePlanFormat(JSON.stringify({ ...ok, treinos: [{ letra: 'A', nome: 'Abs', exercicios: [{ nome: 'Abdominal tradicional (crunch) (peso do corpo)', series: 3, reps: '15' }, { nome: 'Elevação lateral (Halter)', series: 3, reps: '12' }] }] }))
+  const r = planFromFormat(f, catalog, [])
+  expect(r.unmatched).toEqual([])
+  expect(r.plan.workouts[0].exercises.map((e) => e.name)).toEqual(['Abdominal tradicional (crunch)', 'Elevação lateral'])
 })

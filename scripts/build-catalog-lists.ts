@@ -13,7 +13,7 @@ export function exerciseList(exercises: Exercise[]): string {
   const keys = [...groups.keys()].filter((k) => k !== 'outros').sort(br)
   if (groups.has('outros')) keys.push('outros')
   const blocks = keys.map((k) => `## ${k}\n${groups.get(k)!.sort(br).join('\n')}\n`)
-  return `Exercícios do app Pump (catálogo). Use exatamente um destes nomes.\n\n${blocks.join('\n')}`
+  return `Exercícios do app Pump (catálogo). Copie a linha inteira de um destes exercícios, com o equipamento entre parênteses.\n\n${blocks.join('\n')}`
 }
 
 export const foodList = (foods: TacoFood[]): string =>

@@ -10,7 +10,7 @@ export function WorkoutSettings({ open }: { open: OpenView }) {
   return (
     <>
       <SettingsRow icon={<List size={18} aria-hidden="true" />} color="var(--c1)" title="Editar plano" onClick={() => open(<PlanEditor initial={workoutPlan} onSave={(p) => { setWorkoutPlan(p); back() }} onCancel={back} />)} />
-      <SettingsRow icon={<Sparkles size={18} aria-hidden="true" />} color="var(--c4)" title="Gerar com IA" onClick={() => open(<PlanImport mode="ia" onDone={back} onBack={back} />)} />
+      <SettingsRow icon={<Sparkles size={18} aria-hidden="true" />} color="var(--c4)" title="Gerar com IA" sub="Também copia seu plano" onClick={() => open(<PlanImport mode="ia" onDone={back} onBack={back} />)} />
       <SettingsRow icon={<FileInput size={18} aria-hidden="true" />} color="var(--c4)" title="Converter" onClick={() => open(<PlanImport mode="convert" onDone={back} onBack={back} />)} />
     </>
   )

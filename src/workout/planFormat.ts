@@ -54,6 +54,13 @@ export function parsePlanFormat(text: string): PumpPlanoFile {
   return { ...HEADER, treinos, ...(raw.dieta !== undefined && { dieta: raw.dieta }) }
 }
 
+// a lista do catálogo traz "nome (equipamento)": só aceita o nome sem o parêntese final se ele for o equipamento do exercício achado
+function withEquipment(nome: string, known: Map<string, Exercise | CustomExercise>): Exercise | undefined {
+  const m = /^(.*?)\s*\(([^()]*)\)\s*$/.exec(nome)
+  const e = m && known.get(normalize(m[1]))
+  return e && 'equipment' in e && normalize(e.equipment) === normalize(m[2]) ? e : undefined
+}
+
 export function planFromFormat(
   f: PumpPlanoFile,
   catalog: Exercise[],
@@ -71,8 +78,7 @@ export function planFromFormat(
       name: t.nome,
       exercises: t.exercicios.map((x): PlanExercise => {
         const key = normalize(x.nome)
-        // a lista do catálogo traz "nome (equipamento)": tenta de novo sem o parêntese final
-        let found = known.get(key) ?? known.get(normalize(x.nome.replace(/\s*\([^)]*\)\s*$/, '')))
+        let found = known.get(key) ?? withEquipment(x.nome, known)
         if (!found) {
           found = newCustomExercise(x.nome, [], x.obs)
           known.set(key, found)

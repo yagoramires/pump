@@ -143,7 +143,7 @@ Sobre mim:
 ${me.length ? me.join('\n') : '- (ainda não contei nada)'}
 
 Como fazer:
-1. Se eu colar uma dieta pronta (de nutricionista, por exemplo), só transcreva ela pro formato, sem mudar as quantidades.
+1. Se eu colar uma dieta pronta (de nutricionista, por exemplo), transcreva sem mudar os números (quantidades); os nomes seguem a regra da lista.
 2. Senão, se faltar algo importante pra montar um bom cardápio (objetivo, peso, altura, idade, refeições por dia, horários), me pergunte primeiro, tudo numa mensagem só, e espere minha resposta. Nessa hora não mande JSON.
 3. ${menus}
 4. Calcule uma meta diária de calorias e de macros (proteína, carboidrato e gordura) coerente com meu objetivo e meu perfil.
@@ -162,6 +162,7 @@ Como fazer:
 1. Mantenha as refeições, as opções e a ordem como estão na dieta.
 2. ${listRule('Se nenhum da lista servir, mantenha o nome original da dieta.')}
 3. Pra cada alimento, informe as gramas, a porção caseira e os valores da quantidade indicada (não por 100 g): kcal, proteína, carboidrato e gordura. Se a dieta não trouxer a meta diária, calcule somando uma opção de cada refeição (a primeira).
-4. Responda SOMENTE com o JSON, sem explicação antes ou depois.
+4. Se faltar a quantidade em gramas, estime pela porção caseira (e ponha a medida em "porcao"); se faltar o horário, use um horário comum para a refeição; se uma refeição tiver mais de ${MAX_OPTIONS} opções, fique com as ${MAX_OPTIONS} primeiras.
+5. Responda SOMENTE com o JSON, sem explicação antes ou depois.
 
 ${FORMAT}`

@@ -1,4 +1,4 @@
-Exercícios do app Pump (catálogo). Use exatamente um destes nomes.
+Exercícios do app Pump (catálogo). Copie a linha inteira de um destes exercícios, com o equipamento entre parênteses.
 
 ## abdominais
 Abdominal 3/4 (peso do corpo)

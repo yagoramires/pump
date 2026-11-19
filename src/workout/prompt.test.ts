@@ -22,6 +22,9 @@ test('anamnese inválida vinda de backup não quebra nem gera linha vazia', () =
   expect(p).not.toContain('Pontos fracos')
   expect(p).not.toContain('Lesões, limitações ou observações:')
 })
+test('gerar: ficha pronta só preserva os números, os nomes seguem a lista', () => {
+  expect(buildPrompt(undefined)).toContain('transcreva sem mudar os números (séries, repetições, cargas)')
+})
 test('prompt do treino não pede dias', () => {
   expect(buildPrompt(undefined)).not.toContain('"dias"')
   expect(buildPrompt(undefined)).toContain('na ordem da lista')
@@ -31,7 +34,8 @@ test('gerar e converter usam a lista do catálogo, só o nome, e dividem o forma
     expect(p).toContain(EXERCISE_LIST_URL)
     expect(p).toContain('exatamente um nome')
     expect(p).toContain('não conseguir abrir o link')
-    expect(p).toContain('sem o que está entre parênteses')
+    expect(p).toContain('Copie a linha inteira da lista, do jeito que está, com o equipamento entre parênteses')
+    expect(p).not.toContain('sem o que está entre parênteses')
     expect(p).toContain('"formato": sempre "pump-plano"')
   }
   expect(buildPrompt(undefined)).not.toContain('como se fala em academia')

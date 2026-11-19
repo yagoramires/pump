@@ -29,7 +29,7 @@ function aboutMe(p?: Profile): string[] {
   ]
 }
 
-const listRule = (fallback: string) => `Abra a lista em ${EXERCISE_LIST_URL} e use exatamente um nome dela para cada exercício. Cada linha é "nome (equipamento)": use só o nome, sem o que está entre parênteses. ${fallback} Se não conseguir abrir o link, me diga isso antes de responder, em vez de inventar nomes.`
+const listRule = (fallback: string) => `Abra a lista em ${EXERCISE_LIST_URL} e use exatamente um nome dela para cada exercício. Copie a linha inteira da lista, do jeito que está, com o equipamento entre parênteses (o app reconhece). ${fallback} Se não conseguir abrir o link, me diga isso antes de responder, em vez de inventar nomes.`
 
 // formato e exemplo, iguais em gerar e converter
 const FORMAT = `Formato:
@@ -74,7 +74,7 @@ Sobre mim:
 ${me.length ? me.join('\n') : '- (ainda não contei nada)'}
 
 Como fazer:
-1. Se eu colar uma ficha pronta junto, só transcreva ela pro formato, sem mudar nada.
+1. Se eu colar uma ficha pronta junto, transcreva sem mudar os números (séries, repetições, cargas); os nomes seguem a regra da lista.
 2. Senão, se faltar algo importante pra montar um bom plano (objetivo, dias por semana, tempo por treino, onde treino, nível, lesões), me pergunte primeiro, tudo numa mensagem só, e espere minha resposta. Nessa hora não mande JSON.
 3. Monte o plano pro meu objetivo: escolha séries, repetições e descanso de acordo com ele, use a divisão que prefiro (se eu disse), dê um pouco mais de volume aos meus pontos fracos e evite exercícios que piorem minhas lesões ou limitações.
 4. Cada treino tem que caber no tempo por treino. Some 5 min de aquecimento, o cardio e, pra cada série, uns 40 s de execução mais o descanso. Por exemplo: 60 min com 20 de cardio deixam uns 35 min pra musculação, o que dá umas 12 a 15 séries (4 ou 5 exercícios). Se passar do tempo, corte exercícios ou séries, nunca o descanso.
