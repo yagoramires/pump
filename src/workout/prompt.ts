@@ -3,7 +3,7 @@ import { EXTRA_LABEL, LEVEL_LABEL, MUSCLE_LABEL, PLACE_LABEL, SPLIT_LABEL } from
 import { HEADER, str } from '@/format/envelope'
 import { FOCUS, label, names, profileLines } from '@/profile/promptLines'
 import { EXERCISE_LIST_URL } from '@/catalog/urls'
-import { listRule as rule } from '@/format/listRule'
+import { COPYABLE_JSON_RULE, listRule as rule } from '@/format/promptRules'
 import { MIN_IMPORTED_REST_SEC, MIN_KG, SETS } from './limits'
 
 const PLACES = {
@@ -77,7 +77,7 @@ Exemplo:
 }
 \`\`\`
 
-Quando for mandar o plano, responda só com o JSON.`
+${COPYABLE_JSON_RULE}`
 
 export const buildPrompt = (profile?: Profile): string => {
   const me = aboutMe(profile)
@@ -95,7 +95,6 @@ Como fazer:
 6. Só coloque "cargaKg" se souber quanto eu levanto; senão deixe de fora.
 7. Os treinos rodam em sequência, na ordem da lista (A, B, C…), um por dia de treino.
 8. ${listRule('Só use outro nome se nenhum da lista servir.')}
-9. Com o plano pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
 
 ${FORMAT}`
 }
@@ -106,6 +105,5 @@ Como fazer:
 1. Mantenha a ordem dos treinos e dos exercícios e os nomes dos treinos como estão na ficha.
 2. ${listRule('Se nenhum da lista servir, mantenha o nome original da ficha.')}
 3. O que a ficha trouxer além disso (observações, cardio) entra em "obs" ou como exercício, e cardio usa "series": 1 e o tempo em "reps", como "20 min".
-4. Responda SOMENTE com o JSON, sem explicação antes ou depois.
 
 ${FORMAT}`
