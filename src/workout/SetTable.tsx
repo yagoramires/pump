@@ -87,7 +87,7 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
                   {...inputProps(i)}
                 />
               </td>
-              <td className="py-1.5">
+              <td className="py-1.5 pr-3">
                 <Checkbox size="check" className="mx-auto touch-manipulation" aria-label={`Série ${n} de ${ex.name}`} checked={s !== null} onCheckedChange={() => check(i)} />
               </td>
             </tr>
