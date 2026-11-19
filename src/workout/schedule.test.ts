@@ -36,6 +36,8 @@ describe('start (escolhido no import)', () => {
     expect(nextWorkout(comStart('2026-11-18T08:00:00'), log(done('2026-11-18', 'C')))?.label).toBe('A'))
   test('pendente de ontem concluído depois (23:59 do dia antigo) não cancela', () =>
     expect(nextWorkout(comStart('2026-11-18T08:00:00'), log(sess('2026-11-17', 'A', { completedAt: '2026-11-17T23:59:00' })))?.label).toBe('C'))
+  test('treino iniciado antes do import, reaberto e concluído de novo depois, não cancela', () =>
+    expect(nextWorkout(comStart('2026-11-18T22:00:00'), log(sess('2026-11-18', 'A', { startedAt: '2026-11-18T18:00:00', completedAt: '2026-11-18T22:05:00' })))?.label).toBe('C'))
   test('letra que não existe mais → regra normal', () =>
     expect(nextWorkout(comStart('2026-11-18T08:00:00', 'Z'), log(done('2026-11-17', 'A')))?.label).toBe('B'))
 })

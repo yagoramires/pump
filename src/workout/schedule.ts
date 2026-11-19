@@ -5,7 +5,8 @@ import { completedSessions } from './stats'
 export const nextWorkout = (plan: WorkoutPlan, log: WorkoutLog): Workout | undefined => {
   const done = completedSessions(log)
   const { start } = plan
-  const chosen = start && !done.some((s) => s.completedAt! > start.since) && plan.workouts.find((w) => w.label === start.label)
+  // conta o início: treino começado antes do import e reaberto/concluído depois não cancela a escolha
+  const chosen = start && !done.some((s) => (s.startedAt ?? s.completedAt)! > start.since) && plan.workouts.find((w) => w.label === start.label)
   if (chosen) return chosen
   const last = done.at(-1)
   const i = last ? plan.workouts.findIndex((w) => w.id === last.workoutId) : -1
