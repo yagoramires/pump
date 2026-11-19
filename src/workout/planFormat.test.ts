@@ -98,3 +98,10 @@ test('nome do catálogo que já tem parênteses + equipamento casa', () => {
   expect(r.unmatched).toEqual([])
   expect(r.plan.workouts[0].exercises.map((e) => e.name)).toEqual(['Abdominal tradicional (crunch)', 'Elevação lateral'])
 })
+test('"Elevação lateral (halter)" casa com o catálogo mesmo havendo um exercício seu "Elevação lateral"', () => {
+  const f = parsePlanFormat(JSON.stringify({ ...ok, treinos: [{ letra: 'A', nome: 'Ombro', exercicios: [{ nome: 'Elevação lateral (halter)', series: 3, reps: '12' }] }] }))
+  const r = planFromFormat(f, catalog, [{ id: 'custom-1', name: 'Elevação lateral', muscles: [] }])
+  expect(r.unmatched).toEqual([])
+  expect(r.plan.workouts[0].exercises[0]).not.toHaveProperty('custom')
+  expect(r.plan.workouts[0].exercises[0].name).toBe('Elevação lateral')
+})

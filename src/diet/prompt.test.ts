@@ -3,6 +3,7 @@ import type { TacoFood } from './types'
 import { parseDietFormat } from './dietFormat'
 import { buildDietConvertPrompt, buildDietPrompt, TACO_EXAMPLES } from './prompt'
 import { FOOD_LIST_URL } from '@/catalog/urls'
+import { GOAL_KCAL, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 
 const T = '2026-11-18'
 
@@ -94,4 +95,21 @@ test('gerar e converter dieta usam a lista de alimentos e dividem o formato', ()
   expect(buildDietConvertPrompt()).not.toContain('sempre dizendo o preparo')
   expect(buildDietConvertPrompt()).toContain('Responda SOMENTE com o JSON')
   expect(buildDietConvertPrompt().length).toBeLessThanOrEqual(6000)
+})
+
+test('converter: avisa os limites do formato (vindos das constantes) e o que fazer ao passar deles', () => {
+  const p = buildDietConvertPrompt()
+  for (const n of [MAX_MENUS, MAX_MEALS, MAX_ITEMS, MAX_OPTIONS, ...GOAL_KCAL, ...MACRO_G]) expect(p).toContain(String(n))
+  expect(p).toContain(`mais de ${MAX_MENUS} cardápios, fique com os ${MAX_MENUS} primeiros`)
+  expect(p).toContain('arredonde para inteiro')
+})
+
+test('converter mantém o nome original: o formato compartilhado não pede o padrão da TACO', () => {
+  expect(buildDietConvertPrompt()).not.toContain('padrão da TACO')
+  expect(buildDietPrompt(undefined, [], '2026-01-01')).not.toContain('padrão da TACO')
+})
+
+test('as listas pedem pra colar a lista se a IA não abrir o link', () => {
+  expect(buildDietConvertPrompt()).toContain('me peça pra colar a lista')
+  expect(buildDietPrompt(undefined, [], '2026-01-01')).toContain('me peça pra colar a lista')
 })

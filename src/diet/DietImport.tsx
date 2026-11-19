@@ -12,13 +12,14 @@ import { savePlan } from './plan'
 import { DietAnamnesisForm } from './DietAnamnesisForm'
 import { DietEditor } from './DietEditor'
 import { FoodPicker } from './FoodPicker'
-import { PasteBox, Step } from '@/components/ImportFlow'
+import { CopyListButton, PasteBox, Step } from '@/components/ImportFlow'
 import { usePastedReview } from '@/components/usePastedReview'
 import { Button } from '@/components/ui/button'
 import { BackHeader } from '@/components/BackHeader'
 import { BottomBar } from '@/components/BottomBar'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { formatDec, namesText } from '@/lib/number'
+import { formatDec } from '@/lib/number'
+import { namesText } from '@/lib/text'
 import { todayKey } from '@/lib/date'
 import { copyText } from '@/lib/share'
 import { cn } from '@/lib/utils'
@@ -48,9 +49,10 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   const review = paste.result
   const anamnesis = edited ?? profile.dietAnamnesis ?? {}
 
-  const copyPrompt = async () => {
+  const copy = async (text: string, ok = 'Prompt copiado') => toast((await copyText(text)) ? ok : 'Não consegui copiar. Tente de novo.')
+  const copyPrompt = () => {
     setProfile((p) => ({ ...p, dietAnamnesis: anamnesis }))
-    toast((await copyText(buildDietPrompt({ ...profile, dietAnamnesis: anamnesis }, measurements, todayKey()))) ? 'Prompt copiado' : 'Não consegui copiar. Tente de novo.')
+    return copy(buildDietPrompt({ ...profile, dietAnamnesis: anamnesis }, measurements, todayKey()))
   }
   const edit = (v: string, now?: boolean) => {
     setTab(0)
@@ -74,8 +76,8 @@ export function DietImport({ mode, onDone, onBack }: Props) {
 
   if (review) {
     const menu = review.plan.menus[tab] ?? review.plan.menus[0]
-    const outsideItems = allItems(review.plan).filter((i) => i.source === 'ia')
-    const outside = outsideItems.length
+    const outsideNames = [...new Set(allItems(review.plan).filter((i) => i.source === 'ia').map((i) => i.name))]
+    const outside = outsideNames.length
     return (
       <div className="flex flex-col gap-3 pb-28">
         <BackHeader title="Revisar cardápio" onBack={() => edit('')} className="min-h-11" />
@@ -135,7 +137,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
             <AlertTriangle size={16} className="mt-px shrink-0 text-c7" aria-hidden="true" />
             <span>
               {`${outside} ${outside === 1 ? 'item fora da TACO usa' : 'itens fora da TACO usam'} os números da IA. Toque pra trocar.`}
-              <span className="block">{namesText(outsideItems.map((i) => i.name))}</span>
+              <span className="block">{namesText(outsideNames)}</span>
             </span>
           </p>
         )}
@@ -169,12 +171,13 @@ export function DietImport({ mode, onDone, onBack }: Props) {
           ? <Step n={1} title="Copie o prompt" sub="Botão lá embaixo; cole no ChatGPT" />
           : (
             <Step n={1} title="Copie o prompt" sub="Cole no ChatGPT">
-              <Button type="button" variant="outline" size="sm" className="h-9 bg-transparent" onClick={async () => toast((await copyText(buildDietConvertPrompt())) ? 'Prompt copiado' : 'Não consegui copiar. Tente de novo.')}><Copy size={14} aria-hidden="true" />Copiar</Button>
+              <Button type="button" variant="outline" size="sm" className="h-9 bg-transparent" onClick={() => copy(buildDietConvertPrompt())}><Copy size={14} aria-hidden="true" />Copiar</Button>
             </Step>
           )}
         {mode === 'convert' && <Step n={2} title="Mande pra sua IA junto com sua dieta" sub="PDF, foto ou texto" />}
         <Step n={mode === 'ia' ? 2 : 3} title="Cole a resposta aqui" sub="Pode colar o texto todo ou escolher o arquivo" />
       </div>
+      <CopyListButton file="alimentos.txt" noun="alimentos" copy={(t) => copy(t, 'Lista copiada')} fail={toast} />
       <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", "dieta": ... }'>
         {paste.reviewing && <p role="status" className="text-[13px] text-text-2">Conferindo na TACO…</p>}
       </PasteBox>

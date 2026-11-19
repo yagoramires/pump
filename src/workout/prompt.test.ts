@@ -43,3 +43,8 @@ test('gerar e converter usam a lista do catálogo, só o nome, e dividem o forma
   expect(buildConvertPrompt()).toContain('mantenha o nome original')
   expect(buildConvertPrompt()).toContain('Responda SOMENTE com o JSON')
 })
+
+test('os prompts pedem pra colar a lista se a IA não abrir o link', () => {
+  expect(buildPrompt()).toContain('me peça pra colar a lista')
+  expect(buildConvertPrompt()).toContain('me peça pra colar a lista')
+})

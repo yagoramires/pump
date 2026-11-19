@@ -6,6 +6,7 @@ import { FIELDS, WEIGHT, fatSeries, latestWeight, series } from '@/evolution/mea
 import { addDays, daysBetween, weeksBetween } from '@/lib/date'
 import { formatDec, formatKg, formatSigned, plural } from '@/lib/number'
 import { FOOD_LIST_URL } from '@/catalog/urls'
+import { listRule as rule } from '@/format/listRule'
 import { label, names, profileLines } from '@/profile/promptLines'
 import { GOAL_KCAL, GRAMS, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 
@@ -69,7 +70,7 @@ function aboutMe(p: Profile | undefined, ms: Measurement[], today: string): stri
   ]
 }
 
-const listRule = (fallback: string) => `Abra a lista em ${FOOD_LIST_URL} e use exatamente um nome dela para cada alimento (nomes da tabela TACO 4ª edição, no padrão "Alimento, tipo, preparo"; exemplos: ${TACO_EXAMPLES.map((n) => `"${n}"`).join(', ')}). ${fallback} Se não conseguir abrir o link, me diga isso antes de responder, em vez de inventar nomes.`
+const listRule = (fallback: string) => rule(FOOD_LIST_URL, 'alimento', ` (nomes da tabela TACO 4ª edição, no padrão "Alimento, tipo, preparo"; exemplos: ${TACO_EXAMPLES.map((n) => `"${n}"`).join(', ')}).`, fallback)
 
 // formato e exemplo, iguais em gerar e converter
 const FORMAT = `Formato:
@@ -86,7 +87,7 @@ const FORMAT = `Formato:
       - "opcoes": lista de 1 a ${MAX_OPTIONS} opções. Cada opção tem:
         - "nome": nome curto da opção (ex.: "Ovos com pão").
         - "alimentos": lista de 1 a ${MAX_ITEMS} alimentos. Cada alimento tem:
-          - "nome": nome no padrão da TACO (obrigatório).
+          - "nome": nome do alimento (obrigatório).
           - "gramas": quantidade em gramas, de ${GRAMS[0]} a ${GRAMS[1]} (obrigatório).
           - "porcao": porção caseira, ex.: "1 unidade" ou "2 colheres de sopa".
           - "kcal", "proteinaG", "carboG", "gorduraG": valores da quantidade indicada, números maiores ou iguais a 0.
@@ -162,7 +163,9 @@ Como fazer:
 1. Mantenha as refeições, as opções e a ordem como estão na dieta.
 2. ${listRule('Se nenhum da lista servir, mantenha o nome original da dieta.')}
 3. Pra cada alimento, informe as gramas, a porção caseira e os valores da quantidade indicada (não por 100 g): kcal, proteína, carboidrato e gordura. Se a dieta não trouxer a meta diária, calcule somando uma opção de cada refeição (a primeira).
-4. Se faltar a quantidade em gramas, estime pela porção caseira (e ponha a medida em "porcao"); se faltar o horário, use um horário comum para a refeição; se uma refeição tiver mais de ${MAX_OPTIONS} opções, fique com as ${MAX_OPTIONS} primeiras.
-5. Responda SOMENTE com o JSON, sem explicação antes ou depois.
+4. Se faltar a quantidade em gramas, estime pela porção caseira (e ponha a medida em "porcao"); se faltar o horário, use um horário comum para a refeição.
+5. Respeite os limites do formato: até ${MAX_MENUS} cardápios, ${MAX_MEALS} refeições por cardápio, ${MAX_OPTIONS} opções por refeição e ${MAX_ITEMS} alimentos por opção. Se a dieta tiver mais de ${MAX_MENUS} cardápios, fique com os ${MAX_MENUS} primeiros; se uma refeição tiver mais de ${MAX_OPTIONS} opções, fique com as ${MAX_OPTIONS} primeiras; se uma opção tiver mais de ${MAX_ITEMS} alimentos, fique com os ${MAX_ITEMS} primeiros; o mesmo vale pras refeições além de ${MAX_MEALS}.
+6. "metaKcal" é um número inteiro de ${GOAL_KCAL[0]} a ${GOAL_KCAL[1]} e cada macro da meta vai de ${MACRO_G[0]} a ${MACRO_G[1]} g: se você calcular a meta, arredonde para inteiro e ajuste pra dentro dessa faixa.
+7. Responda SOMENTE com o JSON, sem explicação antes ou depois.
 
 ${FORMAT}`

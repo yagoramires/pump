@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear, get } from 'idb-keyval'
-import { resetStoreForTests } from '@/storage/db'
+import { resetStoreForTests, save } from '@/storage/db'
 import { PlanImport } from './PlanImport'
 import { buildConvertPrompt } from './prompt'
 
@@ -101,4 +101,35 @@ test('revisão lista exercícios sem prévia, até 5 e "e mais N"', async () => 
   await user.paste(planJson(['A', 'B', 'C', 'D', 'E', 'F', 'G'].map((n) => ({ ...REMADA, nome: `Ex ${n}` }))))
   expect(await screen.findByText('7 exercícios sem prévia (fora do catálogo)')).toBeInTheDocument()
   expect(screen.getByText('Ex A, Ex B, Ex C, Ex D, Ex E e mais 2')).toBeInTheDocument()
+})
+
+test.each(['ia', 'convert'] as const)('%s: "Copiar a lista de exercícios" busca a lista do app e copia', async (mode) => {
+  const user = userEvent.setup()
+  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
+  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+  const f = vi.fn(async () => new Response('Exercícios\nSupino (barra)\n'))
+  vi.stubGlobal('fetch', f)
+  await renderLoaded(<PlanImport mode={mode} onDone={vi.fn()} onBack={vi.fn()} />)
+  expect(await screen.findByText('Se sua IA não abrir o link')).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: /Copiar a lista de exercícios/ }))
+  expect(f).toHaveBeenCalledWith(`${import.meta.env.BASE_URL}catalog/exercicios.txt`)
+  await vi.waitFor(() => expect(writeText).toHaveBeenCalledWith('Exercícios\nSupino (barra)\n'))
+})
+
+test('lista de exercícios sem internet avisa', async () => {
+  const user = userEvent.setup()
+  vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('offline') }))
+  await renderLoaded(<PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: /Copiar a lista de exercícios/ }))
+  expect(await screen.findByText('Sem internet pra copiar a lista.')).toBeInTheDocument()
+})
+
+test('sem prévia conta todo exercício custom do plano, também os que já eram seus, sem repetir nome', async () => {
+  const user = userEvent.setup()
+  await save('customExercises', [{ id: 'custom-1', name: 'Remada X', muscles: [] }])
+  await renderLoaded(<PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
+  await user.click(await screen.findByRole('textbox', { name: 'Resposta da IA' }))
+  await user.paste(planJson([REMADA, REMADA, { ...REMADA, nome: 'Novo Y' }]))
+  expect(await screen.findByText('2 exercícios sem prévia (fora do catálogo)')).toBeInTheDocument()
+  expect(screen.getByText('Remada X, Novo Y')).toBeInTheDocument()
 })

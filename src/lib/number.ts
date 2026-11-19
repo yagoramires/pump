@@ -25,5 +25,3 @@ export function parseInRange(s: string, min: number, max: number): number | null
 
 export const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
 
-// até 5 nomes, o resto vira "e mais N"
-export const namesText = (names: string[]) => names.slice(0, 5).join(', ') + (names.length > 5 ? ` e mais ${names.length - 5}` : '')

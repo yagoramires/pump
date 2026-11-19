@@ -3,6 +3,7 @@ import type { Extra, Level, Muscle, Place, Split } from './types'
 import { HEADER, str } from '@/format/envelope'
 import { FOCUS, label, names, profileLines } from '@/profile/promptLines'
 import { EXERCISE_LIST_URL } from '@/catalog/urls'
+import { listRule as rule } from '@/format/listRule'
 import { SETS } from './limits'
 
 const LEVELS: Record<Level, string> = { iniciante: 'iniciante', intermediario: 'intermediário', avancado: 'avançado' }
@@ -29,7 +30,7 @@ function aboutMe(p?: Profile): string[] {
   ]
 }
 
-const listRule = (fallback: string) => `Abra a lista em ${EXERCISE_LIST_URL} e use exatamente um nome dela para cada exercício. Copie a linha inteira da lista, do jeito que está, com o equipamento entre parênteses (o app reconhece). ${fallback} Se não conseguir abrir o link, me diga isso antes de responder, em vez de inventar nomes.`
+const listRule = (fallback: string) => rule(EXERCISE_LIST_URL, 'exercício', '. Copie a linha inteira da lista, do jeito que está, com o equipamento entre parênteses (o app reconhece).', fallback)
 
 // formato e exemplo, iguais em gerar e converter
 const FORMAT = `Formato:

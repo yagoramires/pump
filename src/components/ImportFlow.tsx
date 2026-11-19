@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { FileUp } from 'lucide-react'
+import { FileUp, ListChecks } from 'lucide-react'
 
 export function Step({ n, title, sub, children }: { n: number; title: string; sub: string; children?: ReactNode }) {
   return (
@@ -43,5 +43,30 @@ export function PasteBox({ text, onText, onFile, problems, placeholder, children
         </ul>
       )}
     </>
+  )
+}
+
+/** a IA nem sempre abre o link da lista: copia a mesma lista, servida pelo próprio app */
+export function CopyListButton({ file, noun, copy, fail }: { file: string; noun: string; copy: (text: string) => void; fail: (msg: string) => void }) {
+  return (
+    <button
+      type="button"
+      className="flex min-h-11 items-center gap-3 rounded-xl bg-secondary px-3.5 py-2 text-left text-secondary-foreground"
+      onClick={async () => {
+        try {
+          const r = await fetch(`${import.meta.env.BASE_URL}catalog/${file}`)
+          if (!r.ok) throw new Error(String(r.status))
+          copy(await r.text())
+        } catch {
+          fail('Sem internet pra copiar a lista.')
+        }
+      }}
+    >
+      <ListChecks size={16} aria-hidden="true" />
+      <span>
+        <span className="block text-sm font-medium">{`Copiar a lista de ${noun}`}</span>
+        <span className="block text-[13px] text-text-2">Se sua IA não abrir o link</span>
+      </span>
+    </button>
   )
 }

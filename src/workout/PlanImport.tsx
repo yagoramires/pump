@@ -7,12 +7,13 @@ import { PLAN_NOT_FOUND, exportPlanFormat, parsePlanFormat, planFromFormat } fro
 import { buildConvertPrompt, buildPrompt } from './prompt'
 import { AnamnesisForm } from './AnamnesisForm'
 import { PlanEditor } from './PlanEditor'
-import { namesText, plural } from '@/lib/number'
+import { plural } from '@/lib/number'
+import { namesText } from '@/lib/text'
 import { copyText } from '@/lib/share'
 import { IconDot } from '@/components/IconDot'
 import { BackHeader } from '@/components/BackHeader'
 import { BottomBar } from '@/components/BottomBar'
-import { PasteBox, Step } from '@/components/ImportFlow'
+import { CopyListButton, PasteBox, Step } from '@/components/ImportFlow'
 import { usePastedReview } from '@/components/usePastedReview'
 import { Button } from '@/components/ui/button'
 
@@ -39,6 +40,8 @@ export function PlanImport({ mode, onDone, onBack }: { mode: 'ia' | 'convert'; o
     onDone()
   }
 
+  // sem prévia = custom no plano revisado (novo ou já seu), uma vez por nome
+  const noPreview = [...new Set(review?.plan.workouts.flatMap((w) => w.exercises.filter((e) => e.custom).map((e) => e.name)))]
   const exCount = review?.plan.workouts.reduce((n, w) => n + w.exercises.length, 0) ?? 0
   if (editing && review) return <PlanEditor initial={review.plan} onSave={save} onCancel={() => setEditing(false)} />
 
@@ -53,6 +56,7 @@ export function PlanImport({ mode, onDone, onBack }: { mode: 'ia' | 'convert'; o
         {mode === 'convert' && <Step n={2} title="Mande pra sua IA junto com sua ficha" sub="PDF, foto ou texto" />}
         <Step n={mode === 'ia' ? 2 : 3} title="Cole a resposta aqui" sub={mode === 'ia' ? 'Pode colar o texto todo' : 'Pode colar o texto todo ou escolher o arquivo'} />
       </div>
+      <CopyListButton file="exercicios.txt" noun="exercícios" copy={(t) => copy(t, 'Lista copiada. Cole na sua IA.')} fail={setNotice} />
       <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", ... }'>
         {(notice || paste.failed) && <p role="status" className="text-[13px] text-text-2">{notice || 'Precisa de internet pra casar os exercícios com o catálogo'}</p>}
       </PasteBox>
@@ -61,10 +65,10 @@ export function PlanImport({ mode, onDone, onBack }: { mode: 'ia' | 'convert'; o
           <IconDot size={36} color="var(--color-accent)"><Check size={18} aria-hidden="true" /></IconDot>
           <div>
             <div className="text-[15px] font-semibold text-strong">{`${plural(review.plan.workouts.length, 'treino', 'treinos')} · ${plural(exCount, 'exercício', 'exercícios')}`}</div>
-            {review.unmatched.length > 0 && (
+            {noPreview.length > 0 && (
               <div className="text-[13px] text-text-2">
-                <div>{`${plural(review.unmatched.length, 'exercício', 'exercícios')} sem prévia (fora do catálogo)`}</div>
-                <div>{namesText(review.unmatched)}</div>
+                <div>{`${plural(noPreview.length, 'exercício', 'exercícios')} sem prévia (fora do catálogo)`}</div>
+                <div>{namesText(noPreview)}</div>
               </div>
             )}
           </div>

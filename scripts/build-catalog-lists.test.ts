@@ -22,11 +22,13 @@ test('foodList mantém a ordem do taco.json', () => {
 test('os .txt commitados batem com os JSONs e têm todos os nomes', () => {
   const exs = json<Exercise[]>('exercises.json')
   const foods = json<TacoFood[]>('taco.json')
-  expect(read('exercicios.txt')).toBe(exerciseList(exs))
-  expect(read('alimentos.txt')).toBe(foodList(foods))
-  expect(exs).toHaveLength(876)
-  expect(foods).toHaveLength(591)
-  for (const e of exs) expect(read('exercicios.txt')).toContain(e.name)
+  const exTxt = read('exercicios.txt')
+  const foodTxt = read('alimentos.txt')
+  expect(exTxt).toBe(exerciseList(exs))
+  expect(foodTxt).toBe(foodList(foods))
+  expect(exTxt.split('\n').filter((l) => l && !l.startsWith('## ')).length).toBe(exs.length + 1) // + a linha de instrução
+  expect(foodTxt.split('\n').filter(Boolean)).toHaveLength(foods.length + 1)
+  for (const e of exs) expect(exTxt).toContain(e.name)
 })
 
 test('as URLs das listas são absolutas no Pages', () => {

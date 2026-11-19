@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import type { Exercise } from '../src/workout/types.ts'
+import { exerciseList } from './build-catalog-lists.ts'
 
 export interface Upstream {
   id: string
@@ -56,6 +57,8 @@ if (import.meta.main) {
     process.exit(1)
   }
   mkdirSync('public/catalog', { recursive: true })
-  writeFileSync('public/catalog/exercises.json', JSON.stringify(buildCatalog(up, g, t)))
-  console.log('public/catalog/exercises.json escrito')
+  const catalog = buildCatalog(up, g, t)
+  writeFileSync('public/catalog/exercises.json', JSON.stringify(catalog))
+  writeFileSync('public/catalog/exercicios.txt', exerciseList(catalog))
+  console.log('public/catalog/exercises.json e exercicios.txt escritos')
 }

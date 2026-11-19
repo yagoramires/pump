@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { clear, get } from 'idb-keyval'
 import { resetStoreForTests, save } from '@/storage/db'
 import { fetchTaco } from '@/catalog/catalog'
+import { Toaster } from '@/components/ui/sonner'
 import { DietImport } from './DietImport'
 import { buildDietConvertPrompt } from './prompt'
 
@@ -187,4 +188,34 @@ test('converter: título, 3 passos, Copiar leva o prompt de conversão e lista o
   await paste(json([WHEY, PAO]))
   expect(await screen.findByText('2 itens fora da TACO usam os números da IA. Toque pra trocar.')).toBeInTheDocument()
   expect(screen.getByText('Whey protein, Pão francês')).toBeInTheDocument()
+})
+
+test('fora da TACO: nome repetido aparece e conta uma vez só', async () => {
+  await renderLoaded(<DietImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
+  await paste(json([WHEY, WHEY, PAO]))
+  expect(await screen.findByText('2 itens fora da TACO usam os números da IA. Toque pra trocar.')).toBeInTheDocument()
+  expect(screen.getByText('Whey protein, Pão francês')).toBeInTheDocument()
+})
+
+test.each(['ia', 'convert'] as const)('%s: "Copiar a lista de alimentos" busca a lista do app e copia', async (mode) => {
+  const user = userEvent.setup()
+  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
+  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+  const f = vi.fn(async () => new Response('Alimentos TACO\nArroz\n'))
+  vi.stubGlobal('fetch', f)
+  await renderLoaded(<DietImport mode={mode} onDone={vi.fn()} onBack={vi.fn()} />)
+  expect(await screen.findByText('Se sua IA não abrir o link')).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: /Copiar a lista de alimentos/ }))
+  expect(f).toHaveBeenCalledWith(`${import.meta.env.BASE_URL}catalog/alimentos.txt`)
+  await vi.waitFor(() => expect(writeText).toHaveBeenCalledWith('Alimentos TACO\nArroz\n'))
+  vi.unstubAllGlobals()
+})
+
+test('lista de alimentos sem internet avisa', async () => {
+  const user = userEvent.setup()
+  vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('offline') }))
+  await renderLoaded(<><DietImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} /><Toaster /></>)
+  await user.click(await screen.findByRole('button', { name: /Copiar a lista de alimentos/ }))
+  expect(await screen.findByText('Sem internet pra copiar a lista.')).toBeInTheDocument()
+  vi.unstubAllGlobals()
 })
