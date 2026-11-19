@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Sparkles, Upload } from 'lucide-react'
+import { FileInput, Plus, Sparkles, Upload } from 'lucide-react'
 import { DEFAULTS } from '@/schema'
 import type { Exercise, WorkoutPlan } from '@/workout/types'
 import { usePersisted } from '@/storage/db'
@@ -19,7 +19,7 @@ import { ANAMNESIS_STEPS, AnamnesisFlow } from '@/profile/AnamnesisFlow'
 import { Steps } from '@/components/Steps'
 
 const ONBOARDING_STEPS = ANAMNESIS_STEPS + 2
-type Step = 'anamnese' | 'treino' | 'editor' | 'import' | 'dieta'
+type Step = 'anamnese' | 'treino' | 'editor' | 'ia' | 'convert' | 'dieta'
 
 function StepHeader({ n, onSkip }: { n: number; onSkip: () => void }) {
   return (
@@ -57,7 +57,7 @@ export function Onboarding() {
 
   const toDieta = () => setStep('dieta')
   if (step === 'editor') return <PlanEditor initial={initial} onSave={(p) => { setPlan(p); toDieta() }} onCancel={() => setStep('treino')} />
-  if (step === 'import') return <PlanImport onDone={toDieta} onBack={() => setStep('treino')} />
+  if (step === 'ia' || step === 'convert') return <PlanImport mode={step} onDone={toDieta} onBack={() => setStep('treino')} />
   if (step === 'anamnese') {
     return (
       <AnamnesisFlow
@@ -103,9 +103,10 @@ export function Onboarding() {
           )
         })}
       </div>
-      <div className="mt-2.5 grid grid-cols-2 gap-2.5">
+      <div className="mt-2.5 grid grid-cols-3 gap-2.5">
         <Button type="button" variant="outline" className="h-16 flex-col gap-1" onClick={() => { setInitial(DEFAULTS.workoutPlan); setStep('editor') }}><Plus size={16} aria-hidden="true" />Do zero</Button>
-        <Button type="button" variant="outline" className="h-16 flex-col gap-1" onClick={() => setStep('import')}><Sparkles size={16} className="text-accent" aria-hidden="true" />Importar de IA</Button>
+        <Button type="button" variant="outline" className="h-16 flex-col gap-1" onClick={() => setStep('ia')}><Sparkles size={16} className="text-accent" aria-hidden="true" />Gerar com IA</Button>
+        <Button type="button" variant="outline" className="h-16 flex-col gap-1" onClick={() => setStep('convert')}><FileInput size={16} aria-hidden="true" />Converter</Button>
       </div>
       <BottomBar className="flex-col gap-2">
         {error && <p role="alert" className="rounded-[10px] border border-border bg-panel px-3 py-2 text-sm text-negative">{error}</p>}

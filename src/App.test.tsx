@@ -58,7 +58,7 @@ test('Configurações: grupo DIETA abre cardápio, IA e a tela da água, e cada 
   await user.click(screen.getByRole('button', { name: /Cardápio/ }))
   expect(await screen.findByRole('heading', { name: 'Cardápio' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Cancelar' }))
-  await user.click(await screen.findByRole('button', { name: /Gerar com IA/ }))
+  await user.click((await screen.findAllByRole('button', { name: /Gerar com IA/ })).at(-1)!) // o do grupo DIETA vem depois do do treino
   expect(await screen.findByRole('heading', { name: 'Gerar com IA' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Voltar' }))
   await user.click(await screen.findByRole('button', { name: /Água/ }))

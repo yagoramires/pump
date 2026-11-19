@@ -115,3 +115,16 @@ test('voltar no passo 4 leva ao Dia zero com o peso salvo', async () => {
   expect(screen.getByRole('heading', { name: 'Dia zero' })).toBeInTheDocument()
   expect(screen.getByLabelText('Peso')).toHaveValue('82,4')
 })
+
+test('passo 4 abre Gerar com IA e Converter e volta pro treino', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<Onboarding />)
+  await toTreino(user)
+  await user.click(screen.getByRole('button', { name: 'Gerar com IA' }))
+  expect(await screen.findByRole('heading', { name: 'Gerar com IA' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Voltar' }))
+  await user.click(screen.getByRole('button', { name: 'Converter' }))
+  expect(await screen.findByRole('heading', { name: 'Converter ficha' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Voltar' }))
+  expect(screen.getByRole('heading', { name: 'Seu treino' })).toBeInTheDocument()
+})

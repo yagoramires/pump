@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import type { DietAnamnesis, DietItem, DietPlan } from './types'
 import { usePersisted } from '@/storage/db'
 import { fetchTaco } from '@/catalog/catalog'
-import { buildDietPrompt } from './prompt'
+import { buildDietConvertPrompt, buildDietPrompt } from './prompt'
 import { DIET_NOT_FOUND, dietFromFormat, matchLabel, parseDietFormat } from './dietFormat'
 import { optionLetter } from './day'
 import { itemKcal, kcalOf, macroText, portionText } from './food'
@@ -18,12 +18,12 @@ import { Button } from '@/components/ui/button'
 import { BackHeader } from '@/components/BackHeader'
 import { BottomBar } from '@/components/BottomBar'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { formatDec } from '@/lib/number'
+import { formatDec, namesText } from '@/lib/number'
 import { todayKey } from '@/lib/date'
 import { copyText } from '@/lib/share'
 import { cn } from '@/lib/utils'
 
-type Props = { mode: 'ia' | 'import'; onDone: () => void; onBack: () => void }
+type Props = { mode: 'ia' | 'convert'; onDone: () => void; onBack: () => void }
 
 const allItems = (plan: DietPlan) => plan.menus.flatMap((m) => m.meals.flatMap((ml) => ml.options.flatMap((o) => o.items)))
 const replaceItem = (plan: DietPlan, id: string, next: DietItem): DietPlan => ({
@@ -74,7 +74,8 @@ export function DietImport({ mode, onDone, onBack }: Props) {
 
   if (review) {
     const menu = review.plan.menus[tab] ?? review.plan.menus[0]
-    const outside = allItems(review.plan).filter((i) => i.source === 'ia').length
+    const outsideItems = allItems(review.plan).filter((i) => i.source === 'ia')
+    const outside = outsideItems.length
     return (
       <div className="flex flex-col gap-3 pb-28">
         <BackHeader title="Revisar cardápio" onBack={() => edit('')} className="min-h-11" />
@@ -132,7 +133,10 @@ export function DietImport({ mode, onDone, onBack }: Props) {
         {outside > 0 && (
           <p className="flex items-start gap-2 card p-3.5 text-[13px] text-text-2">
             <AlertTriangle size={16} className="mt-px shrink-0 text-c7" aria-hidden="true" />
-            {`${outside} ${outside === 1 ? 'item fora da TACO usa' : 'itens fora da TACO usam'} os números da IA. Toque pra trocar.`}
+            <span>
+              {`${outside} ${outside === 1 ? 'item fora da TACO usa' : 'itens fora da TACO usam'} os números da IA. Toque pra trocar.`}
+              <span className="block">{namesText(outsideItems.map((i) => i.name))}</span>
+            </span>
           </p>
         )}
         <BottomBar className="gap-2">
@@ -158,11 +162,18 @@ export function DietImport({ mode, onDone, onBack }: Props) {
 
   return (
     <div className="flex flex-col gap-3 pb-28">
-      <BackHeader title={mode === 'ia' ? 'Gerar com IA' : 'Importar cardápio'} onBack={onBack} className="min-h-11" />
+      <BackHeader title={mode === 'ia' ? 'Gerar com IA' : 'Converter dieta'} onBack={onBack} className="min-h-11" />
       {mode === 'ia' && <DietAnamnesisForm value={anamnesis} onChange={setEdited} />}
       <div className="overflow-hidden card">
-        {mode === 'ia' && <Step n={1} title="Copie o prompt" sub="Botão lá embaixo; cole no ChatGPT" />}
-        <Step n={mode === 'ia' ? 2 : 1} title="Cole a resposta aqui" sub="Pode colar o texto todo ou escolher o arquivo" />
+        {mode === 'ia'
+          ? <Step n={1} title="Copie o prompt" sub="Botão lá embaixo; cole no ChatGPT" />
+          : (
+            <Step n={1} title="Copie o prompt" sub="Cole no ChatGPT">
+              <Button type="button" variant="outline" size="sm" className="h-9 bg-transparent" onClick={async () => toast((await copyText(buildDietConvertPrompt())) ? 'Prompt copiado' : 'Não consegui copiar. Tente de novo.')}><Copy size={14} aria-hidden="true" />Copiar</Button>
+            </Step>
+          )}
+        {mode === 'convert' && <Step n={2} title="Mande pra sua IA junto com sua dieta" sub="PDF, foto ou texto" />}
+        <Step n={mode === 'ia' ? 2 : 3} title="Cole a resposta aqui" sub="Pode colar o texto todo ou escolher o arquivo" />
       </div>
       <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", "dieta": ... }'>
         {paste.reviewing && <p role="status" className="text-[13px] text-text-2">Conferindo na TACO…</p>}

@@ -6,6 +6,7 @@ import { clear, get } from 'idb-keyval'
 import { resetStoreForTests, save } from '@/storage/db'
 import { fetchTaco } from '@/catalog/catalog'
 import { DietImport } from './DietImport'
+import { buildDietConvertPrompt } from './prompt'
 
 // fetchTaco guarda a promessa no módulo; mockado, cada teste escolhe online ou offline
 vi.mock('@/catalog/catalog', async (orig) => ({ ...(await orig<typeof import('@/catalog/catalog')>()), fetchTaco: vi.fn() }))
@@ -53,7 +54,7 @@ test('gerar com IA: copiar prompt grava a anamnese', async () => {
 
 test('import offline: tudo vira estimativa com aviso e dá pra usar', async () => {
   const onDone = vi.fn()
-  await renderLoaded(<DietImport mode="import" onDone={onDone} onBack={vi.fn()} />)
+  await renderLoaded(<DietImport mode="convert" onDone={onDone} onBack={vi.fn()} />)
   expect(screen.queryByRole('button', { name: 'Copiar prompt pra IA' })).not.toBeInTheDocument()
   const user = await paste(json([WHEY, PAO]))
   expect(await screen.findByText('Sem internet: usei os números da IA. Dá pra trocar depois.')).toBeInTheDocument()
@@ -71,7 +72,7 @@ test('import offline: tudo vira estimativa com aviso e dá pra usar', async () =
 
 test('casado por palavras com nome diferente mostra "na TACO"', async () => {
   vi.mocked(fetchTaco).mockResolvedValue(TACO)
-  await renderLoaded(<DietImport mode="import" onDone={vi.fn()} onBack={vi.fn()} />)
+  await renderLoaded(<DietImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
   const user = await paste(json([PAO, WHEY]))
   expect(await screen.findByText('na TACO: Pão, trigo, francês')).toBeInTheDocument()
   expect(screen.queryByText('Sem internet: usei os números da IA. Dá pra trocar depois.')).not.toBeInTheDocument()
@@ -88,7 +89,7 @@ test('casado por palavras com nome diferente mostra "na TACO"', async () => {
 })
 
 test('JSON inválido lista os erros e não grava', async () => {
-  await renderLoaded(<DietImport mode="import" onDone={vi.fn()} onBack={vi.fn()} />)
+  await renderLoaded(<DietImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
   await paste(JSON.stringify({ formato: 'pump-plano', versao: 1, dieta: { refeicoes: [{ nome: '', horario: '7h', alimentos: [{ nome: 'Ovo', gramas: 50 }] }] } }))
   const alert = await screen.findByRole('alert')
   expect(within(alert).getByText('Refeição 1: falta o nome')).toBeInTheDocument()
@@ -104,7 +105,7 @@ test('substituir cardápio pede confirmação e preserva o que foi marcado hoje'
   await save('dietLog', log)
   resetStoreForTests()
   const onDone = vi.fn()
-  await renderLoaded(<DietImport mode="import" onDone={onDone} onBack={vi.fn()} />)
+  await renderLoaded(<DietImport mode="convert" onDone={onDone} onBack={vi.fn()} />)
   const user = await paste(json([PAO]))
   await user.click(await screen.findByRole('button', { name: 'Usar cardápios' }))
   const dialog = await screen.findByRole('alertdialog')
@@ -122,7 +123,7 @@ test('substituir cardápio pede confirmação e preserva o que foi marcado hoje'
 test('enquanto a TACO carrega mostra "Conferindo na TACO…"', async () => {
   let resolve!: (t: TacoFood[]) => void
   vi.mocked(fetchTaco).mockReturnValue(new Promise((r) => { resolve = r }))
-  await renderLoaded(<DietImport mode="import" onDone={vi.fn()} onBack={vi.fn()} />)
+  await renderLoaded(<DietImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
   await paste(json([PAO]))
   expect(await screen.findByRole('status')).toHaveTextContent('Conferindo na TACO…')
   resolve(TACO)
@@ -134,7 +135,7 @@ test('Editar e salvar por cima de um cardápio salvo passa pela mesma confirmaç
   await save('dietPlan', { menus: [{ id: 'X', name: 'Antigo', meals: [{ id: 'm', name: 'Café', time: '07:00', options: [{ id: 'o', items: [] }] }] }], lastMenuId: 'X' })
   resetStoreForTests()
   const onDone = vi.fn()
-  await renderLoaded(<DietImport mode="import" onDone={onDone} onBack={vi.fn()} />)
+  await renderLoaded(<DietImport mode="convert" onDone={onDone} onBack={vi.fn()} />)
   const user = await paste(json([PAO]))
   await user.click(await screen.findByRole('button', { name: 'Editar' }))
   await user.click(await screen.findByRole('button', { name: 'Salvar' }))
@@ -148,7 +149,7 @@ test('Editar e salvar por cima de um cardápio salvo passa pela mesma confirmaç
 
 test('Editar sem cardápio salvo grava direto', async () => {
   const onDone = vi.fn()
-  await renderLoaded(<DietImport mode="import" onDone={onDone} onBack={vi.fn()} />)
+  await renderLoaded(<DietImport mode="convert" onDone={onDone} onBack={vi.fn()} />)
   const user = await paste(json([PAO]))
   await user.click(await screen.findByRole('button', { name: 'Editar' }))
   await user.click(await screen.findByRole('button', { name: 'Salvar' }))
@@ -159,7 +160,7 @@ test('Editar sem cardápio salvo grava direto', async () => {
 
 test('criar alimento próprio na revisão não refaz a revisão nem perde as trocas', async () => {
   vi.mocked(fetchTaco).mockResolvedValue(TACO)
-  await renderLoaded(<DietImport mode="import" onDone={vi.fn()} onBack={vi.fn()} />)
+  await renderLoaded(<DietImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
   const user = await paste(json([PAO, WHEY]))
   await user.click(await screen.findByRole('button', { name: /Whey protein/ }))
   await user.click(await screen.findByRole('button', { name: 'Criar alimento próprio' }))
@@ -171,4 +172,19 @@ test('criar alimento próprio na revisão não refaz a revisão nem perde as tro
   await vi.waitFor(async () => expect(await get('foods')).toHaveLength(1))
   expect(screen.getByText('Meu whey')).toBeInTheDocument()
   expect(screen.getByText('na TACO: Pão, trigo, francês')).toBeInTheDocument()
+})
+
+test('converter: título, 3 passos, Copiar leva o prompt de conversão e lista os nomes fora da TACO', async () => {
+  const user = userEvent.setup()
+  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
+  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+  await renderLoaded(<DietImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
+  expect(await screen.findByRole('heading', { name: 'Converter dieta' })).toBeInTheDocument()
+  expect(screen.getByText('Mande pra sua IA junto com sua dieta')).toBeInTheDocument()
+  expect(screen.getByText('PDF, foto ou texto')).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Copiar' }))
+  expect(writeText).toHaveBeenCalledWith(buildDietConvertPrompt())
+  await paste(json([WHEY, PAO]))
+  expect(await screen.findByText('2 itens fora da TACO usam os números da IA. Toque pra trocar.')).toBeInTheDocument()
+  expect(screen.getByText('Whey protein, Pão francês')).toBeInTheDocument()
 })
