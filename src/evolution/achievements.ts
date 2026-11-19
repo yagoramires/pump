@@ -1,5 +1,5 @@
 import type { EvolutionInput } from './types'
-import { addDays, eachDay, weekStart, weekday } from '@/lib/date'
+import { addDays, eachDay, weekStart } from '@/lib/date'
 import { formatKg } from '@/lib/number'
 import { dayStatus } from '@/diet/day'
 import { completedSessions, exerciseHistory, loadPoints } from '@/workout/stats'
@@ -19,6 +19,7 @@ const WEIGHT_BADGES = {
 } as const
 
 const EPS = 1e-9
+const isWeekEnd = (key: string) => weekStart(addDays(key, 1)) === addDays(key, 1)
 
 // dias seguidos de `from` até ontem (dia aberto não conta): true soma, null pula, false zera
 function dayRun(from: string | undefined, today: string, ok: (k: string) => boolean | null) {
@@ -49,8 +50,8 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
         count++
         if (!reached.has(count)) reached.set(count, key)
       }
-      // sábado de semana já encerrada abaixo da meta zera; a semana atual e a da 1ª sessão (parcial) nunca zeram
-      if (weekday(key) === 6 && key < thisWeek && weekStart(key) !== firstWeek && eachDay(weekStart(key), addDays(key, 1)).filter((k) => trained.has(k)).length < goal) count = 0
+      // último dia de semana já encerrada abaixo da meta zera; a semana atual e a da 1ª sessão (parcial) nunca zeram
+      if (isWeekEnd(key) && key < thisWeek && weekStart(key) !== firstWeek && eachDay(weekStart(key), addDays(key, 1)).filter((k) => trained.has(k)).length < goal) count = 0
     }
   }
   const streakAt = (n: number) => [...reached].find(([c]) => c >= n)?.[1]

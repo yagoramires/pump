@@ -16,9 +16,10 @@ import { resetDay } from '@/diet/day'
 import { removeWaterDay } from '@/diet/water'
 import { WorkoutDayLine } from '@/workout/WorkoutDayLine'
 import { DietDayLine } from '@/diet/DietDayLine'
-import { FIELDS, formatMetric, removeMeasurement } from './measurements'
+import { FIELDS, formatValue, removeMeasurement } from './measurements'
 import { ANGLES } from './types'
-import { hasPhoto, usePhotoSets } from './photoSets'
+import { hasPhoto } from './photoSets'
+import { usePhotoSets } from './usePhotoSets'
 import { dayRecords } from './dayRecords'
 import { PhotoThumb } from './PhotoThumb'
 
@@ -140,7 +141,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                   <div className="min-w-0 flex-1">
                     <div className="text-body font-semibold text-strong">Medidas</div>
                     <div className="text-meta text-text-2 tabular-nums">
-                      {FIELDS.filter((f) => measure[f.key] !== undefined).map((f) => `${f.label} ${formatMetric(f, measure[f.key]!)} ${f.unit}`).join(' · ')}
+                      {FIELDS.filter((f) => measure[f.key] !== undefined).map((f) => `${f.label} ${formatValue(f, measure[f.key]!)}`).join(' · ')}
                     </div>
                   </div>
                   <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('measures')}>Apagar medidas</Button>

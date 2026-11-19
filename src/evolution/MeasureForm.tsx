@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { bodyFat } from './bodyFat'
-import { FIELDS, upsertMeasurement, type UpsertStatus } from './measurements'
+import { FIELDS, fieldsFor, upsertMeasurement, type UpsertStatus } from './measurements'
 import { Optional } from '@/components/Optional'
 import { Alert } from '@/components/ui/alert'
 
@@ -19,7 +19,7 @@ export function MeasureForm({ date, profile: draft, onSaved, submitLabel = 'Salv
   const [stored] = usePersisted('profile')
   const profile = draft ?? stored
   const initial = list.find((m) => m.date === date)
-  const fields = FIELDS.filter((f) => f.key !== 'hipCm' || profile.sex === 'F')
+  const fields = fieldsFor(profile.sex)
   const [text, setText] = useState(() =>
     Object.fromEntries(FIELDS.map(({ key }) => [key, initial?.[key] === undefined ? '' : formatInput(initial[key])])) as Record<Key, string>,
   )

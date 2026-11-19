@@ -2,7 +2,7 @@ import type { Profile } from '@/profile/types'
 import type { Measurement, PhotoSet } from './types'
 import { addDays, daysBetween, weekStart, weeksBetween } from '@/lib/date'
 import { BODY_FIELDS, WEIGHT, bodyRows, deltaUnit, series } from './measurements'
-import { ANGLES } from './types'
+import { photoCount } from './photoSets'
 
 export function checkInDue(day: number | undefined, measurements: Measurement[], today: string): string | undefined {
   const weights = series(measurements, WEIGHT.key)
@@ -35,7 +35,6 @@ export function weekSummary(profile: Profile, measurements: Measurement[], photo
   const sinceLast = bodyRows(profile, measurements, BODY_FIELDS, (points) => [points.filter((p) => p.date < today).pop(), points.find((p) => p.date === today)])
   const previousWeight = sinceLast.find((r) => r.key === WEIGHT.key)
   const rows = sinceLast.flatMap((r) => (r.key !== WEIGHT.key && r.delta ? [{ label: r.label, unit: deltaUnit(r), delta: r.delta, good: r.good }] : []))
-  const photos = photoSets.find((set) => set.date === today)
   return {
     week: weeksBetween(first.date, today),
     weight: now.value,
@@ -45,6 +44,6 @@ export function weekSummary(profile: Profile, measurements: Measurement[], photo
     prevIsLastWeek: !!prev && daysBetween(prev.date, today) <= LAST_WEEK_MAX_DAYS,
     sinceStart: bodyRows(profile, measurements, [WEIGHT], () => [first, now])[0].delta,
     rows,
-    photos: ANGLES.filter((angle) => photos?.[angle]).length,
+    photos: photoCount(photoSets.find((set) => set.date === today)),
   }
 }

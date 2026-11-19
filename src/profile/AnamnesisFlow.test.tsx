@@ -4,6 +4,7 @@ import { renderLoaded } from '../../test/render'
 import { DEFAULTS } from '@/schema'
 import { readCurrent, save } from '@/storage/db'
 import { AnamnesisFlow } from './AnamnesisFlow'
+import { DayZero } from '@/evolution/DayZero'
 
 const today = '2026-11-18'
 const mediaDevices = Object.getOwnPropertyDescriptor(navigator, 'mediaDevices')
@@ -20,7 +21,7 @@ const next = (user: ReturnType<typeof userEvent.setup>) => user.click(screen.get
 
 test('passo 1 exige altura (o sexo já vem marcado)', async () => {
   const user = userEvent.setup()
-  await renderLoaded(<AnamnesisFlow total={5} onDone={vi.fn()} />)
+  await renderLoaded(<AnamnesisFlow DayZero={DayZero} total={5} onDone={vi.fn()} />)
   expect(screen.getByRole('button', { name: 'Continuar' })).toBeDisabled()
   await user.type(screen.getByLabelText('Altura'), '178')
   expect(screen.getByRole('button', { name: 'Continuar' })).toBeEnabled()
@@ -28,7 +29,7 @@ test('passo 1 exige altura (o sexo já vem marcado)', async () => {
 
 test('voltar do passo 3 ao 1 mantém o que foi digitado e não grava nada', async () => {
   const user = userEvent.setup()
-  await renderLoaded(<AnamnesisFlow total={3} onDone={vi.fn()} />)
+  await renderLoaded(<AnamnesisFlow DayZero={DayZero} total={3} onDone={vi.fn()} />)
   await user.type(screen.getByLabelText('Idade'), '29')
   await user.type(screen.getByLabelText('Altura'), '178')
   await next(user)
@@ -44,7 +45,7 @@ test('voltar do passo 3 ao 1 mantém o que foi digitado e não grava nada', asyn
 test('dia zero exige peso e grava perfil, medição e check-in juntos', async () => {
   const onDone = vi.fn()
   const user = userEvent.setup()
-  await renderLoaded(<AnamnesisFlow total={3} onDone={onDone} />)
+  await renderLoaded(<AnamnesisFlow DayZero={DayZero} total={3} onDone={onDone} />)
   await user.type(screen.getByLabelText('Idade'), '29')
   await user.type(screen.getByLabelText('Altura'), '178')
   await next(user)
@@ -64,7 +65,7 @@ test('dia zero exige peso e grava perfil, medição e check-in juntos', async ()
 test('abre preenchido para quem já usa', async () => {
   await save('profile', { sex: 'M', heightCm: 180, age: 40, dietGoal: 'ganhar' })
   const user = userEvent.setup()
-  await renderLoaded(<AnamnesisFlow total={3} onDone={vi.fn()} />)
+  await renderLoaded(<AnamnesisFlow DayZero={DayZero} total={3} onDone={vi.fn()} />)
   expect(screen.getByLabelText('Idade')).toHaveValue('40')
   await next(user)
   expect(screen.getByRole('radio', { name: 'Ganhar peso' })).toBeChecked()
@@ -73,7 +74,7 @@ test('abre preenchido para quem já usa', async () => {
 test('dia zero mantém o peso digitado depois de abrir e fechar as fotos', async () => {
   Object.defineProperty(navigator, 'mediaDevices', { value: undefined, configurable: true })
   const user = userEvent.setup()
-  await renderLoaded(<AnamnesisFlow total={3} onDone={vi.fn()} />)
+  await renderLoaded(<AnamnesisFlow DayZero={DayZero} total={3} onDone={vi.fn()} />)
   await user.type(screen.getByLabelText('Altura'), '178')
   await next(user)
   await next(user)
@@ -87,7 +88,7 @@ test('dia zero mantém o peso digitado depois de abrir e fechar as fotos', async
 
 test('sexo F mostra Quadril no dia zero', async () => {
   const user = userEvent.setup()
-  await renderLoaded(<AnamnesisFlow total={3} onDone={vi.fn()} />)
+  await renderLoaded(<AnamnesisFlow DayZero={DayZero} total={3} onDone={vi.fn()} />)
   await user.click(screen.getByRole('radio', { name: 'Feminino' }))
   await user.type(screen.getByLabelText('Altura'), '165')
   await next(user)
@@ -98,7 +99,7 @@ test('sexo F mostra Quadril no dia zero', async () => {
 
 test('dia zero conserva a data de início ao passar da meia-noite', async () => {
   const user = userEvent.setup()
-  await renderLoaded(<AnamnesisFlow total={3} onDone={vi.fn()} />)
+  await renderLoaded(<AnamnesisFlow DayZero={DayZero} total={3} onDone={vi.fn()} />)
   await user.type(screen.getByLabelText('Altura'), '178')
   await next(user)
   await next(user)
@@ -114,7 +115,7 @@ test('dia zero conserva a data de início ao passar da meia-noite', async () => 
 
 test('dia zero usa o novo dia quando a etapa anterior passou da meia-noite', async () => {
   const user = userEvent.setup()
-  await renderLoaded(<AnamnesisFlow total={3} onDone={vi.fn()} />)
+  await renderLoaded(<AnamnesisFlow DayZero={DayZero} total={3} onDone={vi.fn()} />)
   await user.type(screen.getByLabelText('Altura'), '178')
   await next(user)
 
@@ -129,7 +130,7 @@ test('dia zero usa o novo dia quando a etapa anterior passou da meia-noite', asy
 
 test('avisos e opcionais em cada passo', async () => {
   const user = userEvent.setup()
-  await renderLoaded(<AnamnesisFlow total={3} onDone={vi.fn()} />)
+  await renderLoaded(<AnamnesisFlow DayZero={DayZero} total={3} onDone={vi.fn()} />)
   expect(screen.getByText('Só a altura é obrigatória. O resto deixa os prompts de IA mais precisos e dá pra completar depois em Configurações › Perfil.')).toBeInTheDocument()
   expect(screen.getAllByText('opcional')).toHaveLength(6) // idade, 3 horários, dias, lesões
   await user.type(screen.getByLabelText('Altura'), '178')

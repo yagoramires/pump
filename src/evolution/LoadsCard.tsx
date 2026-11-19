@@ -36,8 +36,8 @@ export function LoadsCard({ log, today, period, onPeriod, onOpen }: { log: Worko
       ) : (
         <>
           <div className="flex flex-col gap-1 px-3.5 pb-3 text-sm text-text-2">
-            <div className="flex justify-between"><span>Carga máx.</span><span className="tabular-nums">{tally(top)}</span></div>
-            <div className="flex justify-between"><span>Volume</span><span className="tabular-nums">{tally(total)}</span></div>
+            <div className="flex justify-between"><span>{MODE_TEXT.load.top}</span><span className="tabular-nums">{tally(top)}</span></div>
+            <div className="flex justify-between"><span>{MODE_TEXT.load.total}</span><span className="tabular-nums">{tally(total)}</span></div>
           </div>
           {groups.map((g) => (
             <div key={g.token}>

@@ -13,7 +13,8 @@ import { TabHeader } from '@/components/TabHeader'
 import { EmptyState } from '@/components/EmptyState'
 import { IconDot } from '@/components/IconDot'
 import type { Metric } from './goal'
-import { FAT, WEIGHT, deltaUnit, formatMetric, metricUnit } from './measurements'
+import { FAT, WEIGHT, deltaUnit, formatValue } from './measurements'
+import { BodyRowLine } from './BodyRowLine'
 import { LineChart } from './LineChart'
 import { PERIODS, inPeriod, type Period } from './chart'
 import { PeriodTabs } from './PeriodTabs'
@@ -34,6 +35,7 @@ import { AnamnesisCard } from '@/profile/AnamnesisCard'
 import { useCheckIn } from './useCheckIn'
 import { Overlay } from '@/components/Overlay'
 import { AnamnesisFlow } from '@/profile/AnamnesisFlow'
+import { DayZero } from './DayZero'
 import { useEvolution } from './useEvolution'
 import { buildReport } from './report'
 import { generatePdf } from './pdf/generate'
@@ -67,7 +69,7 @@ export function EvolutionTab() {
   const { due } = useCheckIn()
 
   if (view === 'checkin') return <CheckInFlow onClose={() => setView(undefined)} />
-  if (view === 'anamnesis') return <Overlay><AnamnesisFlow onDone={() => setView(undefined)} onCancel={() => setView(undefined)} /></Overlay>
+  if (view === 'anamnesis') return <Overlay><AnamnesisFlow DayZero={DayZero} onDone={() => setView(undefined)} onCancel={() => setView(undefined)} /></Overlay>
   if (photoDate) return <PhotoCapture date={photoDate} onClose={() => setPhotoDate(undefined)} />
   if (view === 'compare') return <PhotoCompare onClose={() => setView(undefined)} />
   if (view === 'achievements') return <AchievementsScreen onClose={() => setView(undefined)} />
@@ -146,10 +148,10 @@ export function EvolutionTab() {
       {cards}
 
       <div className="grid grid-cols-3 gap-2">
-        <Kpi label={WEIGHT.label} value={weight ? `${formatMetric(WEIGHT, weight.last.value)}${metricUnit(WEIGHT)}` : '—'}>
+        <Kpi label={WEIGHT.label} value={weight ? formatValue(WEIGHT, weight.last.value) : '—'}>
           <Delta value={weight?.delta} good={!!weight?.good} unit={deltaUnit(WEIGHT)} />
         </Kpi>
-        <Kpi label={FAT.label} value={fat ? `${formatMetric(FAT, fat.last.value)}${metricUnit(FAT)}` : '—'}>
+        <Kpi label={FAT.label} value={fat ? formatValue(FAT, fat.last.value) : '—'}>
           <Delta value={fat?.delta} good={!!fat?.good} unit={deltaUnit(FAT)} />
         </Kpi>
         <Kpi label="Treinos" value={String(training.workouts)}>
@@ -172,15 +174,7 @@ export function EvolutionTab() {
       {rows.length > 0 && (
         <Card size="flush">
           <CardHeader className="pt-3 pb-2"><CardTitle>Medidas</CardTitle></CardHeader>
-          {rows.map((r) => (
-            <div key={r.key} className="flex items-center justify-between gap-3 border-t border-line px-3.5 py-2.5 text-sm">
-              <span className="text-text-2">{r.label}</span>
-              <span className="tabular-nums">
-                <b className="font-semibold text-strong">{`${formatMetric(r, r.first.value)} → ${formatMetric(r, r.last.value)}${metricUnit(r)}`}</b>
-                <Delta value={r.delta} good={r.good} unit={deltaUnit(r)} className="ml-2 text-meta" />
-              </span>
-            </div>
-          ))}
+          {rows.map((r) => <BodyRowLine key={r.key} row={r} />)}
         </Card>
       )}
 

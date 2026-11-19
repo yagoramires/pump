@@ -1,4 +1,5 @@
-import { useState, type ReactNode } from 'react'
+import { useState, type ComponentType, type ReactNode } from 'react'
+import type { Profile } from './types'
 import { todayKey } from '@/lib/date'
 import { AboutForm } from './AboutForm'
 import { GoalsForm } from './GoalsForm'
@@ -7,12 +8,13 @@ import { BottomBar } from '@/components/BottomBar'
 import { Steps } from '@/components/Steps'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { DayZero } from './DayZero'
 import { ANAMNESIS_STEPS, ANAMNESIS_TITLES, hasProfile } from './profile'
 import { useProfileDraft } from './useProfileDraft'
 
-/** `total`: passos do fluxo em volta (o onboarding soma treino e dieta); sem `onCancel`, o 1º passo não tem voltar */
-export function AnamnesisFlow({ resumeAtDayZero, total = ANAMNESIS_STEPS, onDone, onCancel, footer }: { resumeAtDayZero?: boolean; total?: number; onDone: () => void; onCancel?: () => void; footer?: ReactNode }) {
+export interface DayZeroProps { profile: Profile; date: string; checkInDay: number; onCheckInDayChange: (day: number) => void; onDone: () => void }
+
+/** `total`: passos do fluxo em volta (o onboarding soma treino e dieta); sem `onCancel`, o 1º passo não tem voltar; `DayZero` vem de quem chama, o perfil não depende da tela de evolução */
+export function AnamnesisFlow({ DayZero, resumeAtDayZero, total = ANAMNESIS_STEPS, onDone, onCancel, footer }: { DayZero: ComponentType<DayZeroProps>; resumeAtDayZero?: boolean; total?: number; onDone: () => void; onCancel?: () => void; footer?: ReactNode }) {
   const [today, setToday] = useState(todayKey)
   const { draft, setDraft, day, setDay, saveDraft } = useProfileDraft(today)
   const [step, setStep] = useState(resumeAtDayZero ? ANAMNESIS_STEPS - 1 : 0)
