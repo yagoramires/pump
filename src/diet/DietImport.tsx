@@ -174,15 +174,16 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-3 pb-28">
+    <div className="flex flex-col gap-3">
       <BackHeader title={mode === 'ia' ? 'Gerar com IA' : 'Converter dieta'} onBack={onBack} className="min-h-11" />
-      {mode === 'ia' && <DietAnamnesisForm value={anamnesis} onChange={setEdited} />}
       <ImportGuide
         mode={mode}
         made="cardápio"
         source="dieta"
         copy={<Button type="button" variant="outline" size="sm" onClick={mode === 'ia' ? copyPrompt : () => copy(buildDietConvertPrompt())}><Copy size={14} aria-hidden="true" />Copiar</Button>}
-      />
+      >
+        {mode === 'ia' && <DietAnamnesisForm value={anamnesis} onChange={setEdited} />}
+      </ImportGuide>
       <CopyListButton file={FOOD_LIST} noun="alimentos" ok="Lista copiada" report={toast} />
       <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", "dieta": ... }'>
         {paste.failed && <Alert variant="destructive">Não consegui revisar o cardápio. Tente colar ou escolher o arquivo novamente.</Alert>}
