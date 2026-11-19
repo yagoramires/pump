@@ -6,7 +6,7 @@ import { FIELDS, WEIGHT, fatSeries, latestWeight, series } from '@/evolution/mea
 import { addDays, daysBetween, weeksBetween } from '@/lib/date'
 import { formatDec, formatKg, formatSigned, plural } from '@/lib/number'
 import { FOOD_LIST_URL } from '@/catalog/urls'
-import { listRule as rule } from '@/format/listRule'
+import { COPYABLE_JSON_RULE, listRule as rule } from '@/format/promptRules'
 import { label, names, profileLines } from '@/profile/promptLines'
 import { GOAL_KCAL, GRAMS, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 
@@ -130,7 +130,7 @@ Exemplo (um cardápio e uma refeição, só pra mostrar o formato):
 }
 \`\`\`
 
-Quando for mandar o cardápio, responda só com o JSON.`
+${COPYABLE_JSON_RULE}`
 
 export const buildDietPrompt = (profile: Profile | undefined, measurements: Measurement[], today: string): string => {
   const me = aboutMe(profile, measurements, today)
@@ -151,7 +151,6 @@ Como fazer:
 6. Dê 2 opções em cada refeição (ex.: "Ovos com pão" e "Iogurte com aveia"), com calorias e macros parecidos, pra eu poder variar.
 7. ${listRule('Só use outro nome se nenhum da lista servir, escrevendo no mesmo padrão e sempre dizendo o preparo.')}
 8. Pra cada alimento, informe as gramas, a porção caseira e os valores da quantidade indicada (não por 100 g): kcal, proteína, carboidrato e gordura.
-9. Com o cardápio pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
 
 ${FORMAT}`
 }
@@ -165,6 +164,5 @@ Como fazer:
 4. Se faltar a quantidade em gramas, estime pela porção caseira (e ponha a medida em "porcao"); se faltar o horário, use um horário comum para a refeição.
 5. Respeite os limites do formato: até ${MAX_MENUS} cardápios, ${MAX_MEALS} refeições por cardápio, ${MAX_OPTIONS} opções por refeição e ${MAX_ITEMS} alimentos por opção. Se a dieta tiver mais de ${MAX_MENUS} cardápios, fique com os ${MAX_MENUS} primeiros; se uma refeição tiver mais de ${MAX_OPTIONS} opções, fique com as ${MAX_OPTIONS} primeiras; se uma opção tiver mais de ${MAX_ITEMS} alimentos, fique com os ${MAX_ITEMS} primeiros; o mesmo vale pras refeições além de ${MAX_MEALS}.
 6. "metaKcal" é um número inteiro de ${GOAL_KCAL[0]} a ${GOAL_KCAL[1]} e cada macro da meta vai de ${MACRO_G[0]} a ${MACRO_G[1]} g: se você calcular a meta, arredonde para inteiro e ajuste pra dentro dessa faixa.
-7. Responda SOMENTE com o JSON, sem explicação antes ou depois.
 
 ${FORMAT}`

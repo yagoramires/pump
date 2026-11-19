@@ -33,10 +33,12 @@ test('gerar e converter usam a lista do catálogo, só o nome, e dividem o forma
     expect(p).toContain('não conseguir abrir o link')
     expect(p).toContain('Copie a linha inteira da lista, do jeito que está, com o equipamento entre parênteses')
     expect(p).toContain('"formato": sempre "pump-plano"')
+    expect(p).toContain('um único bloco de código Markdown com a linguagem `json`')
+    expect(p).toContain('para eu copiar e colar no Pump')
+    expect(p).toContain('Não escreva texto fora do bloco.')
   }
   expect(buildConvertPrompt()).toContain('sem mudar')
   expect(buildConvertPrompt()).toContain('mantenha o nome original')
-  expect(buildConvertPrompt()).toContain('Responda SOMENTE com o JSON')
 })
 
 test('os prompts pedem pra colar a lista se a IA não abrir o link', () => {
