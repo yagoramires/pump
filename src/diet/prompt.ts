@@ -8,6 +8,9 @@ import { formatDec, formatKg, formatSigned, plural } from '@/lib/number'
 import { FOOD_LIST_URL } from '@/catalog/urls'
 import { COPYABLE_JSON_RULE, listRule as rule } from '@/format/promptRules'
 import { label, names, profileLines } from '@/profile/promptLines'
+import { exportDietFormat } from './dietFormat'
+import { preparePlan } from './plan'
+import type { DietPlan } from './types'
 import { GOAL_KCAL, GRAMS, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 
 export const TACO_EXAMPLES: string[] = [
@@ -166,3 +169,16 @@ Como fazer:
 6. "metaKcal" é um número inteiro de ${GOAL_KCAL[0]} a ${GOAL_KCAL[1]} e cada macro da meta vai de ${MACRO_G[0]} a ${MACRO_G[1]} g: se você calcular a meta, arredonde para inteiro e ajuste pra dentro dessa faixa.
 
 ${FORMAT}`
+
+export const buildDietAdjustPrompt = (plan: DietPlan): string => `Este é meu plano de dieta no formato do app Pump. Em seguida eu digo o que quero mudar.
+
+Regras:
+1. Mude só o que eu pedir. O resto fica igual, inclusive o formato e os nomes dos campos.
+2. Para alimento novo: ${listRule('Só use outro nome se nenhum da lista servir, escrevendo no mesmo padrão e sempre dizendo o preparo.')}
+3. ${COPYABLE_JSON_RULE}
+
+Meu plano atual:
+\`\`\`json
+${exportDietFormat(preparePlan(plan))}
+\`\`\`
+`

@@ -1,5 +1,8 @@
-import { buildConvertPrompt, buildPrompt } from './prompt'
+import { buildAdjustPrompt, buildConvertPrompt, buildPrompt } from './prompt'
+import { parsePlanFormat } from './planFormat'
+import { planOf, planWith } from '../../test/helpers'
 import { EXERCISE_LIST_URL } from '@/catalog/urls'
+import { COPYABLE_JSON_RULE } from '@/format/promptRules'
 
 test('treino não leva objetivo da dieta nem peso', () => {
   const p = buildPrompt({ sex: 'M', heightCm: 178, dietGoal: 'perder', focus: 'hipertrofia' })
@@ -44,4 +47,17 @@ test('gerar e converter usam a lista do catálogo, só o nome, e dividem o forma
 test('os prompts pedem pra colar a lista se a IA não abrir o link', () => {
   expect(buildPrompt()).toContain('me peça pra colar a lista')
   expect(buildConvertPrompt()).toContain('me peça pra colar a lista')
+})
+
+test('ajustar: leva regras e o plano atual, e a importação lê o texto de volta', () => {
+  const plan = planWith([{ name: 'Supino reto (barra)', sets: 4, reps: '8-10', weightKg: 40, restSec: 90, note: 'pausa' }])
+  const p = buildAdjustPrompt(plan)
+  expect(p).toContain('Mude só o que eu pedir')
+  expect(p).toContain(EXERCISE_LIST_URL)
+  expect(p).toContain(COPYABLE_JSON_RULE)
+  const back = parsePlanFormat(p)
+  expect(back.treinos[0].exercicios[0]).toMatchObject({ nome: 'Supino reto (barra)', series: 4, reps: '8-10', cargaKg: 40, descansoSeg: 90, obs: 'pausa' })
+})
+test('ajustar: plano vazio não quebra', () => {
+  expect(() => buildAdjustPrompt(planOf([]))).not.toThrow()
 })
