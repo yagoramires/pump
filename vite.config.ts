@@ -9,8 +9,9 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    // sem registerType: fica 'prompt' sem UI, a versão nova entra quando o app é fechado de vez
+    // autoUpdate: o app da tela de início quase nunca é fechado de vez, então a versão nova entra e recarrega na hora
     VitePWA({
+      registerType: 'autoUpdate',
       strategies: 'injectManifest',
       srcDir: 'src',
       filename: 'sw.ts',
