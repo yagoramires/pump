@@ -1,11 +1,11 @@
 import { useId, type ReactNode } from 'react'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, FileInput, Sparkles, Wand2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { IconDot } from './IconDot'
+import type { ImportMode } from './ImportFlow'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-
-/** abre uma tela por cima das Configurações; sem argumento volta pro menu */
-export type OpenView = (view?: ReactNode) => void
+import { makeCopy } from '@/lib/share'
 
 export function SettingsSection({ title, children }: { title: string; children: ReactNode }) {
   const id = useId()
@@ -27,5 +27,16 @@ export function SettingsRow({ icon, color, title, sub, onClick }: { icon: ReactN
       </span>
       <ChevronRight size={18} className="text-faint" aria-hidden="true" />
     </Button>
+  )
+}
+
+/** as mesmas três entradas de IA pra treino e dieta: ajustar copia o plano atual, gerar e converter abrem a importação */
+export function AiPlanRows({ adjustPrompt, onImport }: { adjustPrompt: () => string; onImport: (mode: ImportMode) => void }) {
+  return (
+    <>
+      <SettingsRow icon={<Wand2 size={18} aria-hidden="true" />} color="var(--c4)" title="Ajustar com IA" sub="Copia seu plano pra pedir mudanças" onClick={() => makeCopy(toast)(adjustPrompt(), 'Plano copiado. Cole na IA e peça os ajustes.')} />
+      <SettingsRow icon={<Sparkles size={18} aria-hidden="true" />} color="var(--c4)" title="Gerar com IA" onClick={() => onImport('ia')} />
+      <SettingsRow icon={<FileInput size={18} aria-hidden="true" />} color="var(--c4)" title="Converter" onClick={() => onImport('convert')} />
+    </>
   )
 }

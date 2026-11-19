@@ -1,11 +1,10 @@
-import { Droplet, FileInput, Sparkles, Utensils, Wand2 } from 'lucide-react'
-import { toast } from 'sonner'
-import { makeCopy } from '@/lib/share'
+import { Droplet, Utensils } from 'lucide-react'
 import { usePersisted } from '@/storage/db'
 import { liters } from './display'
 import { activeWater } from './water'
 import { BackHeader } from '@/components/BackHeader'
-import { SettingsRow, type OpenView } from '@/components/SettingsSection'
+import { AiPlanRows, SettingsRow } from '@/components/SettingsSection'
+import type { OpenView } from '@/shell/SettingsScreen'
 import { useDietPlan } from './useDietPlan'
 import { DietEditor } from './DietEditor'
 import { DietImport } from './DietImport'
@@ -20,9 +19,7 @@ export function DietSettings({ open }: { open: OpenView }) {
   return (
     <>
       <SettingsRow icon={<Utensils size={18} aria-hidden="true" />} color="var(--c7)" title="Cardápio" onClick={() => open(<DietEditor initial={dietPlan} onSave={(next) => { replacePlan(next); back() }} onCancel={back} />)} />
-      <SettingsRow icon={<Wand2 size={18} aria-hidden="true" />} color="var(--c4)" title="Ajustar com IA" sub="Copia seu plano pra pedir mudanças" onClick={() => makeCopy(toast)(buildDietAdjustPrompt(dietPlan), 'Plano copiado. Cole na IA e peça os ajustes.')} />
-      <SettingsRow icon={<Sparkles size={18} aria-hidden="true" />} color="var(--c4)" title="Gerar com IA" onClick={() => open(<DietImport mode="ia" onDone={back} onBack={back} />)} />
-      <SettingsRow icon={<FileInput size={18} aria-hidden="true" />} color="var(--c4)" title="Converter" onClick={() => open(<DietImport mode="convert" onDone={back} onBack={back} />)} />
+      <AiPlanRows adjustPrompt={() => buildDietAdjustPrompt(dietPlan)} onImport={(mode) => open(<DietImport mode={mode} onDone={back} onBack={back} />)} />
       <SettingsRow icon={<Droplet size={18} aria-hidden="true" />} color="var(--c2)" title="Água" sub={on ? `${liters(on.goalMl)} L por dia` : 'Desligada'} onClick={() => open(<><BackHeader title="Água" onBack={back} /><WaterSettings /></>)} />
     </>
   )

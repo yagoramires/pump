@@ -1,7 +1,7 @@
 import { parseDayKey } from '@/lib/date'
-import { isCardio } from './cardio'
+import { isCardio } from './reps'
 import { isRest } from './rest'
-import type { SessionExercise, SetDone, Workout, WorkoutSession } from './types'
+import type { SessionExercise, SetDone, Workout, WorkoutPlan, WorkoutSession } from './types'
 
 const MIDNIGHT_HOLD_MS = 6 * 60 * 60 * 1000
 
@@ -73,6 +73,21 @@ export function changeRestDuration(s: WorkoutSession, exIdx: number, restSec: nu
   return {
     ...startRest(s, exIdx, restSec * 1000, now),
     exercises: s.exercises.map((e, i) => i === exIdx ? { ...e, restSec } : e),
+  }
+}
+
+/** leva o descanso novo pro plano. O plano pode ter sido editado no meio do treino: acha o exercício pela
+ * ocorrência entre os de mesmo id (o 2º supino da sessão é o 2º do treino), não pela posição */
+export function changePlanRest(plan: WorkoutPlan, s: WorkoutSession, exIdx: number, restSec: number): WorkoutPlan {
+  const id = s.exercises[exIdx]?.exerciseId
+  const nth = s.exercises.slice(0, exIdx).filter((e) => e.exerciseId === id).length
+  return {
+    ...plan,
+    workouts: plan.workouts.map((w) => {
+      if (w.id !== s.workoutId) return w
+      let seen = 0
+      return { ...w, exercises: w.exercises.map((e) => (e.exerciseId === id && seen++ === nth ? { ...e, restSec } : e)) }
+    }),
   }
 }
 

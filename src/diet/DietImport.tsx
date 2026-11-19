@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { AlertTriangle, Copy } from 'lucide-react'
-import { toast } from 'sonner'
-import type { DietAnamnesis, DietItem, DietPlan } from './types'
+import { AlertTriangle } from 'lucide-react'
+import type { DietItem, DietPlan } from './types'
 import { usePersisted } from '@/storage/db'
-import { fetchTaco } from '@/catalog/catalog'
+import { catalogOrNull, fetchTaco } from '@/catalog/catalog'
 import { FOOD_LIST } from '@/catalog/urls'
+import { HEADER } from '@/format/envelope'
+import { keepIdsByName } from '@/format/keepIds'
 import { buildDietConvertPrompt, buildDietPrompt } from './prompt'
-import { DIET_NOT_FOUND, dietFromFormat, parseDietFormat } from './dietFormat'
+import { dietFromFormat, parseDietFormat } from './dietFormat'
 import { itemKcalText, macroText, matchLabel, optionLabel, portionText } from './display'
 import { planItems, preparePlan } from './plan'
 import { foodKey, kcalOf } from './food'
@@ -14,22 +15,21 @@ import { useDietPlan } from './useDietPlan'
 import { DietAnamnesisForm } from './DietAnamnesisForm'
 import { DietEditor } from './DietEditor'
 import { FoodPicker } from './FoodPicker'
-import { CopyListButton, ImportGuide, PasteBox } from '@/components/ImportFlow'
-import { makeCopy } from '@/lib/share'
+import { CopyListButton, ImportGuide, PasteBox, type ImportMode } from '@/components/ImportFlow'
+import { useReplaceConfirm } from '@/components/useReplaceConfirm'
 import { usePastedReview } from '@/components/usePastedReview'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Toggle } from '@/components/ui/toggle'
 import { BackHeader } from '@/components/BackHeader'
 import { BottomBar } from '@/components/BottomBar'
-import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { formatDec, plural } from '@/lib/number'
 import { namesText } from '@/lib/text'
 import { todayKey } from '@/lib/date'
 import { cn } from '@/lib/utils'
 import { Alert } from '@/components/ui/alert'
 
-type Props = { mode: 'ia' | 'convert'; onDone: () => void; onBack: () => void }
+type Props = { mode: ImportMode; onDone: () => void; onBack: () => void }
 
 const replaceItem = (plan: DietPlan, id: string, next: DietItem): DietPlan => ({
   ...plan,
@@ -41,48 +41,27 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   const { plan: saved, replacePlan } = useDietPlan()
   const [foods] = usePersisted('foods')
   const [measurements] = usePersisted('measurements')
-  const [edited, setEdited] = useState<DietAnamnesis>()
   const [tab, setTab] = useState(0)
   const [picking, setPicking] = useState<DietItem>()
-  const [replacing, setReplacing] = useState<DietPlan>()
   const [editing, setEditing] = useState(false)
   const paste = usePastedReview(parseDietFormat, async (file) => {
-    const taco = await fetchTaco().then((list) => list, () => null)
-    const review = dietFromFormat(file, taco, foods)
+    const review = dietFromFormat(file, await catalogOrNull(fetchTaco()), foods)
     return { ...review, plan: preparePlan(review.plan) }
-  }, DIET_NOT_FOUND)
+  })
   const review = paste.result
-  const anamnesis = edited ?? profile.dietAnamnesis ?? {}
 
-  const doCopy = makeCopy(toast)
-  const copy = (text: string, ok = 'Prompt copiado') => doCopy(text, ok)
-  const copyPrompt = () => {
-    setProfile((p) => ({ ...p, dietAnamnesis: anamnesis }))
-    return copy(buildDietPrompt({ ...profile, dietAnamnesis: anamnesis }, measurements, todayKey()))
-  }
   const edit = (v: string, now?: boolean) => {
     setTab(0)
     paste.set(v, now)
   }
 
   const commit = (next: DietPlan) => {
-    // mantém o id do cardápio de mesmo nome pra não zerar o último usado; cada id antigo vale uma vez só
-    const taken = new Set<string>()
-    const menus = next.menus.map((m) => {
-      const old = saved.menus.find((o) => o.name === m.name && !taken.has(o.id))
-      if (old) taken.add(old.id)
-      return old ? { ...m, id: old.id } : m
-    })
-    replacePlan({ ...next, menus })
+    replacePlan({ ...next, menus: keepIdsByName(saved.menus, next.menus, (m) => m.name) })
     onDone()
   }
-  const offer = (next: DietPlan) => (saved.menus.length && next.menus.length ? setReplacing(next) : commit(next))
-
-  const confirm = (
-    <ConfirmDialog
-      open={!!replacing} title="Substituir cardápio?" text="O cardápio atual será substituído. O que você já marcou hoje continua." confirm="Substituir"
-      onConfirm={() => replacing && commit(replacing)} onCancel={() => setReplacing(undefined)}
-    />
+  const { offer, dialog: confirm } = useReplaceConfirm(
+    (next: DietPlan) => saved.menus.length > 0 && next.menus.length > 0, commit,
+    'Substituir cardápio?', 'O cardápio atual será substituído. O que você já marcou hoje continua.',
   )
 
   if (editing && review) return <><DietEditor initial={review.plan} onSave={offer} onCancel={() => setEditing(false)} />{confirm}</>
@@ -159,6 +138,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
             </span>
           </Card>
         )}
+        {review.ignoredWorkouts && <p className="text-meta text-text-2">Os treinos deste arquivo podem ser importados na aba Treino</p>}
         <BottomBar className="gap-2">
           <Button type="button" variant="outline" className="flex-1 bg-transparent" onClick={() => setEditing(true)}>Editar</Button>
           <Button type="button" className="flex-1" onClick={() => offer(review.plan)}>Usar cardápios</Button>
@@ -187,12 +167,12 @@ export function DietImport({ mode, onDone, onBack }: Props) {
         mode={mode}
         made="cardápio"
         source="dieta"
-        copy={<Button type="button" variant="outline" size="sm" onClick={mode === 'ia' ? copyPrompt : () => copy(buildDietConvertPrompt())}><Copy size={14} aria-hidden="true" />Copiar</Button>}
+        prompt={() => (mode === 'ia' ? buildDietPrompt(profile, measurements, todayKey()) : buildDietConvertPrompt())}
       >
-        {mode === 'ia' && <DietAnamnesisForm value={anamnesis} onChange={setEdited} />}
+        {mode === 'ia' && <DietAnamnesisForm value={profile.dietAnamnesis ?? {}} onChange={(dietAnamnesis) => setProfile((p) => ({ ...p, dietAnamnesis }))} />}
       </ImportGuide>
-      <CopyListButton file={FOOD_LIST} noun="alimentos" ok="Lista copiada" report={toast} />
-      <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", "dieta": ... }'>
+      <CopyListButton file={FOOD_LIST} noun="alimentos" />
+      <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder={`{ "formato": "${HEADER.formato}", "dieta": ... }`}>
         {paste.failed && <Alert variant="destructive">Não consegui revisar o cardápio. Tente colar ou escolher o arquivo novamente.</Alert>}
         {paste.reviewing && <p role="status" className="text-meta text-text-2">Conferindo na TACO…</p>}
       </PasteBox>

@@ -7,7 +7,7 @@ import { EmptyState } from '@/components/EmptyState'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Card } from '@/components/ui/card'
 import { completedSessions } from './stats'
-import { isCardio } from './cardio'
+import { isCardio } from './reps'
 import { workoutDayLabel } from './display'
 import { markedSets } from './session'
 import { WorkoutDayLine } from './WorkoutDayLine'
@@ -29,7 +29,7 @@ export function PastWorkouts({ onClose }: { onClose: () => void }) {
                 <AccordionTrigger className="min-h-14 items-center gap-3 rounded-none px-3.5 py-2.5 font-normal hover:no-underline [&>svg]:translate-y-0 [&>svg]:text-faint">
                   <span className="block min-w-0 flex-1">
                     <span className="label-caps block">{workoutDayLabel(s.date, s.workoutLabel)}</span>
-                    <WorkoutDayLine session={s} now={new Date(s.completedAt!)} />
+                    <WorkoutDayLine session={s} />
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-1.5 px-3.5 pb-3">

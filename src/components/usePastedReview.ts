@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { FormatError } from '@/format/envelope'
 
-/** `parse` lança FormatError com os problemas (outro erro vira `notFound`); `review` (assíncrono: catálogo) monta o resultado, e só a falha dele vira `failed` */
-export function usePastedReview<F, R>(parse: (text: string) => F, review: (file: F) => Promise<R>, notFound: string) {
+/** `parse` lança FormatError com os problemas (readHalf já converte o inesperado); `review` (assíncrono: catálogo) monta o resultado, e só a falha dele vira `failed` */
+export function usePastedReview<F, R>(parse: (text: string) => F, review: (file: F) => Promise<R>) {
   const [req, setReq] = useState({ text: '', now: false })
   const [result, setResult] = useState<R>()
   const [problems, setProblems] = useState<string[]>([])
   const [reviewing, setReviewing] = useState(false)
   const [failed, setFailed] = useState(false)
-  const fns = useRef({ parse, review, notFound })
-  useEffect(() => { fns.current = { parse, review, notFound } })
+  const fns = useRef({ parse, review })
+  useEffect(() => { fns.current = { parse, review } })
 
   const set = (text: string, now = false) => {
     setReq({ text, now })
@@ -27,7 +27,8 @@ export function usePastedReview<F, R>(parse: (text: string) => F, review: (file:
       try {
         file = fns.current.parse(req.text)
       } catch (e) {
-        setProblems(e instanceof FormatError ? e.problems : [fns.current.notFound])
+        if (!(e instanceof FormatError)) throw e
+        setProblems(e.problems)
         return
       }
       setReviewing(true)

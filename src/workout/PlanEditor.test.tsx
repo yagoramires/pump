@@ -9,13 +9,25 @@ import { PlanEditor } from './PlanEditor'
 test('Salvar entrega o plano editado pro onSave e não grava nada sozinho', async () => {
   const user = userEvent.setup()
   const onSave = vi.fn()
-  await renderLoaded(<PlanEditor initial={{ workouts: [{ id: 'w1', label: 'A', name: 'Treino de pernas', exercises: [] }] }} onSave={onSave} onCancel={vi.fn()} />)
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([{ name: 'Agachamento' }], { id: 'w1', name: 'Treino de pernas' })] }} onSave={onSave} onCancel={vi.fn()} />)
   const name = await screen.findByDisplayValue('Treino de pernas')
   await user.clear(name)
   await user.type(name, 'Pernas')
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
   expect(onSave).toHaveBeenCalledWith({ workouts: [expect.objectContaining({ id: 'w1', name: 'Pernas' })] })
   expect(await stored('workoutPlan')).toBeUndefined()
+})
+
+test('Salvar recusa o que a importação recusaria: treino sem nome ou sem exercício', async () => {
+  const user = userEvent.setup()
+  const onSave = vi.fn()
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([{ name: 'Agachamento' }], { name: 'Pernas' }), workoutOf([], { id: 'w2', label: 'B', name: 'Costas' })] }} onSave={onSave} onCancel={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: 'Salvar' }))
+  expect(screen.getByText('Treino B: adicione pelo menos um exercício')).toBeInTheDocument()
+  await user.clear(screen.getByDisplayValue('Pernas'))
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  expect(screen.getByText('Treino A: dê um nome ao treino')).toBeInTheDocument()
+  expect(onSave).not.toHaveBeenCalled()
 })
 
 const supino = { name: 'Supino reto', sets: 3, reps: '10-12', weightKg: 40, restSec: 90 }

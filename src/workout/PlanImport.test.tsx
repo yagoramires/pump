@@ -1,9 +1,11 @@
 import { screen } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
+import { setupClipboard } from '../../test/helpers'
 import { seedStore, stored } from '../../test/store'
 import userEvent from '@testing-library/user-event'
 import { save } from '@/storage/db'
 import type { WorkoutPlan } from './types'
+import { Toaster } from '@/components/ui/sonner'
 import { PlanImport } from './PlanImport'
 import { buildConvertPrompt } from './prompt'
 
@@ -71,9 +73,7 @@ test('colar texto inválido mostra problemas e não abre a revisão', async () =
 })
 
 test('anamnese fica salva no perfil e vai no prompt copiado', async () => {
-  const user = userEvent.setup()
-  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+  const { user, writeText } = setupClipboard()
   await renderLoaded(<PlanImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
   await user.click(await screen.findByRole('radio', { name: 'Em casa' }))
   await user.click(screen.getByRole('button', { name: 'Copiar' }))
@@ -119,9 +119,7 @@ test('gerar com IA e converter: descrição e 5 passos', async () => {
 })
 
 test('converter: Copiar leva o prompt de conversão e colar JSON funciona', async () => {
-  const user = userEvent.setup()
-  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+  const { user, writeText } = setupClipboard()
   await renderLoaded(<PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Copiar' }))
   expect(writeText).toHaveBeenCalledWith(buildConvertPrompt())
@@ -146,9 +144,7 @@ test('revisão lista exercícios sem prévia, até 5 e "e mais N"', async () => 
 })
 
 test.each(['ia', 'convert'] as const)('%s: "Copiar a lista de exercícios" busca a lista do app e copia', async (mode) => {
-  const user = userEvent.setup()
-  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+  const { user, writeText } = setupClipboard()
   const f = vi.fn(async () => new Response('Exercícios\nSupino (barra)\n'))
   vi.stubGlobal('fetch', f)
   await renderLoaded(<PlanImport mode={mode} onDone={vi.fn()} onBack={vi.fn()} />)
@@ -161,7 +157,7 @@ test.each(['ia', 'convert'] as const)('%s: "Copiar a lista de exercícios" busca
 test('lista de exercícios sem internet avisa', async () => {
   const user = userEvent.setup()
   vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('offline') }))
-  await renderLoaded(<PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
+  await renderLoaded(<><PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} /><Toaster /></>)
   await user.click(await screen.findByRole('button', { name: /Copiar a lista de exercícios/ }))
   expect(await screen.findByText('Sem internet pra copiar a lista.')).toBeInTheDocument()
 })

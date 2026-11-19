@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { pe } from '../../test/helpers'
 import type { PlanExercise } from './types'
 import { ExerciseDrawer } from './ExerciseDrawer'
-import { MAX_KG } from './limits'
+import { KG } from './limits'
 
 test('séries vão até 20, como no formato: um plano importado com 12 séries segue editável', async () => {
   const onChange = vi.fn()
@@ -35,7 +35,7 @@ function Harness() {
   return <ExerciseDrawer ex={ex} onChange={(next) => { current = next; setEx(next) }} onRemove={vi.fn()} onClose={vi.fn()} />
 }
 
-test('carga: o texto digitado fica enquanto digita, mesmo quando o valor é limitado; o blur mostra o valor', async () => {
+test('carga: o texto digitado fica enquanto digita; acima do máximo fica inválido e não grava; o blur mostra o valor', async () => {
   const user = userEvent.setup()
   render(<Harness />)
   const kg = screen.getByRole('textbox', { name: 'Carga em kg' })
@@ -44,9 +44,10 @@ test('carga: o texto digitado fica enquanto digita, mesmo quando o valor é limi
   expect(kg).toHaveValue('22,')
   expect(current.weightKg).toBe(22)
   await user.clear(kg)
-  await user.type(kg, `${MAX_KG + 50}`)
-  expect(kg).toHaveValue(`${MAX_KG + 50}`)
-  expect(current.weightKg).toBe(MAX_KG)
+  await user.type(kg, `${KG[1] + 1}`)
+  expect(kg).toHaveValue(`${KG[1] + 1}`)
+  expect(kg).toHaveAttribute('aria-invalid', 'true')
+  expect(current.weightKg).toBe(50)
   await user.click(screen.getByRole('button', { name: 'Aumentar séries' }))
-  expect(kg).toHaveValue(String(MAX_KG))
+  expect(kg).toHaveValue('50')
 })

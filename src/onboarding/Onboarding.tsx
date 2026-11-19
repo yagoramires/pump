@@ -9,6 +9,7 @@ import { plural } from '@/lib/number'
 import { TEMPLATES, instantiateTemplate } from '@/workout/templates'
 import { PlanEditor } from '@/workout/PlanEditor'
 import { PlanImport } from '@/workout/PlanImport'
+import { useWorkoutPlan } from '@/workout/useWorkoutPlan'
 import { DietStart } from '@/diet/DietStart'
 import { BackHeader } from '@/components/BackHeader'
 import { BackupRestore } from '@/storage/BackupRestore'
@@ -29,7 +30,7 @@ export function Onboarding() {
   const [, setSettings] = usePersisted('settings')
   const [step, setStep] = useState<Step>('anamnese')
   const [initial, setInitial] = useState<WorkoutPlan>(DEFAULTS.workoutPlan)
-  const [, setPlan] = usePersisted('workoutPlan')
+  const { replacePlan } = useWorkoutPlan()
   const [error, setError] = useState<string>()
   const [resumeAtDayZero, setResumeAtDayZero] = useState(false)
   const [picked, setPicked] = useState(TEMPLATES[0].id)
@@ -50,7 +51,7 @@ export function Onboarding() {
   }
 
   const toDieta = () => setStep('dieta')
-  if (step === 'editor') return <PlanEditor initial={initial} onSave={(p) => { setPlan(p); toDieta() }} onCancel={() => setStep('treino')} />
+  if (step === 'editor') return <PlanEditor initial={initial} onSave={(p) => { replacePlan(p); toDieta() }} onCancel={() => setStep('treino')} />
   if (step === 'ia' || step === 'convert') return <PlanImport mode={step} onDone={toDieta} onBack={() => setStep('treino')} />
   if (step === 'anamnese') {
     return (

@@ -1,8 +1,7 @@
 import { hasMarkedSet, markedSets } from './session'
 import { isRest } from './rest'
+import { repsNumber } from './reps'
 import type { SessionExercise, SetDone, WorkoutLog, WorkoutSession } from './types'
-
-export const repsNumber = (reps: string): number => Number(/\d+/.exec(reps)?.[0] ?? 0)
 
 const doneSets = (s: WorkoutSession) => s.exercises.flatMap(markedSets)
 
@@ -16,9 +15,10 @@ export const maxLoad = (e: SessionExercise) => Math.max(0, ...e.sets.map((x) => 
 
 export const sessionVolume = (s: WorkoutSession) => s.exercises.reduce((a, e) => a + exerciseVolume(e), 0)
 
-export const sessionStats = (s: WorkoutSession, now: Date) => {
+/** `now` só conta pra sessão em curso: a concluída termina no completedAt */
+export const sessionStats = (s: WorkoutSession, now?: Date) => {
   const sets = s.exercises.flatMap((e) => e.sets)
-  const end = s.completedAt ? Date.parse(s.completedAt) : now.getTime()
+  const end = s.completedAt ? Date.parse(s.completedAt) : (now ?? new Date()).getTime()
   const ms = s.startedAt ? end - Date.parse(s.startedAt) : NaN
   return {
     done: doneSets(s).length,
@@ -36,3 +36,7 @@ export const previousSets = (log: WorkoutLog, today: string, exerciseId: string)
   }
   return []
 }
+
+/** carga sugerida: a da mesma série no último treino (sem série, a primeira feita), senão a do plano */
+export const suggestedKg = (ex: { weightKg: number }, prev: (SetDone | null)[], set?: number): number =>
+  (set === undefined ? prev.find(Boolean) : prev[set])?.weightKg ?? ex.weightKg

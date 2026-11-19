@@ -19,6 +19,9 @@ import { useBackupExport } from './useBackupExport'
 import { BackupRestore } from '@/storage/BackupRestore'
 import { Alert } from '@/components/ui/alert'
 
+/** abre uma tela por cima das Configurações; sem argumento volta pro menu */
+export type OpenView = (view?: ReactNode) => void
+
 export function SettingsScreen({ onClose }: { onClose: () => void }) {
   const [settings, setSettings] = usePersisted('settings')
   const [view, setView] = useState<ReactNode>()

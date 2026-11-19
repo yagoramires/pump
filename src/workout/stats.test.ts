@@ -1,4 +1,4 @@
-import { exerciseVolume, previousSets, sessionStats } from './stats'
+import { exerciseVolume, previousSets, sessionStats, suggestedKg } from './stats'
 import { startSession } from './session'
 import { pe, workoutOf } from '../../test/helpers'
 import type { SetDone } from './types'
@@ -43,4 +43,11 @@ test('exerciseVolume soma carga × reps das séries marcadas', () => {
   const s = startSession(workoutOf([{ sets: 3 }]), '2026-11-16')
   s.exercises[0].sets = [{ reps: '10', weightKg: 40 }, null, { reps: '8-10', weightKg: 50 }]
   expect(exerciseVolume(s.exercises[0])).toBe(800)
+})
+test('carga sugerida: mesma série do último treino, a primeira feita no cabeçalho, senão a do plano', () => {
+  const prev = [null, { reps: '10', weightKg: 30 }]
+  expect(suggestedKg({ weightKg: 20 }, prev, 1)).toBe(30)
+  expect(suggestedKg({ weightKg: 20 }, prev, 0)).toBe(20)
+  expect(suggestedKg({ weightKg: 20 }, prev)).toBe(30)
+  expect(suggestedKg({ weightKg: 20 }, [])).toBe(20)
 })

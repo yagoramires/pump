@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderLoaded } from '../../test/render'
+import { setupClipboard } from '../../test/helpers'
 import { stored } from '../../test/store'
 import { save } from '@/storage/db'
 import { DEFAULTS } from '@/schema'
@@ -8,19 +9,10 @@ import type { DietPlan } from './types'
 import { ShoppingList } from './ShoppingList'
 import { DietTab } from './DietTab'
 
-const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
-// depois do userEvent.setup(), que troca o clipboard pelo dele
-const setupUser = () => {
-  const user = userEvent.setup()
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
-  return user
-}
-
 const it_ = (name: string, grams: number, portion?: string) => ({ id: name, name, grams, portion, per100: { kcal: 1, p: 1, c: 1, f: 1 }, source: 'custom' as const })
 const plan: DietPlan = { menus: [{ id: 'A', name: 'A', meals: [{ id: 'm', name: 'Café', time: '07:00', options: [{ id: 'o', items: [it_('Arroz', 100), it_('Ovo', 50, '1 ovo')] }] }] }], lastMenuId: 'A' }
 
 beforeEach(async () => {
-  writeText.mockClear()
   await save('settings', { ...DEFAULTS.settings, onboardingDone: true })
 })
 
@@ -65,7 +57,7 @@ test('marcação persiste, remonta e limpa', async () => {
 
 test('copia a lista de compras', async () => {
   await save('dietPlan', plan)
-  const user = setupUser()
+  const { user, writeText } = setupClipboard()
   await renderLoaded(<ShoppingList onClose={() => {}} />)
   await user.click(await screen.findByRole('button', { name: 'Copiar lista' }))
   expect(writeText).toHaveBeenCalledWith(expect.stringContaining('• Arroz — 3 kg'))
@@ -85,7 +77,7 @@ test('marcas de itens que não existem mais não aparecem nem contam', async () 
 
 test('com marcas copia só o que falta', async () => {
   await save('dietPlan', plan)
-  const user = setupUser()
+  const { user, writeText } = setupClipboard()
   await renderLoaded(<ShoppingList onClose={() => {}} />)
   await user.click(await screen.findByRole('checkbox', { name: 'Arroz' }))
   await user.click(screen.getByRole('button', { name: 'Copiar o que falta' }))
@@ -96,7 +88,7 @@ test('com marcas copia só o que falta', async () => {
 
 test('tudo marcado desabilita a cópia', async () => {
   await save('dietPlan', plan)
-  const user = setupUser()
+  const { user, writeText } = setupClipboard()
   await renderLoaded(<ShoppingList onClose={() => {}} />)
   await user.click(await screen.findByRole('checkbox', { name: 'Arroz' }))
   await user.click(screen.getByRole('checkbox', { name: 'Ovo' }))

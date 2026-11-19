@@ -33,16 +33,21 @@ test('valida carga e descanso', () => {
   const t = { letra: 'A', nome: 'X', exercicios: [{ nome: 'a', series: 3, reps: '8', cargaKg: -1, descansoSeg: 1.5 }] }
   try { parsePlanFormat(JSON.stringify({ ...ok, treinos: [t] })); throw new Error('não lançou') }
   catch (e) { expect((e as FormatError).problems).toEqual([
-    'Treino A, exercício 1: "cargaKg" precisa ser um número maior ou igual a 0',
-    'Treino A, exercício 1: "descansoSeg" precisa ser um número inteiro maior ou igual a 0',
+    'Treino A, exercício 1: "cargaKg" precisa ser um número de 0 a 500',
+    'Treino A, exercício 1: "descansoSeg" precisa ser um número inteiro de 0 a 600',
   ]) }
+  const over = { ...t, exercicios: [{ nome: 'a', series: 3, reps: '8', cargaKg: 501, descansoSeg: 601 }] }
+  try { parsePlanFormat(JSON.stringify({ ...ok, treinos: [over] })); throw new Error('não lançou') }
+  catch (e) { expect((e as FormatError).problems).toHaveLength(2) }
+  const edge = { ...t, exercicios: [{ nome: 'a', series: 3, reps: '8', cargaKg: 500, descansoSeg: 0 }] }
+  expect(parsePlanFormat(JSON.stringify({ ...ok, treinos: [edge] })).treinos[0].exercicios[0]).toMatchObject({ cargaKg: 500, descansoSeg: 0 })
   expect(parsePlanFormat(JSON.stringify({ ...ok, treinos: [{ ...t, exercicios: [{ nome: 'a', series: 3, reps: '8' }] }] })).treinos).toHaveLength(1)
 })
 test('recusa carga infinita (1e999 no JSON)', () => {
   const t = { letra: 'A', nome: 'X', dias: ['seg'], exercicios: [{ nome: 'a', series: 3, reps: '8', cargaKg: 0 }] }
   const text = JSON.stringify({ ...ok, treinos: [t] }).replace('"cargaKg":0', '"cargaKg":1e999')
   try { parsePlanFormat(text); throw new Error('não lançou') }
-  catch (e) { expect((e as FormatError).problems).toEqual(['Treino A, exercício 1: "cargaKg" precisa ser um número maior ou igual a 0']) }
+  catch (e) { expect((e as FormatError).problems).toEqual(['Treino A, exercício 1: "cargaKg" precisa ser um número de 0 a 500']) }
 })
 test('os nomes de exemplo do prompt existem no catálogo', () => {
   const names = new Set((JSON.parse(readFileSync('public/catalog/exercises.json', 'utf8')) as { name: string }[]).map((e) => normalize(e.name)))
@@ -73,7 +78,7 @@ test('exportar e reimportar devolve o mesmo plano (fora os ids)', () => {
 test('arquivo só com dieta no import de treino dá a mensagem da aba Dieta', () =>
   expect(() => parsePlanFormat('{"formato":"pump-plano","versao":1,"dieta":{"refeicoes":[]}}')).toThrow('Este arquivo só tem dieta. Importe na aba Dieta.'))
 test('dieta junto com treinos gera o aviso da aba Dieta', () =>
-  expect(planFromFormat({ ...parsePlanFormat(JSON.stringify(ok)), dieta: {} }, catalog, []).ignoredDiet).toBe(true))
+  expect(planFromFormat(parsePlanFormat(JSON.stringify({ ...ok, dieta: {} })), catalog, []).ignoredDiet).toBe(true))
 test('importa arquivo com dias e exporta sem dias', () => {
   const r = planFromFormat(parsePlanFormat(JSON.stringify(ok)), catalog, [])
   expect(JSON.parse(exportPlanFormat(r.plan)).treinos[0]).toEqual({

@@ -24,10 +24,24 @@ function extractJson(text: string): unknown {
   }
 }
 
-export function readEnvelope(text: string, notFound: string): Record<string, unknown> {
-  const raw = extractJson(text)
-  if (!isObj(raw)) throw new FormatError([notFound])
-  return raw
+type Half = 'treinos' | 'dieta'
+const ONLY: Record<Half, string> = {
+  treinos: 'Este arquivo só tem treinos. Importe na aba Treino.',
+  dieta: 'Este arquivo só tem dieta. Importe na aba Dieta.',
+}
+
+/** cada aba lê a sua metade: a outra é ignorada (`ignored` avisa) e um arquivo só com ela aponta a outra aba.
+ * O texto colado é qualquer coisa que a IA mandou: erro inesperado ao ler vira `notFound` */
+export function readHalf<T>(text: string, half: Half, notFound: string, read: (raw: Record<string, unknown>, ignored: boolean) => T): T {
+  try {
+    const raw = extractJson(text)
+    if (!isObj(raw)) throw new FormatError([notFound])
+    const other: Half = half === 'treinos' ? 'dieta' : 'treinos'
+    if (raw[half] === undefined && raw[other] !== undefined) throw new FormatError([ONLY[other]])
+    return read(raw, raw[other] !== undefined)
+  } catch (e) {
+    throw e instanceof FormatError ? e : new FormatError([notFound])
+  }
 }
 
 export function headerProblems(raw: Record<string, unknown>): string[] {
