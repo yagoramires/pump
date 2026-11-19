@@ -99,19 +99,22 @@ test('Editar abre o editor; Salvar grava o plano e os exercícios novos', async 
 const REMADA = { nome: 'Remada X', series: 3, reps: '10' }
 const planJson = (exercicios: object[]) => JSON.stringify({ formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'Peito', dias: ['seg'], exercicios }] })
 
-test('gerar com IA: título e anamnese; converter: título, 3 passos e sem anamnese', async () => {
+test('gerar com IA e converter: descrição e 5 passos', async () => {
   const { unmount } = await renderLoaded(<PlanImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
   expect(await screen.findByRole('heading', { name: 'Gerar com IA' })).toBeInTheDocument()
   expect(screen.getByRole('radio', { name: 'Em casa' })).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'copiar meu plano' })).toBeInTheDocument()
+  expect(screen.getByText('O Pump não tem IA própria. Você leva um prompt pra sua IA (ChatGPT ou outra), ela monta seu treino e você cola a resposta aqui pra revisar antes de salvar.')).toBeInTheDocument()
+  expect(screen.getByText('ChatGPT, Gemini, Claude…')).toBeInTheDocument()
+  expect(screen.getByText('Revise e salve')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Copie seu plano' })).toBeInTheDocument()
   unmount()
   await renderLoaded(<PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
   expect(await screen.findByRole('heading', { name: 'Converter ficha' })).toBeInTheDocument()
-  expect(screen.getByText('Mande pra sua IA junto com sua ficha')).toBeInTheDocument()
-  expect(screen.getByText('PDF, foto ou texto')).toBeInTheDocument()
-  expect(screen.getByText('Cole a resposta aqui')).toBeInTheDocument()
+  expect(screen.getByText('Já tem uma ficha? Mande ela pra sua IA junto com o prompt. A IA reescreve no formato do Pump e você cola a resposta aqui pra revisar antes de salvar.')).toBeInTheDocument()
+  expect(screen.getByText('Junto com sua ficha (PDF, foto ou texto)')).toBeInTheDocument()
+  expect(screen.getByText('Volte aqui e cole abaixo')).toBeInTheDocument()
   expect(screen.queryByRole('radio', { name: 'Em casa' })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'copiar meu plano' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Copie seu plano' })).not.toBeInTheDocument()
 })
 
 test('converter: Copiar leva o prompt de conversão e colar JSON funciona', async () => {

@@ -4,22 +4,43 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert } from '@/components/ui/alert'
+import { Card } from '@/components/ui/card'
 import { COPY_FAIL, makeCopy } from '@/lib/share'
 import { catalogFile } from '@/catalog/catalog'
 
 type Report = (msg: string) => unknown
 const OFFLINE = 'Sem internet pra copiar a lista.'
 
-export function Step({ n, title, sub, children }: { n: number; title: string; sub: string; children?: ReactNode }) {
+export function Step({ n, title, sub, children }: { n: number; title: string; sub?: string; children?: ReactNode }) {
   return (
     <div className="flex items-center gap-3 border-t border-line p-3.5 first:border-t-0">
       <Badge variant="tile" className="size-8">{n}</Badge>
       <div className="min-w-0 flex-1">
         <div className="text-body font-semibold text-strong">{title}</div>
-        <div className="text-meta text-text-2">{sub}</div>
+        {sub && <div className="text-meta text-text-2">{sub}</div>}
       </div>
       {children}
     </div>
+  )
+}
+
+export function ImportGuide({ mode, made, source, copy }: { mode: 'ia' | 'convert'; made: string; source: string; copy: ReactNode }) {
+  const ia = mode === 'ia'
+  return (
+    <>
+      <p className="text-meta text-text-2">
+        {ia
+          ? `O Pump não tem IA própria. Você leva um prompt pra sua IA (ChatGPT ou outra), ela monta seu ${made} e você cola a resposta aqui pra revisar antes de salvar.`
+          : `Já tem uma ${source}? Mande ela pra sua IA junto com o prompt. A IA reescreve no formato do Pump e você cola a resposta aqui pra revisar antes de salvar.`}
+      </p>
+      <Card size="flush">
+        <Step n={1} title="Copie o prompt">{copy}</Step>
+        <Step n={2} title="Abra sua IA e cole o prompt" sub={ia ? 'ChatGPT, Gemini, Claude…' : `Junto com sua ${source} (PDF, foto ou texto)`} />
+        <Step n={3} title="Copie a resposta inteira dela" sub="Não precisa escolher só o código" />
+        <Step n={4} title="Volte aqui e cole abaixo" sub="Ou escolha o arquivo, se ela mandar um" />
+        <Step n={5} title="Revise e salve" sub="Nada é salvo antes da sua revisão" />
+      </Card>
+    </>
   )
 }
 
