@@ -1,11 +1,13 @@
 import { SEX_LABEL, type Profile, type Sex } from './types'
 import { NumberField } from '@/components/NumberField'
+import { Optional } from '@/components/Optional'
 import { Chips } from '@/components/Chips'
 import { TimePicker } from '@/components/TimePicker'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
+const LABEL_ROW = 'flex flex-wrap items-baseline gap-x-1.5'
 const FIELD = 'flex flex-col gap-1.5'
 const TIMES = [['wake', 'Acorda'], ['train', 'Treina'], ['sleep', 'Dorme']] as const
 const DAYS = [1, 2, 3, 4, 5, 6, 7] as const
@@ -21,7 +23,7 @@ export function AboutForm({ value, onChange }: { value: Profile; onChange: (p: P
       </ToggleGroup>
       <div className="grid grid-cols-2 gap-3">
         <div className={FIELD}>
-          <Label htmlFor="idade" className="label-caps-wide">Idade</Label>
+          <div className={LABEL_ROW}><Label htmlFor="idade" className="label-caps-wide">Idade</Label><Optional /></div>
           <NumberField id="idade" className="pr-12" unit="anos" min={0} max={120} value={value.age} onChange={(n) => set('age', n ?? undefined)} />
         </div>
         <div className={FIELD}>
@@ -32,14 +34,14 @@ export function AboutForm({ value, onChange }: { value: Profile; onChange: (p: P
       <div className="grid grid-cols-3 gap-3">
         {TIMES.map(([k, label]) => (
           <div key={k} className={FIELD}>
-            <Label htmlFor={`hora-${k}`} className="label-caps-wide">{label}</Label>
+            <div className={LABEL_ROW}><Label htmlFor={`hora-${k}`} className="label-caps-wide">{label}</Label><Optional /></div>
             <TimePicker id={`hora-${k}`} clearable value={value[k]} onChange={(v) => set(k, v)} />
           </div>
         ))}
       </div>
-      <Chips label="Dias de treino por semana" options={DAYS} value={value.daysPerWeek} onChange={(v) => set('daysPerWeek', v)} />
+      <Chips label="Dias de treino por semana" options={DAYS} optional value={value.daysPerWeek} onChange={(v) => set('daysPerWeek', v)} />
       <div className={FIELD}>
-        <Label htmlFor="observacoes" className="label-caps-wide">Lesões, limitações ou observações</Label>
+        <div className={LABEL_ROW}><Label htmlFor="observacoes" className="label-caps-wide">Lesões, limitações ou observações</Label><Optional /></div>
         <Textarea id="observacoes" rows={3} placeholder="Ex.: dor no ombro direito" value={value.notes ?? ''} onChange={(e) => set('notes', e.target.value || undefined)} />
       </div>
     </div>

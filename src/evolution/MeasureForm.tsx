@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { bodyFat } from './bodyFat'
 import { FIELDS, upsertMeasurement, type UpsertStatus } from './measurements'
+import { Optional } from '@/components/Optional'
 import { Alert } from '@/components/ui/alert'
 
 type Key = keyof MeasureFields
@@ -32,7 +33,7 @@ export function MeasureForm({ date, profile: draft, onSaved, submitLabel = 'Salv
     <div className="flex flex-col gap-2">
       {fields.map(({ key, label, unit }) => (
         <Label key={key} className="justify-between gap-3 border-t border-line pt-2 text-sm first:border-t-0 first:pt-0 font-normal normal-case tracking-normal text-text-2">
-          {label}
+          <span>{label}{needWeight && key !== 'weightKg' && <> <Optional /></>}</span>
           <span className="relative w-30">
             <Input
               className="pr-9 font-semibold tabular-nums"
