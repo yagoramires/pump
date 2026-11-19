@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import { formatDec, parseDecimal } from '@/lib/number'
-import { cn } from '@/lib/utils'
 import { ML_PER_KG, WATER_LIMITS } from './water'
 import { useWater } from './useWater'
 
@@ -18,8 +20,8 @@ export function WaterSettings() {
     const n = parseDecimal(draft[k])
     const bad = n === null || n < min || n > max
     return (
-      <label className="flex flex-col gap-1.5">
-        <span className="text-[13px] text-text-2">{label}</span>
+      <div className="flex flex-col gap-1.5">
+        <Label className="text-[13px] normal-case tracking-normal text-text-2">{label}</Label>
         <Input
           aria-label={label} inputMode="numeric" autoComplete="off" aria-invalid={bad} value={draft[k]}
           onChange={(e) => {
@@ -30,19 +32,15 @@ export function WaterSettings() {
           }}
         />
         {bad && <span className="text-[12.5px] text-negative">{`Entre ${formatDec(min)} e ${formatDec(max)} ml`}</span>}
-      </label>
+      </div>
     )
   }
   return (
-    <div className="mt-3 flex flex-col gap-4">
-      <div className="overflow-hidden card">
-        <button type="button" role="switch" aria-checked={!!on} onClick={toggle} className="flex min-h-14 w-full items-center gap-3 px-3.5 py-2 text-left">
-          <span className="flex-1 text-[15px] font-semibold text-strong">Contador de água</span>
-          <span aria-hidden="true" className={cn('relative h-8 w-13 shrink-0 rounded-full border transition-colors', on ? 'border-accent bg-accent' : 'border-border bg-surface')}>
-            <span className={cn('absolute top-0.5 left-0.5 size-6 rounded-full transition-transform', on ? 'translate-x-5 bg-on-accent' : 'bg-text-2')} />
-          </span>
-        </button>
-      </div>
+    <div className="flex flex-col gap-3">
+      <Card className="min-h-14 flex-row items-center gap-3 px-3.5 py-2.5">
+        <Label htmlFor="water-switch" className="flex-1 text-[15px] font-semibold normal-case tracking-normal text-strong">Contador de água</Label>
+        <Switch id="water-switch" checked={!!on} onCheckedChange={toggle} />
+      </Card>
       {on && (
         <div className="grid grid-cols-2 gap-3">
           {field('goalMl', 'Meta (ml)')}

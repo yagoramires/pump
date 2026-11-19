@@ -15,6 +15,8 @@ import { FoodPicker } from './FoodPicker'
 import { CopyListButton, PasteBox, Step } from '@/components/ImportFlow'
 import { usePastedReview } from '@/components/usePastedReview'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Toggle } from '@/components/ui/toggle'
 import { BackHeader } from '@/components/BackHeader'
 import { BottomBar } from '@/components/BottomBar'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
@@ -81,24 +83,24 @@ export function DietImport({ mode, onDone, onBack }: Props) {
     return (
       <div className="flex flex-col gap-3 pb-28">
         <BackHeader title="Revisar cardápio" onBack={() => edit('')} className="min-h-11" />
-        {review.offline && <p role="status" className="card p-3.5 text-[13px] text-text-2">Sem internet: usei os números da IA. Dá pra trocar depois.</p>}
+        {review.offline && <Card role="status" className="p-3.5 text-[13px] text-text-2">Sem internet: usei os números da IA. Dá pra trocar depois.</Card>}
         {review.plan.menus.length > 1 && (
           <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Cardápios">
             {review.plan.menus.map((m, n) => (
-              <button key={m.id} type="button" className={cn('h-11 shrink-0 rounded-[10px] border px-3 text-[13px] whitespace-nowrap', m.id === menu.id ? 'border-accent bg-accent-bg text-accent' : 'border-border text-text')} aria-pressed={m.id === menu.id} onClick={() => setTab(n)}>
+              <Toggle key={m.id} variant="outline" className="h-11 shrink-0 rounded-xl px-3 text-[13px]" pressed={m.id === menu.id} onPressedChange={() => setTab(n)}>
                 {m.name}
-              </button>
+              </Toggle>
             ))}
           </div>
         )}
         {(menu.goalKcal !== undefined || menu.goalMacros) && (
-          <div className="flex justify-between gap-3 card px-3.5 py-2.5 text-[13px] tabular-nums text-text-2">
+          <Card className="flex-row justify-between gap-3 p-3.5 text-[13px] tabular-nums text-text-2">
             <span>{menu.goalKcal !== undefined ? `Meta · ${formatDec(menu.goalKcal)} kcal` : 'Meta'}</span>
             {menu.goalMacros && <span>{macroText(menu.goalMacros)}</span>}
-          </div>
+          </Card>
         )}
         {menu.meals.map((meal) => (
-          <section key={meal.id} aria-label={meal.name} className="overflow-hidden card">
+          <Card key={meal.id} role="region" aria-label={meal.name} className="overflow-hidden">
             <div className="px-3.5 pt-3 pb-1">
               <div className="text-[15px] font-semibold text-strong">{meal.name}</div>
               <div className="text-[12.5px] text-text-2">{meal.time}</div>
@@ -125,21 +127,21 @@ export function DietImport({ mode, onDone, onBack }: Props) {
                     </>
                   )
                   return i.source === 'ia'
-                    ? <button key={i.id} type="button" className="flex min-h-11 w-full items-center gap-3 px-3.5 py-1.5 text-left" onClick={() => setPicking(i)}>{body}</button>
+                    ? <Button key={i.id} variant="ghost" className="h-auto min-h-11 w-full justify-start gap-3 rounded-none px-3.5 py-1.5 text-left font-normal" onClick={() => setPicking(i)}>{body}</Button>
                     : <div key={i.id} className="flex min-h-11 items-center gap-3 px-3.5 py-1.5">{body}</div>
                 })}
               </div>
             ))}
-          </section>
+          </Card>
         ))}
         {outside > 0 && (
-          <p className="flex items-start gap-2 card p-3.5 text-[13px] text-text-2">
+          <Card className="flex-row items-start gap-2 p-3.5 text-[13px] text-text-2">
             <AlertTriangle size={16} className="mt-px shrink-0 text-c7" aria-hidden="true" />
             <span>
               {`${outside} ${outside === 1 ? 'item fora da TACO usa' : 'itens fora da TACO usam'} os números da IA. Toque pra trocar.`}
               <span className="block">{namesText(outsideNames)}</span>
             </span>
-          </p>
+          </Card>
         )}
         <BottomBar className="gap-2">
           <Button type="button" variant="outline" className="flex-1 bg-transparent" onClick={() => setEditing(true)}>Editar</Button>

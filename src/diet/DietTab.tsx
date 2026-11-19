@@ -3,6 +3,8 @@ import { Check, Droplet, ListChecks, MoreHorizontal, Pencil, Sparkles } from 'lu
 import { usePersisted } from '@/storage/db'
 import { formatDayLabel } from '@/lib/date'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Toggle } from '@/components/ui/toggle'
 import { Overlay } from '@/components/Overlay'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
@@ -19,7 +21,6 @@ import { DietStart } from './DietStart'
 import { MealScreen } from './MealScreen'
 import { WaterCard } from './WaterCard'
 
-const SHEET_CARD = 'overflow-hidden rounded-[14px] border border-border bg-surface'
 const RING_R = 19
 const RING_C = 2 * Math.PI * RING_R
 
@@ -59,26 +60,26 @@ export function DietTab() {
 
   const menuRow = (id: string, name: string) => (
     <li key={id} className="border-t border-line first:border-t-0">
-      <button
-        type="button" aria-current={id === day.menuId ? 'true' : undefined} disabled={!plan.menus.some((m) => m.id === id)}
-        className="flex min-h-14 w-full items-center gap-3 px-3 text-left text-[15px] text-strong disabled:text-text-2"
+      <Button
+        variant="ghost" aria-current={id === day.menuId ? 'true' : undefined} disabled={!plan.menus.some((m) => m.id === id)}
+        className="h-auto min-h-14 w-full justify-start gap-3 rounded-none px-3 text-[15px] font-normal text-strong disabled:text-text-2"
         onClick={() => { setSheet(undefined); if (id !== day.menuId) pick(id) }}
       >
         <span className="min-w-0 flex-1 truncate">{name}</span>
         {id === day.menuId && <Check size={18} className="shrink-0 text-accent" aria-hidden="true" />}
-      </button>
+      </Button>
     </li>
   )
 
   return (
-    <div className="pb-6">
+    <div className="flex flex-col gap-2.5 pb-6">
       <div className="mt-(--gear-offset) flex items-center justify-between gap-2 pr-2">
         <span className="label-caps min-w-0 truncate">{`${formatDayLabel(today)} · ${day.menuName}`}</span>
-        <button type="button" className="icon-btn" aria-label="Mais opções da dieta" onClick={() => setSheet('more')}><MoreHorizontal size={18} /></button>
+        <Button variant="outline" size="icon" aria-label="Mais opções da dieta" onClick={() => setSheet('more')}><MoreHorizontal aria-hidden="true" /></Button>
       </div>
-      <h1 className="mt-0.5 mb-2.5 text-[26px] font-bold tracking-tight text-strong">Dieta</h1>
+      <h1 className="text-[26px] font-bold tracking-tight text-strong">Dieta</h1>
 
-      <div role="group" aria-label="Calorias" className="mb-2.5 flex items-center gap-2.5 card px-3 py-2.5">
+      <Card role="group" aria-label="Calorias" className="flex-row items-center gap-3 p-3.5">
         {!!goal && (
           <svg role="img" aria-label={`${pct}% da meta`} viewBox="0 0 44 44" className="size-11 shrink-0 -rotate-90">
             <circle cx="22" cy="22" r={RING_R} fill="none" strokeWidth="4" className="stroke-line" />
@@ -94,23 +95,24 @@ export function DietTab() {
           </div>
         </div>
         {water.on && (
-          <button
-            type="button" aria-label={`Água: ${formatDec(water.ml / 1000)} de ${formatDec(water.on.goalMl / 1000)} litros`} onClick={() => setSheet('water')}
-            className="relative flex h-8 shrink-0 items-center gap-1.5 rounded-[10px] border border-c2/40 bg-c2/15 px-2 text-[12.5px] font-semibold tabular-nums text-c2 after:absolute after:-inset-1.5"
+          <Button
+            variant="outline" aria-label={`Água: ${formatDec(water.ml / 1000)} de ${formatDec(water.on.goalMl / 1000)} litros`} onClick={() => setSheet('water')}
+            className="border-c2/40 bg-c2/15 px-3 text-[12.5px] tabular-nums text-c2 hover:bg-c2/25 hover:text-c2"
           >
-            <Droplet size={14} aria-hidden="true" />{`${formatDec(water.ml / 1000)}/${formatDec(water.on.goalMl / 1000)} L`}
-          </button>
+            <Droplet aria-hidden="true" />{`${formatDec(water.ml / 1000)}/${formatDec(water.on.goalMl / 1000)} L`}
+          </Button>
         )}
-      </div>
+      </Card>
 
-      <ul aria-label="Refeições" className={cn('overflow-hidden card', day.free && 'opacity-50')}>
+      <Card className={cn('overflow-hidden', day.free && 'opacity-50')}>
+      <ul aria-label="Refeições">
         {sortedMeals(day.meals).map((m) => {
           const { options, index, canToggle: many } = mealOptions(plan, day, m.id)
           const sub = m.free ? 'livre' : !m.done && many ? `${options.length} opções` : `${formatDec(kcalOf(m.items.filter((i) => !i.skipped)))} kcal`
           const isNow = m.id === nowId
           return (
-            <li key={m.id} aria-current={isNow ? 'true' : undefined} className={cn('flex items-center gap-1 border-t border-line pr-1.5 first:border-t-0', isNow && 'bg-accent-bg')}>
-              <button type="button" className="flex min-h-14 min-w-0 flex-1 items-center gap-2.5 py-2 pl-3 text-left" onClick={() => setOpenId(m.id)}>
+            <li key={m.id} aria-current={isNow ? 'true' : undefined} className={cn('flex items-center gap-2 border-t border-line px-3.5 first:border-t-0', isNow && 'bg-accent-bg')}>
+              <Button variant="ghost" className="h-auto min-h-14 min-w-0 flex-1 justify-start gap-3 rounded-none px-0 py-2.5 text-left font-normal hover:bg-transparent" onClick={() => setOpenId(m.id)}>
                 <span className={cn('w-10 shrink-0 text-[12px] tabular-nums', isNow ? 'text-accent' : 'text-faint')}>{m.time}</span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[15px] font-semibold text-strong">{m.name}</span>
@@ -119,22 +121,21 @@ export function DietTab() {
                 {m.done && !m.free && many && (
                   <span className="shrink-0 rounded-md border border-accent-line px-1.5 text-[11px] font-semibold text-accent">{optionLetter(index)}</span>
                 )}
-              </button>
-              <button
-                type="button" aria-label={`${m.done ? 'Desmarcar' : 'Marcar'} ${m.name}`} disabled={!!day.free} className="flex size-11 shrink-0 items-center justify-center"
-                onClick={() => act((d) => toggleMeal(d, m.id))}
+              </Button>
+              <Toggle
+                variant="check" size="check" pressed={m.done} aria-label={`${m.done ? 'Desmarcar' : 'Marcar'} ${m.name}`} disabled={!!day.free}
+                onPressedChange={() => act((d) => toggleMeal(d, m.id))}
               >
-                <span className={cn('flex size-7 items-center justify-center rounded-full border-[1.5px]', m.done ? 'border-accent bg-accent text-on-accent' : 'border-border-strong text-transparent')}>
-                  {m.free ? <Sparkles size={14} aria-hidden="true" /> : <Check size={15} strokeWidth={3} aria-hidden="true" />}
-                </span>
-              </button>
+                {m.free ? <Sparkles aria-hidden="true" /> : <Check strokeWidth={3} aria-hidden="true" />}
+              </Toggle>
             </li>
           )
         })}
       </ul>
+      </Card>
 
       {!water.on && (
-        <Button variant="ghost" className="mt-3 h-11 w-full text-accent" onClick={water.turnOn}>
+        <Button variant="ghost" className="w-full text-accent" onClick={water.turnOn}>
           Ligar contador de água
         </Button>
       )}
@@ -153,20 +154,20 @@ export function DietTab() {
                 <>
                   <DrawerTitle className="shrink-0 truncate pb-1 text-[19px] font-semibold text-strong">Cardápio de hoje</DrawerTitle>
                   <DrawerDescription className="pb-3 text-[13px] text-text-2">Vale pra hoje e pros próximos dias.</DrawerDescription>
-                  <ul aria-label="Cardápios" className={SHEET_CARD}>
+                  <Card className="overflow-hidden"><ul aria-label="Cardápios">
                     {!dayMenu && menuRow(day.menuId, day.menuName)}
                     {plan.menus.map((m) => menuRow(m.id, m.name))}
-                  </ul>
+                  </ul></Card>
                 </>
               ) : (
                 <>
                   <DrawerTitle className="shrink-0 truncate pb-2 text-[19px] font-semibold text-strong">Dieta</DrawerTitle>
                   <DrawerDescription className="sr-only">Mais opções da dieta</DrawerDescription>
-                  <ul className={SHEET_CARD}>
+                  <Card className="overflow-hidden"><ul>
                     {plan.menus.length > 1 && <SheetRow icon={<ListChecks size={18} className="text-accent" aria-hidden="true" />} label="Cardápio de hoje" onClick={() => setSheet('menus')} />}
                     <SheetRow icon={<Sparkles size={18} className="text-accent" aria-hidden="true" />} label={day.free ? 'Desfazer dia livre' : 'Dia livre'} onClick={() => { setSheet(undefined); act((d) => ({ ...d, free: !d.free })) }} />
                     <SheetRow icon={<Pencil size={18} className="text-accent" aria-hidden="true" />} label="Editar cardápio" onClick={() => { setSheet(undefined); setEditing(true) }} />
-                  </ul>
+                  </ul></Card>
                 </>
               )}
             </SheetBody>

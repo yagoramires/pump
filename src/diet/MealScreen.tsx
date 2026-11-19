@@ -6,6 +6,7 @@ import { BackHeader } from '@/components/BackHeader'
 import { BottomBar } from '@/components/BottomBar'
 import { SheetBody, SheetRow } from '@/components/SheetRow'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { formatDec } from '@/lib/number'
@@ -15,8 +16,7 @@ import { addExtra, chooseOption, mealOptions, optionLetter, removeItem, setMealF
 import { iaLabel, itemKcal, itemMacros, kcalOf, macroText, portionText } from './food'
 import { useDietToday } from './useDietToday'
 
-const LABEL = 'label-caps pt-3 pb-1 tracking-[.04em]'
-const CARD = 'overflow-hidden rounded-[14px] border border-border bg-surface'
+const LABEL = 'label-caps tracking-[.04em]'
 export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () => void }) {
   const { plan, day, menu, act } = useDietToday()
   const [picking, setPicking] = useState<DayItem | 'extra'>()
@@ -53,14 +53,14 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
       </>
     )
     const undo = (label: string, aria: string, f: (d: DietDay) => DietDay) => (
-      <Button variant="ghost" size="sm" className="h-11 shrink-0 text-accent" aria-label={aria} onClick={() => act(f)}>{label}</Button>
+      <Button variant="ghost" size="sm" className="text-accent" aria-label={aria} onClick={() => act(f)}>{label}</Button>
     )
     return (
-      <li key={i.id} className="flex items-center gap-1 border-t border-line px-3 first:border-t-0">
+      <li key={i.id} className="flex items-center gap-2 border-t border-line px-3.5 first:border-t-0">
         {free || i.skipped || i.extra ? (
           <div className="flex min-h-11 min-w-0 flex-1 items-center gap-2">{body}</div>
         ) : (
-          <button type="button" className="flex min-h-11 min-w-0 flex-1 items-center gap-2 text-left" onClick={() => setPicking(i)}>{body}</button>
+          <Button variant="ghost" className="h-auto min-h-11 min-w-0 flex-1 justify-start gap-2 rounded-none px-0 py-0 text-left font-normal hover:bg-transparent" onClick={() => setPicking(i)}>{body}</Button>
         )}
         {!free && i.skipped && undo('Desfazer', `Desfazer pular ${i.name}`, (d) => skipItem(d, meal.id, i.id, false))}
         {!free && i.extra && undo('Remover', `Remover ${i.name}`, (d) => removeItem(d, meal.id, i.id))}
@@ -72,39 +72,41 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
   return (
     <Overlay>
       <BackHeader title={`${meal.name} · ${meal.time}`} onBack={onClose} titleClassName="min-w-0 truncate">
-        {!dayFree && <button type="button" className="icon-btn" aria-label="Mais opções da refeição" onClick={() => setSheet('more')}><MoreHorizontal size={18} /></button>}
+        {!dayFree && <Button variant="outline" size="icon" aria-label="Mais opções da refeição" onClick={() => setSheet('more')}><MoreHorizontal aria-hidden="true" /></Button>}
       </BackHeader>
 
-      <div className="pb-24">
+      <div className="flex flex-col gap-2.5 pb-24">
         {canToggle && (
           <ToggleGroup
-            type="single" spacing={1} aria-label="Opção" disabled={free} value={selected.id}
+            type="single" variant="segmented" size="fill" spacing={1} aria-label="Opção" disabled={free} value={selected.id}
             onValueChange={(v) => { const o = options.find((x) => x.id === v); if (o && o.id !== selected.id) act((d) => chooseOption(d, meal.id, o)) }}
-            className="mt-2 grid w-full auto-cols-fr grid-flow-col gap-[3px] rounded-xl border border-border bg-panel p-[3px]"
+            className="grid w-full auto-cols-fr grid-flow-col"
           >
             {options.map((o, i) => (
-              <ToggleGroupItem key={o.id} value={o.id} className="h-11 rounded-[9px] text-[13px] font-semibold text-faint data-[state=on]:bg-selected data-[state=on]:text-strong">{optionLetter(i)}</ToggleGroupItem>
+              <ToggleGroupItem key={o.id} value={o.id} className="h-11">{optionLetter(i)}</ToggleGroupItem>
             ))}
           </ToggleGroup>
         )}
         {meal.swappedMeal ? (
-          <div className="mt-2 flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <p className="min-w-0 flex-1 text-[13px] text-text-2">{`De outro cardápio: ${meal.swappedMeal}`}</p>
-            {options[0] && !free && <Button variant="ghost" size="sm" className="h-11 shrink-0 text-accent" onClick={() => act((d) => chooseOption(d, meal.id, options[0]))}>Voltar às opções</Button>}
+            {options[0] && !free && <Button variant="ghost" size="sm" className="text-accent" onClick={() => act((d) => chooseOption(d, meal.id, options[0]))}>Voltar às opções</Button>}
           </div>
         ) : (
-          options.length > 1 && <p className="mx-0.5 mt-1.5 text-[13px] text-text-2">{[`Opção ${optionLetter(selIdx)}`, selected.name].filter(Boolean).join(' · ')}</p>
+          options.length > 1 && <p className="text-[13px] text-text-2">{[`Opção ${optionLetter(selIdx)}`, selected.name].filter(Boolean).join(' · ')}</p>
         )}
 
-        <ul className={cn(CARD, 'mt-3 bg-panel', free && 'opacity-60')}>
+        <Card className={cn('overflow-hidden', free && 'opacity-60')}>
+        <ul>
           {meal.items.map(itemRow)}
           {!free && (
             <li className="border-t border-line first:border-t-0">
-              <button type="button" className="flex min-h-11 w-full items-center gap-2 px-3 text-sm text-accent" onClick={() => setPicking('extra')}><Plus size={16} aria-hidden="true" />Adicionar extra</button>
+              <Button variant="ghost" className="w-full justify-start rounded-none px-3.5 text-accent" onClick={() => setPicking('extra')}><Plus aria-hidden="true" />Adicionar extra</Button>
             </li>
           )}
         </ul>
-        <p className="flex justify-between gap-2 px-0.5 pt-2 text-[13px] text-text-2">
+        </Card>
+        <p className="flex justify-between gap-2 px-0.5 text-[13px] text-text-2">
           <span>Total</span>
           <b className="font-semibold text-strong tabular-nums">{total}</b>
         </p>
@@ -113,13 +115,13 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
       <BottomBar className="z-(--z-bar) gap-2">
         {meal.done ? (
           <>
-            <Button variant="outline" className="h-11 flex-1 bg-transparent" onClick={() => act((d) => toggleMeal(d, meal.id))}>Desmarcar</Button>
-            <Button className="h-11 flex-[1.4]" onClick={onClose}>Voltar</Button>
+            <Button variant="outline" className="flex-1" onClick={() => act((d) => toggleMeal(d, meal.id))}>Desmarcar</Button>
+            <Button className="flex-[1.4]" onClick={onClose}>Voltar</Button>
           </>
         ) : (
           <>
-            {!dayFree && <Button variant="outline" className="h-11 flex-1 bg-transparent" onClick={() => { act((d) => setMealFree(d, meal.id, true)); onClose() }}>Refeição livre</Button>}
-            <Button className="h-11 flex-[1.4]" disabled={dayFree} onClick={() => { act((d) => toggleMeal(d, meal.id)); onClose() }}><Check aria-hidden="true" />Comi esta</Button>
+            {!dayFree && <Button variant="outline" className="flex-1" onClick={() => { act((d) => setMealFree(d, meal.id, true)); onClose() }}>Refeição livre</Button>}
+            <Button className="flex-[1.4]" disabled={dayFree} onClick={() => { act((d) => toggleMeal(d, meal.id)); onClose() }}><Check aria-hidden="true" />Comi esta</Button>
           </>
         )}
       </BottomBar>
@@ -142,33 +144,33 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
                 <>
                   <DrawerTitle className="shrink-0 truncate pb-2 text-[19px] font-semibold text-strong">{meal.name}</DrawerTitle>
                   <DrawerDescription className="sr-only">Mais opções da refeição</DrawerDescription>
-                  <ul className={CARD}>
+                  <Card className="overflow-hidden"><ul>
                     {!free && <SheetRow icon={<ArrowLeftRight size={18} className="text-accent" aria-hidden="true" />} label="Trocar por refeição de outro cardápio" onClick={() => setSheet('swap')} />}
                     <SheetRow icon={<Sparkles size={18} className="text-accent" aria-hidden="true" />} label={meal.free ? 'Desfazer refeição livre' : 'Refeição livre'} onClick={() => {
                       setSheet(undefined)
                       act((d) => setMealFree(d, meal.id, !meal.free))
                       if (!meal.free) onClose()
                     }} />
-                  </ul>
+                  </ul></Card>
                 </>
               ) : (
                 <>
                   <DrawerTitle className="shrink-0 truncate pb-1 text-[19px] font-semibold text-strong">{`Trocar refeição · ${meal.name}`}</DrawerTitle>
-                  <DrawerDescription className="text-[13px] text-text-2">Só hoje. O cardápio não muda.</DrawerDescription>
-                  {!groups.length && <p className="pt-3 text-[13px] text-text-2">Sem refeições em outros cardápios.</p>}
+                  <DrawerDescription className="pb-3 text-[13px] text-text-2">Só hoje. O cardápio não muda.</DrawerDescription>
+                  {!groups.length && <p className="text-[13px] text-text-2">Sem refeições em outros cardápios.</p>}
                   {groups.map((g) => (
-                    <div key={g.id}>
+                    <div key={g.id} className="flex flex-col gap-1.5 pt-3">
                       <h3 className={LABEL}>{g.label}</h3>
-                      <ul aria-label={g.label} className={CARD}>
+                      <Card className="overflow-hidden"><ul aria-label={g.label}>
                         {g.rows.map((r) => (
                           <li key={r.id} className="border-t border-line first:border-t-0">
-                            <button type="button" className="flex min-h-14 w-full flex-col justify-center px-3 py-2 text-left" onClick={() => { act((d) => swapMeal(d, meal.id, { name: r.name, items: r.items })); setSheet(undefined) }}>
+                            <Button variant="ghost" className="h-auto min-h-14 w-full flex-col items-start justify-center gap-0 rounded-none px-3.5 py-2.5 text-left font-normal" onClick={() => { act((d) => swapMeal(d, meal.id, { name: r.name, items: r.items })); setSheet(undefined) }}>
                               <span className="text-[15px] font-semibold text-strong">{r.title}</span>
-                              <span className="truncate text-[12.5px] text-text-2">{`${formatDec(kcalOf(r.items))} kcal · ${r.items.map((i) => i.name).join(' + ')}`}</span>
-                            </button>
+                              <span className="max-w-full truncate text-[12.5px] text-text-2">{`${formatDec(kcalOf(r.items))} kcal · ${r.items.map((i) => i.name).join(' + ')}`}</span>
+                            </Button>
                           </li>
                         ))}
-                      </ul>
+                      </ul></Card>
                     </div>
                   ))}
                 </>
