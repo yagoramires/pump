@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import type { EvolutionInput } from './types'
 import { usePersisted } from '@/storage/db'
 
-/** as 8 chaves da Evolução num objeto só; mesma referência enquanto nenhuma muda (o PDF pronto vale por ela) */
+/** mesma referência enquanto nenhuma chave muda: o PDF pronto vale por ela */
 export function useEvolution(): EvolutionInput {
   const [workoutLog] = usePersisted('workoutLog')
   const [workoutPlan] = usePersisted('workoutPlan')

@@ -3,8 +3,7 @@ import react from '@vitejs/plugin-react'
 import path from 'node:path'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
-
-const BASE = '/pump/'
+import { BASE } from './src/catalog/urls.ts'
 
 export default defineConfig({
   plugins: [

@@ -1,21 +1,18 @@
-import { FileInput, List, Sparkles, Wand2 } from 'lucide-react'
-import { toast } from 'sonner'
-import { makeCopy } from '@/lib/share'
-import { usePersisted } from '@/storage/db'
+import { List } from 'lucide-react'
 import { SettingsRow, type OpenView } from '@/components/SettingsSection'
+import { AiPlanRows } from '@/import/AiPlanRows'
 import { PlanEditor } from './PlanEditor'
 import { PlanImport } from './PlanImport'
 import { buildAdjustPrompt } from './prompt'
+import { useWorkoutPlan } from './useWorkoutPlan'
 
 export function WorkoutSettings({ open }: { open: OpenView }) {
-  const [workoutPlan, setWorkoutPlan] = usePersisted('workoutPlan')
+  const { plan, replacePlan } = useWorkoutPlan()
   const back = () => open()
   return (
     <>
-      <SettingsRow icon={<List size={18} aria-hidden="true" />} color="var(--c1)" title="Editar plano" onClick={() => open(<PlanEditor initial={workoutPlan} onSave={(p) => { setWorkoutPlan(p); back() }} onCancel={back} />)} />
-      <SettingsRow icon={<Wand2 size={18} aria-hidden="true" />} color="var(--c4)" title="Ajustar com IA" sub="Copia seu plano pra pedir mudanças" onClick={() => makeCopy(toast)(buildAdjustPrompt(workoutPlan), 'Plano copiado. Cole na IA e peça os ajustes.')} />
-      <SettingsRow icon={<Sparkles size={18} aria-hidden="true" />} color="var(--c4)" title="Gerar com IA" onClick={() => open(<PlanImport mode="ia" onDone={back} onBack={back} />)} />
-      <SettingsRow icon={<FileInput size={18} aria-hidden="true" />} color="var(--c4)" title="Converter" onClick={() => open(<PlanImport mode="convert" onDone={back} onBack={back} />)} />
+      <SettingsRow icon={<List size={18} aria-hidden="true" />} color="var(--c1)" title="Editar plano" onClick={() => open(<PlanEditor initial={plan} onSave={(p) => { replacePlan(p); back() }} onCancel={back} />)} />
+      <AiPlanRows adjustPrompt={() => buildAdjustPrompt(plan)} onImport={(mode) => open(<PlanImport mode={mode} onDone={back} onBack={back} />)} />
     </>
   )
 }

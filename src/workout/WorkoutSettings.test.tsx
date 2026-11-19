@@ -5,7 +5,7 @@ import { renderLoaded } from '../../test/render'
 import { Toaster } from '@/components/ui/sonner'
 import { save } from '@/storage/db'
 import { COPY_FAIL } from '@/lib/share'
-import { planWith } from '../../test/helpers'
+import { planWith, setupClipboard } from '../../test/helpers'
 import { WorkoutSettings } from './WorkoutSettings'
 
 function Settings() {
@@ -23,18 +23,9 @@ test('linhas Gerar com IA e Converter abrem cada tela', async () => {
   expect(await screen.findByRole('heading', { name: 'Converter ficha' })).toBeInTheDocument()
 })
 
-const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
-// depois do userEvent.setup(), que troca o clipboard pelo dele
-const setupUser = () => {
-  const user = userEvent.setup()
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
-  return user
-}
-
 test('Ajustar com IA copia o prompt com o plano salvo e avisa', async () => {
-  writeText.mockClear()
   await save('workoutPlan', planWith([{ name: 'Remada curvada (barra)' }]))
-  const user = setupUser()
+  const { user, writeText } = setupClipboard()
   await renderLoaded(<><Settings /><Toaster /></>)
   await user.click(await screen.findByRole('button', { name: /Ajustar com IA/ }))
   expect(writeText).toHaveBeenCalledWith(expect.stringContaining('"nome": "Remada curvada (barra)"'))
@@ -42,7 +33,7 @@ test('Ajustar com IA copia o prompt com o plano salvo e avisa', async () => {
 })
 
 test('Ajustar com IA: clipboard negado mostra o erro', async () => {
-  const user = setupUser()
+  const { user, writeText } = setupClipboard()
   writeText.mockRejectedValueOnce(new Error('denied'))
   await renderLoaded(<><Settings /><Toaster /></>)
   await user.click(await screen.findByRole('button', { name: /Ajustar com IA/ }))

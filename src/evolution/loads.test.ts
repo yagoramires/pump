@@ -44,6 +44,7 @@ test('peso do corpo usa reps', () => {
   const barra = (sets: SetDone[]) => ({ exerciseId: 'Barra', name: 'Barra', sets })
   const log = logOf(sess('2026-11-01', [barra([set(0, '8'), set(0, '6')])]), sess('2026-11-15', [barra([set(0, '10'), set(0, '9')])]))
   expect(rows(log)[0]).toMatchObject({ mode: 'reps', top: { last: 10, delta: 2 }, total: { last: 19, delta: 5 } })
+  expect(loadsSummary(log, 'all', today)).toMatchObject({ top: { up: 0, down: 0, same: 0 }, total: { up: 0, down: 0, same: 0 } })
 })
 test('com lastro no período usa carga e ignora sessões a 0 kg', () => {
   const barra = (sets: SetDone[]) => ({ exerciseId: 'Barra', name: 'Barra', sets })

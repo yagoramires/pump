@@ -11,9 +11,8 @@ import { MeasureForm } from './MeasureForm'
 import { PhotoCapture } from './PhotoCapture'
 import { PhotoCompare } from './PhotoCompare'
 import { Delta } from './Delta'
-import { WEIGHT, formatMetric, metricUnit } from './measurements'
+import { WEIGHT, formatValue, metricUnit } from './measurements'
 import { weekSummary } from './checkIn'
-import { usePhotoSets } from './photoSets'
 import { ANGLES } from './types'
 
 type Step = 'measure' | 'photos' | 'summary' | 'compare'
@@ -22,7 +21,7 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
   const [today] = useState(todayKey) // fixa o dia: virar a meia-noite no fluxo não pode esvaziar o resumo
   const [list] = usePersisted('measurements')
   const [profile] = usePersisted('profile')
-  const { sets } = usePhotoSets()
+  const [sets] = usePersisted('photoSets')
   const [step, setStep] = useState<Step>('measure')
 
   const s = weekSummary(profile, list, sets, today)
@@ -44,11 +43,11 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
       <BackHeader title={`Semana ${s.week}`} onBack={onClose} />
       <Card className="gap-2">
         {s.sincePrev === undefined ? (
-          <div className="text-display font-semibold text-strong tabular-nums">{`${formatMetric(WEIGHT, s.weight)}${kg}`}</div>
+          <div className="text-display font-semibold text-strong tabular-nums">{formatValue(WEIGHT, s.weight)}</div>
         ) : (
           <>
             <div className={cn('text-display font-semibold tabular-nums', s.weightGood ? 'text-accent' : 'text-strong')}>{`${formatSigned(s.sincePrev)}${kg}`}</div>
-            <div className="text-meta text-text-2">{`${s.prevIsLastWeek ? 'desde a semana passada' : `desde ${formatDayMonth(s.prevDate!)}`} · ${formatMetric(WEIGHT, s.weight)}${kg}`}</div>
+            <div className="text-meta text-text-2">{`${s.prevIsLastWeek ? 'desde a semana passada' : `desde ${formatDayMonth(s.prevDate!)}`} · ${formatValue(WEIGHT, s.weight)}`}</div>
           </>
         )}
         {s.rows.map((r) => (

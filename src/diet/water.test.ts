@@ -27,6 +27,6 @@ test('waterMet: ml ≥ goalMl > 0', () => {
   expect(waterMet(undefined)).toBe(false)
 })
 
-test('turnWaterOn: religa o que estava salvo; na primeira vez usa a meta do peso', () => {
+test('turnWaterOn: religa o que estava salvo sem recalcular pelo peso', () => {
   expect(turnWaterOn({ enabled: false, goalMl: 3000, cupMl: 300 }, 80)).toEqual({ enabled: true, goalMl: 3000, cupMl: 300 })
 })

@@ -12,10 +12,9 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/compone
 import { Overlay } from '@/components/Overlay'
 import { BackHeader } from '@/components/BackHeader'
 import { cn } from '@/lib/utils'
-import { goalDirection } from './bodyFat'
-import { Delta } from './Delta'
-import { FAT, WAIST, WEIGHT, byDate, deltaUnit, formatMetric, metricRow, metricSeries, metricUnit, pointAt } from './measurements'
-import { ANGLES } from './types'
+import { BodyRowLine } from './BodyRowLine'
+import { FAT, WAIST, WEIGHT, bodyRows, byDate, pointAt } from './measurements'
+import { photoCount } from './photoSets'
 import { AngleTabs } from './AngleTabs'
 import { PhotoThumb } from './PhotoThumb'
 
@@ -44,14 +43,7 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
   const header = <BackHeader title="Comparar" onBack={onClose} />
   if (!before || !after) return <Overlay>{header}<p className="text-sm text-text-2">Nenhuma foto ainda.</p></Overlay>
 
-  const dir = goalDirection(profile)
-  const rows = [WEIGHT, WAIST, FAT].flatMap((field) => {
-    const points = metricSeries(profile, ms, field)
-    const from = pointAt(points, before.date)
-    const to = pointAt(points, after.date)
-    if (from === undefined || to === undefined) return []
-    return [metricRow(field, dir, { date: before.date, value: from }, { date: after.date, value: to })]
-  })
+  const rows = bodyRows(profile, ms, [WEIGHT, WAIST, FAT], (points) => [pointAt(points, before.date), pointAt(points, after.date)])
 
   return (
     <Overlay>
@@ -69,15 +61,7 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
 
       {rows.length > 0 && (
         <Card size="flush">
-          {rows.map((r, k) => (
-            <div key={r.key} className={cn('flex items-center justify-between gap-3 px-3.5 py-2.5 text-sm', k > 0 && 'border-t border-line')}>
-              <span className="text-text-2">{r.label}</span>
-              <span className="tabular-nums">
-                <b className="font-semibold text-strong">{`${formatMetric(r, r.first.value)} → ${formatMetric(r, r.last.value)}${metricUnit(r)}`}</b>
-                <Delta value={r.delta ?? 0} good={r.good} unit={deltaUnit(r)} className="ml-2 text-meta" />
-              </span>
-            </div>
-          ))}
+          {rows.map((r) => <BodyRowLine key={r.key} row={r} />)}
         </Card>
       )}
       </div>
@@ -89,7 +73,6 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
             <DrawerDescription className="sr-only">Escolha o registro de fotos</DrawerDescription>
             {sorted.map((s) => {
               const on = s.id === (picking === 'before' ? before : after).id
-              const n = ANGLES.filter((x) => s[x]).length
               return (
                 <Toggle
                   key={s.id}
@@ -98,7 +81,7 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
                   onPressedChange={() => { setChosen((c) => ({ ...c, [picking!]: s.id })); setPicking(undefined) }}
                 >
                   <span className="text-strong">{formatDayMonth(s.date)}</span>
-                  <span className="flex items-center gap-2 text-text-2">{plural(n, 'foto', 'fotos')}{on && <Check size={16} className="text-accent" aria-hidden="true" />}</span>
+                  <span className="flex items-center gap-2 text-text-2">{plural(photoCount(s), 'foto', 'fotos')}{on && <Check size={16} className="text-accent" aria-hidden="true" />}</span>
                 </Toggle>
               )
             })}

@@ -1,8 +1,10 @@
+import userEvent from '@testing-library/user-event'
 import type { DietDay, DietItem } from '../src/diet/types'
 import type { Exercise, PlanExercise, Workout, WorkoutPlan } from '../src/workout/types'
 import type { EvolutionInput } from '../src/evolution/types'
 import { PREVIEW_CACHE } from '../src/catalog/urls'
 import { DEFAULTS } from '../src/schema'
+import { FormatError } from '../src/format/envelope'
 
 export const pe = (over: Partial<PlanExercise> = {}): PlanExercise => ({
   exerciseId: 'X', name: 'X', muscles: [], images: [], instructions: [], sets: 3, reps: '10', weightKg: 0, restSec: 90, ...over,
@@ -52,3 +54,17 @@ export const evolutionInput = (over: Partial<EvolutionInput> = {}): EvolutionInp
   workoutLog: DEFAULTS.workoutLog, workoutPlan: DEFAULTS.workoutPlan, measurements: DEFAULTS.measurements, photoSets: DEFAULTS.photoSets,
   profile: DEFAULTS.profile, dietLog: DEFAULTS.dietLog, waterLog: DEFAULTS.waterLog, dietPlan: DEFAULTS.dietPlan, ...over,
 })
+
+/** userEvent com um clipboard falso: o setup troca o clipboard pelo dele, então o falso entra depois */
+export function setupClipboard() {
+  const user = userEvent.setup()
+  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
+  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+  return { user, writeText }
+}
+
+/** os problemas do FormatError que `f` lança */
+export const problems = (f: () => unknown): string[] => {
+  try { f() } catch (e) { if (e instanceof FormatError) return e.problems; throw e }
+  throw new Error('não lançou')
+}

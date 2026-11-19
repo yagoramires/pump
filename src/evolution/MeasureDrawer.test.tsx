@@ -1,8 +1,9 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { load, save } from '@/storage/db'
+import { save } from '@/storage/db'
 import { Toaster } from '@/components/ui/sonner'
 import { renderLoaded } from '../../test/render'
+import { stored } from '../../test/store'
 import { MeasureDrawer } from './MeasureDrawer'
 
 beforeEach(async () => {
@@ -24,7 +25,7 @@ test('medidas com vírgula: grava, mostra a gordura e guarda o peso', async () =
   expect(screen.getByText('18,4%')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
   expect(await screen.findByText('Medidas salvas')).toBeInTheDocument()
-  expect((await load('measurements'))?.[0]).toMatchObject({ weightKg: 78.4, neckCm: 38, waistCm: 85 })
+  expect((await stored('measurements'))?.[0]).toMatchObject({ weightKg: 78.4, neckCm: 38, waistCm: 85 })
 })
 test('mesmo dia: reabre preenchida e limpar um campo tira ele do registro', async () => {
   const user = userEvent.setup()
@@ -36,8 +37,8 @@ test('mesmo dia: reabre preenchida e limpar um campo tira ele do registro', asyn
   await user.clear(screen.getByLabelText('Cintura'))
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
   expect(await screen.findByText('Medidas salvas')).toBeInTheDocument()
-  expect((await load('measurements'))?.[0].waistCm).toBeUndefined()
-  expect((await load('measurements'))?.[0]).toMatchObject({ id: 'a', weightKg: 80, neckCm: 38 })
+  expect((await stored('measurements'))?.[0].waistCm).toBeUndefined()
+  expect((await stored('measurements'))?.[0]).toMatchObject({ id: 'a', weightKg: 80, neckCm: 38 })
 })
 test('0 apaga o campo em vez de virar medida', async () => {
   const user = userEvent.setup()
@@ -48,8 +49,8 @@ test('0 apaga o campo em vez de virar medida', async () => {
   await user.type(screen.getByLabelText('Peso'), '0')
   expect(screen.getByRole('button', { name: 'Salvar' })).toBeEnabled()
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
-  await waitFor(async () => expect((await load('measurements'))?.[0].weightKg).toBeUndefined())
-  expect((await load('measurements'))?.[0]).toMatchObject({ waistCm: 85 })
+  await waitFor(async () => expect((await stored('measurements'))?.[0].weightKg).toBeUndefined())
+  expect((await stored('measurements'))?.[0]).toMatchObject({ waistCm: 85 })
 })
 test('limpar tudo apaga o registro do dia e avisa "Medidas apagadas"', async () => {
   const user = userEvent.setup()
@@ -58,7 +59,7 @@ test('limpar tudo apaga o registro do dia e avisa "Medidas apagadas"', async () 
   await user.clear(await screen.findByLabelText('Cintura'))
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
   expect(await screen.findByText('Medidas apagadas')).toBeInTheDocument()
-  expect(await load('measurements')).toEqual([])
+  expect(await stored('measurements')).toEqual([])
 })
 test('salvar sem mudar nada não grava nem diz que salvou', async () => {
   const user = userEvent.setup()
@@ -67,14 +68,14 @@ test('salvar sem mudar nada não grava nem diz que salvou', async () => {
   await user.click(await screen.findByRole('button', { name: 'Salvar' }))
   expect(await screen.findByText('Nada mudou')).toBeInTheDocument()
   expect(screen.queryByText('Medidas salvas')).not.toBeInTheDocument()
-  expect(await load('measurements')).toEqual([{ id: 'a', date: TODAY, waistCm: 85 }])
+  expect(await stored('measurements')).toEqual([{ id: 'a', date: TODAY, waistCm: 85 }])
 })
 test('dia vazio sem nada digitado: "Nada mudou" e nada gravado', async () => {
   const user = userEvent.setup()
   await open()
   await user.click(await screen.findByRole('button', { name: 'Salvar' }))
   expect(await screen.findByText('Nada mudou')).toBeInTheDocument()
-  expect(await load('measurements')).toBeUndefined()
+  expect(await stored('measurements')).toBeUndefined()
 })
 test('fora do onboarding os campos não são marcados como opcionais', async () => {
   await open()

@@ -3,9 +3,9 @@ import { FileInput, Plus, Sparkles, Utensils } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/EmptyState'
 import { Overlay } from '@/components/Overlay'
-import { useDietPlan } from './useDietPlan'
 import { DietEditor } from './DietEditor'
 import { DietImport } from './DietImport'
+import { useDietPlan } from './useDietPlan'
 
 export function DietStart({ hint, onDone }: { hint: string; onDone?: () => void }) {
   const { plan, replacePlan } = useDietPlan()

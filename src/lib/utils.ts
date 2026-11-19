@@ -15,3 +15,6 @@ export const omitKey = <T>(rec: Record<string, T>, key: string): Record<string, 
 }
 
 export const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
+
+/** chave própria de `o` — backups antigos podem trazer valores fora das opções atuais (ou 'constructor') */
+export const isKeyOf = <T extends object>(o: T, k: unknown): k is keyof T => typeof k === 'string' && Object.hasOwn(o, k)

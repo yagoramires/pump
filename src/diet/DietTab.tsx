@@ -11,13 +11,12 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { SheetBody, SheetRow } from '@/components/SheetRow'
 import { formatDec } from '@/lib/number'
 import { cn } from '@/lib/utils'
-import { currentMealId, daySummary, mealOptions, toggleMeal } from './day'
+import { currentMealId, daySummary, mealItems, mealOptions, toggleDayFree, toggleMeal } from './day'
 import { kcalOf } from './food'
 import { liters, macroProgress, optionLetter } from './display'
 import { sortedMeals } from './plan'
 import { useDietToday } from './useDietToday'
 import { useWater } from './useWater'
-import { activeWater } from './water'
 import { DietEditor } from './DietEditor'
 import { DietStart } from './DietStart'
 import { ShoppingList } from './ShoppingList'
@@ -28,19 +27,19 @@ const RING_R = 19
 const RING_C = 2 * Math.PI * RING_R
 
 export function DietTab() {
-  const { now, today, tick, plan, replacePlan, day, menu: dayMenu, act, pickMenu, switchMenu } = useDietToday()
+  const { now, today, plan, day, menu: dayMenu, act, pickMenu, replacePlan } = useDietToday()
   const water = useWater()
-  const waterSettings = activeWater(water.settings)
+  const waterSettings = water.on
   const [editing, setEditing] = useState(false)
   const [shopping, setShopping] = useState(false)
   const [openId, setOpenId] = useState<string>()
-  const [confirmMenu, setConfirmMenu] = useState<{ menuId: string; date: string }>()
+  const [confirmSwitch, setConfirmSwitch] = useState<() => void>()
   const [sheet, setSheet] = useState<'more' | 'menus' | 'water'>()
-  if (openId && !day?.meals.some((m) => m.id === openId)) setOpenId(undefined)
 
   const close = () => setEditing(false)
   if (shopping) return <Overlay><ShoppingList onClose={() => setShopping(false)} /></Overlay>
   if (editing) return <Overlay><DietEditor initial={plan} onSave={(next) => { replacePlan(next); close() }} onCancel={close} /></Overlay>
+  if (openId) return <MealScreen mealId={openId} onClose={() => setOpenId(undefined)} />
 
   if (!day || !plan.menus.length) {
     return (
@@ -52,15 +51,15 @@ export function DietTab() {
   }
 
   const s = daySummary(day)
-  const pick = (menuId: string) => setConfirmMenu(pickMenu(menuId))
+  const pick = (menuId: string) => {
+    const go = pickMenu(menuId)
+    setConfirmSwitch(() => go)
+  }
 
   const goal = day.goalKcal
   const macros = macroProgress(s, day.goalMacros)
   const pct = goal ? Math.min(100, Math.round((s.kcal / goal) * 100)) : 0
   const nowId = day.free ? undefined : currentMealId(day.meals, now)
-
-  const openMeal = day.meals.find((m) => m.id === openId)
-  if (openMeal) return <MealScreen mealId={openMeal.id} onClose={() => { setOpenId(undefined); tick() }} />
 
   const menuRow = (id: string, name: string) => (
     <li key={id} className="border-t border-line first:border-t-0">
@@ -92,7 +91,6 @@ export function DietTab() {
         )}
         <div className="min-w-0 flex-1">
           <div className="text-body font-semibold tabular-nums text-strong">{goal ? `${formatDec(s.kcal)} / ${formatDec(goal)} kcal` : `${formatDec(s.kcal)} kcal`}</div>
-          {/* cada macro é uma unidade: a linha quebra entre eles, nunca no meio de um número */}
           <div className={cn('flex flex-wrap gap-x-2.5 text-caption tabular-nums', day.free ? 'text-accent' : 'text-text-2')}>
             {day.free ? 'Dia livre' : macros.map((m) => <span key={m} className="whitespace-nowrap">{m}</span>)}
           </div>
@@ -111,7 +109,7 @@ export function DietTab() {
       <ul aria-label="Refeições">
         {sortedMeals(day.meals).map((m) => {
           const { options, index, canToggle: many } = mealOptions(plan, day, m.id)
-          const sub = m.free ? 'livre' : !m.done && many ? `${options.length} opções` : `${formatDec(kcalOf(m.items.filter((i) => !i.skipped)))} kcal`
+          const sub = m.free ? 'livre' : !m.done && many ? `${options.length} opções` : `${formatDec(kcalOf(mealItems(m)))} kcal`
           const isNow = m.id === nowId
           return (
             <li key={m.id} aria-current={isNow ? 'true' : undefined} className={cn('flex items-center gap-2 border-t border-line px-3.5 first:border-t-0', isNow && 'bg-accent-bg')}>
@@ -166,7 +164,7 @@ export function DietTab() {
                   <DrawerDescription className="sr-only">Mais opções da dieta</DrawerDescription>
                   <Card size="flush" variant="inset"><ul>
                     {plan.menus.length > 1 && <SheetRow icon={<ListChecks size={18} className="text-accent" aria-hidden="true" />} label="Cardápio de hoje" onClick={() => setSheet('menus')} />}
-                    <SheetRow icon={<Sparkles size={18} className="text-accent" aria-hidden="true" />} label={day.free ? 'Desfazer dia livre' : 'Dia livre'} onClick={() => { setSheet(undefined); act((d) => ({ ...d, free: !d.free })) }} />
+                    <SheetRow icon={<Sparkles size={18} className="text-accent" aria-hidden="true" />} label={day.free ? 'Desfazer dia livre' : 'Dia livre'} onClick={() => { setSheet(undefined); act(toggleDayFree) }} />
                     <SheetRow icon={<ShoppingCart size={18} className="text-accent" aria-hidden="true" />} label="Lista de compras" onClick={() => { setSheet(undefined); setShopping(true) }} />
                     <SheetRow icon={<Pencil size={18} className="text-accent" aria-hidden="true" />} label="Editar cardápio" onClick={() => { setSheet(undefined); setEditing(true) }} />
                   </ul></Card>
@@ -178,8 +176,8 @@ export function DietTab() {
       )}
 
       <ConfirmDialog
-        open={!!confirmMenu} title="Trocar o cardápio de hoje?" text="O que você marcou hoje será apagado." confirm="Trocar" destructive
-        onConfirm={() => confirmMenu && switchMenu(confirmMenu.menuId, confirmMenu.date)} onCancel={() => setConfirmMenu(undefined)}
+        open={!!confirmSwitch} title="Trocar o cardápio de hoje?" text="O que você marcou hoje será apagado." confirm="Trocar" destructive
+        onConfirm={() => confirmSwitch?.()} onCancel={() => setConfirmSwitch(undefined)}
       />
     </div>
   )

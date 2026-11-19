@@ -1,13 +1,13 @@
-import { DIET_GOAL_PROMPT_LABEL, type Profile } from '@/profile/types'
+import { DIET_GOAL_LABEL, type DietGoal, type Profile } from '@/profile/types'
 import { EAT_OUT_PROMPT, RESTRICTIONS } from './anamnesisLabels'
-import { HEADER, str } from '@/format/envelope'
+import { str } from '@/lib/text'
 import type { Measurement } from '@/evolution/types'
 import { FIELDS, WEIGHT, fatSeries, latestWeight, series } from '@/evolution/measurements'
 import { addDays, daysBetween, weeksBetween } from '@/lib/date'
 import { formatDec, formatKg, formatSigned, plural } from '@/lib/number'
 import { FOOD_LIST_URL } from '@/catalog/urls'
-import { COPYABLE_JSON_RULE, listRule as rule } from '@/format/promptRules'
-import { label, names, profileLines } from '@/profile/promptLines'
+import { aboutMe as aboutMeBlock, adjustPrompt, askFirst, formatSpec, label, listRule as rule, names } from '@/format/promptRules'
+import { profileLines } from '@/profile/promptLines'
 import { exportDietFormat } from './dietFormat'
 import { preparePlan } from './plan'
 import type { DietPlan } from './types'
@@ -31,6 +31,13 @@ export const TACO_EXAMPLES: string[] = [
   'Azeite, de oliva, extra virgem',
 ]
 
+const DIET_GOAL_PROMPT_LABEL: Record<DietGoal, string> = {
+  'perder-rapido': `${DIET_GOAL_LABEL.perder.toLowerCase()} rápido`,
+  perder: DIET_GOAL_LABEL.perder.toLowerCase(),
+  manter: `${DIET_GOAL_LABEL.manter.toLowerCase()} o peso`,
+  ganhar: DIET_GOAL_LABEL.ganhar.toLowerCase(),
+  'ganhar-rapido': `${DIET_GOAL_LABEL.ganhar.toLowerCase()} rápido`,
+}
 
 function bodyLines(p: Profile | undefined, ms: Measurement[], today: string): string[] {
   const last = (pts: { value: number }[]) => pts.at(-1)?.value
@@ -58,7 +65,6 @@ function aboutMe(p: Profile | undefined, ms: Measurement[], today: string): stri
     ...profileLines(p),
     ...bodyLines(p, ms, today),
     ...[
-      p?.daysPerWeek ? `Dias de treino por semana: ${p.daysPerWeek}` : '',
       dietGoal && `Objetivo da dieta: ${dietGoal}`,
       d.meals ? `Refeições por dia: ${d.meals}` : '',
       str(p?.wake) && `Acordo às ${str(p?.wake)}`,
@@ -74,11 +80,9 @@ function aboutMe(p: Profile | undefined, ms: Measurement[], today: string): stri
 }
 
 const listRule = (fallback: string) => rule(FOOD_LIST_URL, 'alimento', ` (nomes da tabela TACO 4ª edição, no padrão "Alimento, tipo, preparo"; exemplos: ${TACO_EXAMPLES.map((n) => `"${n}"`).join(', ')}).`, fallback)
+const NEW_FOOD_RULE = listRule('Só use outro nome se nenhum da lista servir, escrevendo no mesmo padrão e sempre dizendo o preparo.')
 
-const FORMAT = `Formato:
-- "formato": sempre "${HEADER.formato}".
-- "versao": sempre ${HEADER.versao}.
-- "dieta":
+const FORMAT = formatSpec(`- "dieta":
   - "cardapios": lista de 1 a ${MAX_MENUS} cardápios. Cada cardápio tem:
     - "nome": nome do cardápio (ex.: "Dia de treino").
     - "metaKcal": meta diária de calorias, número inteiro de ${GOAL_KCAL[0]} a ${GOAL_KCAL[1]}.
@@ -92,14 +96,7 @@ const FORMAT = `Formato:
           - "nome": nome do alimento (obrigatório).
           - "gramas": quantidade em gramas, de ${GRAMS[0]} a ${GRAMS[1]} (obrigatório).
           - "porcao": porção caseira, ex.: "1 unidade" ou "2 colheres de sopa".
-          - "kcal", "proteinaG", "carboG", "gorduraG": valores da quantidade indicada, números maiores ou iguais a 0.
-
-Exemplo (um cardápio e uma refeição, só pra mostrar o formato):
-\`\`\`json
-{
-  "formato": "${HEADER.formato}",
-  "versao": ${HEADER.versao},
-  "dieta": {
+          - "kcal", "proteinaG", "carboG", "gorduraG": valores da quantidade indicada, números maiores ou iguais a 0.`, 'Exemplo (um cardápio e uma refeição, só pra mostrar o formato)', `  "dieta": {
     "cardapios": [
       {
         "nome": "Cardápio",
@@ -129,11 +126,7 @@ Exemplo (um cardápio e uma refeição, só pra mostrar o formato):
         ]
       }
     ]
-  }
-}
-\`\`\`
-
-${COPYABLE_JSON_RULE}`
+  }`)
 
 export const buildDietPrompt = (profile: Profile | undefined, measurements: Measurement[], today: string): string => {
   const me = aboutMe(profile, measurements, today)
@@ -142,17 +135,16 @@ export const buildDietPrompt = (profile: Profile | undefined, measurements: Meas
     : 'Faça 1 cardápio.'
   return `Você é um nutricionista. Monte meu cardápio no formato "Pump".
 
-Sobre mim:
-${me.length ? me.join('\n') : '- (ainda não contei nada)'}
+${aboutMeBlock(me)}
 
 Como fazer:
 1. Se eu colar uma dieta pronta (de nutricionista, por exemplo), transcreva sem mudar os números (quantidades); os nomes seguem a regra da lista.
-2. Senão, se faltar algo importante pra montar um bom cardápio (objetivo, peso, altura, idade, refeições por dia, horários), me pergunte primeiro, tudo numa mensagem só, e espere minha resposta. Nessa hora não mande JSON.
+2. ${askFirst('cardápio', 'objetivo, peso, altura, idade, refeições por dia, horários')}
 3. ${menus}
 4. Calcule uma meta diária de calorias e de macros (proteína, carboidrato e gordura) coerente com meu objetivo e meu perfil.
 5. Distribua as refeições nos meus horários, respeite minhas restrições e o que não como, e use comida simples do dia a dia no Brasil.
 6. Dê 2 opções em cada refeição (ex.: "Ovos com pão" e "Iogurte com aveia"), com calorias e macros parecidos, pra eu poder variar.
-7. ${listRule('Só use outro nome se nenhum da lista servir, escrevendo no mesmo padrão e sempre dizendo o preparo.')}
+7. ${NEW_FOOD_RULE}
 8. Pra cada alimento, informe as gramas, a porção caseira e os valores da quantidade indicada (não por 100 g): kcal, proteína, carboidrato e gordura.
 
 ${FORMAT}`
@@ -170,16 +162,7 @@ Como fazer:
 
 ${FORMAT}`
 
-export const buildDietAdjustPrompt = (plan: DietPlan): string => `Este é meu plano de dieta no formato do app Pump. Em seguida eu digo o que quero mudar.
-
-Regras:
-1. Mude só o que eu pedir. O resto fica igual, inclusive o formato e os nomes dos campos.
-2. Para alimento novo: ${listRule('Só use outro nome se nenhum da lista servir, escrevendo no mesmo padrão e sempre dizendo o preparo.')}
-3. Os valores (kcal, proteinaG, carboG, gorduraG) são da quantidade em gramas, não por 100 g: se mudar as gramas ou incluir um alimento, recalcule esses valores.
-4. ${COPYABLE_JSON_RULE}
-
-Meu plano atual:
-\`\`\`json
-${exportDietFormat(preparePlan(plan))}
-\`\`\`
-`
+export const buildDietAdjustPrompt = (plan: DietPlan): string => adjustPrompt('dieta', [
+  `Para alimento novo: ${NEW_FOOD_RULE}`,
+  'Os valores (kcal, proteinaG, carboG, gorduraG) são da quantidade em gramas, não por 100 g: se mudar as gramas ou incluir um alimento, recalcule esses valores.',
+], exportDietFormat(preparePlan(plan)))

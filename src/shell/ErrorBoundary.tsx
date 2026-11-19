@@ -2,7 +2,7 @@ import { Component, type ReactNode } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import { EmptyState } from '@/components/EmptyState'
 import { Button } from '@/components/ui/button'
-import { useBackupExport } from './useBackupExport'
+import { sendBackup } from '@/backup/backup'
 import { StorageReadError } from '@/storage/db'
 import { CenteredScreen } from './CenteredScreen'
 
@@ -18,12 +18,10 @@ function FatalScreen({ title, text, children }: { title: string; text: string; c
 }
 
 function CrashScreen() {
-  const { send, error } = useBackupExport()
   return (
     <FatalScreen title="Algo deu errado" text="Seus dados continuam salvos neste aparelho. Exporte um backup por garantia e recarregue o app.">
-      <Button type="button" variant="secondary" onClick={send}>Exportar backup</Button>
+      <Button type="button" variant="secondary" onClick={sendBackup}>Exportar backup</Button>
       <Button type="button" onClick={() => location.reload()}>Recarregar</Button>
-      {error && <p className="text-sm text-negative">{error}</p>}
     </FatalScreen>
   )
 }

@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils'
 import { useId, type ReactNode } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { IconDot } from './IconDot'
@@ -17,15 +18,15 @@ export function SettingsSection({ title, children }: { title: string; children: 
   )
 }
 
-export function SettingsRow({ icon, color, title, sub, onClick }: { icon: ReactNode; color: string; title: string; sub?: string; onClick: () => void }) {
+export function SettingsRow({ icon, color, title, sub, onClick, destructive }: { icon: ReactNode; color: string; title: string; sub?: string; onClick: () => void; destructive?: boolean }) {
   return (
     <Button type="button" variant="ghost" className="h-auto min-h-14 w-full justify-start gap-3 rounded-none border-t border-line px-3.5 py-2 text-left font-normal first:border-t-0" onClick={onClick}>
       <IconDot size={36} color={color}>{icon}</IconDot>
       <span className="min-w-0 flex-1">
-        <span className="block text-body font-semibold text-strong">{title}</span>
+        <span className={cn('block text-body font-semibold', destructive ? 'text-negative' : 'text-strong')}>{title}</span>
         {sub && <span className="block text-meta text-text-2">{sub}</span>}
       </span>
-      <ChevronRight size={18} className="text-faint" aria-hidden="true" />
+      {!destructive && <ChevronRight size={18} className="text-faint" aria-hidden="true" />}
     </Button>
   )
 }

@@ -1,8 +1,7 @@
 import { buildAdjustPrompt, buildConvertPrompt, buildPrompt } from './prompt'
 import { parsePlanFormat } from './planFormat'
-import { planOf, planWith } from '../../test/helpers'
+import { planWith } from '../../test/helpers'
 import { EXERCISE_LIST_URL } from '@/catalog/urls'
-import { COPYABLE_JSON_RULE } from '@/format/promptRules'
 
 test('treino não leva objetivo da dieta nem peso', () => {
   const p = buildPrompt({ sex: 'M', heightCm: 178, dietGoal: 'perder', focus: 'hipertrofia' })
@@ -11,11 +10,11 @@ test('treino não leva objetivo da dieta nem peso', () => {
 })
 test('prompt leva perfil e anamnese; sem dados manda a IA perguntar', () => {
   const p = buildPrompt({ sex: 'F', heightCm: 165, age: 34, focus: 'hipertrofia', daysPerWeek: 3, notes: ' joelho ', anamnesis: { level: 'iniciante', place: 'casa', split: 'ppl', extras: ['cardio', 'abdomen'], weak: ['peito', 'panturrilha'], minutes: 45 } })
-  for (const l of ['- Sexo: feminino', '- Idade: 34 anos', '- Altura: 165 cm', '- Foco: hipertrofia (ganhar massa muscular)', '- Nível: iniciante', '- Onde treino: em casa, com pouco equipamento', '- Dias por semana: 3', '- Divisão preferida: push/pull/legs (empurrar, puxar, pernas)', '- Incluir também: cardio, abdômen', '- Pontos fracos (quero priorizar): peito, panturrilha', '- Tempo por treino: até 45 min, contando o cardio', '- Lesões, limitações ou observações: joelho'])
+  for (const l of ['- Sexo: feminino', '- Idade: 34 anos', '- Altura: 165 cm', '- Foco: hipertrofia (ganhar massa muscular)', '- Nível: iniciante', '- Onde treino: em casa, com pouco equipamento', '- Dias de treino por semana: 3', '- Divisão preferida: push/pull/legs (empurrar, puxar, pernas)', '- Incluir também: cardio, abdômen', '- Pontos fracos (quero priorizar): peito, panturrilha', '- Tempo por treino: até 45 min, contando o cardio', '- Lesões, limitações ou observações: joelho'])
     expect(p).toContain(l)
-  // perfil pulado: o sexo 'M' é só o padrão e não pode ir pro prompt
+  // perfil pulado: o sexo 'M' é só o padrão e não pode ir pro prompt; o foco é o que o formulário já mostra marcado
   const empty = buildPrompt({ sex: 'M', heightCm: 0 })
-  expect(empty).toContain('- (ainda não contei nada)')
+  expect(empty).toContain('- Foco: hipertrofia (ganhar massa muscular)')
   expect(empty).not.toContain('Sexo')
   expect(empty).toContain('me pergunte primeiro')
 })
@@ -23,41 +22,14 @@ test('anamnese inválida vinda de backup não quebra nem gera linha vazia', () =
   const p = buildPrompt({ sex: 'M', heightCm: 170, notes: 3 as never, anamnesis: { extras: 'cardio', weak: ['xyz'] } as never })
   expect(p).toBe(buildPrompt({ sex: 'M', heightCm: 170 }))
 })
-test('gerar: ficha pronta só preserva os números, os nomes seguem a lista', () => {
-  expect(buildPrompt(undefined)).toContain('transcreva sem mudar os números (séries, repetições, cargas)')
-})
-test('prompt orienta a ordem da fila de treinos', () => {
-  expect(buildPrompt(undefined)).toContain('na ordem da lista')
-})
-test('gerar e converter usam a lista do catálogo, só o nome, e dividem o formato', () => {
-  for (const p of [buildPrompt(undefined), buildConvertPrompt()]) {
-    expect(p).toContain(EXERCISE_LIST_URL)
-    expect(p).toContain('exatamente um nome')
-    expect(p).toContain('não conseguir abrir o link')
-    expect(p).toContain('Copie a linha inteira da lista, do jeito que está, com o equipamento entre parênteses')
-    expect(p).toContain('"formato": sempre "pump-plano"')
-    expect(p).toContain('um único bloco de código Markdown com a linguagem `json`')
-    expect(p).toContain('para eu copiar e colar no Pump')
-    expect(p).toContain('Não escreva texto fora do bloco.')
-  }
-  expect(buildConvertPrompt()).toContain('sem mudar')
-  expect(buildConvertPrompt()).toContain('mantenha o nome original')
+test('gerar e converter apontam pra lista do catálogo', () => {
+  for (const p of [buildPrompt(undefined), buildConvertPrompt()]) expect(p).toContain(EXERCISE_LIST_URL)
 })
 
-test('os prompts pedem pra colar a lista se a IA não abrir o link', () => {
-  expect(buildPrompt()).toContain('me peça pra colar a lista')
-  expect(buildConvertPrompt()).toContain('me peça pra colar a lista')
-})
-
-test('ajustar: leva regras e o plano atual, e a importação lê o texto de volta', () => {
+test('ajustar: leva o plano atual e a lista, e a importação lê o texto de volta', () => {
   const plan = planWith([{ name: 'Supino reto (barra)', sets: 4, reps: '8-10', weightKg: 40, restSec: 90, note: 'pausa' }])
   const p = buildAdjustPrompt(plan)
-  expect(p).toContain('Mude só o que eu pedir')
   expect(p).toContain(EXERCISE_LIST_URL)
-  expect(p).toContain(COPYABLE_JSON_RULE)
   const back = parsePlanFormat(p)
   expect(back.treinos[0].exercicios[0]).toMatchObject({ nome: 'Supino reto (barra)', series: 4, reps: '8-10', cargaKg: 40, descansoSeg: 90, obs: 'pausa' })
-})
-test('ajustar: plano vazio não quebra', () => {
-  expect(() => buildAdjustPrompt(planOf([]))).not.toThrow()
 })

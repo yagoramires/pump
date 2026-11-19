@@ -12,16 +12,12 @@ export function useWater() {
   const on = activeWater(settings.water)
 
   const save = (water: WaterSettings) => setSettings((s) => ({ ...s, water }))
-  const turnOn = () => {
-    const water = turnWaterOn(settings.water, latestWeight(measurements) ?? 0)
-    save(water)
-    return water
-  }
+  const turnOn = () => save(turnWaterOn(settings.water, latestWeight(measurements) ?? 0))
   const act = (cups: 1 | -1) => {
     if (!on) return
     const date = tick()
     setLog((l) => addWater(l, date, on, cups))
   }
 
-  return { settings: settings.water, ml: log[today]?.ml ?? 0, save, turnOn, act }
+  return { on, ml: log[today]?.ml ?? 0, save, turnOn, act }
 }

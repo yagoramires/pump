@@ -5,7 +5,6 @@ type Props = Omit<React.ComponentProps<'input'>, 'value' | 'onChange' | 'min' | 
   value?: number
   min: number
   max: number
-  /** número válido, `undefined` (vazio) ou `null` (texto inválido) */
   onChange: (n: number | undefined | null) => void
   unit?: string
 }

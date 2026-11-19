@@ -1,8 +1,6 @@
 import { lazy, Suspense, use, useEffect, useState, type ReactNode } from 'react'
 import { X } from 'lucide-react'
-import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { Toaster } from '@/components/ui/sonner'
 import { BottomNav } from '@/shell/BottomNav'
 import { InstallGate } from '@/shell/InstallGate'
 import { SettingsScreen } from '@/shell/SettingsScreen'
@@ -10,18 +8,18 @@ import { isIOS, isStandalone } from '@/shell/platform'
 import { Onboarding } from '@/onboarding/Onboarding'
 import { TreinoTab } from '@/workout/TreinoTab'
 import { PreviewSync } from '@/workout/previews'
-import { backupDue } from '@/storage/backup'
-import { useBackupExport } from '@/shell/useBackupExport'
-import { onStorageError, readKey, requestPersist, usePersisted } from '@/storage/db'
+import { backupDue, sendBackup } from '@/backup/backup'
+import { boot, onStorageError, requestPersist, usePersisted } from '@/storage/db'
 import { todayKey } from '@/lib/date'
 import { useCheckIn } from '@/evolution/useCheckIn'
 import { AchievementToasts } from '@/evolution/AchievementToasts'
 import { EvolutionTab } from '@/evolution/EvolutionTab'
 import { Loading } from '@/components/Loading'
 import { OpenSettingsContext } from '@/components/openSettings'
-import { migrationFor } from '@/profile/migrate'
-import { USER_KEYS, type Tab } from './schema'
+import { migrateOnBoot } from '@/profile/migrate'
+import { DEFAULTS, type Tab } from './schema'
 import { Alert } from '@/components/ui/alert'
+import { isKeyOf } from '@/lib/utils'
 
 // dieta fora do chunk principal (orçamento de bundle); continua no precache
 const DietTab = lazy(() => import('@/diet/DietTab').then((m) => ({ default: m.DietTab })))
@@ -38,14 +36,11 @@ export default function App() {
 }
 
 function Shell() {
-  const reads = USER_KEYS.map((k) => readKey(k))
-  for (const r of reads) use(r)
-  use(migrationFor(readKey('profile')))
+  use(boot(migrateOnBoot))
   const [settings, setSettings] = usePersisted('settings')
   const [storageError, setStorageError] = useState<string>()
   const [showSettings, setShowSettings] = useState(false)
   const { due } = useCheckIn()
-  const backup = useBackupExport(toast.error)
 
   useEffect(() => {
     void requestPersist()
@@ -64,8 +59,7 @@ function Shell() {
   }
   if (!settings.onboardingDone) return <>{banner}<PreviewSync /><main className="mx-auto max-w-md px-4 pt-(--main-pt) pb-(--main-pb)"><Onboarding /></main></>
 
-  const tab = settings.lastTab
-  const screen = Object.prototype.hasOwnProperty.call(TAB_SCREENS, tab) ? TAB_SCREENS[tab] : TAB_SCREENS.dieta
+  const tab: Tab = isKeyOf(TAB_SCREENS, settings.lastTab) ? settings.lastTab : DEFAULTS.settings.lastTab
   const backupDays = backupDue(settings, todayKey())
   return (
     <>
@@ -74,7 +68,7 @@ function Shell() {
       {backupDays !== undefined && (
         <div className="mx-auto mt-3 max-w-md px-4"><Alert variant="accent" role="status" className="flex items-center gap-2 py-1 pr-1">
           <span className="flex-1">{`Faz ${backupDays} dias sem backup`}</span>
-          <Button type="button" variant="link" size="sm" className="text-accent" onClick={backup.send}>Enviar backup</Button>
+          <Button type="button" variant="link" size="sm" className="text-accent" onClick={sendBackup}>Enviar backup</Button>
         </Alert></div>
       )}
       <main className={MAIN}>
@@ -82,12 +76,11 @@ function Shell() {
           <SettingsScreen onClose={() => setShowSettings(false)} />
         ) : (
           <OpenSettingsContext value={() => setShowSettings(true)}>
-            {screen}
+            {TAB_SCREENS[tab]}
           </OpenSettingsContext>
         )}
       </main>
       <BottomNav tab={tab} alerts={due ? { evolucao: 'atualização pendente' } : undefined} onChange={(lastTab) => { setShowSettings(false); setSettings((s) => ({ ...s, lastTab })) }} />
-      <Toaster />
       <AchievementToasts />
     </>
   )

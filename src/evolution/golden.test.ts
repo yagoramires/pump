@@ -1,4 +1,4 @@
-import { PROFILES, RICH, RICH_TODAYS } from '../../test/evolutionFixture'
+import { PROFILES, RICH, RICH_TODAYS } from './evolutionFixture'
 import { buildReport } from './report'
 
 const TODAY = '2026-12-20'

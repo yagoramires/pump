@@ -1,21 +1,33 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
+import { stored } from '../../test/store'
 import { workoutOf } from '../../test/helpers'
 import userEvent from '@testing-library/user-event'
-import { load } from '@/storage/db'
 import { PlanEditor } from './PlanEditor'
 
 
 test('Salvar entrega o plano editado pro onSave e não grava nada sozinho', async () => {
   const user = userEvent.setup()
   const onSave = vi.fn()
-  await renderLoaded(<PlanEditor initial={{ workouts: [{ id: 'w1', label: 'A', name: 'Treino de pernas', exercises: [] }] }} onSave={onSave} onCancel={vi.fn()} />)
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([{ name: 'Agachamento' }], { id: 'w1', name: 'Treino de pernas' })] }} onSave={onSave} onCancel={vi.fn()} />)
   const name = await screen.findByDisplayValue('Treino de pernas')
   await user.clear(name)
   await user.type(name, 'Pernas')
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
   expect(onSave).toHaveBeenCalledWith({ workouts: [expect.objectContaining({ id: 'w1', name: 'Pernas' })] })
-  expect(await load('workoutPlan')).toBeUndefined()
+  expect(await stored('workoutPlan')).toBeUndefined()
+})
+
+test('Salvar recusa o que a importação recusaria: treino sem nome ou sem exercício', async () => {
+  const user = userEvent.setup()
+  const onSave = vi.fn()
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([{ name: 'Agachamento' }], { name: 'Pernas' }), workoutOf([], { id: 'w2', label: 'B', name: 'Costas' })] }} onSave={onSave} onCancel={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: 'Salvar' }))
+  expect(screen.getByText('Treino B: adicione pelo menos um exercício')).toBeInTheDocument()
+  await user.clear(screen.getByDisplayValue('Pernas'))
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  expect(screen.getByText('Treino A: dê um nome ao treino')).toBeInTheDocument()
+  expect(onSave).not.toHaveBeenCalled()
 })
 
 const supino = { name: 'Supino reto', sets: 3, reps: '10-12', weightKg: 40, restSec: 90 }
@@ -66,5 +78,25 @@ test('Renomear fecha o menu e põe o foco no nome do treino depois da animação
   await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([], { name: 'Peito' })] }} onSave={vi.fn()} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Mais ações do treino A' }))
   await user.click(await screen.findByRole('button', { name: 'Renomear' }))
-  await waitFor(() => expect(screen.getByDisplayValue('Peito')).toHaveFocus(), { timeout: 2000 })
+  await waitFor(() => expect(screen.getByDisplayValue('Peito')).toHaveFocus())
+})
+
+test('Subir e Descer movem dentro do grupo mostrado: cardio não troca com força', async () => {
+  const user = userEvent.setup()
+  const onSave = vi.fn()
+  const esteira = { name: 'Esteira', sets: 1, reps: '20 min' }
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([esteira, supino, { ...supino, name: 'Remada' }])] }} onSave={onSave} onCancel={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: /Supino reto/ }))
+  await user.click(screen.getByRole('button', { name: 'Mais ações' }))
+  expect(screen.getByRole('button', { name: 'Subir' })).toBeDisabled()
+  await user.click(screen.getByRole('button', { name: 'Descer' }))
+  expect(screen.getByRole('button', { name: 'Descer' })).toBeDisabled()
+  await user.click(screen.getByRole('button', { name: 'Pronto' }))
+  await user.click(screen.getByRole('button', { name: /Esteira/ }))
+  await user.click(screen.getByRole('button', { name: 'Mais ações' }))
+  expect(screen.getByRole('button', { name: 'Subir' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Descer' })).toBeDisabled()
+  await user.click(screen.getByRole('button', { name: 'Pronto' }))
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  expect(onSave.mock.calls[0][0].workouts[0].exercises.map((e: { name: string }) => e.name)).toEqual(['Esteira', 'Remada', 'Supino reto'])
 })

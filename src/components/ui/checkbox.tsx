@@ -46,4 +46,4 @@ function Checkbox({
   )
 }
 
-export { Checkbox, checkboxVariants }
+export { Checkbox }

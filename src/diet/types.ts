@@ -1,3 +1,4 @@
+export type { TacoFood } from '@/catalog/types'
 export interface Per100 { kcal: number; p: number; c: number; f: number }
 export interface DietItem { id: string; name: string; grams: number; portion?: string; per100: Per100; source: 'taco' | 'custom' | 'ia'; tacoId?: number }
 export interface Macros { p: number; c: number; f: number }
@@ -17,4 +18,3 @@ export type WaterLog = Record<string, WaterDay>
 export type Restriction = 'lactose' | 'gluten' | 'vegetariano' | 'vegano'
 export interface DietAnamnesis { meals?: number; restrictions?: Restriction[]; avoid?: string; eatOut?: 'casa' | 'fora' | 'misto'; notes?: string }
 export interface WaterSettings { enabled: boolean; goalMl: number; cupMl: number }
-export interface TacoFood { id: number; name: string; kcal: number; p: number; c: number; f: number }

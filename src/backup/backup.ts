@@ -1,11 +1,12 @@
 import { daysBetween, todayKey } from '@/lib/date'
 import { VALID, isUserKey, type Settings } from '@/schema'
 import { isObj } from '@/lib/utils'
-import { allData, readCurrent, replaceAll, save } from './db'
-import { isPhotoKey, isPhotoValue } from './photos'
+import { allData, readCurrent, replaceAll, save } from '@/storage/db'
+import { isPhotoKey, isPhotoValue } from '@/storage/photos'
+import { toast } from 'sonner'
 import { shareFile } from '@/lib/share'
 
-export interface BackupFile { app: 'pump'; version: 1; exportedAt: string; data: Record<string, unknown> }
+interface BackupFile { app: 'pump'; version: 1; exportedAt: string; data: Record<string, unknown> }
 
 export const buildBackup = (data: Record<string, unknown>, now: Date): BackupFile => ({
   app: 'pump',
@@ -36,28 +37,35 @@ export function parseBackup(text: string): BackupFile {
 
 const BACKUP_REMINDER_DAYS = 14
 
+const daysSince = (day: string | undefined, today: string) => (day ? daysBetween(day, today) : undefined)
+
+export const daysSinceBackup = (s: Settings, today: string) => daysSince(s.lastBackupAt, today)
+
 export const backupDue = (s: Settings, today: string): number | undefined => {
-  const since = s.lastBackupAt ?? s.firstUseAt
-  if (!since) return undefined
-  const days = daysBetween(since, today)
-  return days >= BACKUP_REMINDER_DAYS ? days : undefined
+  const days = daysSince(s.lastBackupAt ?? s.firstUseAt, today)
+  return days !== undefined && days >= BACKUP_REMINDER_DAYS ? days : undefined
 }
 
 export async function exportBackup(now = new Date()): Promise<'shared' | 'downloaded' | 'cancelled'> {
   const day = todayKey(now)
+  let result: Awaited<ReturnType<typeof shareFile>>
   try {
     const file = new File([JSON.stringify(buildBackup(await allData(), now))], `pump-backup-${day}.json`, { type: 'application/json' })
-    const result = await shareFile(file)
-    if (result === 'cancelled') return result
-    await save('settings', { ...(await readCurrent('settings')), lastBackupAt: day })
-    return result
+    result = await shareFile(file)
   } catch (e) {
     console.error(e)
     throw new Error('Não consegui enviar o backup. Tente de novo.', { cause: e })
   }
+  // o backup já saiu: falha ao gravar a data não é falha do envio (o save avisa pelo onStorageError)
+  if (result !== 'cancelled') await readCurrent('settings').then((s) => save('settings', { ...s, lastBackupAt: day })).catch(() => {})
+  return result
 }
 
+export const sendBackup = () => void exportBackup().catch((e: Error) => toast.error(e.message))
+
+/** recarrega depois de gravar: as migrações rodam no boot e a tela inteira volta do zero com os dados novos */
 export async function importBackupFile(file: File): Promise<void> {
   const b = parseBackup(await file.text())
   await replaceAll(b.data)
+  location.reload()
 }

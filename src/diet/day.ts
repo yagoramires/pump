@@ -1,8 +1,9 @@
-import { countInWeekBefore, hhmm } from '@/lib/date'
+import { countInWeekBefore, daysBetween, hhmm } from '@/lib/date'
 import type { DayItem, DayMeal, DietDay, DietItem, DietLog, DietPlan, Meal, MealOption, Menu } from './types'
 import { round1 } from '@/lib/number'
-import { currentMenu, sortedMeals } from './plan'
-import { itemKcal, itemMacros } from './food'
+import { omitKey } from '@/lib/utils'
+import { currentMenu, planItems, sortedMeals } from './plan'
+import { asFood, type Food, foodKey, kcalOf, macrosOf } from './food'
 
 /** campos que só existem no dia; qualquer um preenchido = a pessoa mexeu no dia */
 const DAY_MEAL_FLAGS = ['done', 'free', 'swappedMeal', 'optionId'] as const
@@ -35,10 +36,7 @@ export const updateDay = (log: DietLog, plan: DietPlan, date: string, f: (d: Die
   return d ? { ...log, [date]: f(d) } : log
 }
 
-export const resetDay = (log: DietLog, date: string): DietLog => {
-  const { [date]: _, ...rest } = log
-  return rest
-}
+export const resetDay = (log: DietLog, date: string): DietLog => omitKey(log, date)
 
 const mapMeal = (d: DietDay, mealId: string, f: (m: DayMeal) => DayMeal): DietDay =>
   d.meals.some((m) => m.id === mealId) ? { ...d, meals: d.meals.map((m) => (m.id === mealId ? f(m) : m)) } : d
@@ -72,6 +70,7 @@ export const chooseOption = (d: DietDay, mealId: string, option: MealOption): Di
   return mapMeal(d, mealId, ({ swappedMeal: _s, ...m }) => ({ ...m, optionId: option.id, items: keepExtras(m, option.items) }))
 }
 export const setMealFree = (d: DietDay, mealId: string, free: boolean): DietDay => mapMeal(d, mealId, (m) => ({ ...m, free, done: free }))
+export const toggleDayFree = (d: DietDay): DietDay => ({ ...d, free: !d.free })
 
 export const mealOptions = (plan: DietPlan, day: DietDay, mealId: string) => {
   const meal = day.meals.find((m) => m.id === mealId)
@@ -79,21 +78,20 @@ export const mealOptions = (plan: DietPlan, day: DietDay, mealId: string) => {
   return { options, index: Math.max(0, options.findIndex((o) => o.id === meal?.optionId)), canToggle: options.length > 1 && !meal?.swappedMeal }
 }
 
+export const mealItems = (m: DayMeal) => m.items.filter((i) => !i.skipped)
+const eatenItems = (day: DietDay, m: DayMeal) => (day.free || m.free ? [] : mealItems(m).filter((i) => m.done || i.extra))
+/** só extras, sem refeição do plano feita, não entra na média */
+export const countsForAverage = (day: DietDay) => !day.free && day.meals.some((m) => m.done && !m.free)
+
 export const daySummary = (day: DietDay) => {
-  let kcal = 0, p = 0, c = 0, f = 0, swaps = 0, extras = 0, skipped = 0
-  for (const m of day.meals)
-    for (const i of m.items) {
-      if (i.swappedFrom) swaps++
-      if (i.skipped) skipped++
-      if (i.extra) extras++
-      if (day.free || m.free || i.skipped || !(m.done || i.extra)) continue
-      const x = itemMacros(i)
-      kcal += itemKcal(i); p += x.p; c += x.c; f += x.f
-    }
+  const items = day.meals.flatMap((m) => m.items)
+  const eaten = day.meals.flatMap((m) => eatenItems(day, m))
+  const t = macrosOf(eaten)
   return {
-    kcal: Math.round(kcal), p: round1(p), c: round1(c), f: round1(f),
+    kcal: kcalOf(eaten), p: round1(t.p), c: round1(t.c), f: round1(t.f),
     mealsDone: day.meals.filter((m) => m.done).length, mealsTotal: day.meals.length,
-    swaps, extras, skipped, free: day.meals.filter((m) => m.free).length, dayFree: !!day.free,
+    swaps: items.filter((i) => i.swappedFrom).length, extras: items.filter((i) => i.extra).length, skipped: items.filter((i) => i.skipped).length,
+    free: day.meals.filter((m) => m.free).length, dayFree: !!day.free,
   }
 }
 
@@ -115,4 +113,14 @@ export const currentMealId = (meals: DayMeal[], now: Date): string | undefined =
   const t = hhmm(now)
   const open = sortedMeals(meals).filter((m) => !m.done && !m.free)
   return (open.find((m) => m.time && m.time <= t) ?? open[0])?.id
+}
+
+export function recentFoods(plan: DietPlan, log: DietLog, foods: DietItem[], today: string): Food[] {
+  const days = Object.keys(log).filter((k) => daysBetween(k, today) < 14).sort().reverse()
+  const seen = new Map<string, Food>()
+  for (const i of [...foods, ...planItems(plan), ...days.flatMap((k) => log[k].meals.flatMap((m) => m.items))]) {
+    const key = foodKey(i.name)
+    if (!seen.has(key)) seen.set(key, asFood(i))
+  }
+  return [...seen.values()]
 }

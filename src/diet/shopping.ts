@@ -1,9 +1,10 @@
 import { normalize } from '@/lib/text'
+import { foodKey } from './food'
 import { formatDec, plural } from '@/lib/number'
 import { pluralWord, singularWord } from './units'
 import type { DietPlan } from './types'
 
-export interface ShoppingItem { key: string; name: string; grams: number; count?: { n: number; unit: string } }
+interface ShoppingItem { key: string; name: string; grams: number; count?: { n: number; unit: string } }
 
 const METRIC = new Set(['g', 'kg', 'mg', 'ml', 'l', 'litro', 'grama', 'quilo', 'quilograma', 'miligrama', 'mililitro'])
 /** sigla curta (un, col, cs, cc): fica como está, sem singular/plural */
@@ -24,7 +25,7 @@ export function shoppingList(plan: DietPlan, days: number): ShoppingItem[] {
   for (const menu of plan.menus) for (const meal of menu.meals) for (const opt of meal.options) {
     const w = days / (meal.options.length * plan.menus.length)
     for (const it of opt.items) {
-      const key = it.tacoId ? `taco:${it.tacoId}` : `n:${normalize(it.name)}`
+      const key = it.tacoId ? `taco:${it.tacoId}` : `n:${foodKey(it.name)}`
       const c = parseCount(it.portion)
       const cur = acc.get(key) ?? { name: it.name, grams: 0, n: 0, countable: true }
       cur.grams += it.grams * w

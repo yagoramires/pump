@@ -1,4 +1,4 @@
-import { exerciseVolume, previousSets, sessionStats } from './stats'
+import { exerciseHistory, exerciseVolume, loadPoints, previousSets, sessionStats, suggestedKg } from './stats'
 import { startSession } from './session'
 import { pe, workoutOf } from '../../test/helpers'
 import type { SetDone } from './types'
@@ -43,4 +43,23 @@ test('exerciseVolume soma carga × reps das séries marcadas', () => {
   const s = startSession(workoutOf([{ sets: 3 }]), '2026-11-16')
   s.exercises[0].sets = [{ reps: '10', weightKg: 40 }, null, { reps: '8-10', weightKg: 50 }]
   expect(exerciseVolume(s.exercises[0])).toBe(800)
+})
+test('carga sugerida: mesma série do último treino, a primeira feita no cabeçalho, senão a do plano', () => {
+  const prev = [null, { reps: '10', weightKg: 30 }]
+  expect(suggestedKg({ weightKg: 20 }, prev, 1)).toBe(30)
+  expect(suggestedKg({ weightKg: 20 }, prev, 0)).toBe(20)
+  expect(suggestedKg({ weightKg: 20 }, prev)).toBe(30)
+  expect(suggestedKg({ weightKg: 20 }, [])).toBe(20)
+})
+
+test('exerciseHistory e loadPoints: só exercício feito, sem cardio/tempo, e 0 kg não é carga', () => {
+  const day = (date: string, kg: number) => {
+    const s = startSession(workoutOf([{ exerciseId: 'agacho' }, { exerciseId: 'prancha', reps: '30s' }, { exerciseId: 'remada' }]), date)
+    s.exercises[0].sets = [{ reps: '10', weightKg: kg }, null, null]
+    s.exercises[1].sets = [{ reps: '30s', weightKg: 0 }, null, null]
+    return s
+  }
+  const h = exerciseHistory([day('2026-11-01', 0), day('2026-11-08', 40)])
+  expect([...h.keys()]).toEqual(['agacho'])
+  expect(loadPoints(h.get('agacho')!)).toEqual([{ date: '2026-11-08', value: 40 }])
 })

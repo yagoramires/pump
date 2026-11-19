@@ -3,22 +3,25 @@ import { CalendarDays, Camera, ChevronRight, FileText, Plus, Ruler, Share2, Tren
 import { toast } from 'sonner'
 import type { EvolutionInput } from './types'
 import { loadPhoto } from '@/storage/photos'
-import { daysBetween, formatDayMonth, todayKey } from '@/lib/date'
+import { formatDayMonth } from '@/lib/date'
+import { useToday } from '@/lib/useToday'
 import { formatDec, plural } from '@/lib/number'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TabHeader } from '@/components/TabHeader'
 import { EmptyState } from '@/components/EmptyState'
 import { IconDot } from '@/components/IconDot'
-import type { Metric } from './bodyFat'
-import { FAT, WEIGHT, deltaUnit, formatMetric, metricUnit } from './measurements'
-import { WeightChart } from './WeightChart'
+import type { Metric } from './goal'
+import { FAT, WEIGHT, deltaUnit, formatValue } from './measurements'
+import { BodyRowLine } from './BodyRowLine'
+import { LineChart } from './LineChart'
+import { PERIODS, inPeriod, type Period } from './chart'
+import { PeriodTabs } from './PeriodTabs'
 import { MeasureDrawer } from './MeasureDrawer'
 import { Delta } from './Delta'
 import { PhotoThumb } from './PhotoThumb'
-import { ANGLES } from './types'
+import { ANGLES, ANGLE_LABEL } from './types'
 import { PhotoCapture } from './PhotoCapture'
 import { PhotoCompare } from './PhotoCompare'
 import { AchievementIcon } from './AchievementIcon'
@@ -26,13 +29,13 @@ import { AchievementsScreen } from './AchievementsScreen'
 import { HistoryScreen } from './HistoryScreen'
 import { LoadsCard } from './LoadsCard'
 import { ExerciseLoadScreen } from './ExerciseLoadScreen'
-import type { LoadPeriod } from './loads'
 import { DietCard } from './DietCard'
 import { CheckInFlow, CheckInCard } from './CheckInFlow'
 import { AnamnesisCard } from '@/profile/AnamnesisCard'
 import { useCheckIn } from './useCheckIn'
 import { Overlay } from '@/components/Overlay'
-import { ANAMNESIS_STEPS, AnamnesisFlow } from '@/profile/AnamnesisFlow'
+import { AnamnesisFlow } from '@/profile/AnamnesisFlow'
+import { DayZero } from './DayZero'
 import { useEvolution } from './useEvolution'
 import { buildReport } from './report'
 import { generatePdf } from './pdf/generate'
@@ -40,7 +43,6 @@ import { shareFile } from '@/lib/share'
 
 type View = 'checkin' | 'anamnesis' | 'compare' | 'achievements' | 'history'
 const LINK = 'text-meta text-accent disabled:text-faint'
-const RANGES = [{ v: '7', label: '7 d' }, { v: '30', label: '30 d' }, { v: '90', label: '90 d' }, { v: 'all', label: 'Tudo' }]
 const KPI: Metric[] = [WEIGHT.key, FAT.key]
 function Kpi({ label, value, children }: { label: string; value: string; children: ReactNode }) {
   return (
@@ -54,8 +56,8 @@ function Kpi({ label, value, children }: { label: string; value: string; childre
 
 export function EvolutionTab() {
   const input = useEvolution()
-  const [range, setRange] = useState('90')
-  const [loadPeriod, setLoadPeriod] = useState<LoadPeriod>('90')
+  const [range, setRange] = useState<Period>('90')
+  const [loadPeriod, setLoadPeriod] = useState<Period>('90')
   const [exerciseId, setExerciseId] = useState<string>()
   const [choosing, setChoosing] = useState(false)
   const [measurementDate, setMeasurementDate] = useState<string>()
@@ -63,10 +65,11 @@ export function EvolutionTab() {
   const [view, setView] = useState<View>()
   const [busy, setBusy] = useState(false)
   const [pdf, setPdf] = useState<{ blob: Blob; input: EvolutionInput; today: string }>()
-  const { today, due } = useCheckIn()
+  const { today, tick } = useToday()
+  const { due } = useCheckIn()
 
   if (view === 'checkin') return <CheckInFlow onClose={() => setView(undefined)} />
-  if (view === 'anamnesis') return <Overlay><AnamnesisFlow total={ANAMNESIS_STEPS} onDone={() => setView(undefined)} onCancel={() => setView(undefined)} /></Overlay>
+  if (view === 'anamnesis') return <Overlay><AnamnesisFlow DayZero={DayZero} onDone={() => setView(undefined)} onCancel={() => setView(undefined)} /></Overlay>
   if (photoDate) return <PhotoCapture date={photoDate} onClose={() => setPhotoDate(undefined)} />
   if (view === 'compare') return <PhotoCompare onClose={() => setView(undefined)} />
   if (view === 'achievements') return <AchievementsScreen onClose={() => setView(undefined)} />
@@ -81,8 +84,8 @@ export function EvolutionTab() {
             <DrawerTitle className="pt-1 text-title font-semibold text-strong">Registrar</DrawerTitle>
             <DrawerDescription className="sr-only">Escolha o que registrar hoje</DrawerDescription>
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" className="h-20 flex-col gap-1.5 bg-surface" onClick={() => { setChoosing(false); setMeasurementDate(todayKey()) }}><Ruler aria-hidden="true" className="size-5" />Medidas</Button>
-              <Button variant="outline" className="h-20 flex-col gap-1.5 bg-surface" onClick={() => { setChoosing(false); setPhotoDate(todayKey()) }}><Camera aria-hidden="true" className="size-5" />Fotos</Button>
+              <Button variant="outline" className="h-20 flex-col gap-1.5 bg-surface" onClick={() => { setChoosing(false); setMeasurementDate(tick()) }}><Ruler aria-hidden="true" className="size-5" />Medidas</Button>
+              <Button variant="outline" className="h-20 flex-col gap-1.5 bg-surface" onClick={() => { setChoosing(false); setPhotoDate(tick()) }}><Camera aria-hidden="true" className="size-5" />Fotos</Button>
             </div>
           </div>
         </DrawerContent>
@@ -115,7 +118,7 @@ export function EvolutionTab() {
   }
 
   const weights = body?.weight ?? []
-  const points = weights.filter((p) => range === 'all' || daysBetween(p.date, today) <= Number(range))
+  const points = weights.filter((p) => inPeriod(range, p.date, today))
   const weight = body?.rows.find((r) => r.key === WEIGHT.key)
   const fat = body?.rows.find((r) => r.key === FAT.key)
   const rows = body?.rows.filter((r) => !KPI.includes(r.key)) ?? []
@@ -145,10 +148,10 @@ export function EvolutionTab() {
       {cards}
 
       <div className="grid grid-cols-3 gap-2">
-        <Kpi label={WEIGHT.label} value={weight ? `${formatMetric(WEIGHT, weight.last.value)}${metricUnit(WEIGHT)}` : '—'}>
+        <Kpi label={WEIGHT.label} value={weight ? formatValue(WEIGHT, weight.last.value) : '—'}>
           <Delta value={weight?.delta} good={!!weight?.good} unit={deltaUnit(WEIGHT)} />
         </Kpi>
-        <Kpi label={FAT.label} value={fat ? `${formatMetric(FAT, fat.last.value)}${metricUnit(FAT)}` : '—'}>
+        <Kpi label={FAT.label} value={fat ? formatValue(FAT, fat.last.value) : '—'}>
           <Delta value={fat?.delta} good={!!fat?.good} unit={deltaUnit(FAT)} />
         </Kpi>
         <Kpi label="Treinos" value={String(training.workouts)}>
@@ -160,14 +163,10 @@ export function EvolutionTab() {
         <CardHeader>
           <CardTitle>Peso</CardTitle>
           <CardAction>
-            <Tabs value={range} onValueChange={setRange}>
-              <TabsList variant="segmented" aria-label="Período do gráfico" className="w-auto">
-                {RANGES.map((r) => <TabsTrigger key={r.v} variant="segmented" value={r.v}>{r.label}</TabsTrigger>)}
-              </TabsList>
-            </Tabs>
+            <PeriodTabs value={range} onChange={setRange} options={PERIODS} label="Período do gráfico" />
           </CardAction>
         </CardHeader>
-        <div className="px-3.5 pb-3"><WeightChart points={points} empty={weights.length >= 2 ? 'Poucos registros nesse período' : undefined} /></div>
+        <div className="px-3.5 pb-3"><LineChart points={points} label="Gráfico de peso" empty={weights.length >= 2 ? 'Poucos registros nesse período' : 'Registre mais um peso pra ver o gráfico'} /></div>
       </Card>
 
       <LoadsCard log={input.workoutLog} today={today} period={loadPeriod} onPeriod={setLoadPeriod} onOpen={setExerciseId} />
@@ -175,15 +174,7 @@ export function EvolutionTab() {
       {rows.length > 0 && (
         <Card size="flush">
           <CardHeader className="pt-3 pb-2"><CardTitle>Medidas</CardTitle></CardHeader>
-          {rows.map((r) => (
-            <div key={r.key} className="flex items-center justify-between gap-3 border-t border-line px-3.5 py-2.5 text-sm">
-              <span className="text-text-2">{r.label}</span>
-              <span className="tabular-nums">
-                <b className="font-semibold text-strong">{`${formatMetric(r, r.first.value)} → ${formatMetric(r, r.last.value)}${metricUnit(r)}`}</b>
-                <Delta value={r.delta} good={r.good} unit={deltaUnit(r)} className="ml-2 text-meta" />
-              </span>
-            </div>
-          ))}
+          {rows.map((r) => <BodyRowLine key={r.key} row={r} />)}
         </Card>
       )}
 
@@ -193,14 +184,14 @@ export function EvolutionTab() {
         <CardHeader>
           <CardTitle>Fotos</CardTitle>
           <CardAction className="flex gap-4">
-            <Button type="button" variant="link" className={LINK} onClick={() => setPhotoDate(todayKey())}>Nova foto</Button>
+            <Button type="button" variant="link" className={LINK} onClick={() => setPhotoDate(tick())}>Nova foto</Button>
             <Button type="button" variant="link" className={LINK} disabled={input.photoSets.length < 2} onClick={() => setView('compare')}>Comparar</Button>
           </CardAction>
         </CardHeader>
         <div className="grid grid-cols-3 gap-2 px-3.5 pb-3.5">
           {ANGLES.map((angle) => (
             <PhotoThumb key={angle} id={lastSet?.[angle]} alt={`Foto de ${angle}`} className="flex items-end justify-center rounded-lg pb-1.5 text-xs text-text-2">
-              <span className="relative">{angle}</span>
+              <span className="relative">{ANGLE_LABEL[angle]}</span>
             </PhotoThumb>
           ))}
         </div>

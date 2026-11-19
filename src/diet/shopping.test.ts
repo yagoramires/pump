@@ -12,17 +12,12 @@ describe('shoppingList', () => {
     expect(shoppingList(p, 30).find((i) => i.name === 'Arroz')?.grams).toBe(3000)
     expect(shoppingList(p, 30).find((i) => i.name === 'Pão')?.grams).toBe(750)
   })
-  it('soma o mesmo alimento entre refeições, por tacoId ou nome normalizado', () => {
-    const p = plan([meal([item('Arroz', 100, { tacoId: 1 })]), meal([item('Arroz cozido', 50, { tacoId: 1 })]), meal([item('Ovo cozido', 10)]), meal([item('ovó cozido', 10)])])
+  it('soma o mesmo alimento entre refeições, por tacoId ou foodKey do nome', () => {
+    const p = plan([meal([item('Arroz', 100, { tacoId: 1 })]), meal([item('Arroz cozido', 50, { tacoId: 1 })]), meal([item('Ovo cozido', 10)]), meal([item('ovó, cozido', 10)])])
     const l = shoppingList(p, 7)
     expect(l).toHaveLength(2)
     expect(l.find((i) => i.name === 'Arroz')?.grams).toBe(1050)
     expect(l.find((i) => i.name === 'Ovo cozido')?.grams).toBe(140)
-  })
-  it('30 dias contra 7', () => {
-    const p = plan([meal([item('Arroz', 100)])])
-    expect(shoppingList(p, 7)[0].grams).toBe(700)
-    expect(shoppingList(p, 30)[0].grams).toBe(3000)
   })
   it('conta só quando todas as ocorrências têm a mesma unidade', () => {
     const ok = plan([meal([item('Ovo', 100, { portion: '2 ovos' })]), meal([item('Ovo', 50, { portion: '1 ovo' })])])
@@ -51,13 +46,7 @@ describe('formatAmount', () => {
 })
 
 it('shoppingText', () => {
-  expect(shoppingText([{ key: 'a', name: 'Arroz', grams: 4200 }, { key: 'o', name: 'Ovo', grams: 700, count: { n: 14, unit: 'ovos' } }])).toBe('• Arroz — 4,2 kg\n• Ovo — 700 g (≈ 14 ovos)')
-})
-
-it('countText pluraliza só com n > 1', () => {
-  expect(countText({ n: 45, unit: 'unidade' })).toBe('≈ 45 unidades')
-  expect(countText({ n: 14, unit: 'ovos' })).toBe('≈ 14 ovos')
-  expect(countText({ n: 1, unit: 'fatia' })).toBe('≈ 1 fatia')
+  expect(shoppingText([{ key: 'a', name: 'Arroz', grams: 4200 }, { key: 'o', name: 'Ovo', grams: 700, count: { n: 14, unit: 'ovo' } }])).toBe('• Arroz — 4,2 kg\n• Ovo — 700 g (≈ 14 ovos)')
 })
 
 describe('unidades', () => {

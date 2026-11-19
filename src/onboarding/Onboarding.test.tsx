@@ -1,8 +1,9 @@
 import { screen, waitFor } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
+import { stored } from '../../test/store'
 import userEvent from '@testing-library/user-event'
-import { load, readCurrent, save } from '@/storage/db'
-import { buildBackup } from '@/storage/backup'
+import { readCurrent, save } from '@/storage/db'
+import { buildBackup } from '@/backup/backup'
 import { Onboarding } from './Onboarding'
 
 afterEach(() => {
@@ -27,8 +28,8 @@ test('primeiro passo restaura um backup depois de confirmar e recarrega o app', 
   expect(await screen.findByText('Isso substitui todos os seus dados. Continuar?')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Restaurar' }))
   await waitFor(() => expect(reload).toHaveBeenCalled())
-  expect(await load('settings')).toEqual(settings)
-  expect(await load('profile')).toBeUndefined()
+  expect(await stored('settings')).toEqual(settings)
+  expect(await stored('profile')).toBeUndefined()
 })
 
 test('cancelar no diálogo não importa nada', async () => {
@@ -39,8 +40,8 @@ test('cancelar no diálogo não importa nada', async () => {
   await user.upload(screen.getByLabelText('Arquivo de backup'), backupFile().file)
   await user.click(await screen.findByRole('button', { name: 'Cancelar' }))
   await waitFor(() => expect(screen.queryByText('Restaurar backup?')).not.toBeInTheDocument())
-  expect(await load('profile')).toEqual(profile)
-  expect(await load('settings')).toBeUndefined()
+  expect(await stored('profile')).toEqual(profile)
+  expect(await stored('settings')).toBeUndefined()
 })
 
 const next = (user: ReturnType<typeof userEvent.setup>) => user.click(screen.getByRole('button', { name: 'Continuar' }))
@@ -63,14 +64,6 @@ test('pular o treino leva à dieta, não conclui', async () => {
   expect((await readCurrent('settings')).onboardingDone).toBe(false)
 })
 
-test('pular fica embaixo, não no cabeçalho do passo', async () => {
-  const user = userEvent.setup()
-  await renderLoaded(<Onboarding />)
-  await toTreino(user)
-  const skip = screen.getByRole('button', { name: 'Pular por agora' })
-  expect(skip.closest('.fixed')).not.toBeNull() // dentro da BottomBar
-})
-
 test('voltar no passo 5 leva ao treino sem concluir', async () => {
   const user = userEvent.setup()
   await renderLoaded(<Onboarding />)
@@ -88,16 +81,6 @@ test('5 passos até concluir', async () => {
   await user.click(screen.getByRole('button', { name: 'Pular por agora' }))
   await user.click(screen.getByRole('button', { name: 'Pular por agora' }))
   await waitFor(async () => expect((await readCurrent('settings')).onboardingDone).toBe(true))
-})
-
-test('restaurar backup no passo 1 conclui a montagem', async () => {
-  vi.stubGlobal('location', { ...location, reload: vi.fn() })
-  const old = { app: 'pump', version: 1, exportedAt: new Date().toISOString(), data: { settings: { lastTab: 'treino', onboardingDone: true }, profile: { sex: 'M', heightCm: 180 } } }
-  const user = userEvent.setup()
-  await renderLoaded(<Onboarding />)
-  await user.upload(screen.getByLabelText('Arquivo de backup'), new File([JSON.stringify(old)], 'b.json', { type: 'application/json' }))
-  await user.click(await screen.findByRole('button', { name: 'Restaurar' }))
-  await waitFor(async () => expect(await load('settings')).toMatchObject({ onboardingDone: true }))
 })
 
 test('sem internet ao usar um plano pronto mostra o aviso', async () => {

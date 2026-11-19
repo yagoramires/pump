@@ -7,12 +7,14 @@ export function dayRecords(d: Pick<EvolutionInput, 'workoutLog' | 'dietLog' | 'w
   const s = d.workoutLog[date]
   const diet = d.dietLog[date]
   const water = d.waterLog[date]
-  return {
+  const r = {
     session: s?.completedAt ? s : undefined,
-    rest: isRest(s) && !s?.completedAt,
+    rest: isRest(s),
     diet: diet && touched(diet) ? diet : undefined,
     water: hasWater(water) ? water : undefined,
     measurement: d.measurements.find((m) => m.date === date),
     photos: d.photoSets.find((p) => p.date === date),
   }
+  /** `others`: algo registrado além do treino concluído */
+  return { ...r, others: r.rest || !!(r.diet || r.water || r.measurement || r.photos) }
 }

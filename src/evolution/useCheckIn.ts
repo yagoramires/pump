@@ -6,8 +6,5 @@ export function useCheckIn() {
   const { today } = useToday()
   const [settings] = usePersisted('settings')
   const [measurements] = usePersisted('measurements')
-  return {
-    today,
-    due: checkInDue(settings, measurements, today),
-  }
+  return { due: checkInDue(settings.checkInDay, measurements, today) }
 }

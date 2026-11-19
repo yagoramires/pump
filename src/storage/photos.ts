@@ -12,6 +12,6 @@ export async function savePhoto(dataUrl: string): Promise<string> {
   return id
 }
 
-export const loadPhoto = (id: string): Promise<string | undefined> => get<string>(photoKey(id), pumpStore)
+export const loadPhoto = (id: string): Promise<string | undefined> => guarded(() => get<string>(photoKey(id), pumpStore))
 
-export const deletePhotos = (ids: string[]): Promise<void> => delMany(ids.map(photoKey), pumpStore)
+export const deletePhotos = (ids: string[]): Promise<void> => guarded(() => delMany(ids.map(photoKey), pumpStore))

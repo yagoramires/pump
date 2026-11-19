@@ -2,7 +2,8 @@ import { waitFor } from '@testing-library/react'
 import { toast } from 'sonner'
 import { pe } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
-import { load, save } from '@/storage/db'
+import { stored } from '../../test/store'
+import { save } from '@/storage/db'
 import { AchievementToasts } from './AchievementToasts'
 
 vi.mock('sonner', () => ({ toast: vi.fn() }))
@@ -17,7 +18,7 @@ test('primeira vez: grava como vistas, sem toast', async () => {
   await save('workoutLog', { '2026-11-16': session })
   await save('settings', { lastTab: 'treino', onboardingDone: true })
   await renderLoaded(<AchievementToasts />)
-  await waitFor(async () => expect((await load('settings'))?.seenAchievements).toContain('first-workout'))
+  await waitFor(async () => expect((await stored('settings'))?.seenAchievements).toContain('first-workout'))
   expect(toast).not.toHaveBeenCalled()
 })
 test('conquista nova: um toast só', async () => {
@@ -26,6 +27,6 @@ test('conquista nova: um toast só', async () => {
   const h = await renderLoaded(<AchievementToasts />)
   await waitFor(() => expect(toast).toHaveBeenCalledWith('Conquista: Primeiro treino'))
   h.rerender(<AchievementToasts />)
-  await waitFor(async () => expect((await load('settings'))?.seenAchievements).toContain('first-workout'))
+  await waitFor(async () => expect((await stored('settings'))?.seenAchievements).toContain('first-workout'))
   expect(toast).toHaveBeenCalledTimes(1)
 })

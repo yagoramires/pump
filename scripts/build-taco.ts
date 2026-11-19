@@ -1,7 +1,8 @@
-import { readFileSync, writeFileSync } from 'node:fs'
-import type { TacoFood } from '../src/diet/types.ts'
-import { foodList } from './build-catalog-lists.ts'
-import { FOOD_LIST } from '../src/catalog/urls.ts'
+import { readFileSync } from 'node:fs'
+import type { TacoFood } from '../src/catalog/types.ts'
+import { catalogPath, writeCatalog, writeLists } from './build-catalog-lists.ts'
+import { TACO_JSON } from '../src/catalog/urls.ts'
+import { round1 } from '../src/lib/number.ts'
 
 // shortcut: CSV simples (aspas duplas, sem quebra de linha dentro de campo), basta pro dataset da TACO
 function parseCsv(text: string): Record<string, string>[] {
@@ -13,7 +14,7 @@ function parseCsv(text: string): Record<string, string>[] {
 // nos macros, vazio, NA e Tr (traço) viram 0; 1 casa decimal no máximo
 const num = (v: string | undefined): number => {
   const n = Number(v)
-  return Number.isFinite(n) && v?.trim() ? Math.round(n * 10) / 10 : 0
+  return Number.isFinite(n) && v?.trim() ? round1(n) : 0
 }
 
 export function buildTaco(foodCsv: string, nutrientsCsv: string): TacoFood[] {
@@ -29,7 +30,7 @@ export function buildTaco(foodCsv: string, nutrientsCsv: string): TacoFood[] {
 
 if (import.meta.main) {
   const out = buildTaco(readFileSync('data/taco/food.csv', 'utf8'), readFileSync('data/taco/nutrients.csv', 'utf8'))
-  writeFileSync('public/catalog/taco.json', JSON.stringify(out))
-  writeFileSync(`public/catalog/${FOOD_LIST}`, foodList(out))
-  console.log(`public/catalog/taco.json e ${FOOD_LIST} escritos (${out.length} alimentos)`)
+  writeCatalog(TACO_JSON, JSON.stringify(out))
+  console.log(`${catalogPath(TACO_JSON)} escrito (${out.length} alimentos)`)
+  writeLists()
 }

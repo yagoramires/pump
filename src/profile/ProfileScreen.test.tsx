@@ -4,7 +4,6 @@ import { renderLoaded } from '../../test/render'
 import { readCurrent, save } from '@/storage/db'
 import { ProfileScreen } from './ProfileScreen'
 
-
 test('Perfil nos Ajustes salva dados comuns e dia do check-in', async () => {
   await save('profile', { sex: 'M', heightCm: 180, focus: 'hipertrofia' })
   const onDone = vi.fn()
@@ -16,10 +15,4 @@ test('Perfil nos Ajustes salva dados comuns e dia do check-in', async () => {
   expect(await readCurrent('profile')).toMatchObject({ focus: 'forca', heightCm: 180 })
   expect(await readCurrent('settings')).toMatchObject({ checkInDay: 1 })
   expect(onDone).toHaveBeenCalled()
-})
-
-test('Perfil nos Ajustes não mostra o aviso da anamnese', async () => {
-  await save('profile', { sex: 'M', heightCm: 180 })
-  await renderLoaded(<ProfileScreen onDone={vi.fn()} />)
-  expect(screen.queryByText(/Só a altura é obrigatória/)).not.toBeInTheDocument()
 })

@@ -1,11 +1,12 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { renderLoaded } from '../test/render'
+import { seedStore, stored } from '../test/store'
 import userEvent from '@testing-library/user-event'
 import * as idb from 'idb-keyval'
-import { load, readCurrent, resetStoreForTests, save } from './storage/db'
+import { readCurrent } from './storage/db'
 import App from './App'
 import { ErrorBoundary } from './shell/ErrorBoundary'
-import { buildBackup } from './storage/backup'
+import { buildBackup } from './backup/backup'
 
 vi.mock('idb-keyval', async (orig) => {
   const m = await orig<typeof import('idb-keyval')>()
@@ -26,26 +27,24 @@ test('primeira vez abre a montagem; pular leva à aba Treino; depois abre na úl
   await user.click(screen.getByRole('button', { name: 'Pular por agora' }))
   await user.click(screen.getByRole('button', { name: 'Pular por agora' }))
   expect(await screen.findByRole('button', { name: 'Treino' })).toHaveAttribute('aria-current', 'page')
-  await waitFor(async () => expect((await load('settings'))?.onboardingDone).toBe(true))
+  await waitFor(async () => expect((await stored('settings'))?.onboardingDone).toBe(true))
   unmount()
-  resetStoreForTests()
-  await save('settings', { ...(await load('settings'))!, lastTab: 'dieta' })
+  await seedStore({ settings: { ...(await stored('settings'))!, lastTab: 'dieta' } })
   await renderLoaded(<App />)
   expect(await screen.findByRole('heading', { name: 'Monte seu cardápio' })).toBeInTheDocument()
 })
 test('abrir com perfil no formato antigo grava o peso como medição', async () => {
-  await save('settings', { lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01' })
-  await idb.set('profile', { sex: 'M', heightCm: 180, weightKg: 82.4 })
-  resetStoreForTests()
+  await seedStore({
+    settings: { lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01' },
+    profile: { sex: 'M', heightCm: 180, weightKg: 82.4 } as never,
+  })
   await renderLoaded(<App />)
   await waitFor(async () => expect(await readCurrent('measurements')).toMatchObject([{ date: '2026-11-01', weightKg: 82.4 }]))
   expect(await readCurrent('profile')).not.toHaveProperty('weightKg')
 })
 test('Configurações: grupo DIETA abre cardápio, IA e a tela da água, e cada uma volta pro menu', async () => {
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
-  await save('settings', { lastTab: 'dieta', onboardingDone: true })
-  await save('profile', { sex: 'M', heightCm: 180 })
-  resetStoreForTests()
+  await seedStore({ settings: { lastTab: 'dieta', onboardingDone: true }, profile: { sex: 'M', heightCm: 180 } })
   const user = userEvent.setup()
   await renderLoaded(<App />)
   await user.click(await screen.findByRole('button', { name: 'Configurações' }))
@@ -68,15 +67,13 @@ test('Configurações: grupo DIETA abre cardápio, IA e a tela da água, e cada 
 })
 test('dados ilegíveis: tela de erro em vez da montagem, sem gravar nada', async () => {
   const settings = { lastTab: 'treino' as const, onboardingDone: true }
-  await save('settings', settings)
-  resetStoreForTests()
+  await seedStore({ settings })
   vi.mocked(idb.get).mockRejectedValueOnce(new Error('boom'))
   await renderLoaded(<ErrorBoundary><App /></ErrorBoundary>)
   expect(await screen.findByRole('heading', { name: 'Não consegui ler seus dados' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument()
   expect(screen.queryByRole('heading', { name: 'Sobre você' })).not.toBeInTheDocument()
-  resetStoreForTests()
-  expect(await load('settings')).toEqual(settings)
+  expect(await stored('settings')).toEqual(settings)
 })
 
 const backupFile = (data: Record<string, unknown>) => new File([JSON.stringify(buildBackup(data, new Date()))], 'pump-backup.json', { type: 'application/json' })
@@ -84,8 +81,7 @@ const backupFile = (data: Record<string, unknown>) => new File([JSON.stringify(b
 test('Configurações: restaurar backup confirma, troca os dados e recarrega; arquivo ruim mostra o erro', async () => {
   const reload = vi.fn()
   vi.stubGlobal('location', { ...location, reload })
-  await save('settings', { lastTab: 'treino', onboardingDone: true })
-  resetStoreForTests()
+  await seedStore({ settings: { lastTab: 'treino', onboardingDone: true } })
   const user = userEvent.setup()
   await renderLoaded(<App />)
   await user.click(await screen.findByRole('button', { name: 'Configurações' }))
@@ -98,5 +94,5 @@ test('Configurações: restaurar backup confirma, troca os dados e recarrega; ar
   expect(await screen.findByText('Isso substitui todos os seus dados. Continuar?')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Restaurar' }))
   await waitFor(() => expect(reload).toHaveBeenCalled())
-  expect(await load('settings')).toMatchObject(settings)
+  expect(await stored('settings')).toMatchObject(settings)
 })

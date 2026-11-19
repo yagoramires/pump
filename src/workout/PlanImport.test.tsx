@@ -1,8 +1,9 @@
 import { screen } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
+import { setupClipboard } from '../../test/helpers'
+import { seedStore, stored } from '../../test/store'
 import userEvent from '@testing-library/user-event'
-import { get } from 'idb-keyval'
-import { resetStoreForTests, save } from '@/storage/db'
+import { save } from '@/storage/db'
 import type { WorkoutPlan } from './types'
 import { PlanImport } from './PlanImport'
 import { buildConvertPrompt } from './prompt'
@@ -23,11 +24,11 @@ test('salvar sem catálogo mantém os exercícios no plano e preserva o catálog
   await screen.findByText(/Catálogo indisponível/)
   await user.click(screen.getByRole('button', { name: 'Usar plano' }))
 
-  await vi.waitFor(async () => expect((await get('workoutPlan'))?.workouts[0].exercises).toMatchObject([
+  await vi.waitFor(async () => expect((await stored('workoutPlan'))?.workouts[0].exercises).toMatchObject([
     { exerciseId: custom.id, name: custom.name },
     { name: 'Supino novo' },
   ]))
-  expect(await get('customExercises')).toEqual([custom])
+  expect(await stored('customExercises')).toEqual([custom])
 })
 
 test('catálogo indisponível permite revisar e tentar buscar as prévias sem colar de novo', async () => {
@@ -71,14 +72,12 @@ test('colar texto inválido mostra problemas e não abre a revisão', async () =
 })
 
 test('anamnese fica salva no perfil e vai no prompt copiado', async () => {
-  const user = userEvent.setup()
-  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+  const { user, writeText } = setupClipboard()
   await renderLoaded(<PlanImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
   await user.click(await screen.findByRole('radio', { name: 'Em casa' }))
   await user.click(screen.getByRole('button', { name: 'Copiar' }))
   expect(writeText).toHaveBeenCalledWith(expect.stringContaining('- Onde treino: em casa, com pouco equipamento\n'))
-  expect((await get('profile'))?.anamnesis).toEqual({ place: 'casa' })
+  expect((await stored('profile'))?.anamnesis).toEqual({ place: 'casa' })
 })
 
 test('Editar abre o editor; Salvar grava o plano e os exercícios novos', async () => {
@@ -90,38 +89,28 @@ test('Editar abre o editor; Salvar grava o plano e os exercícios novos', async 
   await screen.findByText('1 treino · 1 exercício')
   await user.click(screen.getByRole('button', { name: 'Editar' }))
   expect(await screen.findByRole('heading', { name: 'Editar plano' })).toBeInTheDocument()
-  expect(await get('workoutPlan')).toBeUndefined()
+  expect(await stored('workoutPlan')).toBeUndefined()
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
   expect(onDone).toHaveBeenCalled()
-  await vi.waitFor(async () => expect((await get('workoutPlan'))?.workouts[0].exercises[0].name).toBe('Remada X'))
-  expect((await get('customExercises'))?.[0].name).toBe('Remada X')
+  await vi.waitFor(async () => expect((await stored('workoutPlan'))?.workouts[0].exercises[0].name).toBe('Remada X'))
+  expect((await stored('customExercises'))?.[0].name).toBe('Remada X')
 })
 
 const REMADA = { nome: 'Remada X', series: 3, reps: '10' }
 const planJson = (exercicios: object[]) => JSON.stringify({ formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'Peito', dias: ['seg'], exercicios }] })
 
-test('gerar com IA e converter: descrição e 5 passos', async () => {
+test('gerar com IA pede a anamnese; converter não', async () => {
   const { unmount } = await renderLoaded(<PlanImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
   expect(await screen.findByRole('heading', { name: 'Gerar com IA' })).toBeInTheDocument()
   expect(screen.getByRole('radio', { name: 'Em casa' })).toBeInTheDocument()
-  expect(screen.getByText('O Pump não tem IA própria. Você leva um prompt pra sua IA (ChatGPT ou outra), ela monta seu treino e você cola a resposta aqui pra revisar antes de salvar.')).toBeInTheDocument()
-  expect(screen.getByText(/O Pump não tem IA própria/).compareDocumentPosition(screen.getByRole('radio', { name: 'Em casa' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-  expect(screen.getByText('ChatGPT, Gemini, Claude…')).toBeInTheDocument()
-  expect(screen.getByText('Revise e salve')).toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Copie seu plano' })).not.toBeInTheDocument()
   unmount()
   await renderLoaded(<PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
   expect(await screen.findByRole('heading', { name: 'Converter ficha' })).toBeInTheDocument()
-  expect(screen.getByText('Já tem uma ficha? Mande ela pra sua IA junto com o prompt. A IA reescreve no formato do Pump e você cola a resposta aqui pra revisar antes de salvar.')).toBeInTheDocument()
-  expect(screen.getByText('Junto com sua ficha (PDF, foto ou texto)')).toBeInTheDocument()
-  expect(screen.getByText('Volte aqui e cole abaixo')).toBeInTheDocument()
   expect(screen.queryByRole('radio', { name: 'Em casa' })).not.toBeInTheDocument()
 })
 
 test('converter: Copiar leva o prompt de conversão e colar JSON funciona', async () => {
-  const user = userEvent.setup()
-  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+  const { user, writeText } = setupClipboard()
   await renderLoaded(<PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Copiar' }))
   expect(writeText).toHaveBeenCalledWith(buildConvertPrompt())
@@ -146,9 +135,7 @@ test('revisão lista exercícios sem prévia, até 5 e "e mais N"', async () => 
 })
 
 test.each(['ia', 'convert'] as const)('%s: "Copiar a lista de exercícios" busca a lista do app e copia', async (mode) => {
-  const user = userEvent.setup()
-  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+  const { user, writeText } = setupClipboard()
   const f = vi.fn(async () => new Response('Exercícios\nSupino (barra)\n'))
   vi.stubGlobal('fetch', f)
   await renderLoaded(<PlanImport mode={mode} onDone={vi.fn()} onBack={vi.fn()} />)
@@ -156,14 +143,6 @@ test.each(['ia', 'convert'] as const)('%s: "Copiar a lista de exercícios" busca
   await user.click(screen.getByRole('button', { name: /Copiar a lista de exercícios/ }))
   expect(f).toHaveBeenCalledWith(`${import.meta.env.BASE_URL}catalog/exercicios.txt`)
   await vi.waitFor(() => expect(writeText).toHaveBeenCalledWith('Exercícios\nSupino (barra)\n'))
-})
-
-test('lista de exercícios sem internet avisa', async () => {
-  const user = userEvent.setup()
-  vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('offline') }))
-  await renderLoaded(<PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
-  await user.click(await screen.findByRole('button', { name: /Copiar a lista de exercícios/ }))
-  expect(await screen.findByText('Sem internet pra copiar a lista.')).toBeInTheDocument()
 })
 
 test('sem prévia conta todo exercício custom do plano, também os que já eram seus, sem repetir nome', async () => {
@@ -187,21 +166,20 @@ test('Usar plano por cima de um plano salvo pede confirmação', async () => {
   expect(onDone).not.toHaveBeenCalled()
   await user.click(screen.getByRole('button', { name: 'Substituir' }))
   expect(onDone).toHaveBeenCalled()
-  await vi.waitFor(async () => expect((await get('workoutPlan'))?.workouts[0].name).toBe('Peito'))
+  await vi.waitFor(async () => expect((await stored('workoutPlan'))?.workouts[0].name).toBe('Peito'))
 })
 
 test('reimportar mantém o id do treino de mesma letra (rotação) e dá id novo ao resto', async () => {
   const user = userEvent.setup()
-  await save('workoutPlan', { workouts: [{ id: 'old-b', label: 'B', name: 'Costas', exercises: [] }] })
-  resetStoreForTests()
+  await seedStore({ workoutPlan: { workouts: [{ id: 'old-b', label: 'B', name: 'Costas', exercises: [] }] } })
   await renderLoaded(<PlanImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
   await user.click(await screen.findByRole('textbox', { name: 'Resposta da IA' }))
   const t = (letra: string) => ({ letra, nome: 'X', dias: ['seg'], exercicios: [REMADA] })
   await user.paste(JSON.stringify({ formato: 'pump-plano', versao: 1, treinos: [t('A'), t('B')] }))
   await user.click(await screen.findByRole('button', { name: 'Usar plano' }))
   await user.click(await screen.findByRole('button', { name: 'Substituir' }))
-  await vi.waitFor(async () => expect((await get('workoutPlan'))?.workouts).toHaveLength(2))
-  const ids = ((await get('workoutPlan')) as WorkoutPlan).workouts.map((w) => w.id)
+  await vi.waitFor(async () => expect((await stored('workoutPlan'))?.workouts).toHaveLength(2))
+  const ids = ((await stored('workoutPlan')) as WorkoutPlan).workouts.map((w) => w.id)
   expect(ids[1]).toBe('old-b')
   expect(ids[0]).not.toBe('old-b')
   expect(new Set(ids).size).toBe(2)

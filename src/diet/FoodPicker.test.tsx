@@ -1,8 +1,8 @@
 import type { DayItem, DietItem, DietPlan } from './types'
 import { screen, waitFor, within } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
+import { seedStore, stored } from '../../test/store'
 import userEvent from '@testing-library/user-event'
-import { load, resetStoreForTests, save } from '@/storage/db'
 import { fetchTaco } from '@/catalog/catalog'
 import { FoodPicker } from './FoodPicker'
 
@@ -23,10 +23,11 @@ beforeEach(async () => {
 afterEach(() => vi.useRealTimers())
 
 test('FoodPicker offline mostra recentes e aviso; escolher devolve item com gramas', async () => {
-  await save('foods', [food('Meu shake', 120)])
-  await save('dietPlan', planWith([food('Arroz')]))
-  await save('dietLog', { ['2026-11-17']: dayWith([{ ...food('Arroz'), skipped: true }, food('Feijão')]), ['2026-10-29']: dayWith([food('Coisa velha')]) })
-  resetStoreForTests()
+  await seedStore({
+    foods: [food('Meu shake', 120)],
+    dietPlan: planWith([food('Arroz')]),
+    dietLog: { ['2026-11-17']: dayWith([{ ...food('Arroz'), skipped: true }, food('Feijão')]), ['2026-10-29']: dayWith([food('Coisa velha')]) },
+  })
   const onPick = vi.fn()
   const user = userEvent.setup()
   await renderLoaded(<FoodPicker title="Adicionar · Almoço" confirmLabel="Usar" onPick={onPick} onClose={vi.fn()} />)
@@ -53,7 +54,7 @@ test('FoodPicker cria alimento próprio e grava em foods', async () => {
   await user.type(screen.getByRole('textbox', { name: 'Gordura por 100 g' }), '50')
   await user.click(screen.getByRole('button', { name: 'Criar' }))
   await waitFor(async () =>
-    expect(await load('foods')).toEqual([{ id: expect.any(String), name: 'Pasta de amendoim', grams: 100, per100: { kcal: 588, p: 25.5, c: 0, f: 50 }, source: 'custom' }]),
+    expect(await stored('foods')).toEqual([{ id: expect.any(String), name: 'Pasta de amendoim', grams: 100, per100: { kcal: 588, p: 25.5, c: 0, f: 50 }, source: 'custom' }]),
   )
   await user.click(screen.getByRole('button', { name: 'Adicionar' }))
   expect(onPick).toHaveBeenCalledWith(expect.objectContaining({ name: 'Pasta de amendoim', grams: 100, source: 'custom' }))
@@ -90,12 +91,28 @@ test('FoodPicker busca na TACO e mostra a fonte', async () => {
 })
 
 test('FoodPicker não cria alimento que o import trataria como o mesmo (B5)', async () => {
-  await save('foods', [food('Bolo, da vó')])
-  resetStoreForTests()
+  await seedStore({ foods: [food('Bolo, da vó')] })
   const user = userEvent.setup()
   await renderLoaded(<FoodPicker title="Adicionar" confirmLabel="Adicionar" onPick={vi.fn()} onClose={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Criar alimento próprio' }))
   await user.type(screen.getByRole('textbox', { name: 'Nome do alimento' }), 'Bolo da vó')
   expect(screen.getByRole('alert')).toHaveTextContent('Já existe um alimento com esse nome')
   expect(screen.getByRole('button', { name: 'Criar' })).toBeDisabled()
+})
+
+test('FoodPicker recusa valores por 100 g que o import descartaria', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<FoodPicker title="Adicionar" confirmLabel="Adicionar" onPick={vi.fn()} onClose={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: 'Criar alimento próprio' }))
+  await user.type(screen.getByRole('textbox', { name: 'Nome do alimento' }), 'Óleo')
+  const kcal = screen.getByRole('textbox', { name: 'kcal por 100 g' })
+  await user.type(kcal, '901')
+  expect(screen.getByRole('button', { name: 'Criar' })).toBeDisabled()
+  await user.clear(kcal)
+  await user.type(kcal, '884')
+  await user.type(screen.getByRole('textbox', { name: 'Gordura por 100 g' }), '101')
+  expect(screen.getByRole('button', { name: 'Criar' })).toBeDisabled()
+  await user.clear(screen.getByRole('textbox', { name: 'Gordura por 100 g' }))
+  await user.type(screen.getByRole('textbox', { name: 'Gordura por 100 g' }), '100')
+  expect(screen.getByRole('button', { name: 'Criar' })).toBeEnabled()
 })

@@ -1,9 +1,10 @@
 import { todayKey } from '@/lib/date'
 import type { Settings } from '@/schema'
-import { isObj } from '@/lib/utils'
+import { isKeyOf, isObj } from '@/lib/utils'
 import type { DietGoal, Focus, Profile } from './types'
 import { readCurrent, save } from '@/storage/db'
 import type { Measurement } from '@/evolution/types'
+import { upsertMeasurement } from '@/evolution/measurements'
 
 type OldGoal = 'hipertrofia' | 'emagrecer' | 'forca' | 'saude'
 const FOCUS_OF: Record<OldGoal, Focus> = { hipertrofia: 'hipertrofia', emagrecer: 'hipertrofia', forca: 'forca', saude: 'condicionamento' }
@@ -12,7 +13,6 @@ const DIET_OF: Partial<Record<OldGoal, DietGoal>> = { emagrecer: 'perder', hiper
 const LIFT_TRAIN = ['age', 'daysPerWeek', 'notes']
 const LIFT_DIET = ['wake', 'train', 'sleep']
 
-const isOldGoal = (g: unknown): g is OldGoal => typeof g === 'string' && Object.hasOwn(FOCUS_OF, g)
 const hasAny = (o: unknown, keys: string[]) => isObj(o) && keys.some((k) => k in o)
 
 type Migrated = Omit<StoredData, 'profile'> & { profile?: Profile }
@@ -34,7 +34,7 @@ export function migrateData(data: StoredData, today: string): Migrated {
   }
   lift(ana, LIFT_TRAIN)
   lift(diet, LIFT_DIET)
-  const trainGoal = isOldGoal(ana?.goal) ? ana.goal : undefined
+  const trainGoal = isKeyOf(FOCUS_OF, ana?.goal) ? ana.goal : undefined
   const dietGoal = diet?.goal ?? (trainGoal && DIET_OF[trainGoal])
   if (dietGoal && profile.dietGoal === undefined) profile.dietGoal = dietGoal
   if (trainGoal && profile.focus === undefined) profile.focus = FOCUS_OF[trainGoal]
@@ -44,10 +44,7 @@ export function migrateData(data: StoredData, today: string): Migrated {
   if (typeof weightKg === 'number' && weightKg > 0) {
     const ms = data.measurements ?? []
     if (!ms.some((m) => m.weightKg !== undefined)) {
-      const date = data.settings?.firstUseAt ?? today
-      const existing = ms.find((m) => m.date === date)
-      const measurement = { ...(existing ?? { id: crypto.randomUUID(), date }), weightKg }
-      out.measurements = [...ms.filter((m) => m.date !== date), measurement].sort((a, b) => a.date.localeCompare(b.date))
+      out.measurements = upsertMeasurement(ms, data.settings?.firstUseAt ?? today, { weightKg }).list
     }
   }
   return out
@@ -61,11 +58,6 @@ export async function migrateStored(): Promise<void> {
   if (after.profile && JSON.stringify(after.profile) !== JSON.stringify(before.profile)) await save('profile', after.profile)
 }
 
-const runs = new WeakMap<Promise<unknown>, Promise<void>>()
-/** uma migração por carga do store: a leitura do perfil muda a cada carga (e a cada reset do teste), então serve de chave */
-export const migrationFor = (profileRead: Promise<unknown>): Promise<void> => {
-  let p = runs.get(profileRead)
+export const migrateOnBoot = (): Promise<void> =>
   // escrita que falhou não derruba o app: o cache já tem o valor migrado e a gravação se repete na próxima abertura
-  if (!p) { p = migrateStored().catch((e) => console.warn('migração do perfil não gravada', e)); runs.set(profileRead, p) }
-  return p
-}
+  migrateStored().catch((e) => console.warn('migração do perfil não gravada', e))

@@ -9,27 +9,32 @@ import { plural } from '@/lib/number'
 import { TEMPLATES, instantiateTemplate } from '@/workout/templates'
 import { PlanEditor } from '@/workout/PlanEditor'
 import { PlanImport } from '@/workout/PlanImport'
+import { useWorkoutPlan } from '@/workout/useWorkoutPlan'
 import { DietStart } from '@/diet/DietStart'
 import { BackHeader } from '@/components/BackHeader'
-import { BackupRestore } from '@/storage/BackupRestore'
+import { BackupRestore } from '@/backup/BackupRestore'
 import { BottomBar } from '@/components/BottomBar'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { ANAMNESIS_STEPS, AnamnesisFlow } from '@/profile/AnamnesisFlow'
+import { AnamnesisFlow } from '@/profile/AnamnesisFlow'
+import { DayZero } from '@/evolution/DayZero'
+import { ANAMNESIS_STEPS } from '@/profile/profile'
 import { Steps } from '@/components/Steps'
 import { Alert } from '@/components/ui/alert'
 
-const ONBOARDING_STEPS = ANAMNESIS_STEPS + 2
+const TREINO_STEP = ANAMNESIS_STEPS + 1
+const DIETA_STEP = ANAMNESIS_STEPS + 2
+const ONBOARDING_STEPS = DIETA_STEP
 type Step = 'anamnese' | 'treino' | 'editor' | 'ia' | 'convert' | 'dieta'
 
 export function Onboarding() {
   const [, setSettings] = usePersisted('settings')
   const [step, setStep] = useState<Step>('anamnese')
   const [initial, setInitial] = useState<WorkoutPlan>(DEFAULTS.workoutPlan)
-  const [, setPlan] = usePersisted('workoutPlan')
+  const { replacePlan } = useWorkoutPlan()
   const [error, setError] = useState<string>()
   const [resumeAtDayZero, setResumeAtDayZero] = useState(false)
   const [picked, setPicked] = useState(TEMPLATES[0].id)
@@ -50,11 +55,12 @@ export function Onboarding() {
   }
 
   const toDieta = () => setStep('dieta')
-  if (step === 'editor') return <PlanEditor initial={initial} onSave={(p) => { setPlan(p); toDieta() }} onCancel={() => setStep('treino')} />
+  if (step === 'editor') return <PlanEditor initial={initial} onSave={(p) => { replacePlan(p); toDieta() }} onCancel={() => setStep('treino')} />
   if (step === 'ia' || step === 'convert') return <PlanImport mode={step} onDone={toDieta} onBack={() => setStep('treino')} />
   if (step === 'anamnese') {
     return (
       <AnamnesisFlow
+        DayZero={DayZero}
         total={ONBOARDING_STEPS}
         resumeAtDayZero={resumeAtDayZero}
         onDone={() => setStep('treino')}
@@ -72,7 +78,7 @@ export function Onboarding() {
   if (step === 'dieta') {
     return (
       <div className="flex flex-col gap-3">
-        <Steps n={ANAMNESIS_STEPS + 2} total={ONBOARDING_STEPS} />
+        <Steps n={DIETA_STEP} total={ONBOARDING_STEPS} />
         <BackHeader title="Sua dieta" onBack={() => setStep('treino')} className="px-0 py-0" />
         <DietStart hint="A IA já recebe peso, % de gordura, massa magra, medidas e horários." onDone={finish} />
         <div className="flex justify-center"><Button type="button" variant="ghost" className="text-text-2" onClick={finish}>Pular por agora</Button></div>
@@ -81,7 +87,7 @@ export function Onboarding() {
   }
   return (
     <div className="flex flex-col gap-3 pb-40">
-      <Steps n={ANAMNESIS_STEPS + 1} total={ONBOARDING_STEPS} />
+      <Steps n={TREINO_STEP} total={ONBOARDING_STEPS} />
       <BackHeader title="Seu treino" onBack={() => { setResumeAtDayZero(true); setStep('anamnese') }} className="px-0 py-0" />
       <Card size="flush">
         <RadioGroup value={picked} onValueChange={setPicked} aria-label="Planos" className="gap-0">

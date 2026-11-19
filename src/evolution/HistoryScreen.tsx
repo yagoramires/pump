@@ -3,7 +3,7 @@ import { Camera, ChevronLeft, ChevronRight, Dumbbell, GlassWater, Moon, Ruler, U
 import { usePersisted } from '@/storage/db'
 import { WEEKDAY_SHORT, formatDayMonth, todayKey } from '@/lib/date'
 import { useToday } from '@/lib/useToday'
-import { formatDec, formatKg } from '@/lib/number'
+import { formatDec } from '@/lib/number'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Toggle } from '@/components/ui/toggle'
@@ -11,12 +11,15 @@ import { Overlay } from '@/components/Overlay'
 import { IconDot } from '@/components/IconDot'
 import { BackHeader } from '@/components/BackHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { cn, omitKey } from '@/lib/utils'
+import { cn } from '@/lib/utils'
+import { resetDay } from '@/diet/day'
+import { removeWaterDay } from '@/diet/water'
 import { WorkoutDayLine } from '@/workout/WorkoutDayLine'
 import { DietDayLine } from '@/diet/DietDayLine'
-import { FIELDS, removeMeasurement } from './measurements'
+import { FIELDS, formatValue, removeMeasurement } from './measurements'
 import { ANGLES } from './types'
-import { hasPhoto, usePhotoSets } from './photoSets'
+import { hasPhoto } from './photoSets'
+import { usePhotoSets } from './usePhotoSets'
 import { dayRecords } from './dayRecords'
 import { PhotoThumb } from './PhotoThumb'
 
@@ -49,12 +52,12 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const go = (n: number) => { setMonth(new Date(y, m + n, 1)); setDay(undefined) }
 
   const records = (k: string) => dayRecords({ workoutLog: log, dietLog: diet, waterLog: water, measurements: measures, photoSets: sets }, k)
-  const { session: done, rest, diet: meals, water: drank, measurement: measure, photos } = day ? records(day) : {}
+  const { session: done, rest, diet: meals, water: drank, measurement: measure, photos, others } = day ? records(day) : {}
 
   const remove = () => {
     if (!day) return
-    if (confirm === 'diet') setDiet((prev) => omitKey(prev, day))
-    if (confirm === 'water') setWater((prev) => omitKey(prev, day))
+    if (confirm === 'diet') setDiet((prev) => resetDay(prev, day))
+    if (confirm === 'water') setWater((prev) => removeWaterDay(prev, day))
     if (confirm === 'measures') setMeasures((prev) => removeMeasurement(prev, day))
     if (confirm === 'photos' && photos) removeSet(photos.id)
   }
@@ -75,7 +78,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
         {keys.map((k, i) => {
           const r = records(k)
           const trained = !!r.session
-          const dot = r.rest || !!(r.diet || r.water || r.measurement || r.photos)
+          const dot = r.others
           return (
             <Toggle
               key={k}
@@ -102,7 +105,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
           <div className="label-caps mx-0.5 pt-1">
             {done ? `${formatDayMonth(day)} · Treino ${done.workoutLabel}` : formatDayMonth(day)}
           </div>
-          {!done && !rest && !meals && !drank && !measure && !photos ? (
+          {!done && !others ? (
             <p className="px-0.5 text-sm text-text-2">Nada registrado neste dia.</p>
           ) : (
             <Card size="flush">
@@ -138,7 +141,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                   <div className="min-w-0 flex-1">
                     <div className="text-body font-semibold text-strong">Medidas</div>
                     <div className="text-meta text-text-2 tabular-nums">
-                      {FIELDS.filter((f) => measure[f.key] !== undefined).map((f) => `${f.label} ${formatKg(measure[f.key]!)} ${f.unit}`).join(' · ')}
+                      {FIELDS.filter((f) => measure[f.key] !== undefined).map((f) => `${f.label} ${formatValue(f, measure[f.key]!)}`).join(' · ')}
                     </div>
                   </div>
                   <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('measures')}>Apagar medidas</Button>

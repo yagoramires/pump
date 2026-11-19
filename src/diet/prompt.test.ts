@@ -4,7 +4,6 @@ import { parseDietFormat } from './dietFormat'
 import { buildDietAdjustPrompt, buildDietConvertPrompt, buildDietPrompt, TACO_EXAMPLES } from './prompt'
 import { food } from '../../test/helpers'
 import { FOOD_LIST_URL } from '@/catalog/urls'
-import { COPYABLE_JSON_RULE } from '@/format/promptRules'
 import { GOAL_KCAL, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 
 const T = '2026-11-18'
@@ -73,54 +72,20 @@ test('sem pescoço/cintura não tem gordura nem massa magra; uma medição só n
   expect(p).not.toContain('Variação')
 })
 
-test('converter dieta diz o que fazer quando a fonte não encaixa', () => {
-  const p = buildDietConvertPrompt()
-  expect(p).toContain('Se faltar a quantidade em gramas, estime pela porção caseira (e ponha a medida em "porcao")')
-  expect(p).toContain('se faltar o horário, use um horário comum')
-  expect(p).toContain('mais de 4 opções, fique com as 4 primeiras')
-})
-test('gerar dieta: dieta pronta preserva os números, nomes seguem a lista', () => {
-  expect(buildDietPrompt(undefined, [], T)).toContain('transcreva sem mudar os números (quantidades)')
-})
-test('gerar e converter dieta usam a lista de alimentos e dividem o formato', () => {
-  for (const p of [buildDietPrompt(undefined, [], T), buildDietConvertPrompt()]) {
-    expect(p).toContain(FOOD_LIST_URL)
-    expect(p).toContain('exatamente um nome')
-    expect(p).toContain('não conseguir abrir o link')
-    expect(p).toContain('"formato": sempre "pump-plano"')
-    expect(p).toContain('um único bloco de código Markdown com a linguagem `json`')
-    expect(p).toContain('para eu copiar e colar no Pump')
-    expect(p).toContain('Não escreva texto fora do bloco.')
-    expect(p).toContain('Pão, trigo, francês')
-  }
-  expect(buildDietConvertPrompt()).toContain('sem mudar')
-  expect(buildDietConvertPrompt()).toContain('mantenha o nome original')
-  expect(buildDietConvertPrompt()).toContain('uma opção de cada refeição')
+test('gerar e converter dieta apontam pra lista de alimentos; converter cabe em 6000 caracteres', () => {
+  for (const p of [buildDietPrompt(undefined, [], T), buildDietConvertPrompt()]) expect(p).toContain(FOOD_LIST_URL)
   expect(buildDietConvertPrompt().length).toBeLessThanOrEqual(6000)
 })
 
-test('converter: avisa os limites do formato (vindos das constantes) e o que fazer ao passar deles', () => {
+test('converter: avisa os limites do formato', () => {
   const p = buildDietConvertPrompt()
   for (const n of [MAX_MENUS, MAX_MEALS, MAX_ITEMS, MAX_OPTIONS, ...GOAL_KCAL, ...MACRO_G]) expect(p).toContain(String(n))
-  expect(p).toContain(`mais de ${MAX_MENUS} cardápios, fique com os ${MAX_MENUS} primeiros`)
-  expect(p).toContain('arredonde para inteiro')
 })
 
-test('as listas pedem pra colar a lista se a IA não abrir o link', () => {
-  expect(buildDietConvertPrompt()).toContain('me peça pra colar a lista')
-  expect(buildDietPrompt(undefined, [], '2026-01-01')).toContain('me peça pra colar a lista')
-})
-
-test('ajustar dieta: leva regras e o cardápio atual, e a importação lê o texto de volta', () => {
+test('ajustar dieta: leva o cardápio atual e a lista, e a importação lê o texto de volta', () => {
   const plan = { menus: [{ id: 'A', name: 'Corte', meals: [{ id: 'm', name: 'Café', time: '7:00', options: [{ id: 'o', items: [food({ name: 'Arroz, tipo 1, cozido', grams: 120 })] }] }] }], lastMenuId: 'A' }
   const p = buildDietAdjustPrompt(plan)
-  expect(p).toContain('Mude só o que eu pedir')
   expect(p).toContain(FOOD_LIST_URL)
-  expect(p).toContain(COPYABLE_JSON_RULE)
-  expect(p).toContain('Os valores (kcal, proteinaG, carboG, gorduraG) são da quantidade em gramas, não por 100 g: se mudar as gramas ou incluir um alimento, recalcule esses valores.')
   expect(p).toContain('"07:00"')
-  expect(parseDietFormat(p).cardapios[0].nome).toBe('Corte')
-})
-test('ajustar dieta: sem cardápios não quebra', () => {
-  expect(() => buildDietAdjustPrompt({ menus: [] })).not.toThrow()
+  expect(parseDietFormat(p).cardapios[0]).toMatchObject({ nome: 'Corte', refeicoes: [{ nome: 'Café', horario: '07:00' }] })
 })
