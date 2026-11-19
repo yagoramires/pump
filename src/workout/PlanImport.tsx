@@ -11,6 +11,9 @@ import { ExerciseGroups, ExerciseThumb } from './ExerciseGroups'
 import { ExercisePreview } from './ExercisePreview'
 import { planExerciseLine } from './display'
 import { useWorkoutPlan } from './useWorkoutPlan'
+import { nextWorkout } from './schedule'
+import { savePlan } from './plan'
+import { Chips } from '@/components/Chips'
 import { plural } from '@/lib/number'
 import { BackHeader } from '@/components/BackHeader'
 import { CopyListButton, ImportGuide, OutsideCatalog, PasteBox, ReviewActions, ReviewTabs, type ImportMode } from '@/import/ImportFlow'
@@ -29,12 +32,17 @@ export function PlanImport({ mode, onDone, onBack }: { mode: ImportMode; onDone:
   const [preview, setPreview] = useState<PlanExercise>()
   const paste = usePastedReview(parsePlanFormat, async (file) => planFromFormat(file, await catalogOrNull(fetchExercises()), customs))
   const review = paste.result
+  const [log] = usePersisted('workoutLog')
+  const [startLabel, setStartLabel] = useState<string>()
+  const suggested = review && nextWorkout(savePlan(plan, review.plan), log)?.label
+  const firstLabel = startLabel ?? suggested
 
   const save = (saved: WorkoutPlan) => {
     const used = new Set(saved.workouts.flatMap((w) => w.exercises.map((e) => e.exerciseId)))
     const added = review ? review.newCustoms.filter((c) => used.has(c.id)) : []
     if (added.length) setCustoms((prev) => [...prev, ...added])
-    replacePlan(saved)
+    const label = saved.workouts.find((w) => w.label === firstLabel)?.label
+    replacePlan(label ? { ...saved, start: { label, since: new Date().toISOString() } } : saved)
     onDone()
   }
   const { offer, dialog: confirm } = useReplaceConfirm(
@@ -94,6 +102,9 @@ export function PlanImport({ mode, onDone, onBack }: { mode: ImportMode; onDone:
           </Card>
         )}
         <OutsideCatalog title={`${plural(noPreview.length, 'exercício', 'exercícios')} sem prévia (fora do catálogo)`} names={noPreview} />
+        {review.plan.workouts.length > 1 && (
+          <Chips label="Começar pelo" options={Object.fromEntries(review.plan.workouts.map((w) => [w.label, w.label]))} value={firstLabel} onChange={(v) => v && setStartLabel(v)} />
+        )}
         <ReviewActions half="treinos" ignored={review.ignoredDiet} use="Usar plano" onEdit={() => setEditing(true)} onUse={() => offer(review.plan)} />
         {preview && <ExercisePreview exercise={preview} onClose={() => setPreview(undefined)} />}
         {confirm}

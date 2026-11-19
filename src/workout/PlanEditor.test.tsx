@@ -100,3 +100,13 @@ test('Subir e Descer movem dentro do grupo mostrado: cardio não troca com forç
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
   expect(onSave.mock.calls[0][0].workouts[0].exercises.map((e: { name: string }) => e.name)).toEqual(['Esteira', 'Remada', 'Supino reto'])
 })
+
+test('editar a ficha preserva o primeiro treino escolhido no import', async () => {
+  const user = userEvent.setup()
+  const onSave = vi.fn()
+  const start = { label: 'A', since: '2026-11-19T10:00:00.000Z' }
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([{ name: 'Agachamento' }], { id: 'w1', name: 'Treino de pernas' })], start }} onSave={onSave} onCancel={vi.fn()} />)
+  await user.type(await screen.findByDisplayValue('Treino de pernas'), ' 2')
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ start }))
+})
