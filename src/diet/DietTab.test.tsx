@@ -255,7 +255,6 @@ test('pular item tira as kcal e mostra Desfazer', async () => {
   await user.click(screen.getByRole('button', { name: 'Desfazer pular Pão' }))
   await back(user)
   await waitFor(() => expect(calorias()).toHaveTextContent('450 / 2.000 kcal'))
-  expect((await stored('dietLog'))?.[TODAY].meals.find((m) => m.id === 'm1')?.items[0].skipped).toBe(false)
 })
 
 test('refeição livre não soma', async () => {

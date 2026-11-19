@@ -78,5 +78,5 @@ test('Renomear fecha o menu e põe o foco no nome do treino depois da animação
   await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([], { name: 'Peito' })] }} onSave={vi.fn()} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Mais ações do treino A' }))
   await user.click(await screen.findByRole('button', { name: 'Renomear' }))
-  await waitFor(() => expect(screen.getByDisplayValue('Peito')).toHaveFocus(), { timeout: 2000 })
+  await waitFor(() => expect(screen.getByDisplayValue('Peito')).toHaveFocus())
 })

@@ -12,7 +12,6 @@ export function exerciseSummary(e: PlanExercise | SessionExercise) {
 
 export const restSecondsLabel = (sec: number) => `${sec} s`
 
-/** linha do exercício no plano: cardio só mostra a duração */
 export const planExerciseLine = (e: PlanExercise) => (isCardio(e) ? e.reps : `${exerciseSummary(e)} · ${restSecondsLabel(e.restSec)}`)
 
 export function restClock(sec: number, padMinutes = false) {

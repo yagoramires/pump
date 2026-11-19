@@ -55,7 +55,6 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
   }
   const streakAt = (n: number) => [...reached].find(([c]) => c >= n)?.[1]
 
-  // 1º dia em que algum exercício passou da maior carga que já tinha
   const record = [...exerciseHistory(sessions).values()].flatMap((entries) => {
     const loads = loadPoints(entries)
     return loads.find((p, i) => i > 0 && p.value > Math.max(...loads.slice(0, i).map((x) => x.value)))?.date ?? []

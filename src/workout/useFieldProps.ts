@@ -1,6 +1,5 @@
 import { useRef } from 'react'
 
-/** campo curto de número: sem sugestões, teclado com "OK" e o valor todo selecionado ao focar pra digitar por cima */
 export function useFieldProps() {
   const typed = useRef(false)
   return {

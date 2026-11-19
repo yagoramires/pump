@@ -60,7 +60,6 @@ export async function migrateStored(): Promise<void> {
   if (after.profile && JSON.stringify(after.profile) !== JSON.stringify(before.profile)) await save('profile', after.profile)
 }
 
-/** a migração que o boot do storage roda depois de ler as chaves */
 export const migrateOnBoot = (): Promise<void> =>
   // escrita que falhou não derruba o app: o cache já tem o valor migrado e a gravação se repete na próxima abertura
   migrateStored().catch((e) => console.warn('migração do perfil não gravada', e))

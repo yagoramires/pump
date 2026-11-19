@@ -122,7 +122,6 @@ export function EvolutionTab() {
   const rows = body?.rows.filter((r) => !KPI.includes(r.key)) ?? []
   const earned = report.achievements.filter((x) => x.earnedAt)
 
-  // o PDF pronto vale enquanto os dados (mesma referência, ver useEvolution) e o dia não mudam
   const blob = pdf?.input === input && pdf.today === today ? pdf.blob : undefined
   const makePdf = async () => {
     setBusy(true)

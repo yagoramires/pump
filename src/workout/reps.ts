@@ -10,7 +10,6 @@ export const isCardio = (e: ExerciseShape): boolean =>
 
 export const isTimed = (reps: string): boolean => /\d+\s*(s|seg(undos)?|min(utos)?)\b/i.test(reps)
 
-/** o primeiro número: "8-12" conta 8 */
 export const repsNumber = (reps: string): number => Number(/\d+/.exec(reps)?.[0] ?? 0)
 
 /** "12-10-8" com uma conta por série; dois números separados por hífen são uma faixa, como 8–12 */
@@ -19,7 +18,6 @@ export function repsPerSet(reps: string, sets: number): string[] | undefined {
   return sequence.length >= 3 && sequence.length === sets && sequence.every((v) => /^\d+$/.test(v)) ? sequence : undefined
 }
 
-/** força primeiro, cardio depois, cada um com a posição original */
 export function groupExercises<T extends ExerciseShape>(exercises: T[]) {
   const strength: { exercise: T; index: number }[] = []
   const cardio: typeof strength = []

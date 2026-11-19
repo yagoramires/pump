@@ -91,7 +91,6 @@ export function DietTab() {
         )}
         <div className="min-w-0 flex-1">
           <div className="text-body font-semibold tabular-nums text-strong">{goal ? `${formatDec(s.kcal)} / ${formatDec(goal)} kcal` : `${formatDec(s.kcal)} kcal`}</div>
-          {/* cada macro é uma unidade: a linha quebra entre eles, nunca no meio de um número */}
           <div className={cn('flex flex-wrap gap-x-2.5 text-caption tabular-nums', day.free ? 'text-accent' : 'text-text-2')}>
             {day.free ? 'Dia livre' : macros.map((m) => <span key={m} className="whitespace-nowrap">{m}</span>)}
           </div>

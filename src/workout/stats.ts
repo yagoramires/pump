@@ -32,7 +32,6 @@ export const loadPoints = (entries: Entry[]) => entries.flatMap(({ date, e }) =>
 
 export const sessionVolume = (s: WorkoutSession) => s.exercises.reduce((a, e) => a + exerciseVolume(e), 0)
 
-/** `now` só conta pra sessão em curso: a concluída termina no completedAt */
 export const sessionStats = (s: WorkoutSession, now?: Date) => {
   const sets = s.exercises.flatMap((e) => e.sets)
   const end = s.completedAt ? Date.parse(s.completedAt) : (now ?? new Date()).getTime()
@@ -54,6 +53,5 @@ export const previousSets = (log: WorkoutLog, today: string, exerciseId: string)
   return []
 }
 
-/** carga sugerida: a da mesma série no último treino (sem série, a primeira feita), senão a do plano */
 export const suggestedKg = (ex: { weightKg: number }, prev: (SetDone | null)[], set?: number): number =>
   (set === undefined ? prev.find(Boolean) : prev[set])?.weightKg ?? ex.weightKg

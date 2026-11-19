@@ -6,7 +6,6 @@ import { waterMet } from '@/diet/water'
 /** cartão Dieta e conquistas de dieta (§157, §167): com cardápio ou com algum dia registrado */
 export const hasDiet = (plan: DietPlan, log: DietLog) => plan.menus.length > 0 || Object.keys(log).length > 0
 
-/** o 1º dia com dieta ou água registrada */
 export const firstDietDate = (log: DietLog, water: WaterLog): string | undefined => [...Object.keys(log), ...Object.keys(water)].sort()[0]
 
 export interface DietStats { avgKcal?: number; avgGoal?: number; fullDays: number; waterDays?: number; freeUses: number; days: number }

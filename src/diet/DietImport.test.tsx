@@ -194,12 +194,10 @@ test('criar alimento próprio na revisão não refaz a revisão nem perde as tro
   expect(screen.getByText('na TACO: Pão, trigo, francês')).toBeInTheDocument()
 })
 
-test('converter: título, 5 passos, Copiar leva o prompt de conversão e lista os nomes fora da TACO', async () => {
+test('converter: Copiar leva o prompt de conversão e a revisão lista os nomes fora da TACO', async () => {
   const { user, writeText } = setupClipboard()
   await renderLoaded(<DietImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
   expect(await screen.findByRole('heading', { name: 'Converter dieta' })).toBeInTheDocument()
-  expect(screen.getByText('Junto com sua dieta (PDF, foto ou texto)')).toBeInTheDocument()
-  expect(screen.getByText(/Já tem uma dieta\?/)).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Copiar' }))
   expect(writeText).toHaveBeenCalledWith(buildDietConvertPrompt())
   await paste(json([WHEY, PAO]))

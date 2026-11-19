@@ -1,12 +1,12 @@
-import type { DietLog, DietPlan, WaterLog } from '../src/diet/types'
-import type { Measurement, PhotoSet } from '../src/evolution/types'
-import type { Profile } from '../src/profile/types'
-import type { WorkoutLog, WorkoutPlan, WorkoutSession } from '../src/workout/types'
-import { addDays, eachDay, weekday } from '../src/lib/date'
-import { restRecord } from '../src/workout/rest'
-import { dietDay, pe } from './helpers'
+import type { DietLog, DietPlan, WaterLog } from '@/diet/types'
+import type { Measurement, PhotoSet } from './types'
+import type { Profile } from '@/profile/types'
+import type { WorkoutLog, WorkoutPlan, WorkoutSession } from '@/workout/types'
+import { addDays, eachDay, weekday } from '@/lib/date'
+import { restRecord } from '@/workout/rest'
+import { dietDay, pe } from '../../test/helpers'
 
-/** uns 2,5 meses de tudo (treino, medidas, fotos, dieta, água): golden das conquistas/relatório e amostra do PDF */
+/** uns 2,5 meses de tudo (treino, medidas, fotos, dieta, água): golden das conquistas e do relatório */
 const lift = (name: string, kg: number, sets = 3) => ({ ...pe({ exerciseId: name, name }), sets: Array.from({ length: sets }, () => ({ reps: '10', weightKg: kg })) })
 
 const workoutLog: WorkoutLog = {}

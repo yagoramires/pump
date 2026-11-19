@@ -75,7 +75,6 @@ function Big({ label, value, unit, accent, size = 57 }: { label: string; value: 
   )
 }
 
-/** no PDF, centímetro vai inteiro; kg e % com uma casa */
 const pdfDigits = (f: Field) => (f.unit === 'cm' ? 0 : 1)
 
 /** `unit` já com o espaço, como em metricUnit */

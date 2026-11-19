@@ -24,7 +24,6 @@ import { ANAMNESIS_STEPS } from '@/profile/profile'
 import { Steps } from '@/components/Steps'
 import { Alert } from '@/components/ui/alert'
 
-/** a anamnese, depois treino e dieta */
 const TREINO_STEP = ANAMNESIS_STEPS + 1
 const DIETA_STEP = ANAMNESIS_STEPS + 2
 const ONBOARDING_STEPS = DIETA_STEP

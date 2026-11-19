@@ -80,9 +80,7 @@ export const mealOptions = (plan: DietPlan, day: DietDay, mealId: string) => {
   return { options, index: Math.max(0, options.findIndex((o) => o.id === meal?.optionId)), canToggle: options.length > 1 && !meal?.swappedMeal }
 }
 
-/** o que a refeição soma: tudo menos o pulado */
 export const mealItems = (m: DayMeal) => m.items.filter((i) => !i.skipped)
-/** o que já foi comido: refeição feita ou extra; refeição ou dia livre não soma */
 export const eatenItems = (day: DietDay, m: DayMeal) => (day.free || m.free ? [] : mealItems(m).filter((i) => m.done || i.extra))
 /** só extras, sem refeição do plano feita, não entra na média */
 export const countsForAverage = (day: DietDay) => !day.free && day.meals.some((m) => m.done && !m.free)
@@ -119,7 +117,6 @@ export const currentMealId = (meals: DayMeal[], now: Date): string | undefined =
   return (open.find((m) => m.time && m.time <= t) ?? open[0])?.id
 }
 
-/** alimentos já usados (criados, do cardápio e dos últimos 14 dias), um por foodKey */
 export function recentFoods(plan: DietPlan, log: DietLog, foods: DietItem[], today: string): Food[] {
   const days = Object.keys(log).filter((k) => daysBetween(k, today) < 14).sort().reverse()
   const seen = new Map<string, Food>()

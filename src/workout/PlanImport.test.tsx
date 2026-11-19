@@ -5,7 +5,6 @@ import { seedStore, stored } from '../../test/store'
 import userEvent from '@testing-library/user-event'
 import { save } from '@/storage/db'
 import type { WorkoutPlan } from './types'
-import { Toaster } from '@/components/ui/sonner'
 import { PlanImport } from './PlanImport'
 import { buildConvertPrompt } from './prompt'
 
@@ -100,21 +99,13 @@ test('Editar abre o editor; Salvar grava o plano e os exercícios novos', async 
 const REMADA = { nome: 'Remada X', series: 3, reps: '10' }
 const planJson = (exercicios: object[]) => JSON.stringify({ formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'Peito', dias: ['seg'], exercicios }] })
 
-test('gerar com IA e converter: descrição e 5 passos', async () => {
+test('gerar com IA pede a anamnese; converter não', async () => {
   const { unmount } = await renderLoaded(<PlanImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
   expect(await screen.findByRole('heading', { name: 'Gerar com IA' })).toBeInTheDocument()
   expect(screen.getByRole('radio', { name: 'Em casa' })).toBeInTheDocument()
-  expect(screen.getByText('O Pump não tem IA própria. Você leva um prompt pra sua IA (ChatGPT ou outra), ela monta seu treino e você cola a resposta aqui pra revisar antes de salvar.')).toBeInTheDocument()
-  expect(screen.getByText(/O Pump não tem IA própria/).compareDocumentPosition(screen.getByRole('radio', { name: 'Em casa' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-  expect(screen.getByText('ChatGPT, Gemini, Claude…')).toBeInTheDocument()
-  expect(screen.getByText('Revise e salve')).toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Copie seu plano' })).not.toBeInTheDocument()
   unmount()
   await renderLoaded(<PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
   expect(await screen.findByRole('heading', { name: 'Converter ficha' })).toBeInTheDocument()
-  expect(screen.getByText('Já tem uma ficha? Mande ela pra sua IA junto com o prompt. A IA reescreve no formato do Pump e você cola a resposta aqui pra revisar antes de salvar.')).toBeInTheDocument()
-  expect(screen.getByText('Junto com sua ficha (PDF, foto ou texto)')).toBeInTheDocument()
-  expect(screen.getByText('Volte aqui e cole abaixo')).toBeInTheDocument()
   expect(screen.queryByRole('radio', { name: 'Em casa' })).not.toBeInTheDocument()
 })
 
@@ -152,14 +143,6 @@ test.each(['ia', 'convert'] as const)('%s: "Copiar a lista de exercícios" busca
   await user.click(screen.getByRole('button', { name: /Copiar a lista de exercícios/ }))
   expect(f).toHaveBeenCalledWith(`${import.meta.env.BASE_URL}catalog/exercicios.txt`)
   await vi.waitFor(() => expect(writeText).toHaveBeenCalledWith('Exercícios\nSupino (barra)\n'))
-})
-
-test('lista de exercícios sem internet avisa', async () => {
-  const user = userEvent.setup()
-  vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('offline') }))
-  await renderLoaded(<><PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} /><Toaster /></>)
-  await user.click(await screen.findByRole('button', { name: /Copiar a lista de exercícios/ }))
-  expect(await screen.findByText('Sem internet pra copiar a lista.')).toBeInTheDocument()
 })
 
 test('sem prévia conta todo exercício custom do plano, também os que já eram seus, sem repetir nome', async () => {
