@@ -81,6 +81,7 @@
   --color-destructive: var(--destructive);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-accent-foreground: var(--color-on-accent);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
 }

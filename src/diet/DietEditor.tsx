@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { BackHeader } from '@/components/BackHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { NumberField } from '@/components/NumberField'
+import { TimePicker } from '@/components/TimePicker'
 import { copyText } from '@/lib/share'
 import { cn } from '@/lib/utils'
 
@@ -154,7 +155,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
           <section key={meal.id} className="flex flex-col gap-2 card p-3">
             <div className="flex items-center gap-2">
               <Input className="min-w-0 flex-1 font-semibold" aria-label={`Nome da refeição ${mi + 1}`} autoComplete="off" enterKeyHint="done" value={meal.name} onChange={(e) => patchMeal(meal.id, (m) => ({ ...m, name: e.target.value }))} />
-              <Input type="time" className="w-28" aria-label={`Horário da refeição ${mi + 1}`} value={meal.time} onChange={(e) => patchMeal(meal.id, (m) => ({ ...m, time: e.target.value }))} />
+              <TimePicker className="w-28" aria-label={`Horário da refeição ${mi + 1}`} value={meal.time} onChange={(v) => patchMeal(meal.id, (m) => ({ ...m, time: v ?? '' }))} />
               <button type="button" className="icon-btn" aria-label={`Remover refeição ${meal.name}`} onClick={() => patchMenu((m) => ({ ...m, meals: m.meals.filter((x) => x.id !== meal.id) }))}><Trash2 size={16} /></button>
             </div>
             <div className="flex items-center gap-1.5">

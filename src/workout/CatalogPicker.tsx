@@ -13,6 +13,7 @@ import { SearchField } from '@/components/SearchField'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 const MUSCLES = [...MUSCLE_GROUPS.keys()]
@@ -102,9 +103,10 @@ export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | Cust
             <DrawerTitle className="text-[19px] font-semibold text-strong">Exercício próprio</DrawerTitle>
             <DrawerDescription className="sr-only">Crie um exercício e adicione ao treino</DrawerDescription>
             <Input aria-label="Nome do exercício" placeholder="Nome" autoComplete="off" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
-            <select className="h-11 rounded-xl border border-border bg-surface px-3 text-base text-strong" aria-label="Grupo muscular" value={draft.muscle} onChange={(e) => setDraft({ ...draft, muscle: e.target.value })}>
-              {MUSCLES.map((m) => <option key={m}>{m}</option>)}
-            </select>
+            <Select value={draft.muscle} onValueChange={(muscle) => setDraft({ ...draft, muscle })}>
+              <SelectTrigger aria-label="Grupo muscular"><SelectValue /></SelectTrigger>
+              <SelectContent>{MUSCLES.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
+            </Select>
             <Input aria-label="Observação" placeholder="Observação (opcional)" autoComplete="off" value={draft.note} onChange={(e) => setDraft({ ...draft, note: e.target.value })} />
             <div className="flex gap-2">
               <Button type="button" variant="outline" className="flex-1" onClick={() => setCreating(false)}>Cancelar</Button>

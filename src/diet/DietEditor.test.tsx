@@ -1,6 +1,6 @@
 import { DEFAULTS } from '@/schema'
 import type { DietItem, DietPlan } from './types'
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear } from 'idb-keyval'
@@ -18,6 +18,11 @@ const plan = (time = '07:00'): DietPlan => ({
 })
 // sem a pausa entre eventos do user-event: o editor não tem timer, e os fluxos longos ficavam perto do timeout de 5 s
 const setup = () => userEvent.setup({ delay: null })
+const pickTime = async (user: ReturnType<typeof setup>, name: string, h: string, m: string) => {
+  await user.click(screen.getByRole('button', { name }))
+  await user.click(screen.getByRole('button', { name: `${h} h` }))
+  await user.click(screen.getByRole('button', { name: `${m} min` }))
+}
 const saved = (onSave: ReturnType<typeof vi.fn>): DietPlan => onSave.mock.calls[0][0]
 
 beforeEach(async () => {
@@ -37,7 +42,7 @@ test('do zero abre com uma refeição; Salvar entrega o plano e Apagar todos ent
   expect(name).toHaveValue('Refeição 1')
   await user.clear(name)
   await user.type(name, 'Café da manhã')
-  fireEvent.change(screen.getByLabelText('Horário da refeição 1'), { target: { value: '07:00' } })
+  await pickTime(user, 'Horário da refeição 1', '07', '00')
   await user.click(screen.getByRole('button', { name: 'Alimento' }))
   await user.click(await screen.findByRole('button', { name: /Meu shake/ }))
   await user.click(screen.getByRole('button', { name: 'Usar' }))
@@ -67,7 +72,7 @@ test('DietEditor exige horário HH:MM pra salvar', async () => {
   expect(screen.getByRole('alert')).toHaveTextContent('Dia de treino: preencha nome e horário (HH:MM) de cada refeição')
   expect(onSave).not.toHaveBeenCalled()
   expect(screen.getByRole('textbox', { name: 'Nome do cardápio' })).toHaveValue('Dia de treino')
-  fireEvent.change(screen.getByLabelText('Horário da refeição 1'), { target: { value: '07:30' } })
+  await pickTime(user, 'Horário da refeição 1', '07', '30')
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
   expect(saved(onSave).menus[0].meals[0].time).toBe('07:30')
 })

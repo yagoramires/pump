@@ -10,6 +10,8 @@ globalThis.caches = fakeCacheStorage({})
 HTMLElement.prototype.setPointerCapture ??= () => {}
 HTMLElement.prototype.releasePointerCapture ??= () => {}
 HTMLElement.prototype.hasPointerCapture ??= () => false
+// o ScrollArea do Radix observa o tamanho e o jsdom não tem ResizeObserver
+globalThis.ResizeObserver ??= class { observe() {} unobserve() {} disconnect() {} }
 // o File do jsdom pode não ter .text()
 Blob.prototype.text ??= function (this: Blob) { return new Response(this).text() }
 // a fila do sonner é global: sem isso um <Toaster/> novo mostra os toasts do teste anterior

@@ -1,10 +1,14 @@
 import type { ReactNode } from 'react'
 import { FileUp, ListChecks } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Textarea } from '@/components/ui/textarea'
 
 export function Step({ n, title, sub, children }: { n: number; title: string; sub: string; children?: ReactNode }) {
   return (
     <div className="flex items-center gap-3 border-t border-line p-3.5 first:border-t-0">
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-[9px] border border-accent-line bg-accent-bg text-sm font-bold text-accent">{n}</span>
+      <Badge variant="outline" className="size-8 shrink-0 rounded-[9px] border-accent-line bg-accent-bg text-sm font-bold text-accent">{n}</Badge>
       <div className="min-w-0 flex-1">
         <div className="text-[15px] font-semibold text-strong">{title}</div>
         <div className="text-[13px] text-text-2">{sub}</div>
@@ -19,15 +23,16 @@ type PasteProps = { text: string; onText: (t: string) => void; onFile: (t: strin
 export function PasteBox({ text, onText, onFile, problems, placeholder, children }: PasteProps) {
   return (
     <>
-      <textarea
+      <Textarea
         aria-label="Resposta da IA"
         rows={8}
-        className="w-full resize-none card p-3.5 text-base text-text outline-none placeholder:text-faint focus-visible:border-accent-line"
+        className="p-3.5"
         placeholder={placeholder}
         value={text}
         onChange={(e) => onText(e.target.value)}
       />
-      <label className="flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-secondary text-sm font-medium text-secondary-foreground">
+      <Button asChild variant="secondary" className="cursor-pointer font-medium">
+       <label>
         <FileUp size={16} aria-hidden="true" />
         Escolher arquivo
         <input type="file" hidden accept=".json,application/json,text/plain" onChange={async (e) => {
@@ -35,12 +40,13 @@ export function PasteBox({ text, onText, onFile, problems, placeholder, children
           e.target.value = '' // o mesmo arquivo de novo dispara de novo
           if (f) onFile(await f.text())
         }} />
-      </label>
+       </label>
+      </Button>
       {children}
       {problems.length > 0 && (
-        <ul role="alert" className="flex flex-col gap-1 card p-3.5 text-[13px] text-negative">
-          {problems.map((p) => <li key={p}>{p}</li>)}
-        </ul>
+        <Card role="alert" className="p-3.5 text-[13px] text-negative">
+          <ul className="flex flex-col gap-1">{problems.map((p) => <li key={p}>{p}</li>)}</ul>
+        </Card>
       )}
     </>
   )
@@ -49,9 +55,10 @@ export function PasteBox({ text, onText, onFile, problems, placeholder, children
 /** a IA nem sempre abre o link da lista: copia a mesma lista, servida pelo próprio app */
 export function CopyListButton({ file, noun, copy, fail }: { file: string; noun: string; copy: (text: string) => void; fail: (msg: string) => void }) {
   return (
-    <button
+    <Button
       type="button"
-      className="flex min-h-11 items-center gap-3 rounded-xl bg-secondary px-3.5 py-2 text-left text-secondary-foreground"
+      variant="secondary"
+      className="h-auto min-h-11 justify-start gap-3 px-3.5 py-2 text-left"
       onClick={async () => {
         try {
           const r = await fetch(`${import.meta.env.BASE_URL}catalog/${file}`)
@@ -67,6 +74,6 @@ export function CopyListButton({ file, noun, copy, fail }: { file: string; noun:
         <span className="block text-sm font-medium">{`Copiar a lista de ${noun}`}</span>
         <span className="block text-[13px] text-text-2">Se sua IA não abrir o link</span>
       </span>
-    </button>
+    </Button>
   )
 }

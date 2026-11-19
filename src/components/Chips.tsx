@@ -1,8 +1,5 @@
-import { cn } from '@/lib/utils'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
-const GROUP = 'grid w-full gap-[3px] rounded-[11px] border border-border bg-panel p-[3px]'
-const ITEM = 'h-auto min-h-9 whitespace-normal py-1 leading-tight rounded-[8px] px-1 text-[13px] font-semibold text-text-2 data-[state=on]:bg-surface data-[state=on]:text-strong data-[state=on]:shadow-[inset_0_0_0_1px_var(--color-border-strong)]'
 export const LABEL = 'label-caps mb-1.5 block tracking-[0.08em]'
 
 type Options<T extends string | number> = [T] extends [string] ? Record<T, string> : readonly T[]
@@ -16,8 +13,8 @@ export function Chips<T extends string | number>({ label, options, value, onChan
   return (
     <div>
       <span className={LABEL}>{label}</span>
-      <ToggleGroup type="single" spacing={1} aria-label={label} value={value === undefined ? '' : String(value)} onValueChange={(v) => onChange(items.find(([k]) => String(k) === v)?.[0])} className={cn(GROUP, cols ?? 'grid-flow-col auto-cols-fr')}>
-        {items.map(([k, text]) => <ToggleGroupItem key={k} value={String(k)} className={ITEM}>{text}</ToggleGroupItem>)}
+      <ToggleGroup type="single" variant="segmented" size="fill" spacing={1} aria-label={label} value={value === undefined ? '' : String(value)} onValueChange={(v) => onChange(items.find(([k]) => String(k) === v)?.[0])} className={cols ?? 'grid grid-flow-col auto-cols-fr'}>
+        {items.map(([k, text]) => <ToggleGroupItem key={k} value={String(k)}>{text}</ToggleGroupItem>)}
       </ToggleGroup>
     </div>
   )
@@ -28,8 +25,8 @@ export function MultiChips<T extends string | number>({ label, options, value, o
   return (
     <div>
       <span className={LABEL}>{label}</span>
-      <ToggleGroup type="multiple" spacing={1} aria-label={label} value={Array.isArray(value) ? value.map(String) : []} onValueChange={(v) => onChange(v.length ? v.map((s) => items.find(([k]) => String(k) === s)![0]) : undefined)} className={cn(GROUP, cols ?? 'grid-flow-col auto-cols-fr')}>
-        {items.map(([k, text]) => <ToggleGroupItem key={k} value={String(k)} className={ITEM}>{text}</ToggleGroupItem>)}
+      <ToggleGroup type="multiple" variant="segmented" size="fill" spacing={1} aria-label={label} value={Array.isArray(value) ? value.map(String) : []} onValueChange={(v) => onChange(v.length ? v.map((s) => items.find(([k]) => String(k) === s)![0]) : undefined)} className={cols ?? 'grid grid-flow-col auto-cols-fr'}>
+        {items.map(([k, text]) => <ToggleGroupItem key={k} value={String(k)}>{text}</ToggleGroupItem>)}
       </ToggleGroup>
     </div>
   )
