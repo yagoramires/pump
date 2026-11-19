@@ -19,9 +19,9 @@ import { Overlay } from '@/components/Overlay'
 import { ExerciseCard } from './ExerciseCard'
 import { ExercisePreview } from './ExercisePreview'
 import { SetTable } from './SetTable'
-import { RestCard } from './RestCard'
+import { RestCard, RestPicker } from './RestCard'
 import { nextWorkout, unfinishedSession } from './schedule'
-import { completeSession, setDone, startSession } from './session'
+import { clearRest, completeSession, pauseRest, resumeRest, setDone, startRest, startSession } from './session'
 import { previousSets, sessionStats } from './stats'
 import { isRest, restRecord } from './rest'
 import { unlockAudio } from './restTimer'
@@ -49,6 +49,7 @@ export function TreinoTab() {
   const [preview, setPreview] = useState<number>()
   const [openIdx, setOpenIdx] = useState<'auto' | number | null>('auto')
   const [restTotal, setRestTotal] = useState<number>()
+  const [pickIdx, setPickIdx] = useState<number>() // exercício cujo descanso o seletor edita; vive aqui pra sobreviver ao fim da contagem
   const [now, setNow] = useState(() => new Date())
 
   useEffect(() => {
@@ -84,7 +85,7 @@ export function TreinoTab() {
     [setLog, today],
   )
   const finishRest = useCallback(
-    () => patch((s) => (s.restEndsAt === undefined && s.restPausedLeftMs === undefined ? s : { ...s, restEndsAt: undefined, restPausedLeftMs: undefined, restExIdx: undefined })),
+    () => patch((s) => (s.restEndsAt === undefined && s.restPausedLeftMs === undefined ? s : clearRest(s))),
     [patch],
   )
   const closePreview = useCallback(() => setPreview(undefined), [])
@@ -161,7 +162,7 @@ export function TreinoTab() {
       const s = current(prev)
       const marked = !s.exercises[exIdx].sets[setIdx]
       const next = setDone(s, exIdx, setIdx, marked ? v : null)
-      return { ...prev, [today]: marked ? { ...next, restEndsAt: Date.now() + restSec * 1000, restPausedLeftMs: undefined, restExIdx: exIdx } : next }
+      return { ...prev, [today]: marked ? startRest(next, exIdx, restSec * 1000, Date.now()) : next }
     })
     if (!saved[today]?.exercises[exIdx].sets[setIdx]) return
     setRestTotal(restSec)
@@ -256,21 +257,23 @@ export function TreinoTab() {
             patch((s) => (s.restPausedLeftMs !== undefined ? { ...s, restPausedLeftMs: s.restPausedLeftMs + 15_000 } : { ...s, restEndsAt: (s.restEndsAt ?? Date.now()) + 15_000 }))
             setRestTotal((t) => t && t + 15)
           }}
-          onTogglePause={() =>
-            patch((s) =>
-              s.restPausedLeftMs !== undefined
-                ? { ...s, restEndsAt: Date.now() + s.restPausedLeftMs, restPausedLeftMs: undefined }
-                : { ...s, restEndsAt: undefined, restPausedLeftMs: Math.max(0, (s.restEndsAt ?? Date.now()) - Date.now()) },
-            )
-          }
-          onPickDuration={(sec) => {
-            const idx = restIdx
-            patch((s) => ({ ...s, restEndsAt: Date.now() + sec * 1000, restPausedLeftMs: undefined, exercises: s.exercises.map((e, i) => (i === idx ? { ...e, restSec: sec } : e)) }))
-            setPlan((p) => ({ workouts: p.workouts.map((w) => (w.id === view.workoutId ? { ...w, exercises: w.exercises.map((e, i) => (i === idx ? { ...e, restSec: sec } : e)) } : w)) }))
-            setRestTotal(sec)
-          }}
+          onTogglePause={() => patch((s) => (s.restPausedLeftMs !== undefined ? resumeRest(s, Date.now()) : pauseRest(s, Date.now())))}
+          onPickDuration={() => setPickIdx(restIdx)}
         />
       )}
+      <RestPicker
+        open={pickIdx !== undefined}
+        restSec={view.exercises[pickIdx ?? restIdx]?.restSec ?? PLAN_DEFAULTS.restSec}
+        onClose={() => setPickIdx(undefined)}
+        onPick={(sec) => {
+          const idx = pickIdx ?? restIdx
+          const exId = view.exercises[idx]?.exerciseId
+          patch((s) => ({ ...startRest(s, idx, sec * 1000, Date.now()), exercises: s.exercises.map((e, i) => (i === idx ? { ...e, restSec: sec } : e)) }))
+          // o plano pode ter sido editado no meio do treino: acha o exercício pelo id, não pela posição
+          setPlan((p) => ({ workouts: p.workouts.map((w) => (w.id === view.workoutId ? { ...w, exercises: w.exercises.map((e) => (e.exerciseId === exId ? { ...e, restSec: sec } : e)) } : w)) }))
+          setRestTotal(sec)
+        }}
+      />
       <div className="fixed bottom-[calc(var(--nav-h)+12px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2">
         {session?.completedAt ? (
           <Button variant="secondary" className="w-full font-bold" disabled><Check aria-hidden="true" /> Treino concluído</Button>

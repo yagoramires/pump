@@ -1,5 +1,5 @@
 import type { DietLog, DietPlan, TacoFood } from './types'
-import { screen, within } from '@testing-library/react'
+import { act, screen, within } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { clear, get } from 'idb-keyval'
@@ -217,5 +217,17 @@ test('lista de alimentos sem internet avisa', async () => {
   await renderLoaded(<><DietImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} /><Toaster /></>)
   await user.click(await screen.findByRole('button', { name: /Copiar a lista de alimentos/ }))
   expect(await screen.findByText('Sem internet pra copiar a lista.')).toBeInTheDocument()
+  vi.unstubAllGlobals()
+})
+
+test('copiar a lista escreve síncrono no toque (WebKit): clipboard.write com a promessa do texto', async () => {
+  const write = vi.fn(async (items: ClipboardItem[]) => { await items[0].getType('text/plain') })
+  Object.defineProperty(navigator, 'clipboard', { value: { write, writeText: vi.fn() }, configurable: true })
+  vi.stubGlobal('ClipboardItem', class { items: Record<string, Promise<Blob>>; constructor(items: Record<string, Promise<Blob>>) { this.items = items } getType(t: string) { return this.items[t] } })
+  vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>(() => {}))) // fetch pendente: só passa se escrever sem esperar
+  await renderLoaded(<DietImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
+  const btn = await screen.findByRole('button', { name: /Copiar a lista de alimentos/ })
+  act(() => { btn.click() })
+  expect(write).toHaveBeenCalledTimes(1)
   vi.unstubAllGlobals()
 })

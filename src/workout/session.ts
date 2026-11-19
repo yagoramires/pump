@@ -14,9 +14,10 @@ export const setDone = (s: WorkoutSession, exIdx: number, setIdx: number, v: Set
   exercises: s.exercises.map((e, i) => (i === exIdx ? { ...e, sets: e.sets.map((d, j) => (j === setIdx ? v : d)) } : e)),
 })
 
-export const completeSession = (s: WorkoutSession, now: Date): WorkoutSession => ({
-  ...s,
-  completedAt: now.toISOString(),
-  restEndsAt: undefined,
-  restExIdx: undefined,
-})
+/** descanso: um só lugar mexe nos três campos juntos */
+export const clearRest = (s: WorkoutSession): WorkoutSession => ({ ...s, restEndsAt: undefined, restPausedLeftMs: undefined, restExIdx: undefined })
+export const startRest = (s: WorkoutSession, exIdx: number, ms: number, now: number): WorkoutSession => ({ ...s, restEndsAt: now + ms, restPausedLeftMs: undefined, restExIdx: exIdx })
+export const pauseRest = (s: WorkoutSession, now: number): WorkoutSession => ({ ...s, restEndsAt: undefined, restPausedLeftMs: Math.max(0, (s.restEndsAt ?? now) - now) })
+export const resumeRest = (s: WorkoutSession, now: number): WorkoutSession => ({ ...s, restEndsAt: now + (s.restPausedLeftMs ?? 0), restPausedLeftMs: undefined })
+
+export const completeSession = (s: WorkoutSession, now: Date): WorkoutSession => ({ ...clearRest(s), completedAt: now.toISOString() })

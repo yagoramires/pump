@@ -9,6 +9,7 @@ import { renderLoaded } from '../../test/render'
 import { TreinoTab } from './TreinoTab'
 import { Toaster } from '@/components/ui/sonner'
 import { restRecord } from './rest'
+import { startSession, startRest } from './session'
 import { formatDayLabel } from '@/lib/date'
 
 vi.mock('idb-keyval', async (orig) => {
@@ -443,5 +444,45 @@ describe('descanso: pausar e definir tempo', () => {
       expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].restSec).toBe(120)
       expect((await load('workoutPlan'))?.workouts[0].exercises[0].restSec).toBe(120)
     })
+  })
+  const seed = async (idx: number, ms = 60_000, reorder = false) => {
+    const w = reorder ? { ...plano.workouts[0], exercises: [...plano.workouts[0].exercises].reverse() } : plano.workouts[0]
+    await save('workoutLog', { '2026-11-16': startRest(startSession(w, '2026-11-16'), idx, ms, Date.now()) })
+  }
+  test('tempo escolhido grava no exercício do plano por id, mesmo com o plano reordenado depois de iniciar', async () => {
+    const user = userEvent.setup()
+    await seed(1, 60_000, true) // sessão: [Remada X, Supino]; plano: [Supino, Remada X]
+    await renderLoaded(<TreinoTab />)
+    await user.click(await screen.findByRole('button', { name: 'Definir tempo de descanso' }))
+    await user.click(await screen.findByRole('radio', { name: '2 min' }))
+    await waitFor(async () => {
+      const ex = (await load('workoutPlan'))!.workouts[0].exercises
+      expect(ex.find((e) => e.exerciseId === 'Supino')?.restSec).toBe(120)
+      expect(ex.find((e) => e.exerciseId === 'custom-1')?.restSec).not.toBe(120)
+    })
+  })
+  test('tocar no tempo já marcado reinicia o descanso com ele e fecha o seletor', async () => {
+    const user = userEvent.setup()
+    await seed(0)
+    await renderLoaded(<TreinoTab />)
+    vi.setSystemTime(new Date(2026, 10, 16, 18, 0, 20))
+    await act(() => new Promise((r) => setTimeout(r, 600)))
+    await user.click(await screen.findByRole('button', { name: 'Definir tempo de descanso' }))
+    await user.click(await screen.findByRole('radio', { name: '60 s' }))
+    expect(await screen.findByText('01:00')).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByRole('dialog', { hidden: true })).toHaveAttribute('data-state', 'closed'))
+  })
+  test('seletor aberto sobrevive ao fim do descanso; escolher depois inicia novo descanso e grava', async () => {
+    const user = userEvent.setup()
+    await seed(0, 2_000)
+    await renderLoaded(<TreinoTab />)
+    await user.click(await screen.findByRole('button', { name: 'Definir tempo de descanso' }))
+    await screen.findByRole('radio', { name: '2 min' })
+    vi.setSystemTime(new Date(2026, 10, 16, 18, 0, 30))
+    // o Drawer aberto esconde o resto da árvore de a11y: hidden pra enxergar o cartão sumir
+    await waitFor(() => expect(screen.queryByRole('timer', { hidden: true })).not.toBeInTheDocument())
+    await user.click(await screen.findByRole('radio', { name: '2 min' }))
+    expect(await screen.findByText('02:00')).toBeInTheDocument()
+    await waitFor(async () => expect((await load('workoutPlan'))?.workouts[0].exercises[0].restSec).toBe(120))
   })
 })

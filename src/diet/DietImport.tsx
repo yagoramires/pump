@@ -12,7 +12,7 @@ import { savePlan } from './plan'
 import { DietAnamnesisForm } from './DietAnamnesisForm'
 import { DietEditor } from './DietEditor'
 import { FoodPicker } from './FoodPicker'
-import { CopyListButton, PasteBox, Step } from '@/components/ImportFlow'
+import { CopyListButton, makeCopy, PasteBox, Step } from '@/components/ImportFlow'
 import { usePastedReview } from '@/components/usePastedReview'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -23,7 +23,6 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { formatDec } from '@/lib/number'
 import { namesText } from '@/lib/text'
 import { todayKey } from '@/lib/date'
-import { copyText } from '@/lib/share'
 import { cn } from '@/lib/utils'
 import { Alert } from '@/components/ui/alert'
 
@@ -52,7 +51,8 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   const review = paste.result
   const anamnesis = edited ?? profile.dietAnamnesis ?? {}
 
-  const copy = async (text: string, ok = 'Prompt copiado') => toast((await copyText(text)) ? ok : 'Não consegui copiar. Tente de novo.')
+  const doCopy = makeCopy(toast)
+  const copy = (text: string, ok = 'Prompt copiado') => doCopy(text, ok)
   const copyPrompt = () => {
     setProfile((p) => ({ ...p, dietAnamnesis: anamnesis }))
     return copy(buildDietPrompt({ ...profile, dietAnamnesis: anamnesis }, measurements, todayKey()))
@@ -180,7 +180,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
         {mode === 'convert' && <Step n={2} title="Mande pra sua IA junto com sua dieta" sub="PDF, foto ou texto" />}
         <Step n={mode === 'ia' ? 2 : 3} title="Cole a resposta aqui" sub="Pode colar o texto todo ou escolher o arquivo" />
       </Card>
-      <CopyListButton file="alimentos.txt" noun="alimentos" copy={(t) => copy(t, 'Lista copiada')} fail={toast} />
+      <CopyListButton file="alimentos.txt" noun="alimentos" ok="Lista copiada" report={toast} />
       <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", "dieta": ... }'>
         {paste.reviewing && <p role="status" className="text-meta text-text-2">Conferindo na TACO…</p>}
       </PasteBox>

@@ -3,6 +3,7 @@ import type { WorkoutLog, WorkoutSession } from './types'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { formatDayLabel } from '@/lib/date'
+import { completeSession } from './session'
 
 type SetLog = (f: (prev: WorkoutLog) => WorkoutLog) => unknown
 
@@ -14,7 +15,7 @@ export function UnfinishedCard({ session, setLog }: { session: WorkoutSession; s
     setLog((prev) => {
       if (!prev[date]) return prev
       const { startedAt: _s, ...rest } = prev[date]
-      return { ...prev, [date]: { ...rest, completedAt: new Date(y, m - 1, d, 23, 59).toISOString(), restEndsAt: undefined, restPausedLeftMs: undefined, restExIdx: undefined } }
+      return { ...prev, [date]: completeSession(rest, new Date(y, m - 1, d, 23, 59)) }
     })
     toast('Treino concluído', { action: { label: 'Desfazer', onClick: () => setLog((prev) => ({ ...prev, [date]: session })) } })
   }

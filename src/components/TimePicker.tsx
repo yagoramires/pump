@@ -13,7 +13,14 @@ const MINUTES = Array.from({ length: 12 }, (_, i) => pad(i * 5))
 /** uma coluna = um grupo vertical (setas navegam, uma parada de Tab); ao abrir o popover rola até o valor atual */
 function Column({ title, label, items, current, unit, pick }: { title: string; label: string; items: string[]; current?: string; unit: string; pick: (v: string) => void }) {
   const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => { ref.current?.querySelector('[data-state=on]')?.scrollIntoView?.({ block: 'center' }) }, [])
+  useEffect(() => {
+    // rola só a coluna: scrollIntoView arrastaria a página e os ancestrais junto
+    const on = ref.current?.querySelector<HTMLElement>('[data-state=on]')
+    const vp = ref.current?.closest<HTMLElement>('[data-slot=scroll-area-viewport]')
+    if (!on || !vp) return
+    const o = on.getBoundingClientRect()
+    vp.scrollTop = o.top - vp.getBoundingClientRect().top + vp.scrollTop - (vp.clientHeight - o.height) / 2
+  }, [])
   return (
     <div className="flex flex-1 flex-col gap-1">
       <span className="label-caps text-center">{title}</span>
@@ -40,11 +47,12 @@ type Props = {
 
 export function TimePicker({ id, value, onChange, placeholder = '--:--', 'aria-label': ariaLabel, clearable, className }: Props) {
   const [open, setOpen] = useState(false)
+  const [pendingMm, setPendingMm] = useState<string>() // minuto escolhido antes da hora: só vira valor quando a hora chegar
   const [hh, mm] = value?.match(/^(\d{2}):(\d{2})$/)?.slice(1) ?? []
   // shortcut: só horas/minutos "redondos" na lista; o minuto atual entra se fugir do passo de 5
   const minutes = mm && !MINUTES.includes(mm) ? [...MINUTES, mm].sort() : MINUTES
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={(o) => { setOpen(o); if (!o) setPendingMm(undefined) }}>
       <PopoverTrigger asChild>
         <Button id={id} type="button" variant="outline" aria-label={ariaLabel && `${ariaLabel}: ${value || 'sem horário'}`} className={cn('w-full justify-start tabular-nums', !value && 'text-muted-foreground', className)}>
           <Clock aria-hidden="true" />
@@ -53,8 +61,8 @@ export function TimePicker({ id, value, onChange, placeholder = '--:--', 'aria-l
       </PopoverTrigger>
       <PopoverContent align="start" className="w-48 p-2">
         <div className="flex gap-2">
-          <Column title="Hora" label="Horas" items={HOURS} current={hh} unit="h" pick={(h) => onChange(`${h}:${mm ?? '00'}`)} />
-          <Column title="Min" label="Minutos" items={minutes} current={mm} unit="min" pick={(m) => { onChange(`${hh ?? '00'}:${m}`); setOpen(false) }} />
+          <Column title="Hora" label="Horas" items={HOURS} current={hh} unit="h" pick={(h) => { onChange(`${h}:${mm ?? pendingMm ?? '00'}`); if (pendingMm) { setPendingMm(undefined); setOpen(false) } }} />
+          <Column title="Min" label="Minutos" items={minutes} current={mm ?? pendingMm} unit="min" pick={(m) => { if (hh) { onChange(`${hh}:${m}`); setOpen(false) } else setPendingMm(m) }} />
         </div>
         {clearable && value && <Button type="button" variant="ghost" size="sm" className="mt-2 w-full" onClick={() => { onChange(undefined); setOpen(false) }}>Limpar</Button>}
       </PopoverContent>

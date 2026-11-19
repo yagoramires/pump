@@ -66,13 +66,12 @@ export function planFromFormat(
   f: PumpPlanoFile,
   catalog: Exercise[],
   customs: CustomExercise[],
-): { plan: WorkoutPlan; newCustoms: CustomExercise[]; unmatched: string[]; ignoredDiet: boolean } {
+): { plan: WorkoutPlan; newCustoms: CustomExercise[]; ignoredDiet: boolean } {
   const known = new Map<string, Exercise | CustomExercise>()
   const fromCatalog = new Map<string, Exercise>()
   for (const e of catalog) if (!fromCatalog.has(normalize(e.name))) fromCatalog.set(normalize(e.name), e)
   for (const e of [...customs, ...catalog]) if (!known.has(normalize(e.name))) known.set(normalize(e.name), e)
   const newCustoms: CustomExercise[] = []
-  const unmatched: string[] = []
 
   const plan: WorkoutPlan = {
     workouts: f.treinos.map((t) => ({
@@ -86,7 +85,6 @@ export function planFromFormat(
           found = newCustomExercise(x.nome, [], x.obs)
           known.set(key, found)
           newCustoms.push(found)
-          unmatched.push(x.nome)
         }
         return {
           ...toPlanExercise(found),
@@ -99,7 +97,7 @@ export function planFromFormat(
       }),
     })),
   }
-  return { plan, newCustoms, unmatched, ignoredDiet: f.dieta !== undefined }
+  return { plan, newCustoms, ignoredDiet: f.dieta !== undefined }
 }
 
 export function exportPlanFormat(plan: WorkoutPlan): string {

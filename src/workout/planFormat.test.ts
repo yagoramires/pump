@@ -57,7 +57,7 @@ test('casa com o catálogo ignorando acento/caixa; o resto vira exercício seu',
   expect(w).toMatchObject({ label: 'A', name: 'Peito' })
   expect(w.exercises[0]).toMatchObject({ exerciseId: 'Barbell_Bench_Press_-_Medium_Grip', sets: 4, reps: '10', weightKg: 40, restSec: 90 })
   expect(w.exercises[1]).toMatchObject({ custom: true, name: 'Remada na máquina do Zé', weightKg: 0, note: 'banco 3' })
-  expect(r.unmatched).toEqual(['Remada na máquina do Zé'])
+  expect(w.exercises.filter((e) => e.custom).map((e) => e.name)).toEqual(['Remada na máquina do Zé'])
   expect(r.newCustoms).toHaveLength(1)
 })
 test('mesmo nome sem par duas vezes reaproveita um só exercício seu', () => {
@@ -68,7 +68,7 @@ test('exportar e reimportar devolve o mesmo plano (fora os ids)', () => {
   const r = planFromFormat(parsePlanFormat(JSON.stringify(ok)), catalog, [])
   const again = planFromFormat(parsePlanFormat(exportPlanFormat(r.plan)), catalog, r.newCustoms)
   expect(noId(again.plan)).toEqual(noId(r.plan))
-  expect(again.unmatched).toEqual([])
+  expect(again.newCustoms).toEqual([])
 })
 test('arquivo só com dieta no import de treino dá a mensagem da aba Dieta', () =>
   expect(() => parsePlanFormat('{"formato":"pump-plano","versao":1,"dieta":{"refeicoes":[]}}')).toThrow('Este arquivo só tem dieta. Importe na aba Dieta.'))
@@ -82,26 +82,26 @@ test('importa arquivo com dias e exporta sem dias', () => {
 test('nome com equipamento entre parênteses (da lista do catálogo) casa com o exercício', () => {
   const f = parsePlanFormat(JSON.stringify({ ...ok, treinos: [{ letra: 'A', nome: 'Peito', exercicios: [{ nome: 'Supino reto com barra (barra)', series: 3, reps: '10' }] }] }))
   const r = planFromFormat(f, catalog, [])
-  expect(r.unmatched).toEqual([])
+  expect(r.plan.workouts[0].exercises[0]).not.toHaveProperty('custom')
   expect(r.newCustoms).toEqual([])
   expect(r.plan.workouts[0].exercises[0].exerciseId).toBe('Barbell_Bench_Press_-_Medium_Grip')
 })
 test('parêntese que não é o equipamento do exercício não casa com a variante: vira exercício seu e avisa', () => {
   const f = parsePlanFormat(JSON.stringify({ ...ok, treinos: [{ letra: 'A', nome: 'Ombro', exercicios: [{ nome: 'Elevação lateral (polia)', series: 3, reps: '12' }] }] }))
   const r = planFromFormat(f, catalog, [])
-  expect(r.unmatched).toEqual(['Elevação lateral (polia)'])
+  expect(r.newCustoms.map((c) => c.name)).toEqual(['Elevação lateral (polia)'])
   expect(r.plan.workouts[0].exercises[0]).toMatchObject({ custom: true, name: 'Elevação lateral (polia)' })
 })
 test('nome do catálogo que já tem parênteses + equipamento casa', () => {
   const f = parsePlanFormat(JSON.stringify({ ...ok, treinos: [{ letra: 'A', nome: 'Abs', exercicios: [{ nome: 'Abdominal tradicional (crunch) (peso do corpo)', series: 3, reps: '15' }, { nome: 'Elevação lateral (Halter)', series: 3, reps: '12' }] }] }))
   const r = planFromFormat(f, catalog, [])
-  expect(r.unmatched).toEqual([])
+  expect(r.plan.workouts[0].exercises.some((e) => e.custom)).toBe(false)
   expect(r.plan.workouts[0].exercises.map((e) => e.name)).toEqual(['Abdominal tradicional (crunch)', 'Elevação lateral'])
 })
 test('"Elevação lateral (halter)" casa com o catálogo mesmo havendo um exercício seu "Elevação lateral"', () => {
   const f = parsePlanFormat(JSON.stringify({ ...ok, treinos: [{ letra: 'A', nome: 'Ombro', exercicios: [{ nome: 'Elevação lateral (halter)', series: 3, reps: '12' }] }] }))
   const r = planFromFormat(f, catalog, [{ id: 'custom-1', name: 'Elevação lateral', muscles: [] }])
-  expect(r.unmatched).toEqual([])
+  expect(r.newCustoms).toEqual([])
   expect(r.plan.workouts[0].exercises[0]).not.toHaveProperty('custom')
   expect(r.plan.workouts[0].exercises[0].name).toBe('Elevação lateral')
 })

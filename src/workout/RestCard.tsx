@@ -21,12 +21,11 @@ type Props = {
   onAdd15: () => void
   onDone: () => void
   onTogglePause: () => void
-  onPickDuration: (sec: number) => void
+  onPickDuration: () => void
 }
 
 export function RestCard({ endAt, pausedLeftMs, totalSec, restSec, onAdd15, onDone, onTogglePause, onPickDuration }: Props) {
   const [now, setNow] = useState(() => Date.now())
-  const [picking, setPicking] = useState(false)
   const seenRunning = useRef(false)
   const paused = pausedLeftMs !== undefined
   const left = paused ? remainingSec(pausedLeftMs, 0) : remainingSec(endAt ?? 0, now)
@@ -57,7 +56,7 @@ export function RestCard({ endAt, pausedLeftMs, totalSec, restSec, onAdd15, onDo
       className="fixed bottom-[calc(var(--nav-h)+68px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 border-accent-line bg-surface p-1.5 shadow-lg"
     >
       <div className="flex items-center gap-1.5">
-        <Button variant="ghost" size="icon-sm" aria-label="Definir tempo de descanso" className="text-accent" onClick={() => setPicking(true)}>
+        <Button variant="ghost" size="icon-sm" aria-label="Definir tempo de descanso" className="text-accent" onClick={onPickDuration}>
           <Timer aria-hidden="true" />
         </Button>
         <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -73,15 +72,22 @@ export function RestCard({ endAt, pausedLeftMs, totalSec, restSec, onAdd15, onDo
         <Button variant="outline" size="icon-sm" className="w-auto px-2 text-xs" onClick={onAdd15}>+15 s</Button>
         <Button variant="outline" size="icon-sm" aria-label="Pular descanso" onClick={onDone}><SkipForward aria-hidden="true" /></Button>
       </div>
-      <Drawer open={picking} onOpenChange={setPicking}>
-        <DrawerContent>
-          <SheetBody>
-            <DrawerTitle className="shrink-0 pb-1 text-title font-semibold text-strong">Tempo de descanso</DrawerTitle>
-            <DrawerDescription className="pb-3 text-meta text-text-2">Vale pra este exercício, agora e nos próximos treinos.</DrawerDescription>
-            <Chips label="Tempo" options={DURATIONS} value={String(restSec)} cols="grid-cols-4" onChange={(v) => { if (v) { onPickDuration(Number(v)); setPicking(false) } }} />
-          </SheetBody>
-        </DrawerContent>
-      </Drawer>
     </Card>
+  )
+}
+
+/** fora da RestCard: ela some quando a contagem zera e levaria o seletor aberto junto */
+export function RestPicker({ open, restSec, onClose, onPick }: { open: boolean; restSec: number; onClose: () => void; onPick: (sec: number) => void }) {
+  return (
+    <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
+      <DrawerContent>
+        <SheetBody>
+          <DrawerTitle className="shrink-0 pb-1 text-title font-semibold text-strong">Tempo de descanso</DrawerTitle>
+          <DrawerDescription className="pb-3 text-meta text-text-2">Vale pra este exercício, agora e nos próximos treinos.</DrawerDescription>
+          {/* tocar no valor já marcado manda '' (desmarcar): conta como escolher o atual */}
+          <Chips label="Tempo" options={DURATIONS} value={String(restSec)} cols="grid-cols-4" onChange={(v) => { onPick(v ? Number(v) : restSec); onClose() }} />
+        </SheetBody>
+      </DrawerContent>
+    </Drawer>
   )
 }

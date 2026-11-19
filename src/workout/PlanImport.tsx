@@ -9,11 +9,10 @@ import { AnamnesisForm } from './AnamnesisForm'
 import { PlanEditor } from './PlanEditor'
 import { plural } from '@/lib/number'
 import { namesText } from '@/lib/text'
-import { copyText } from '@/lib/share'
 import { IconDot } from '@/components/IconDot'
 import { BackHeader } from '@/components/BackHeader'
 import { BottomBar } from '@/components/BottomBar'
-import { CopyListButton, PasteBox, Step } from '@/components/ImportFlow'
+import { CopyListButton, makeCopy, PasteBox, Step } from '@/components/ImportFlow'
 import { usePastedReview } from '@/components/usePastedReview'
 import { Alert } from '@/components/ui/alert'
 import { Card } from '@/components/ui/card'
@@ -28,7 +27,7 @@ export function PlanImport({ mode, onDone, onBack }: { mode: 'ia' | 'convert'; o
   const paste = usePastedReview(parsePlanFormat, async (file) => planFromFormat(file, await fetchExercises(), customs), PLAN_NOT_FOUND)
   const review = paste.result
 
-  const copy = async (value: string, ok: string) => setNotice((await copyText(value)) ? ok : 'Não consegui copiar. Tente de novo.')
+  const copy = makeCopy(setNotice)
   const edit = (v: string, now?: boolean) => {
     setNotice('')
     paste.set(v, now)
@@ -58,7 +57,7 @@ export function PlanImport({ mode, onDone, onBack }: { mode: 'ia' | 'convert'; o
         {mode === 'convert' && <Step n={2} title="Mande pra sua IA junto com sua ficha" sub="PDF, foto ou texto" />}
         <Step n={mode === 'ia' ? 2 : 3} title="Cole a resposta aqui" sub={mode === 'ia' ? 'Pode colar o texto todo' : 'Pode colar o texto todo ou escolher o arquivo'} />
       </Card>
-      <CopyListButton file="exercicios.txt" noun="exercícios" copy={(t) => copy(t, 'Lista copiada. Cole na sua IA.')} fail={setNotice} />
+      <CopyListButton file="exercicios.txt" noun="exercícios" ok="Lista copiada. Cole na sua IA." report={setNotice} />
       <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", ... }'>
         {(notice || paste.failed) && <p role="status" className="text-meta text-text-2">{notice || 'Precisa de internet pra casar os exercícios com o catálogo'}</p>}
       </PasteBox>

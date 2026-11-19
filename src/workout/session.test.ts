@@ -25,3 +25,7 @@ test('startSession grava startedAt', () => {
   const now = new Date(2026, 10, 16, 18, 0)
   expect(startSession(workoutOf([]), '2026-11-16', now).startedAt).toBe(now.toISOString())
 })
+test('completeSession também limpa um descanso pausado', () => {
+  const s = { ...startSession(workoutOf([{}]), '2026-11-16'), restPausedLeftMs: 30_000, restExIdx: 0 }
+  expect(completeSession(s, new Date(2026, 10, 16, 19))).toMatchObject({ restPausedLeftMs: undefined, restExIdx: undefined, restEndsAt: undefined })
+})
