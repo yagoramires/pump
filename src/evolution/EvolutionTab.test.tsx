@@ -1,8 +1,9 @@
-import { act, screen } from '@testing-library/react'
+import { act, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { save } from '@/storage/db'
 import { Toaster } from '@/components/ui/sonner'
-import { dietDay } from '../../test/helpers'
+import { dietDay, pe } from '../../test/helpers'
+import type { SetDone, WorkoutSession } from '@/workout/types'
 import { renderLoaded } from '../../test/render'
 import { EvolutionTab } from './EvolutionTab'
 import { generatePdf } from './pdf/generate'
@@ -104,4 +105,25 @@ test('Evolução de quem só faz dieta mostra o cartão Dieta', async () => {
   await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText('Dieta · 30 dias')).toBeInTheDocument()
   expect(screen.queryByRole('heading', { name: 'Sua evolução começa aqui' })).not.toBeInTheDocument()
+})
+
+const treino = (date: string, sets: SetDone[]): WorkoutSession => ({
+  date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', completedAt: `${date}T20:00:00.000Z`,
+  exercises: [{ ...pe({ exerciseId: 'Supino', name: 'Supino reto', muscles: ['peito'] }), sets }],
+})
+
+test('card Cargas: resumo, grupo e linha com carga e diferença', async () => {
+  await save('workoutLog', { '2026-11-01': treino('2026-11-01', [{ reps: '10', weightKg: 55 }]), '2026-11-15': treino('2026-11-15', [{ reps: '10', weightKg: 60 }]) })
+  await renderLoaded(<EvolutionTab />)
+  expect(await screen.findByText('Cargas')).toBeInTheDocument()
+  expect(screen.getByText('Peito')).toBeInTheDocument()
+  expect(within(screen.getByRole('button', { name: 'Supino reto' })).getByText('+5 kg')).toHaveClass('text-accent')
+})
+test('card Cargas: período sem treino mostra o estado vazio', async () => {
+  const user = userEvent.setup()
+  await save('workoutLog', { '2026-09-15': treino('2026-09-15', [{ reps: '10', weightKg: 55 }]) })
+  await renderLoaded(<EvolutionTab />)
+  expect(await screen.findByRole('button', { name: 'Supino reto' })).toBeInTheDocument()
+  await user.click(within(screen.getByRole('tablist', { name: 'Período das cargas' })).getByRole('tab', { name: '30 d' }))
+  expect(screen.getByText('Nenhum treino com carga nesse período')).toBeInTheDocument()
 })
