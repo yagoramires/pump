@@ -113,6 +113,13 @@ test('carga começa com a do último treino, série por série; sem série anter
   expect(await screen.findByRole('textbox', { name: 'Carga da série 1 de Supino reto' })).toHaveValue('50')
   expect(screen.getByRole('textbox', { name: 'Carga da série 2 de Supino reto' })).toHaveValue('40')
 })
+test('resumo do exercício fechado mostra a última carga usada', async () => {
+  await save('workoutLog', sessaoAnterior([{ reps: '10', weightKg: 50 }]))
+  const user = userEvent.setup()
+  await renderLoaded(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: /^Supino reto/ }))
+  expect(await screen.findByText(/× .* · 50 kg/)).toBeInTheDocument()
+})
 test('série em branco no último treino usa a carga do plano', async () => {
   await save('workoutLog', sessaoAnterior([null, { reps: '8', weightKg: 55 }]))
   await renderLoaded(<TreinoTab />)

@@ -35,14 +35,14 @@ export function ExerciseLoadScreen({ log, exerciseId, period, today, onClose }: 
       </div>
       <div className="mt-4">
         <LoadChart top={data.topPoints} total={data.totalPoints} />
-        <p className="mt-1 text-center text-meta text-faint">{`— ${reps ? 'máx. reps' : 'carga máx.'} · - - ${reps ? 'total de reps' : 'volume'}`}</p>
+        {data.topPoints.length >= 2 && <p className="mt-1 text-center text-meta text-faint">{`— ${reps ? 'máx. reps' : 'carga máx.'} · - - ${reps ? 'total de reps' : 'volume'}`}</p>}
       </div>
       <h2 className="mt-4 mb-1 text-sm font-semibold text-strong">Treinos</h2>
       <ul className="flex flex-col divide-y divide-line text-sm">
         {data.history.map((h) => (
           <li key={h.date} className="flex justify-between gap-3 py-2">
             <span className="text-text-2">{formatDayMonth(h.date)}</span>
-            <span className="tabular-nums">{h.sets.map((s) => `${formatKg(s.weightKg)}×${s.reps}`).join(' · ')}</span>
+            <span className="tabular-nums">{h.sets.map((s) => (reps ? s.reps : `${formatKg(s.weightKg)}×${s.reps}`)).join(' · ')}</span>
           </li>
         ))}
       </ul>

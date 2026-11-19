@@ -9,14 +9,14 @@ import { exerciseSummary, restSecondsLabel } from './display'
 import { isExerciseComplete, markedSets } from './session'
 import { cn } from '@/lib/utils'
 
-type Props = { ex: SessionExercise; open: boolean; onToggle: () => void; onPreview: () => void; children?: ReactNode }
+type Props = { ex: SessionExercise; open: boolean; onToggle: () => void; onPreview: () => void; weightKg?: number; children?: ReactNode }
 
-export function ExerciseCard({ ex, open, onToggle, onPreview, children }: Props) {
+export function ExerciseCard({ ex, open, onToggle, onPreview, weightKg, children }: Props) {
   const done = markedSets(ex).length
   const complete = isExerciseComplete(ex)
   const sub = open
     ? [ex.muscles[0], `descanso ${restSecondsLabel(ex.restSec)}`].filter(Boolean).join(' · ')
-    : exerciseSummary(ex)
+    : exerciseSummary(ex, weightKg)
   return (
     <Collapsible asChild open={open} onOpenChange={onToggle}>
       <Card size="flush" className={cn(open && 'border-accent-line')}>

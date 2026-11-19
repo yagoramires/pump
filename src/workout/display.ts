@@ -4,9 +4,9 @@ import type { PlanExercise, SessionExercise } from './types'
 
 export const workoutDayLabel = (date: string, label: string) => `${formatDayLabel(date)} · TREINO ${label}`
 
-export function exerciseSummary(e: PlanExercise | SessionExercise) {
+export function exerciseSummary(e: PlanExercise | SessionExercise, weightKg = e.weightKg) {
   const sets = typeof e.sets === 'number' ? e.sets : e.sets.length
-  return `${sets} × ${e.reps} · ${formatKg(e.weightKg)} kg`
+  return `${sets} × ${e.reps} · ${formatKg(weightKg)} kg`
 }
 
 export const restSecondsLabel = (sec: number) => `${sec} s`
