@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import type { TacoFood } from '../src/diet/types.ts'
 import type { Exercise } from '../src/workout/types.ts'
+import { EXERCISE_LIST_URL, FOOD_LIST_URL } from '../src/catalog/urls.ts'
 import { exerciseList, foodList } from './build-catalog-lists.ts'
 
 const ex = (name: string, muscles: string[], equipment?: string) => ({ name, muscles, equipment }) as Exercise
@@ -26,4 +27,8 @@ test('os .txt commitados batem com os JSONs e têm todos os nomes', () => {
   expect(exs).toHaveLength(876)
   expect(foods).toHaveLength(591)
   for (const e of exs) expect(read('exercicios.txt')).toContain(e.name)
+})
+
+test('as URLs das listas são absolutas no Pages', () => {
+  for (const u of [EXERCISE_LIST_URL, FOOD_LIST_URL]) expect(u.startsWith('https://yagoramires.github.io/pump/catalog/')).toBe(true)
 })
