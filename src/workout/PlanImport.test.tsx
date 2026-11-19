@@ -20,8 +20,7 @@ test('salvar sem catálogo mantém os exercícios no plano e preserva o catálog
   await user.click(screen.getByRole('textbox', { name: 'Resposta da IA' }))
   await user.paste(planJson([REMADA, { ...REMADA, nome: 'Supino novo' }]))
   await screen.findByText(/Catálogo indisponível/)
-  await user.click(screen.getByRole('button', { name: 'Revisar plano' }))
-  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  await user.click(screen.getByRole('button', { name: 'Usar plano' }))
 
   await vi.waitFor(async () => expect((await get('workoutPlan'))?.workouts[0].exercises).toMatchObject([
     { exerciseId: custom.id, name: custom.name },
@@ -43,35 +42,31 @@ test('catálogo indisponível permite revisar e tentar buscar as prévias sem co
   await user.paste(text)
 
   expect(await screen.findByText(/Catálogo indisponível/)).toBeInTheDocument()
-  await user.click(screen.getByRole('button', { name: 'Revisar plano' }))
-  expect(screen.getByRole('heading', { name: 'Editar plano' })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'Revisar plano' })).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Ver prévia de Remada no cabo teste' })).not.toBeInTheDocument()
-  await user.click(screen.getByRole('button', { name: 'Cancelar' }))
 
   await user.click(screen.getByRole('button', { name: 'Tentar carregar catálogo' }))
-  expect(screen.getByRole('textbox', { name: 'Resposta da IA' })).toHaveValue(text)
-  const review = screen.getByRole('button', { name: 'Revisar plano' })
-  await vi.waitFor(() => expect(review).toBeEnabled())
-  await user.click(review)
-  expect(screen.getByRole('button', { name: 'Ver prévia de Remada no cabo teste' })).toBeInTheDocument()
+  expect(await screen.findByRole('button', { name: 'Ver prévia de Remada no cabo teste' })).toBeInTheDocument()
+  expect(screen.queryByText(/Catálogo indisponível/)).not.toBeInTheDocument()
 })
 
-test('colar JSON válido mostra o resumo sozinho e libera Revisar plano', async () => {
+test('colar JSON válido abre a revisão sozinha', async () => {
   const user = userEvent.setup()
   await renderLoaded(<PlanImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
   await user.click(await screen.findByRole('textbox', { name: 'Resposta da IA' }))
   await user.paste(JSON.stringify({ formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'Peito', dias: ['seg'], exercicios: [{ nome: 'Remada X', series: 3, reps: '10' }] }] }))
   expect(await screen.findByText('1 treino · 1 exercício')).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Revisar plano' })).toBeEnabled()
+  expect(screen.getByRole('heading', { name: 'Revisar plano' })).toBeInTheDocument()
+  expect(screen.getByRole('region', { name: 'Peito' })).toHaveTextContent('Remada X3 × 10')
 })
 
-test('colar texto inválido mostra problemas e mantém Revisar plano desabilitado', async () => {
+test('colar texto inválido mostra problemas e não abre a revisão', async () => {
   const user = userEvent.setup()
   await renderLoaded(<PlanImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
   await user.click(await screen.findByRole('textbox', { name: 'Resposta da IA' }))
   await user.paste('oi')
   expect(await screen.findByText('Não encontrei um plano em JSON no texto')).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Revisar plano' })).toBeDisabled()
+  expect(screen.queryByRole('heading', { name: 'Revisar plano' })).not.toBeInTheDocument()
 })
 
 test('anamnese fica salva no perfil e vai no prompt copiado', async () => {
@@ -85,14 +80,14 @@ test('anamnese fica salva no perfil e vai no prompt copiado', async () => {
   expect((await get('profile'))?.anamnesis).toEqual({ place: 'casa' })
 })
 
-test('Revisar plano abre o editor; Salvar grava o plano e os exercícios novos', async () => {
+test('Editar abre o editor; Salvar grava o plano e os exercícios novos', async () => {
   const user = userEvent.setup()
   const onDone = vi.fn()
   await renderLoaded(<PlanImport mode="ia" onDone={onDone} onBack={vi.fn()} />)
   await user.click(await screen.findByRole('textbox', { name: 'Resposta da IA' }))
   await user.paste(JSON.stringify({ formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'Peito', dias: ['seg'], exercicios: [{ nome: 'Remada X', series: 3, reps: '10' }] }] }))
   await screen.findByText('1 treino · 1 exercício')
-  await user.click(screen.getByRole('button', { name: 'Revisar plano' }))
+  await user.click(screen.getByRole('button', { name: 'Editar' }))
   expect(await screen.findByRole('heading', { name: 'Editar plano' })).toBeInTheDocument()
   expect(await get('workoutPlan')).toBeUndefined()
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
@@ -137,7 +132,7 @@ test('revisão lista exercícios sem prévia, até 5 e "e mais N"', async () => 
   await user.click(await screen.findByRole('textbox', { name: 'Resposta da IA' }))
   await user.paste(planJson([REMADA]))
   expect(await screen.findByText('1 exercício sem prévia (fora do catálogo)')).toBeInTheDocument()
-  expect(screen.getByText('Remada X')).toBeInTheDocument()
+  expect(screen.getByText('Remada X', { selector: 'span.block:not(.text-body)' })).toBeInTheDocument()
   unmount()
   await renderLoaded(<PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
   await user.click(await screen.findByRole('textbox', { name: 'Resposta da IA' }))
@@ -175,4 +170,18 @@ test('sem prévia conta todo exercício custom do plano, também os que já eram
   await user.paste(planJson([REMADA, REMADA, { ...REMADA, nome: 'Novo Y' }]))
   expect(await screen.findByText('2 exercícios sem prévia (fora do catálogo)')).toBeInTheDocument()
   expect(screen.getByText('Remada X, Novo Y')).toBeInTheDocument()
+})
+
+test('Usar plano por cima de um plano salvo pede confirmação', async () => {
+  const user = userEvent.setup()
+  const onDone = vi.fn()
+  await save('workoutPlan', { workouts: [{ id: 'w1', label: 'A', name: 'Antigo', exercises: [] }] })
+  await renderLoaded(<PlanImport mode="convert" onDone={onDone} onBack={vi.fn()} />)
+  await user.click(await screen.findByRole('textbox', { name: 'Resposta da IA' }))
+  await user.paste(planJson([REMADA]))
+  await user.click(await screen.findByRole('button', { name: 'Usar plano' }))
+  expect(onDone).not.toHaveBeenCalled()
+  await user.click(screen.getByRole('button', { name: 'Substituir' }))
+  expect(onDone).toHaveBeenCalled()
+  await vi.waitFor(async () => expect((await get('workoutPlan'))?.workouts[0].name).toBe('Peito'))
 })
