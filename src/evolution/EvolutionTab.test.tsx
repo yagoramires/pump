@@ -78,7 +78,7 @@ test('gráfico: filtro de período com menos de 2 pesos avisa que é o período,
   await save('measurements', [{ id: 'a', date: '2026-05-02', weightKg: 82 }, { id: 'b', date: '2026-08-10', weightKg: 80 }])
   await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText('Poucos registros nesse período')).toBeInTheDocument()
-  await user.click(screen.getByRole('tab', { name: 'Tudo' }))
+  await user.click(within(screen.getByRole('tablist', { name: 'Período do gráfico' })).getByRole('tab', { name: 'Tudo' }))
   expect(screen.getByRole('img', { name: 'Gráfico de peso' })).toBeInTheDocument()
 })
 test('gráfico: 7 d mostra só a última semana', async () => {
