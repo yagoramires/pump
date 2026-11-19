@@ -11,6 +11,51 @@ beforeEach(async () => {
 })
 afterEach(() => vi.unstubAllGlobals())
 
+test('salvar sem catálogo mantém os exercícios no plano e preserva o catálogo pessoal', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('offline')))
+  const custom = { id: 'custom-1', name: 'Remada X', muscles: ['dorsais'] }
+  await save('customExercises', [custom])
+  const user = userEvent.setup()
+  await renderLoaded(<PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
+  await user.click(screen.getByRole('textbox', { name: 'Resposta da IA' }))
+  await user.paste(planJson([REMADA, { ...REMADA, nome: 'Supino novo' }]))
+  await screen.findByText(/Catálogo indisponível/)
+  await user.click(screen.getByRole('button', { name: 'Revisar plano' }))
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+
+  await vi.waitFor(async () => expect((await get('workoutPlan'))?.workouts[0].exercises).toMatchObject([
+    { exerciseId: custom.id, name: custom.name },
+    { name: 'Supino novo' },
+  ]))
+  expect(await get('customExercises')).toEqual([custom])
+})
+
+test('catálogo indisponível permite revisar e tentar buscar as prévias sem colar de novo', async () => {
+  const catalog = [{ id: 'remada', name: 'Remada no cabo teste', muscles: ['dorsais'], equipment: '', images: ['Remada/0.jpg'], instructions: [] }]
+  const fetchCatalog = vi.fn()
+    .mockResolvedValueOnce(new Response(null, { status: 503 }))
+    .mockResolvedValueOnce(new Response(JSON.stringify(catalog)))
+  vi.stubGlobal('fetch', fetchCatalog)
+  const user = userEvent.setup()
+  await renderLoaded(<PlanImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
+  const text = planJson([{ ...REMADA, nome: catalog[0].name }])
+  await user.click(screen.getByRole('textbox', { name: 'Resposta da IA' }))
+  await user.paste(text)
+
+  expect(await screen.findByText(/Catálogo indisponível/)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Revisar plano' }))
+  expect(screen.getByRole('heading', { name: 'Editar plano' })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Ver prévia de Remada no cabo teste' })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Cancelar' }))
+
+  await user.click(screen.getByRole('button', { name: 'Tentar carregar catálogo' }))
+  expect(screen.getByRole('textbox', { name: 'Resposta da IA' })).toHaveValue(text)
+  const review = screen.getByRole('button', { name: 'Revisar plano' })
+  await vi.waitFor(() => expect(review).toBeEnabled())
+  await user.click(review)
+  expect(screen.getByRole('button', { name: 'Ver prévia de Remada no cabo teste' })).toBeInTheDocument()
+})
+
 test('colar JSON válido mostra o resumo sozinho e libera Revisar plano', async () => {
   const user = userEvent.setup()
   await renderLoaded(<PlanImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)

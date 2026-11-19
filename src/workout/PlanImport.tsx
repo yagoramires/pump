@@ -26,7 +26,10 @@ export function PlanImport({ mode, onDone, onBack }: { mode: 'ia' | 'convert'; o
   const [profile, setProfile] = usePersisted('profile')
   const [notice, setNotice] = useState('')
   const [editing, setEditing] = useState(false)
-  const paste = usePastedReview(parsePlanFormat, async (file) => planFromFormat(file, await fetchExercises(), customs), PLAN_NOT_FOUND)
+  const paste = usePastedReview(parsePlanFormat, async (file) => {
+    const catalog = await fetchExercises().catch(() => null)
+    return { ...planFromFormat(file, catalog ?? [], customs), offline: catalog === null }
+  }, PLAN_NOT_FOUND)
   const review = paste.result
 
   const copy = makeCopy(setNotice)
@@ -37,7 +40,7 @@ export function PlanImport({ mode, onDone, onBack }: { mode: 'ia' | 'convert'; o
 
   const save = (saved: WorkoutPlan) => {
     const used = new Set(saved.workouts.flatMap((w) => w.exercises.map((e) => e.exerciseId)))
-    const added = review?.newCustoms.filter((c) => used.has(c.id)) ?? []
+    const added = review && !review.offline ? review.newCustoms.filter((c) => used.has(c.id)) : []
     if (added.length) setCustoms((prev) => [...prev, ...added])
     setPlan(saved)
     onDone()
@@ -61,14 +64,22 @@ export function PlanImport({ mode, onDone, onBack }: { mode: 'ia' | 'convert'; o
       </Card>
       <CopyListButton file={EXERCISE_LIST} noun="exercícios" ok="Lista copiada. Cole na sua IA." report={setNotice} />
       <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", ... }'>
-        {(notice || paste.failed) && <p role="status" className="text-meta text-text-2">{notice || 'Precisa de internet pra casar os exercícios com o catálogo'}</p>}
+        {notice && <p role="status" className="text-meta text-text-2">{notice}</p>}
+        {paste.reviewing && <p role="status" className="text-meta text-text-2">Buscando exercícios no catálogo…</p>}
+        {paste.failed && <Alert variant="destructive">Não consegui preparar a revisão. Tente colar ou escolher o arquivo novamente.</Alert>}
       </PasteBox>
+      {review?.offline && (
+        <Alert role="status" className="flex flex-col items-start gap-1">
+          <p>Catálogo indisponível. Você pode revisar o plano sem as prévias dos exercícios.</p>
+          <Button type="button" variant="link" size="sm" onClick={() => paste.set(paste.text, true)}>Tentar carregar catálogo</Button>
+        </Alert>
+      )}
       {review && (
         <Alert variant="accent" role="status" className="flex items-center gap-3 p-3.5">
           <IconDot size={36} color="var(--color-accent)"><Check size={18} aria-hidden="true" /></IconDot>
           <div>
             <div className="text-body font-semibold text-strong">{`${plural(review.plan.workouts.length, 'treino', 'treinos')} · ${plural(exCount, 'exercício', 'exercícios')}`}</div>
-            {noPreview.length > 0 && (
+            {!review.offline && noPreview.length > 0 && (
               <div className="text-meta text-text-2">
                 <div>{`${plural(noPreview.length, 'exercício', 'exercícios')} sem prévia (fora do catálogo)`}</div>
                 <div>{namesText(noPreview)}</div>

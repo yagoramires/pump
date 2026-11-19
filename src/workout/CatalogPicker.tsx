@@ -1,13 +1,13 @@
 import { useMemo, useState } from 'react'
-import { Dumbbell, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import type { CustomExercise, Exercise } from './types'
 import { usePersisted } from '@/storage/db'
 import { fetchExercises, imageUrl } from '@/catalog/catalog'
 import { searchByName } from '@/catalog/search'
-import { MUSCLE_GROUPS, muscleColor } from '@/catalog/muscles'
+import { MUSCLE_GROUPS } from '@/catalog/muscles'
 import { useCatalog } from '@/catalog/useCatalog'
 import { isCustom, newCustomExercise } from './exercises'
-import { IconDot } from '@/components/IconDot'
+import { ExerciseIcon } from './ExerciseIcon'
 import { BackHeader } from '@/components/BackHeader'
 import { SearchField } from '@/components/SearchField'
 import { Button } from '@/components/ui/button'
@@ -37,7 +37,7 @@ function Row({ e, mine, onPick }: { e: Exercise | CustomExercise; mine?: boolean
   const img = isCustom(e) ? undefined : e.images[0]
   return (
     <li className="flex items-center gap-3 border-t border-line px-3 py-2 first:border-t-0">
-      {img ? <img src={imageUrl(img)} alt="" loading="lazy" className="size-10 shrink-0 rounded-lg bg-surface object-cover" /> : <IconDot color={muscleColor(e.muscles)} size={36}><Dumbbell size={16} /></IconDot>}
+      {img ? <img src={imageUrl(img)} alt="" loading="lazy" className="size-10 shrink-0 rounded-lg bg-surface object-cover" /> : <ExerciseIcon muscles={e.muscles} size={36} />}
       <span className="min-w-0 flex-1">
         <span className="block truncate text-body font-semibold text-strong">{e.name}</span>
         <span className="block truncate text-caption text-text-2">{e.muscles.join(', ')}{mine ? ' · seu exercício' : ''}</span>

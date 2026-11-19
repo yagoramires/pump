@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react'
-import type { SessionExercise } from './types'
+import type { PlanExercise } from './types'
 import { imageUrl } from '@/catalog/catalog'
 import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { cn } from '@/lib/utils'
 
-export function ExercisePreview({ exercise, onClose }: { exercise: SessionExercise; onClose: () => void }) {
+type PreviewExercise = Pick<PlanExercise, 'name' | 'images' | 'instructions' | 'muscles' | 'note'>
+
+export function ExercisePreview({ exercise, onClose, onCloseAutoFocus }: {
+  exercise: PreviewExercise
+  onClose: () => void
+  onCloseAutoFocus?: (event: Event) => void
+}) {
   const [frame, setFrame] = useState(0)
   const { images } = exercise
   const steps = exercise.instructions.filter(Boolean)
@@ -18,7 +24,7 @@ export function ExercisePreview({ exercise, onClose }: { exercise: SessionExerci
 
   return (
     <Drawer open onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent>
+      <DrawerContent onCloseAutoFocus={onCloseAutoFocus}>
         <div className="flex flex-col gap-3 overflow-y-auto px-4 pt-3 pb-5">
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">

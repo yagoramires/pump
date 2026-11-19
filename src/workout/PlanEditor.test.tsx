@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import { workoutOf } from '../../test/helpers'
 import userEvent from '@testing-library/user-event'
@@ -27,6 +27,28 @@ test('tocar no exercício abre a gaveta; +2,5 kg e Pronto atualiza o resumo', as
   await user.click(screen.getByRole('button', { name: 'Aumentar carga' }))
   await user.click(screen.getByRole('button', { name: 'Pronto' }))
   expect(screen.getByText('3 × 10-12 · 42,5 kg · 90 s')).toBeInTheDocument()
+})
+
+test('mostra a foto, abre a prévia pela miniatura e edita pelo nome', async () => {
+  const user = userEvent.setup()
+  const exercises = [
+    { ...supino, images: ['Supino/0.jpg'], instructions: ['Mantenha os pés no chão.'] },
+    { name: 'Agachamento', muscles: ['quadríceps'] },
+  ]
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf(exercises)] }} onSave={vi.fn()} onCancel={vi.fn()} />)
+
+  const thumbnail = screen.getByRole('button', { name: 'Ver prévia de Supino reto' })
+  expect(within(thumbnail).getByAltText('')).toHaveAttribute('src', expect.stringContaining('Supino/0.jpg'))
+  expect(within(screen.getByRole('button', { name: /Agachamento/ })).queryByRole('img')).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Ver prévia de Agachamento' })).not.toBeInTheDocument()
+  await user.click(thumbnail)
+  const preview = screen.getByRole('dialog', { name: 'Supino reto' })
+  expect(within(preview).getByRole('img', { name: 'Supino reto' })).toBeInTheDocument()
+  expect(within(preview).getByText('Mantenha os pés no chão.')).toBeInTheDocument()
+  await user.click(within(preview).getByRole('button', { name: 'Fechar' }))
+  await waitFor(() => expect(thumbnail).toHaveFocus())
+  await user.click(screen.getByRole('button', { name: /^Supino reto/ }))
+  expect(screen.getByRole('textbox', { name: 'Carga em kg' })).toBeInTheDocument()
 })
 
 test('carga digitada com vírgula na gaveta', async () => {
