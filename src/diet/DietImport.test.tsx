@@ -36,7 +36,8 @@ test('gerar com IA: copiar prompt grava a anamnese', async () => {
   const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
   Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
   const { unmount } = await renderLoaded(<DietImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
-  const copy = await screen.findByRole('button', { name: 'Copiar prompt pra IA' })
+  const copy = await screen.findByRole('button', { name: 'Copiar' })
+  expect(screen.getByText(/ela monta seu cardápio/)).toBeInTheDocument()
   await user.click(screen.getByRole('radio', { name: '5' }))
   await user.click(screen.getByRole('button', { name: 'Sem lactose' }))
   await user.type(screen.getByLabelText('Não como'), 'fígado')
@@ -49,12 +50,12 @@ test('gerar com IA: copiar prompt grava a anamnese', async () => {
   await renderLoaded(<DietImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
   expect(await screen.findByRole('radio', { name: '5' })).toHaveAttribute('aria-checked', 'true')
   expect(screen.getByLabelText('Não como')).toHaveValue('fígado')
+  expect(screen.getByText(/O Pump não tem IA própria/).compareDocumentPosition(screen.getByLabelText('Não como')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
 })
 
 test('import offline: tudo vira estimativa com aviso e dá pra usar', async () => {
   const onDone = vi.fn()
   await renderLoaded(<DietImport mode="convert" onDone={onDone} onBack={vi.fn()} />)
-  expect(screen.queryByRole('button', { name: 'Copiar prompt pra IA' })).not.toBeInTheDocument()
   const user = await paste(json([WHEY, PAO]))
   expect(await screen.findByText('Sem internet: usei os números da IA. Dá pra trocar depois.')).toBeInTheDocument()
   expect(screen.getAllByText('estimativa da IA')).toHaveLength(2)
@@ -185,14 +186,14 @@ test('criar alimento próprio na revisão não refaz a revisão nem perde as tro
   expect(screen.getByText('na TACO: Pão, trigo, francês')).toBeInTheDocument()
 })
 
-test('converter: título, 3 passos, Copiar leva o prompt de conversão e lista os nomes fora da TACO', async () => {
+test('converter: título, 5 passos, Copiar leva o prompt de conversão e lista os nomes fora da TACO', async () => {
   const user = userEvent.setup()
   const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
   Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
   await renderLoaded(<DietImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
   expect(await screen.findByRole('heading', { name: 'Converter dieta' })).toBeInTheDocument()
-  expect(screen.getByText('Mande pra sua IA junto com sua dieta')).toBeInTheDocument()
-  expect(screen.getByText('PDF, foto ou texto')).toBeInTheDocument()
+  expect(screen.getByText('Junto com sua dieta (PDF, foto ou texto)')).toBeInTheDocument()
+  expect(screen.getByText(/Já tem uma dieta\?/)).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Copiar' }))
   expect(writeText).toHaveBeenCalledWith(buildDietConvertPrompt())
   await paste(json([WHEY, PAO]))

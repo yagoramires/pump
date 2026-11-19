@@ -21,3 +21,9 @@ test('várias escolhas guardam a ordem em que foram tocadas', async () => {
   await user.click(screen.getByRole('button', { name: 'Peito' }))
   expect(onChange).toHaveBeenLastCalledWith(['costas', 'peito'])
 })
+
+test('optional mostra "opcional" sem mudar o nome do grupo', () => {
+  render(<Chips label="Dias de treino por semana" options={[1, 2, 3] as const} optional onChange={vi.fn()} />)
+  expect(screen.getByText('opcional')).toBeInTheDocument()
+  expect(screen.getByRole('radiogroup', { name: 'Dias de treino por semana' })).toBeInTheDocument()
+})

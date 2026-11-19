@@ -76,3 +76,8 @@ test('dia vazio sem nada digitado: "Nada mudou" e nada gravado', async () => {
   expect(await screen.findByText('Nada mudou')).toBeInTheDocument()
   expect(await load('measurements')).toBeUndefined()
 })
+test('fora do onboarding os campos não são marcados como opcionais', async () => {
+  await open()
+  await screen.findByLabelText('Peso')
+  expect(screen.queryByText('opcional')).not.toBeInTheDocument()
+})
