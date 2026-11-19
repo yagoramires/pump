@@ -198,7 +198,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
 
       <Button variant="outline" onClick={copy}><Share2 /> Exportar cardápio</Button>
       {notice && <p className="text-center text-meta text-text-2" role="status">{notice}</p>}
-      <Button variant="ghost" className="text-negative hover:text-negative" onClick={() => setConfirm('all')}>Apagar todos os cardápios</Button>
+      <Button variant="link" className="text-negative hover:text-negative" onClick={() => setConfirm('all')}>Apagar todos os cardápios</Button>
 
       {picking && (
         <FoodPicker

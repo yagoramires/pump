@@ -91,7 +91,7 @@ export function TreinoTab() {
   const closePreview = useCallback(() => setPreview(undefined), [])
 
   // abaixo de 360 px o rótulo vira só leitor de tela: o eyebrow não pode ser espremido
-  const pastLink = <Button variant="ghost" size="sm" className="text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /><span className="max-[359px]:sr-only">Treinos anteriores</span></Button>
+  const pastLink = <Button variant="link" size="sm" className="text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /><span className="max-[359px]:sr-only">Treinos anteriores</span></Button>
   if (pastOpen) return <Overlay><PastWorkouts onClose={() => setPastOpen(false)} /></Overlay>
   if (editingPlan) return <Overlay><PlanEditor initial={plan} onSave={(p) => { setPlan(p); setEditingPlan(false) }} onCancel={() => setEditingPlan(false)} /></Overlay>
   if (plan.workouts.length === 0) {

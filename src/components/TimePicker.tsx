@@ -64,7 +64,7 @@ export function TimePicker({ id, value, onChange, placeholder = '--:--', 'aria-l
           <Column title="Hora" label="Horas" items={HOURS} current={hh} unit="h" pick={(h) => { onChange(`${h}:${mm ?? pendingMm ?? '00'}`); if (pendingMm) { setPendingMm(undefined); setOpen(false) } }} />
           <Column title="Min" label="Minutos" items={minutes} current={mm ?? pendingMm} unit="min" pick={(m) => { if (hh) { onChange(`${hh}:${m}`); setOpen(false) } else setPendingMm(m) }} />
         </div>
-        {clearable && value && <Button type="button" variant="ghost" size="sm" className="mt-2 w-full" onClick={() => { onChange(undefined); setOpen(false) }}>Limpar</Button>}
+        {clearable && value && <Button type="button" variant="link" size="sm" className="mt-2 w-full" onClick={() => { onChange(undefined); setOpen(false) }}>Limpar</Button>}
       </PopoverContent>
     </Popover>
   )

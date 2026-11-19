@@ -26,7 +26,7 @@ const ONBOARDING_STEPS = ANAMNESIS_STEPS + 2
 type Step = 'anamnese' | 'treino' | 'editor' | 'ia' | 'convert' | 'dieta'
 
 function StepHeader({ n, onSkip }: { n: number; onSkip: () => void }) {
-  return <Steps n={n} total={ONBOARDING_STEPS} action={<Button type="button" variant="ghost" size="sm" className="text-text-2" onClick={onSkip}>Pular por agora</Button>} />
+  return <Steps n={n} total={ONBOARDING_STEPS} action={<Button type="button" variant="link" size="sm" className="text-text-2" onClick={onSkip}>Pular por agora</Button>} />
 }
 
 export function Onboarding() {

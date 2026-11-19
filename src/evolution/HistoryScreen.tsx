@@ -122,14 +122,14 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c1)"><Utensils size={16} aria-hidden="true" /></IconDot>
                   <DietDayLine day={meals} />
-                  <Button type="button" variant="ghost" size="sm" className={DEL} onClick={() => setConfirm('diet')}>Apagar dieta</Button>
+                  <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('diet')}>Apagar dieta</Button>
                 </div>
               )}
               {drank && (
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c6)"><GlassWater size={16} aria-hidden="true" /></IconDot>
                   <div className="min-w-0 flex-1 text-body font-semibold text-strong tabular-nums">{`Água · ${formatDec(drank.ml / 1000)} L`}</div>
-                  <Button type="button" variant="ghost" size="sm" className={DEL} onClick={() => setConfirm('water')}>Apagar água</Button>
+                  <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('water')}>Apagar água</Button>
                 </div>
               )}
               {measure && (
@@ -141,7 +141,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                       {FIELDS.filter((f) => measure[f.key] !== undefined).map((f) => `${f.label} ${formatKg(measure[f.key]!)} ${f.unit}`).join(' · ')}
                     </div>
                   </div>
-                  <Button type="button" variant="ghost" size="sm" className={DEL} onClick={() => setConfirm('measures')}>Apagar medidas</Button>
+                  <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('measures')}>Apagar medidas</Button>
                 </div>
               )}
               {photos && (
@@ -149,7 +149,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                   <div className="flex items-center gap-3">
                     <IconDot size={32} color="var(--c4)"><Camera size={16} aria-hidden="true" /></IconDot>
                     <span className="flex-1 text-body font-semibold text-strong">Fotos</span>
-                    <Button type="button" variant="ghost" size="sm" className={DEL} onClick={() => setConfirm('photos')}>Apagar fotos</Button>
+                    <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('photos')}>Apagar fotos</Button>
                   </div>
                   {hasPhoto(photos) && (
                     <div className="mt-3 grid grid-cols-3 gap-2">

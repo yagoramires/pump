@@ -23,7 +23,7 @@ export function InstallGate({ onDismiss }: { onDismiss: () => void }) {
           </>
         )}
         <p className="max-w-xs text-xs text-faint">Os dados daqui não passam sozinhos pro app instalado.</p>
-        <Button type="button" variant="ghost" className="text-text-2" onClick={onDismiss}>Continuar no navegador mesmo assim</Button>
+        <Button type="button" variant="link" className="text-text-2" onClick={onDismiss}>Continuar no navegador mesmo assim</Button>
       </EmptyState>
     </main>
   )

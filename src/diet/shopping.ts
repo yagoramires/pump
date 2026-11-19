@@ -1,5 +1,6 @@
 import { normalize } from '@/catalog/search'
 import { formatDec } from '@/lib/number'
+import { pluralWord } from '@/lib/text'
 import type { DietPlan } from './types'
 
 export interface ShoppingItem { key: string; name: string; grams: number; count?: { n: number; unit: string } }
@@ -35,6 +36,6 @@ export const formatAmount = (grams: number) => {
   return g >= 1000 ? `${formatDec(g / 1000)} kg` : `${g} g`
 }
 
-export const countText = (c: NonNullable<ShoppingItem['count']>) => `≈ ${c.n} ${c.unit}`
+export const countText = (c: NonNullable<ShoppingItem['count']>) => `≈ ${c.n} ${c.n > 1 ? pluralWord(c.unit) : c.unit}`
 
 export const shoppingText = (items: ShoppingItem[]) => items.map((i) => `• ${i.name} — ${formatAmount(i.grams)}${i.count ? ` (${countText(i.count)})` : ''}`).join('\n')

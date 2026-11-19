@@ -136,7 +136,7 @@ export function DietTab() {
       </Card>
 
       {!water.on && (
-        <Button variant="ghost" className="w-full text-accent" onClick={water.turnOn}>
+        <Button variant="link" className="w-full text-accent" onClick={water.turnOn}>
           Ligar contador de água
         </Button>
       )}

@@ -48,7 +48,7 @@ export function ShoppingList({ onClose }: { onClose: () => void }) {
             ))}
           </ul></Card>
           <Button variant="outline" onClick={() => makeCopy(toast)(shoppingText(items), 'Lista copiada')}>Copiar lista</Button>
-          {checked.length > 0 && <Button variant="ghost" onClick={() => setChecked([])}>Limpar marcações</Button>}
+          {checked.length > 0 && <Button variant="link" onClick={() => setChecked([])}>Limpar marcações</Button>}
         </div>
       )}
     </>

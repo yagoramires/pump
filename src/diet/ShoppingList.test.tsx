@@ -40,7 +40,7 @@ test('mês por padrão e semana troca as quantidades', async () => {
   const user = userEvent.setup()
   await renderLoaded(<ShoppingList onClose={() => {}} />)
   expect(await screen.findByText('3 kg')).toBeInTheDocument()
-  expect(screen.getByText('≈ 30 ovo')).toBeInTheDocument()
+  expect(screen.getByText('≈ 30 ovos')).toBeInTheDocument()
   await user.click(screen.getByRole('tab', { name: 'Semana' }))
   expect(screen.getByText('700 g')).toBeInTheDocument()
 })

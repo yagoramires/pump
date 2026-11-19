@@ -53,7 +53,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
       </>
     )
     const undo = (label: string, aria: string, f: (d: DietDay) => DietDay) => (
-      <Button variant="ghost" size="sm" className="text-accent" aria-label={aria} onClick={() => act(f)}>{label}</Button>
+      <Button variant="link" size="sm" className="text-accent" aria-label={aria} onClick={() => act(f)}>{label}</Button>
     )
     return (
       <li key={i.id} className="flex items-center gap-2 border-t border-line px-3.5 first:border-t-0">
@@ -90,7 +90,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
         {meal.swappedMeal ? (
           <div className="flex items-center gap-2">
             <p className="min-w-0 flex-1 text-meta text-text-2">{`De outro cardápio: ${meal.swappedMeal}`}</p>
-            {options[0] && !free && <Button variant="ghost" size="sm" className="text-accent" onClick={() => act((d) => chooseOption(d, meal.id, options[0]))}>Voltar às opções</Button>}
+            {options[0] && !free && <Button variant="link" size="sm" className="text-accent" onClick={() => act((d) => chooseOption(d, meal.id, options[0]))}>Voltar às opções</Button>}
           </div>
         ) : (
           options.length > 1 && <p className="text-meta text-text-2">{[`Opção ${optionLetter(selIdx)}`, selected.name].filter(Boolean).join(' · ')}</p>

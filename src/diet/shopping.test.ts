@@ -1,4 +1,4 @@
-import { formatAmount, shoppingList, shoppingText } from './shopping'
+import { countText, formatAmount, shoppingList, shoppingText } from './shopping'
 import type { DietItem, DietPlan, Meal } from './types'
 
 const item = (name: string, grams: number, extra: Partial<DietItem> = {}): DietItem => ({ id: name + grams, name, grams, per100: { kcal: 1, p: 1, c: 1, f: 1 }, source: 'custom', ...extra })
@@ -52,4 +52,16 @@ describe('formatAmount', () => {
 
 it('shoppingText', () => {
   expect(shoppingText([{ key: 'a', name: 'Arroz', grams: 4200 }, { key: 'o', name: 'Ovo', grams: 700, count: { n: 14, unit: 'ovos' } }])).toBe('• Arroz — 4,2 kg\n• Ovo — 700 g (≈ 14 ovos)')
+})
+
+it('countText pluraliza só com n > 1', () => {
+  expect(countText({ n: 45, unit: 'unidade' })).toBe('≈ 45 unidades')
+  expect(countText({ n: 14, unit: 'ovos' })).toBe('≈ 14 ovos')
+  expect(countText({ n: 1, unit: 'fatia' })).toBe('≈ 1 fatia')
+})
+
+it('countText pluraliza só com n > 1', () => {
+  expect(countText({ n: 45, unit: 'unidade' })).toBe('≈ 45 unidades')
+  expect(countText({ n: 14, unit: 'ovos' })).toBe('≈ 14 ovos')
+  expect(countText({ n: 1, unit: 'fatia' })).toBe('≈ 1 fatia')
 })

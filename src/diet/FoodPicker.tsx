@@ -140,7 +140,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
                 {extraAction && <Button variant="outline" className="flex-1" onClick={extraAction.onClick}>{extraAction.label}</Button>}
                 <Button className="flex-1" disabled={!sel} onClick={pick}>{confirmLabel}</Button>
               </div>
-              <Button variant="ghost" className="text-accent" onClick={() => setCreating(true)}>Criar alimento próprio</Button>
+              <Button variant="link" className="text-accent" onClick={() => setCreating(true)}>Criar alimento próprio</Button>
             </>
           )}
           <p className="text-center text-caption text-faint">Valores: TACO 4ª ed. (NEPA/UNICAMP)</p>
