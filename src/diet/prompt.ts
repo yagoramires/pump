@@ -69,7 +69,7 @@ function aboutMe(p: Profile | undefined, ms: Measurement[], today: string): stri
   ]
 }
 
-const LIST_RULE = `Abra a lista em ${FOOD_LIST_URL} e use exatamente um nome dela para cada alimento (nomes da tabela TACO 4ª edição, no padrão "Alimento, tipo, preparo"; exemplos: ${TACO_EXAMPLES.map((n) => `"${n}"`).join(', ')}). Só use outro nome se nenhum da lista servir, escrevendo no mesmo padrão e sempre dizendo o preparo. Se não conseguir abrir o link, me diga isso antes de responder, em vez de inventar nomes.`
+const listRule = (fallback: string) => `Abra a lista em ${FOOD_LIST_URL} e use exatamente um nome dela para cada alimento (nomes da tabela TACO 4ª edição, no padrão "Alimento, tipo, preparo"; exemplos: ${TACO_EXAMPLES.map((n) => `"${n}"`).join(', ')}). ${fallback} Se não conseguir abrir o link, me diga isso antes de responder, em vez de inventar nomes.`
 
 // formato e exemplo, iguais em gerar e converter
 const FORMAT = `Formato:
@@ -83,7 +83,7 @@ const FORMAT = `Formato:
     - "refeicoes": lista de 1 a ${MAX_MEALS} refeições. Cada refeição tem:
       - "nome": nome da refeição (ex.: "Café da manhã").
       - "horario": hora no formato "HH:MM" (ex.: "07:00").
-      - "opcoes": lista de 1 a ${MAX_OPTIONS} opções (faça 2). Cada opção tem:
+      - "opcoes": lista de 1 a ${MAX_OPTIONS} opções. Cada opção tem:
         - "nome": nome curto da opção (ex.: "Ovos com pão").
         - "alimentos": lista de 1 a ${MAX_ITEMS} alimentos. Cada alimento tem:
           - "nome": nome no padrão da TACO (obrigatório).
@@ -149,7 +149,7 @@ Como fazer:
 4. Calcule uma meta diária de calorias e de macros (proteína, carboidrato e gordura) coerente com meu objetivo e meu perfil.
 5. Distribua as refeições nos meus horários, respeite minhas restrições e o que não como, e use comida simples do dia a dia no Brasil.
 6. Dê 2 opções em cada refeição (ex.: "Ovos com pão" e "Iogurte com aveia"), com calorias e macros parecidos, pra eu poder variar.
-7. ${LIST_RULE}
+7. ${listRule('Só use outro nome se nenhum da lista servir, escrevendo no mesmo padrão e sempre dizendo o preparo.')}
 8. Pra cada alimento, informe as gramas, a porção caseira e os valores da quantidade indicada (não por 100 g): kcal, proteína, carboidrato e gordura.
 9. Com o cardápio pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
 
@@ -160,8 +160,8 @@ export const buildDietConvertPrompt = (): string => `Vou te mandar minha dieta (
 
 Como fazer:
 1. Mantenha as refeições, as opções e a ordem como estão na dieta.
-2. ${LIST_RULE}
-3. Pra cada alimento, informe as gramas, a porção caseira e os valores da quantidade indicada (não por 100 g): kcal, proteína, carboidrato e gordura. Se a dieta não trouxer a meta diária, some a dos alimentos.
+2. ${listRule('Se nenhum da lista servir, mantenha o nome original da dieta.')}
+3. Pra cada alimento, informe as gramas, a porção caseira e os valores da quantidade indicada (não por 100 g): kcal, proteína, carboidrato e gordura. Se a dieta não trouxer a meta diária, calcule somando uma opção de cada refeição (a primeira).
 4. Responda SOMENTE com o JSON, sem explicação antes ou depois.
 
 ${FORMAT}`

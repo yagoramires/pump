@@ -48,7 +48,7 @@ test('os nomes de exemplo do prompt existem no catálogo', () => {
   const names = new Set((JSON.parse(readFileSync('public/catalog/exercises.json', 'utf8')) as { name: string }[]).map((e) => normalize(e.name)))
   const examples = [...buildPrompt().matchAll(/"nome": "([^"]+)"|\(ex\.: ([^)]+)\)/g)].flatMap((m) => m[1] ? [m[1]] : [...m[2].matchAll(/"([^"]+)"/g)].map((q) => q[1]))
   const exercises = examples.filter((n) => n !== 'Peito e tríceps')
-  expect(exercises.length).toBeGreaterThanOrEqual(2)
+  expect(exercises).toEqual(['supino reto com barra', 'tríceps corda'])
   expect(exercises.filter((n) => !names.has(normalize(n)))).toEqual([])
 })
 test('casa com o catálogo ignorando acento/caixa; o resto vira exercício seu', () => {

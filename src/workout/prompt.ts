@@ -29,7 +29,7 @@ function aboutMe(p?: Profile): string[] {
   ]
 }
 
-const LIST_RULE = `Abra a lista em ${EXERCISE_LIST_URL} e use exatamente um nome dela para cada exercício. Cada linha é "nome (equipamento)": use só o nome, sem o que está entre parênteses. Só use outro nome se nenhum da lista servir. Se não conseguir abrir o link, me diga isso antes de responder, em vez de inventar nomes.`
+const listRule = (fallback: string) => `Abra a lista em ${EXERCISE_LIST_URL} e use exatamente um nome dela para cada exercício. Cada linha é "nome (equipamento)": use só o nome, sem o que está entre parênteses. ${fallback} Se não conseguir abrir o link, me diga isso antes de responder, em vez de inventar nomes.`
 
 // formato e exemplo, iguais em gerar e converter
 const FORMAT = `Formato:
@@ -81,7 +81,7 @@ Como fazer:
 5. Cardio, abdômen ou mobilidade entram como exercícios do treino; no cardio use "series": 1 e o tempo em "reps", como "20 min".
 6. Só coloque "cargaKg" se souber quanto eu levanto; senão deixe de fora.
 7. Os treinos rodam em sequência, na ordem da lista (A, B, C…), um por dia de treino.
-8. ${LIST_RULE}
+8. ${listRule('Só use outro nome se nenhum da lista servir.')}
 9. Com o plano pronto, responda SOMENTE com o JSON, sem explicação antes ou depois.
 
 ${FORMAT}`
@@ -91,7 +91,7 @@ export const buildConvertPrompt = (): string => `Vou te mandar minha ficha de tr
 
 Como fazer:
 1. Mantenha a ordem dos treinos e dos exercícios e os nomes dos treinos como estão na ficha.
-2. ${LIST_RULE}
+2. ${listRule('Se nenhum da lista servir, mantenha o nome original da ficha.')}
 3. O que a ficha trouxer além disso (observações, cardio) entra em "obs" ou como exercício, e cardio usa "series": 1 e o tempo em "reps", como "20 min".
 4. Responda SOMENTE com o JSON, sem explicação antes ou depois.
 

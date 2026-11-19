@@ -36,5 +36,6 @@ test('gerar e converter usam a lista do catálogo, só o nome, e dividem o forma
   }
   expect(buildPrompt(undefined)).not.toContain('como se fala em academia')
   expect(buildConvertPrompt()).toContain('sem mudar')
+  expect(buildConvertPrompt()).toContain('mantenha o nome original')
   expect(buildConvertPrompt()).toContain('Responda SOMENTE com o JSON')
 })
