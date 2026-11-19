@@ -25,10 +25,6 @@ import { Alert } from '@/components/ui/alert'
 const ONBOARDING_STEPS = ANAMNESIS_STEPS + 2
 type Step = 'anamnese' | 'treino' | 'editor' | 'ia' | 'convert' | 'dieta'
 
-function StepHeader({ n, onSkip }: { n: number; onSkip: () => void }) {
-  return <Steps n={n} total={ONBOARDING_STEPS} action={<Button type="button" variant="link" size="sm" className="text-text-2" onClick={onSkip}>Pular por agora</Button>} />
-}
-
 export function Onboarding() {
   const [, setSettings] = usePersisted('settings')
   const [step, setStep] = useState<Step>('anamnese')
@@ -76,15 +72,16 @@ export function Onboarding() {
   if (step === 'dieta') {
     return (
       <div className="flex flex-col gap-3">
-        <StepHeader n={ANAMNESIS_STEPS + 2} onSkip={finish} />
+        <Steps n={ANAMNESIS_STEPS + 2} total={ONBOARDING_STEPS} />
         <BackHeader title="Sua dieta" onBack={() => setStep('treino')} className="px-0 py-0" />
         <DietStart hint="A IA já recebe peso, % de gordura, massa magra, medidas e horários." onDone={finish} />
+        <div className="flex justify-center"><Button type="button" variant="ghost" className="text-text-2" onClick={finish}>Pular por agora</Button></div>
       </div>
     )
   }
   return (
-    <div className="flex flex-col gap-3 pb-28">
-      <StepHeader n={ANAMNESIS_STEPS + 1} onSkip={toDieta} />
+    <div className="flex flex-col gap-3 pb-40">
+      <Steps n={ANAMNESIS_STEPS + 1} total={ONBOARDING_STEPS} />
       <BackHeader title="Seu treino" onBack={() => { setResumeAtDayZero(true); setStep('anamnese') }} className="px-0 py-0" />
       <Card size="flush">
         <RadioGroup value={picked} onValueChange={setPicked} aria-label="Planos" className="gap-0">
@@ -108,6 +105,7 @@ export function Onboarding() {
       <BottomBar className="flex-col gap-2">
         {error && <Alert variant="destructive">{error}</Alert>}
         <Button type="button" onClick={() => void startTemplate()}>{`Usar ${template.name}`}</Button>
+        <Button type="button" variant="ghost" className="text-text-2" onClick={toDieta}>Pular por agora</Button>
       </BottomBar>
     </div>
   )

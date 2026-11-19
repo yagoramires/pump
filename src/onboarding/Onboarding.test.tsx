@@ -63,6 +63,14 @@ test('pular o treino leva à dieta, não conclui', async () => {
   expect((await readCurrent('settings')).onboardingDone).toBe(false)
 })
 
+test('pular fica embaixo, não no cabeçalho do passo', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<Onboarding />)
+  await toTreino(user)
+  const skip = screen.getByRole('button', { name: 'Pular por agora' })
+  expect(skip.closest('.fixed')).not.toBeNull() // dentro da BottomBar
+})
+
 test('voltar no passo 5 leva ao treino sem concluir', async () => {
   const user = userEvent.setup()
   await renderLoaded(<Onboarding />)

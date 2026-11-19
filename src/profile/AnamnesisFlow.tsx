@@ -5,6 +5,7 @@ import { GoalsForm } from './GoalsForm'
 import { BackHeader } from '@/components/BackHeader'
 import { BottomBar } from '@/components/BottomBar'
 import { Steps } from '@/components/Steps'
+import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { DayZero } from './DayZero'
 import { hasProfile } from './profile'
@@ -33,6 +34,7 @@ export function AnamnesisFlow({ resumeAtDayZero, total, onDone, onCancel, footer
       )}
       {step === 0 && (
         <>
+          <Alert role="note">Só a altura é obrigatória. O resto deixa os prompts de IA mais precisos e dá pra completar depois em Configurações › Perfil.</Alert>
           <AboutForm value={draft} onChange={setDraft} />
           {footer}
           <BottomBar><Button type="button" className="w-full" disabled={!hasProfile(draft)} onClick={() => setStep(1)}>Continuar</Button></BottomBar>
@@ -40,6 +42,7 @@ export function AnamnesisFlow({ resumeAtDayZero, total, onDone, onCancel, footer
       )}
       {step === 1 && (
         <>
+          <Alert role="note">Tudo opcional, dá pra pular.</Alert>
           <GoalsForm value={draft} onChange={setDraft} />
           <BottomBar><Button type="button" className="w-full" onClick={() => { setToday(todayKey()); setStep(2) }}>Continuar</Button></BottomBar>
         </>

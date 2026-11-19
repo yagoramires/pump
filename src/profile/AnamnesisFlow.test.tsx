@@ -126,3 +126,17 @@ test('dia zero usa o novo dia quando a etapa anterior passou da meia-noite', asy
   expect(await readCurrent('measurements')).toMatchObject([{ date: '2026-11-19', weightKg: 82.4 }])
   expect(await readCurrent('settings')).toMatchObject({ checkInDay: 4, anamnesisAt: '2026-11-19' })
 })
+
+test('avisos e opcionais em cada passo', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<AnamnesisFlow total={3} onDone={vi.fn()} />)
+  expect(screen.getByText('Só a altura é obrigatória. O resto deixa os prompts de IA mais precisos e dá pra completar depois em Configurações › Perfil.')).toBeInTheDocument()
+  expect(screen.getAllByText('opcional')).toHaveLength(6) // idade, 3 horários, dias, lesões
+  await user.type(screen.getByLabelText('Altura'), '178')
+  await next(user)
+  expect(screen.getByText('Tudo opcional, dá pra pular.')).toBeInTheDocument()
+  await next(user)
+  expect(screen.getByText('Só o peso é obrigatório. Medidas melhoram a estimativa de % de gordura; fotos ajudam a comparar depois.')).toBeInTheDocument()
+  expect(screen.getAllByText('opcional')).toHaveLength(6) // sexo M: pescoço, cintura, braço, peito, coxa + fotos
+  expect(screen.getByRole('button', { name: 'Continuar' })).toBeDisabled() // peso segue obrigatório
+})
