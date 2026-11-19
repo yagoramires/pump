@@ -15,6 +15,7 @@
   - Bloco `card` → `Card`/`CardHeader`/`CardContent`; separadores → `Separator`; etiquetas/contagens → `Badge`.
   - Controles com `role="switch|checkbox|radio|radiogroup"` ou `aria-pressed` feitos à mão → `Switch`, `Checkbox`, `RadioGroup`, `ToggleGroup`.
   - Acordeão de exercícios → `Accordion`/`Collapsible`; abas/ângulos → `Tabs`; gaveta continua `Drawer` (vaul) e diálogo `AlertDialog`; barra de progresso → `Progress`.
+- **Espaçamento e alinhamento** (Yago, 2026-11-19: "achei uns problemas de UI, como gaps, alinhamentos"): uma escala só — padding de cartão pelos defaults de `CardHeader`/`CardContent`; um `gap-*`/`space-y-*` por contêiner em vez de `mb-`/`mt-` soltos nos filhos; linhas de lista com mesma altura e padding; ícone centrado com o texto; números `tabular-nums` com alinhamento consistente; botões lado a lado com a mesma altura. Sem margens avulsas (`mt-0.5`, `-mt-2`, `mb-2.5`) onde o gap do contêiner resolve. A onda 2 registra as convenções no relatório e as próximas seguem.
 - Comportamento igual: mesmos textos, mesmas ações, mesmos nomes acessíveis (os testes procuram por papel e nome). Se um teste quebrar só porque o elemento mudou de tipo, ajustar o teste para o papel novo, sem perder a asserção.
 - Cada onda: `bunx tsc -b && bun run test && bun run lint && bun run build` verdes; graphify (`graphify query` antes de explorar, `graphify update .` depois, sem commitar `graphify-out`); commits sem Co-Authored-By; sem push; nunca apagar pastas inteiras nem usar pkill; não parar o dev server do Yago (porta 5180).
 
