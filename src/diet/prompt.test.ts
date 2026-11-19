@@ -1,8 +1,10 @@
 import { readFileSync } from 'node:fs'
 import type { TacoFood } from './types'
 import { parseDietFormat } from './dietFormat'
-import { buildDietConvertPrompt, buildDietPrompt, TACO_EXAMPLES } from './prompt'
+import { buildDietAdjustPrompt, buildDietConvertPrompt, buildDietPrompt, TACO_EXAMPLES } from './prompt'
+import { food } from '../../test/helpers'
 import { FOOD_LIST_URL } from '@/catalog/urls'
+import { COPYABLE_JSON_RULE } from '@/format/promptRules'
 import { GOAL_KCAL, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 
 const T = '2026-11-18'
@@ -107,4 +109,17 @@ test('converter: avisa os limites do formato (vindos das constantes) e o que faz
 test('as listas pedem pra colar a lista se a IA não abrir o link', () => {
   expect(buildDietConvertPrompt()).toContain('me peça pra colar a lista')
   expect(buildDietPrompt(undefined, [], '2026-01-01')).toContain('me peça pra colar a lista')
+})
+
+test('ajustar dieta: leva regras e o cardápio atual, e a importação lê o texto de volta', () => {
+  const plan = { menus: [{ id: 'A', name: 'Corte', meals: [{ id: 'm', name: 'Café', time: '7:00', options: [{ id: 'o', items: [food({ name: 'Arroz, tipo 1, cozido', grams: 120 })] }] }] }], lastMenuId: 'A' }
+  const p = buildDietAdjustPrompt(plan)
+  expect(p).toContain('Mude só o que eu pedir')
+  expect(p).toContain(FOOD_LIST_URL)
+  expect(p).toContain(COPYABLE_JSON_RULE)
+  expect(p).toContain('"07:00"')
+  expect(parseDietFormat(p).cardapios[0].nome).toBe('Corte')
+})
+test('ajustar dieta: sem cardápios não quebra', () => {
+  expect(() => buildDietAdjustPrompt({ menus: [] })).not.toThrow()
 })
