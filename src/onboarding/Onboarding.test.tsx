@@ -3,7 +3,7 @@ import { renderLoaded } from '../../test/render'
 import { stored } from '../../test/store'
 import userEvent from '@testing-library/user-event'
 import { readCurrent, save } from '@/storage/db'
-import { buildBackup } from '@/storage/backup'
+import { buildBackup } from '@/backup/backup'
 import { Onboarding } from './Onboarding'
 
 afterEach(() => {

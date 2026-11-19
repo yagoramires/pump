@@ -6,7 +6,7 @@ import * as idb from 'idb-keyval'
 import { readCurrent } from './storage/db'
 import App from './App'
 import { ErrorBoundary } from './shell/ErrorBoundary'
-import { buildBackup } from './storage/backup'
+import { buildBackup } from './backup/backup'
 
 vi.mock('idb-keyval', async (orig) => {
   const m = await orig<typeof import('idb-keyval')>()

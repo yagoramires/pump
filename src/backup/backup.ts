@@ -1,11 +1,11 @@
 import { daysBetween, todayKey } from '@/lib/date'
 import { VALID, isUserKey, type Settings } from '@/schema'
 import { isObj } from '@/lib/utils'
-import { allData, readCurrent, replaceAll, save } from './db'
-import { isPhotoKey, isPhotoValue } from './photos'
+import { allData, readCurrent, replaceAll, save } from '@/storage/db'
+import { isPhotoKey, isPhotoValue } from '@/storage/photos'
 import { shareFile } from '@/lib/share'
 
-export interface BackupFile { app: 'pump'; version: 1; exportedAt: string; data: Record<string, unknown> }
+interface BackupFile { app: 'pump'; version: 1; exportedAt: string; data: Record<string, unknown> }
 
 export const buildBackup = (data: Record<string, unknown>, now: Date): BackupFile => ({
   app: 'pump',
@@ -36,11 +36,13 @@ export function parseBackup(text: string): BackupFile {
 
 const BACKUP_REMINDER_DAYS = 14
 
+const daysSince = (day: string | undefined, today: string) => (day ? daysBetween(day, today) : undefined)
+
+export const daysSinceBackup = (s: Settings, today: string) => daysSince(s.lastBackupAt, today)
+
 export const backupDue = (s: Settings, today: string): number | undefined => {
-  const since = s.lastBackupAt ?? s.firstUseAt
-  if (!since) return undefined
-  const days = daysBetween(since, today)
-  return days >= BACKUP_REMINDER_DAYS ? days : undefined
+  const days = daysSince(s.lastBackupAt ?? s.firstUseAt, today)
+  return days !== undefined && days >= BACKUP_REMINDER_DAYS ? days : undefined
 }
 
 export async function exportBackup(now = new Date()): Promise<'shared' | 'downloaded' | 'cancelled'> {

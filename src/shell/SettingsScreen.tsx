@@ -1,12 +1,9 @@
 import { useState, type ReactNode } from 'react'
 import { RotateCcw, Share2, Upload, User } from 'lucide-react'
-import { toast } from 'sonner'
 import { usePersisted } from '@/storage/db'
-import { daysBetween, todayKey } from '@/lib/date'
+import { todayKey } from '@/lib/date'
 import { formatKg, plural } from '@/lib/number'
-import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { IconDot } from '@/components/IconDot'
 import { Overlay } from '@/components/Overlay'
 import { BackHeader } from '@/components/BackHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
@@ -15,8 +12,9 @@ import { latestWeight } from '@/evolution/measurements'
 import { ProfileScreen } from '@/profile/ProfileScreen'
 import { WorkoutSettings } from '@/workout/WorkoutSettings'
 import { DietSettings } from '@/diet/DietSettings'
-import { useBackupExport } from './useBackupExport'
-import { BackupRestore } from '@/storage/BackupRestore'
+import { sendBackup } from '@/backup/useBackupExport'
+import { BackupRestore } from '@/backup/BackupRestore'
+import { daysSinceBackup } from '@/backup/backup'
 import { Alert } from '@/components/ui/alert'
 
 /** abre uma tela por cima das Configurações; sem argumento volta pro menu */
@@ -29,12 +27,11 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
   const [profile] = usePersisted('profile')
   const [measurements] = usePersisted('measurements')
   const weight = latestWeight(measurements)
-  const backup = useBackupExport(toast.error)
   const back = () => setView(undefined)
 
   if (view) return <Overlay>{view}</Overlay>
 
-  const days = settings.lastBackupAt ? daysBetween(settings.lastBackupAt, todayKey()) : undefined
+  const days = daysSinceBackup(settings, todayKey())
   const last = days === undefined ? 'Nunca' : days === 0 ? 'Último: hoje' : `Último: há ${plural(days, 'dia', 'dias')}`
 
   return (
@@ -51,17 +48,14 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         <DietSettings open={setView} />
       </SettingsSection>
       <SettingsSection title="SEUS DADOS">
-        <SettingsRow icon={<Share2 size={18} aria-hidden="true" />} color="var(--c6)" title="Enviar backup" sub={`WhatsApp, Arquivos… · ${last}`} onClick={backup.send} />
+        <SettingsRow icon={<Share2 size={18} aria-hidden="true" />} color="var(--c6)" title="Enviar backup" sub={`WhatsApp, Arquivos… · ${last}`} onClick={sendBackup} />
         <BackupRestore trigger={(pick) => (
           <SettingsRow icon={<Upload size={18} aria-hidden="true" />} color="var(--c5)" title="Restaurar backup" onClick={pick} />
         )} />
       </SettingsSection>
       <Alert role="note" className="mt-2.5">Seus dados ficam só neste aparelho. Envie um backup de vez em quando.</Alert>
       <Card size="flush" className="mt-2.5">
-        <Button type="button" variant="ghost" className="h-auto min-h-14 w-full justify-start gap-3 rounded-none px-3.5 py-2 text-left" onClick={() => setConfirmRedo(true)}>
-          <IconDot size={36} color="var(--color-negative)"><RotateCcw size={18} aria-hidden="true" /></IconDot>
-          <span className="text-body font-semibold text-negative">Refazer montagem</span>
-        </Button>
+        <SettingsRow icon={<RotateCcw size={18} aria-hidden="true" />} color="var(--color-negative)" title="Refazer montagem" destructive onClick={() => setConfirmRedo(true)} />
       </Card>
       <ConfirmDialog
         open={confirmRedo} title="Refazer montagem?" text="Você volta ao passo a passo inicial. Seus dados continuam salvos." confirm="Refazer" destructive

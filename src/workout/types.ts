@@ -1,10 +1,10 @@
+export type { Exercise } from '@/catalog/types'
 export type Level = 'iniciante' | 'intermediario' | 'avancado'
 export type Place = 'academia' | 'casa'
 export type Split = 'fullbody' | 'ab' | 'abc' | 'abcd' | 'abcde' | 'ppl'
 export type Extra = 'cardio' | 'abdomen' | 'mobilidade'
 export type Muscle = 'peito' | 'costas' | 'ombros' | 'biceps' | 'triceps' | 'pernas' | 'gluteos' | 'panturrilha'
 export interface Anamnesis { level?: Level; place?: Place; split?: Split; extras?: Extra[]; weak?: Muscle[]; minutes?: number }
-export interface Exercise { id: string; name: string; muscles: string[]; equipment: string; instructions: string[]; images: string[] }
 export interface PlanExercise {
   exerciseId: string
   name: string

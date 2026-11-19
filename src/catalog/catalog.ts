@@ -1,11 +1,10 @@
-import type { Exercise } from '@/workout/types'
-import type { TacoFood } from '@/diet/types'
-import { IMAGE_BASE } from './urls'
+import type { Exercise, TacoFood } from './types'
+import { CATALOG_DIR, EXERCISES_JSON, IMAGE_BASE, TACO_JSON } from './urls'
 
 export const imageUrl = (path: string): string => IMAGE_BASE + path
 
 export const catalogFile = (file: string): Promise<Response> =>
-  fetch(`${import.meta.env.BASE_URL}catalog/${file}`).then((res) => { if (!res.ok) throw new Error(String(res.status)); return res })
+  fetch(import.meta.env.BASE_URL + CATALOG_DIR + file).then((res) => { if (!res.ok) throw new Error(String(res.status)); return res })
 
 /** sem internet ou HTTP com erro: quem usa o catálogo segue sem ele */
 export class CatalogUnavailable extends Error {}
@@ -31,5 +30,5 @@ function getJson<T>(file: string): Promise<T[]> {
   return memo.get(file) as Promise<T[]>
 }
 
-export const fetchExercises = () => getJson<Exercise>('exercises.json')
-export const fetchTaco = () => getJson<TacoFood>('taco.json')
+export const fetchExercises = () => getJson<Exercise>(EXERCISES_JSON)
+export const fetchTaco = () => getJson<TacoFood>(TACO_JSON)

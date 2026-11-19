@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Share } from 'lucide-react'
-import { allData } from '@/storage/db'
-import { useBackupExport } from './useBackupExport'
+import { hasAnyData } from '@/storage/db'
+import { useBackupExport } from '@/backup/useBackupExport'
 import { CenteredScreen } from './CenteredScreen'
 import { EmptyState } from '@/components/EmptyState'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,7 @@ export function InstallGate({ onDismiss }: { onDismiss: () => void }) {
   const [hasData, setHasData] = useState(false)
   const { send, error } = useBackupExport()
   useEffect(() => {
-    void allData().then((d) => setHasData(Object.keys(d).length > 0)).catch(() => setHasData(true)) // sem conseguir ler, ainda oferece o backup: pode funcionar
+    void hasAnyData().then(setHasData, () => setHasData(true)) // sem conseguir ler, ainda oferece o backup: pode funcionar
   }, [])
   return (
     <CenteredScreen>

@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
-import type { Exercise } from '../src/workout/types.ts'
-import { exerciseList } from './build-catalog-lists.ts'
-import { EXERCISE_LIST } from '../src/catalog/urls.ts'
+import type { Exercise } from '../src/catalog/types.ts'
+import { catalogPath, writeLists } from './build-catalog-lists.ts'
+import { CATALOG_DIR, EXERCISES_JSON } from '../src/catalog/urls.ts'
 
 export interface Upstream {
   id: string
@@ -12,11 +12,11 @@ export interface Upstream {
   instructions: string[]
   images: string[]
 }
-export interface Glossary {
+interface Glossary {
   muscles: Record<string, string>
   equipment: Record<string, string>
 }
-export type Translations = Record<string, { name: string; instructions: string[] }>
+type Translations = Record<string, { name: string; instructions: string[] }>
 
 const BATCH_SIZE = 50
 
@@ -57,9 +57,8 @@ if (import.meta.main) {
     console.error(`Faltam ${missing.length} traduções:\n${missing.join('\n')}`)
     process.exit(1)
   }
-  mkdirSync('public/catalog', { recursive: true })
-  const catalog = buildCatalog(up, g, t)
-  writeFileSync('public/catalog/exercises.json', JSON.stringify(catalog))
-  writeFileSync(`public/catalog/${EXERCISE_LIST}`, exerciseList(catalog))
-  console.log(`public/catalog/exercises.json e ${EXERCISE_LIST} escritos`)
+  mkdirSync(`public/${CATALOG_DIR}`, { recursive: true })
+  writeFileSync(catalogPath(EXERCISES_JSON), JSON.stringify(buildCatalog(up, g, t)))
+  console.log(`${catalogPath(EXERCISES_JSON)} escrito`)
+  writeLists()
 }

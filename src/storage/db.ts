@@ -1,5 +1,5 @@
 import { use, useCallback, useSyncExternalStore } from 'react'
-import { createStore, entries, get, promisifyRequest, set } from 'idb-keyval'
+import { createStore, entries, get, keys, promisifyRequest, set } from 'idb-keyval'
 import { DEFAULTS, isUserKey, USER_KEYS, type UserData } from '@/schema'
 
 type Key = keyof UserData
@@ -90,6 +90,8 @@ export function save<K extends Key>(k: K, v: Value<K>): Promise<void> {
 export async function allData(): Promise<Record<string, unknown>> {
   return Object.fromEntries(await entries<string, unknown>(pumpStore))
 }
+
+export const hasAnyData = async () => (await keys(pumpStore)).length > 0
 
 export async function replaceAll(data: Record<string, unknown>): Promise<void> {
   const restored = new Map(Object.entries(data))

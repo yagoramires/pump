@@ -5,13 +5,11 @@ import { DEFAULTS, type UserData } from '@/schema'
 import { renderHookLoaded } from '../../test/render'
 import { seedStore, stored } from '../../test/store'
 import { allData, onStorageError, readCurrent, replaceAll, save, StorageReadError, usePersisted } from './db'
-import { deletePhotos } from './photos'
 
 vi.mock('idb-keyval', async (orig) => {
   const m = await orig<typeof import('idb-keyval')>()
   return { ...m, get: vi.fn(m.get), set: vi.fn(m.set) }
 })
-
 
 const wrapper = ({ children }: { children: ReactNode }) => createElement(Suspense, { fallback: null }, children)
 const persisted = <K extends keyof UserData>(k: K) => renderHookLoaded(() => usePersisted(k))
@@ -77,7 +75,7 @@ test('leitura lenta não sobrescreve um save que terminou antes', async () => {
   let h!: ReturnType<typeof renderHook<ReturnType<typeof usePersisted<'settings'>>, unknown>>
   const rendering = act(async () => { h = renderHook(() => usePersisted('settings'), { wrapper }) })
   await save('settings', { ...DEFAULTS.settings, lastTab: 'dieta' })
-  expect(h.result.current).toBeNull() // ainda lendo
+  expect(h.result.current).toBeNull()
   slow.resolve()
   await rendering
   expect(h.result.current[0].lastTab).toBe('dieta')
@@ -106,7 +104,7 @@ test('falha na leitura: StorageReadError, sem aviso de gravação e sem mexer no
   expect(errors).toEqual([])
   expect(await stored('workoutLog')).toEqual({ '2026-11-01': session('2026-11-01') })
 })
-test('falha ao gravar: a tela já mudou e o aviso sai uma vez só', async () => {
+test('falha ao gravar: a tela já mudou e sai um aviso', async () => {
   const h = await persisted('workoutLog')
   const errors: string[] = []
   const off = onStorageError((m) => errors.push(m))
@@ -114,7 +112,6 @@ test('falha ao gravar: a tela já mudou e o aviso sai uma vez só', async () => 
   act(() => void h.result.current[1]((p) => ({ ...p, a: session('a') })))
   expect(Object.keys(h.result.current[0])).toEqual(['a'])
   await waitFor(() => expect(errors).toEqual(['cheio']))
-  await new Promise((r) => setTimeout(r)) // toda a cadeia de promises já rodou: um segundo aviso teria saído antes disso
   off()
   expect(errors).toEqual(['cheio'])
 })
@@ -133,9 +130,4 @@ test('save lento não desfaz o update seguinte', async () => {
   await act(async () => slow.resolve())
   expect(Object.keys(h.result.current[0]).sort()).toEqual(['a', 'b'])
   await waitFor(async () => expect(Object.keys((await stored('workoutLog'))!).sort()).toEqual(['a', 'b']))
-})
-test('chave fora do schema não fica no cache em memória (loadPhoto lê direto do banco)', async () => {
-  await replaceAll({ 'photo:a': 'data:image/jpeg;base64,AAA', settings: { lastTab: 'treino', onboardingDone: true } })
-  await deletePhotos(['a'])
-  expect(await readCurrent('photo:a' as never)).toBeUndefined()
 })

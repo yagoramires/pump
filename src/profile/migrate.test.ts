@@ -1,7 +1,7 @@
 import * as idb from 'idb-keyval'
 import type { Profile } from './types'
 import { migrateData, migrateOnBoot, migrateStored } from './migrate'
-import { importBackupFile } from '@/storage/backup'
+import { importBackupFile } from '@/backup/backup'
 import { readCurrent } from '@/storage/db'
 import { seedStore, stored } from '../../test/store'
 

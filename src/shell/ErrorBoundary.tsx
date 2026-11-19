@@ -2,7 +2,7 @@ import { Component, type ReactNode } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import { EmptyState } from '@/components/EmptyState'
 import { Button } from '@/components/ui/button'
-import { useBackupExport } from './useBackupExport'
+import { useBackupExport } from '@/backup/useBackupExport'
 import { StorageReadError } from '@/storage/db'
 import { CenteredScreen } from './CenteredScreen'
 

@@ -8,7 +8,7 @@ const alertVariants = cva(
     variants: {
       variant: {
         default: "border-border bg-surface text-text-2",
-        destructive: "border-negative/30 bg-card text-negative *:data-[slot=alert-description]:text-negative/90",
+        destructive: "border-negative/30 bg-card text-negative",
         accent: "border-accent-line bg-accent-bg text-text",
       },
     },
@@ -31,27 +31,4 @@ function Alert({
   )
 }
 
-function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="alert-title"
-      className={cn("col-start-2 min-h-4 font-semibold text-strong", className)}
-      {...props}
-    />
-  )
-}
-
-function AlertDescription({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="alert-description"
-      className={cn("col-start-2 grid justify-items-start gap-1 text-meta text-text-2", className)}
-      {...props}
-    />
-  )
-}
-
-export { Alert, AlertTitle, AlertDescription }
+export { Alert }

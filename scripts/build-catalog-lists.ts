@@ -1,7 +1,8 @@
 import { readFileSync, writeFileSync } from 'node:fs'
-import type { TacoFood } from '../src/diet/types.ts'
-import type { Exercise } from '../src/workout/types.ts'
-import { EXERCISE_LIST, FOOD_LIST } from '../src/catalog/urls.ts'
+import type { Exercise, TacoFood } from '../src/catalog/types.ts'
+import { CATALOG_DIR, EXERCISE_LIST, EXERCISES_JSON, FOOD_LIST, TACO_JSON } from '../src/catalog/urls.ts'
+
+export const catalogPath = (file: string) => `public/${CATALOG_DIR}${file}`
 
 const br = (a: string, b: string) => a.localeCompare(b, 'pt-BR')
 
@@ -20,9 +21,13 @@ export function exerciseList(exercises: Exercise[]): string {
 export const foodList = (foods: TacoFood[]): string =>
   `Alimentos da tabela TACO (4ª edição). Use exatamente um destes nomes.\n${foods.map((f) => f.name).join('\n')}\n`
 
-if (import.meta.main) {
-  const read = <T>(f: string) => JSON.parse(readFileSync(`public/catalog/${f}`, 'utf8')) as T
-  writeFileSync(`public/catalog/${EXERCISE_LIST}`, exerciseList(read('exercises.json')))
-  writeFileSync(`public/catalog/${FOOD_LIST}`, foodList(read('taco.json')))
-  console.log(`public/catalog/${EXERCISE_LIST} e ${FOOD_LIST} escritos`)
+export const readCatalog = <T>(file: string) => JSON.parse(readFileSync(catalogPath(file), 'utf8')) as T
+
+/** reescreve as listas .txt a partir dos JSONs em public/ */
+export function writeLists() {
+  writeFileSync(catalogPath(EXERCISE_LIST), exerciseList(readCatalog(EXERCISES_JSON)))
+  writeFileSync(catalogPath(FOOD_LIST), foodList(readCatalog(TACO_JSON)))
+  console.log(`${catalogPath(EXERCISE_LIST)} e ${FOOD_LIST} escritos`)
 }
+
+if (import.meta.main) writeLists()

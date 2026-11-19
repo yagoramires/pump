@@ -1,6 +1,5 @@
 import { lazy, Suspense, use, useEffect, useState, type ReactNode } from 'react'
 import { X } from 'lucide-react'
-import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
 import { BottomNav } from '@/shell/BottomNav'
@@ -10,8 +9,8 @@ import { isIOS, isStandalone } from '@/shell/platform'
 import { Onboarding } from '@/onboarding/Onboarding'
 import { TreinoTab } from '@/workout/TreinoTab'
 import { PreviewSync } from '@/workout/previews'
-import { backupDue } from '@/storage/backup'
-import { useBackupExport } from '@/shell/useBackupExport'
+import { backupDue } from '@/backup/backup'
+import { sendBackup } from '@/backup/useBackupExport'
 import { boot, onStorageError, requestPersist, usePersisted } from '@/storage/db'
 import { todayKey } from '@/lib/date'
 import { useCheckIn } from '@/evolution/useCheckIn'
@@ -20,7 +19,7 @@ import { EvolutionTab } from '@/evolution/EvolutionTab'
 import { Loading } from '@/components/Loading'
 import { OpenSettingsContext } from '@/components/openSettings'
 import { migrateOnBoot } from '@/profile/migrate'
-import type { Tab } from './schema'
+import { DEFAULTS, type Tab } from './schema'
 import { Alert } from '@/components/ui/alert'
 import { isKeyOf } from '@/lib/utils'
 
@@ -44,7 +43,6 @@ function Shell() {
   const [storageError, setStorageError] = useState<string>()
   const [showSettings, setShowSettings] = useState(false)
   const { due } = useCheckIn()
-  const backup = useBackupExport(toast.error)
 
   useEffect(() => {
     void requestPersist()
@@ -63,8 +61,7 @@ function Shell() {
   }
   if (!settings.onboardingDone) return <>{banner}<PreviewSync /><main className="mx-auto max-w-md px-4 pt-(--main-pt) pb-(--main-pb)"><Onboarding /></main></>
 
-  const tab = settings.lastTab
-  const screen = isKeyOf(TAB_SCREENS, tab) ? TAB_SCREENS[tab] : TAB_SCREENS.dieta
+  const tab: Tab = isKeyOf(TAB_SCREENS, settings.lastTab) ? settings.lastTab : DEFAULTS.settings.lastTab
   const backupDays = backupDue(settings, todayKey())
   return (
     <>
@@ -73,7 +70,7 @@ function Shell() {
       {backupDays !== undefined && (
         <div className="mx-auto mt-3 max-w-md px-4"><Alert variant="accent" role="status" className="flex items-center gap-2 py-1 pr-1">
           <span className="flex-1">{`Faz ${backupDays} dias sem backup`}</span>
-          <Button type="button" variant="link" size="sm" className="text-accent" onClick={backup.send}>Enviar backup</Button>
+          <Button type="button" variant="link" size="sm" className="text-accent" onClick={sendBackup}>Enviar backup</Button>
         </Alert></div>
       )}
       <main className={MAIN}>
@@ -81,7 +78,7 @@ function Shell() {
           <SettingsScreen onClose={() => setShowSettings(false)} />
         ) : (
           <OpenSettingsContext value={() => setShowSettings(true)}>
-            {screen}
+            {TAB_SCREENS[tab]}
           </OpenSettingsContext>
         )}
       </main>
