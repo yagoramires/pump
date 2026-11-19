@@ -20,7 +20,7 @@ export function ExerciseGroups<T extends Shape>({ exercises, className, heading,
   ))
 }
 
-export function ExerciseThumb({ muscles, image, cardio }: { muscles: string[]; image?: string; cardio: boolean }) {
+export function ExerciseThumb({ muscles, image, cardio }: { muscles: string[]; image?: string; cardio?: boolean }) {
   return (
     <span className="relative shrink-0">
       <ExerciseIcon muscles={muscles} cardio={cardio} size={36} />

@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { ArrowDown, ArrowUp, Minus, MoreHorizontal, Plus } from 'lucide-react'
+import { ArrowDown, ArrowUp, MoreHorizontal } from 'lucide-react'
 import type { PlanExercise } from './types'
 import { KG, REST_SEC, REST_STEP, SETS } from './limits'
 import { restSecondsLabel } from './display'
 import { useNumberDraft } from '@/components/useNumberDraft'
+import { Stepper } from '@/components/Stepper'
 import { useFieldProps } from './useFieldProps'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,7 +19,6 @@ type Props = {
   onClose: () => void
 }
 
-const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
 const FIELD = 'bg-surface text-center font-semibold tabular-nums'
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
@@ -27,17 +27,6 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
       <span className="text-sm text-text-2">{label}</span>
       <div className="flex items-center gap-2">{children}</div>
     </div>
-  )
-}
-
-function Stepper({ label, text, value, step, min, max, onChange, children }: { label: string; text?: string; value: number; step: number; min: number; max: number; onChange: (v: number) => void; children?: React.ReactNode }) {
-  const go = (d: number) => onChange(Math.round(clamp(value + d, min, max) * 10) / 10)
-  return (
-    <>
-      <Button variant="outline" size="icon" className="touch-manipulation" aria-label={`Diminuir ${label}`} disabled={value <= min} onClick={() => go(-step)}><Minus /></Button>
-      {children ?? <span className="min-w-14 text-center text-base font-semibold tabular-nums text-strong">{text}</span>}
-      <Button variant="outline" size="icon" className="touch-manipulation" aria-label={`Aumentar ${label}`} disabled={value >= max} onClick={() => go(step)}><Plus /></Button>
-    </>
   )
 }
 

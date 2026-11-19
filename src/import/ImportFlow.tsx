@@ -10,7 +10,7 @@ import { catalogFile } from '@/catalog/catalog'
 import { IGNORED, type Half } from '@/format/envelope'
 import { namesText } from '@/lib/text'
 import { BottomBar } from '@/components/BottomBar'
-import { Toggle } from '@/components/ui/toggle'
+import { Chip, ChipRow } from '@/components/ChipRow'
 
 export type ImportMode = 'ia' | 'convert'
 
@@ -102,21 +102,15 @@ export function CopyListButton({ file, noun }: { file: string; noun: string }) {
   )
 }
 
-/** um treino/cardápio por vez na revisão */
 export function ReviewTabs({ label, items, current, onPick }: { label: string; items: { id: string; name: string }[]; current: string; onPick: (n: number) => void }) {
   if (items.length < 2) return null
   return (
-    <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label={label}>
-      {items.map((it, n) => (
-        <Toggle key={it.id} variant="outline" className="shrink-0 text-meta" pressed={it.id === current} onPressedChange={() => onPick(n)}>
-          {it.name}
-        </Toggle>
-      ))}
-    </div>
+    <ChipRow label={label} className="-mx-4">
+      {items.map((it, n) => <Chip key={it.id} pressed={it.id === current} onPressedChange={() => onPick(n)}>{it.name}</Chip>)}
+    </ChipRow>
   )
 }
 
-/** o que ficou fora do catálogo, com os nomes */
 export function OutsideCatalog({ title, names }: { title: string; names: string[] }) {
   if (!names.length) return null
   return (

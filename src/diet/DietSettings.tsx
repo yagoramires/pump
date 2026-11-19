@@ -10,12 +10,12 @@ import { buildDietAdjustPrompt } from './prompt'
 import { WaterSettings } from './WaterSettings'
 
 export function DietSettings({ open }: { open: OpenView }) {
-  const { plan: dietPlan } = useDietPlan()
+  const { plan: dietPlan, replacePlan } = useDietPlan()
   const { on } = useWater()
   const back = () => open()
   return (
     <>
-      <SettingsRow icon={<Utensils size={18} aria-hidden="true" />} color="var(--c7)" title="Cardápio" onClick={() => open(<DietEditor onDone={back} onCancel={back} />)} />
+      <SettingsRow icon={<Utensils size={18} aria-hidden="true" />} color="var(--c7)" title="Cardápio" onClick={() => open(<DietEditor initial={dietPlan} onSave={(next) => { replacePlan(next); back() }} onCancel={back} />)} />
       <AiPlanRows adjustPrompt={() => buildDietAdjustPrompt(dietPlan)} onImport={(mode) => open(<DietImport mode={mode} onDone={back} onBack={back} />)} />
       <SettingsRow icon={<Droplet size={18} aria-hidden="true" />} color="var(--c2)" title="Água" sub={on ? `${liters(on.goalMl)} L por dia` : 'Desligada'} onClick={() => open(<><BackHeader title="Água" onBack={back} /><WaterSettings /></>)} />
     </>

@@ -1,6 +1,7 @@
 import { countInWeekBefore, daysBetween, hhmm } from '@/lib/date'
 import type { DayItem, DayMeal, DietDay, DietItem, DietLog, DietPlan, Meal, MealOption, Menu } from './types'
 import { round1 } from '@/lib/number'
+import { omitKey } from '@/lib/utils'
 import { currentMenu, planItems, sortedMeals } from './plan'
 import { asFood, type Food, foodKey, kcalOf, macrosOf } from './food'
 
@@ -35,10 +36,7 @@ export const updateDay = (log: DietLog, plan: DietPlan, date: string, f: (d: Die
   return d ? { ...log, [date]: f(d) } : log
 }
 
-export const resetDay = (log: DietLog, date: string): DietLog => {
-  const { [date]: _, ...rest } = log
-  return rest
-}
+export const resetDay = (log: DietLog, date: string): DietLog => omitKey(log, date)
 
 const mapMeal = (d: DietDay, mealId: string, f: (m: DayMeal) => DayMeal): DietDay =>
   d.meals.some((m) => m.id === mealId) ? { ...d, meals: d.meals.map((m) => (m.id === mealId ? f(m) : m)) } : d

@@ -57,7 +57,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
     'Substituir cardápio?', 'O cardápio atual será substituído. O que você já marcou hoje continua.',
   )
 
-  if (editing && review) return <><DietEditor draft={review.plan} onDone={offer} onCancel={() => setEditing(false)} />{confirm}</>
+  if (editing && review) return <><DietEditor initial={review.plan} onSave={offer} onCancel={() => setEditing(false)} />{confirm}</>
 
   if (review) {
     const menu = review.plan.menus[paste.tab] ?? review.plan.menus[0]

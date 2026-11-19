@@ -5,12 +5,14 @@ import { EmptyState } from '@/components/EmptyState'
 import { Overlay } from '@/components/Overlay'
 import { DietEditor } from './DietEditor'
 import { DietImport } from './DietImport'
+import { useDietPlan } from './useDietPlan'
 
 export function DietStart({ hint, onDone }: { hint: string; onDone?: () => void }) {
+  const { plan, replacePlan } = useDietPlan()
   const [view, setView] = useState<'edit' | 'ia' | 'convert'>()
   const close = () => setView(undefined)
   const done = onDone ?? close
-  if (view === 'edit') return <Overlay><DietEditor onDone={done} onCancel={close} /></Overlay>
+  if (view === 'edit') return <Overlay><DietEditor initial={plan} onSave={(next) => { replacePlan(next); done() }} onCancel={close} /></Overlay>
   if (view) return <Overlay><DietImport mode={view} onDone={done} onBack={close} /></Overlay>
   return (
     <EmptyState icon={<Utensils size={30} aria-hidden="true" />} title="Monte seu cardápio">

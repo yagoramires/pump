@@ -4,6 +4,9 @@ import { Chips, MultiChips } from '@/components/Chips'
 import { Card } from '@/components/ui/card'
 import { NumberField } from '@/components/NumberField'
 
+// \u200b deixa o chip quebrar na barra
+const SPLIT_CHIPS = { ...SPLIT_LABEL, ppl: SPLIT_LABEL.ppl.replaceAll('/', '/\u200b') }
+
 export function AnamnesisForm({ value, onChange }: { value: Anamnesis; onChange: (a: Anamnesis) => void }) {
   const set = <K extends keyof Anamnesis>(k: K, v: Anamnesis[K]) => onChange({ ...value, [k]: v })
   return (
@@ -14,7 +17,7 @@ export function AnamnesisForm({ value, onChange }: { value: Anamnesis; onChange:
       </div>
       <Chips label="Nível" options={LEVEL_LABEL} value={value.level} onChange={(v) => set('level', v)} />
       <Chips label="Onde treina" options={PLACE_LABEL} value={value.place} onChange={(v) => set('place', v)} />
-      <Chips label="Divisão preferida" options={SPLIT_LABEL} value={value.split} onChange={(v) => set('split', v)} cols="grid-cols-3" />
+      <Chips label="Divisão preferida" options={SPLIT_CHIPS} value={value.split} onChange={(v) => set('split', v)} cols="grid-cols-3" />
       <MultiChips label="Pontos fracos" options={MUSCLE_LABEL} value={value.weak} onChange={(v) => set('weak', v)} cols="grid-cols-3 xs:grid-cols-4" />
       <MultiChips label="Incluir também" options={EXTRA_LABEL} value={value.extras} onChange={(v) => set('extras', v)} />
       <div>

@@ -16,8 +16,15 @@ import { cn } from '@/lib/utils'
 import { Alert } from '@/components/ui/alert'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { planExerciseLine } from './display'
+import { groupExercises } from './reps'
 
 type Props = { initial: WorkoutPlan; onSave: (plan: WorkoutPlan) => void; onCancel: () => void }
+
+/** vizinho dentro do próprio grupo (força ou cardio), na ordem em que a tela mostra */
+const neighbor = (exercises: PlanExercise[], i: number, d: number) => {
+  const items = groupExercises(exercises).find((g) => g.items.some((x) => x.index === i))!.items
+  return items[items.findIndex((x) => x.index === i) + d]?.index
+}
 
 export function PlanEditor({ initial, onSave, onCancel }: Props) {
   const [plan, setPlan] = useState<WorkoutPlan>(() => structuredClone(initial))
@@ -32,12 +39,19 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
     setPlan((p) => ({ workouts: p.workouts.map((w) => (w.id === id ? f(w) : w)) }))
   const patchEx = (wid: string, i: number, patch: Partial<PlanExercise>) =>
     patchWorkout(wid, (w) => ({ ...w, exercises: w.exercises.map((e, j) => (j === i ? { ...e, ...patch } : e)) }))
-  const move = (wid: string, i: number, d: number) =>
-    patchWorkout(wid, (w) => {
-      const ex = [...w.exercises]
-      ;[ex[i], ex[i + d]] = [ex[i + d], ex[i]]
-      return { ...w, exercises: ex }
-    })
+  const move = (wid: string, i: number, d: number) => {
+    const w = plan.workouts.find((x) => x.id === wid)!
+    const j = neighbor(w.exercises, i, d)
+    if (j === undefined) return undefined
+    return () => {
+      patchWorkout(wid, (x) => {
+        const ex = [...x.exercises]
+        ;[ex[i], ex[j]] = [ex[j], ex[i]]
+        return { ...x, exercises: ex }
+      })
+      setEditing({ wid, i: j })
+    }
+  }
 
   const addWorkout = () =>
     setPlan((p) => {
@@ -105,8 +119,8 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
           ex={ee}
           onChange={(next) => patchEx(ew.id, editing!.i, next)}
           onRemove={() => { patchWorkout(ew.id, (x) => ({ ...x, exercises: x.exercises.filter((_, j) => j !== editing!.i) })); setEditing(undefined) }}
-          onMoveUp={editing!.i > 0 ? () => { move(ew.id, editing!.i, -1); setEditing({ wid: ew.id, i: editing!.i - 1 }) } : undefined}
-          onMoveDown={editing!.i < ew.exercises.length - 1 ? () => { move(ew.id, editing!.i, 1); setEditing({ wid: ew.id, i: editing!.i + 1 }) } : undefined}
+          onMoveUp={move(ew.id, editing!.i, -1)}
+          onMoveDown={move(ew.id, editing!.i, 1)}
           onClose={() => setEditing(undefined)}
         />
       )}

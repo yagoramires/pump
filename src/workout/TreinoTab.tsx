@@ -3,7 +3,7 @@ import { ArrowLeftRight, Check, ChevronRight, Dumbbell, History, Moon, Undo2 } f
 import { toast } from 'sonner'
 import type { SetDone, WorkoutLog, WorkoutSession } from './types'
 import { usePersisted } from '@/storage/db'
-import { cn } from '@/lib/utils'
+import { cn, omitKey } from '@/lib/utils'
 import { formatDayLabel } from '@/lib/date'
 import { useToday } from '@/lib/useToday'
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,6 @@ import { Card } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/EmptyState'
 import { TabHeader } from '@/components/TabHeader'
-import { Badge } from '@/components/ui/badge'
 import { formatKg, plural } from '@/lib/number'
 import { PlanEditor } from './PlanEditor'
 import { Overlay } from '@/components/Overlay'
@@ -35,7 +34,7 @@ import { REST_STEP } from './limits'
 import { useWorkoutPlan } from './useWorkoutPlan'
 import { workoutDayLabel } from './display'
 import { UnfinishedCard } from './UnfinishedCard'
-import { SwitchWorkout } from './SwitchWorkout'
+import { SwitchWorkout, WorkoutRow } from './SwitchWorkout'
 import { PastWorkouts } from './PastWorkouts'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import type { Workout } from './types'
@@ -44,7 +43,7 @@ export function TreinoTab() {
   const clock = useToday()
   const [today, setToday] = useState(clock.today)
   const [seenAt, setSeenAt] = useState(clock.now)
-  const { plan, replacePlan, patchPlan } = useWorkoutPlan()
+  const { plan, replacePlan, setPlan } = useWorkoutPlan()
   const [log, setLog] = usePersisted('workoutLog')
   const [chosenId, setChosenId] = useState<string>()
   const [editingPlan, setEditingPlan] = useState(false)
@@ -107,18 +106,13 @@ export function TreinoTab() {
   }
 
   const undoRest = () =>
-    setLog((prev) => {
-      if (!isRest(prev[today])) return prev
-      const { [today]: _gone, ...others } = prev
-      return others
-    })
+    setLog((prev) => (isRest(prev[today]) ? omitKey(prev, today) : prev))
 
   const resolveUnfinished = (pending: WorkoutSession, action: 'complete' | 'discard') => {
     const { date } = pending
     setLog((prev) => {
       if (action === 'complete') return prev[date] ? { ...prev, [date]: completeUnfinishedSession(prev[date]) } : prev
-      const { [date]: _removed, ...remaining } = prev
-      return remaining
+      return omitKey(prev, date)
     })
     toast(action === 'complete' ? 'Treino concluído' : 'Treino descartado', {
       action: { label: 'Desfazer', onClick: () => setLog((prev) => ({ ...prev, [date]: pending })) },
@@ -144,14 +138,9 @@ export function TreinoTab() {
         <div className="label-caps">Escolher um treino</div>
         <Card size="flush">
           {plan.workouts.map((w) => (
-            <Button key={w.id} variant="ghost" onClick={() => setChosenId(w.id)} className="h-auto min-h-14 w-full justify-start gap-3 rounded-none border-t border-line px-3.5 py-2.5 text-left font-normal first:border-t-0">
-              <Badge variant="tile">{w.label}</Badge>
-              <span className="block min-w-0 flex-1">
-                <span className="block text-body font-semibold text-strong">{w.name}</span>
-                <span className="block text-meta text-text-2">{plural(w.exercises.length, 'exercício', 'exercícios')}</span>
-              </span>
+            <WorkoutRow key={w.id} workout={w} sub={plural(w.exercises.length, 'exercício', 'exercícios')} onClick={() => setChosenId(w.id)} className="border-t border-line px-3.5 py-2.5 first:border-t-0">
               <ChevronRight size={16} className="text-faint" aria-hidden="true" />
-            </Button>
+            </WorkoutRow>
           ))}
         </Card>
       </div>
@@ -288,7 +277,7 @@ export function TreinoTab() {
         onPick={(sec) => {
           const idx = pickIdx ?? restIdx
           patch((s) => changeRestDuration(s, idx, sec, Date.now()))
-          patchPlan((p) => changePlanRest(p, view, idx, sec))
+          setPlan((p) => changePlanRest(p, view, idx, sec))
           setRestTotal(sec)
         }}
       />

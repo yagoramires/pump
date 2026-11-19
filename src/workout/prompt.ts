@@ -23,7 +23,7 @@ const SPLITS = {
   ...SPLIT_LABEL,
   fullbody: `${SPLIT_LABEL.fullbody.toLowerCase()} (corpo todo em cada treino)`,
   ab: `${SPLIT_LABEL.ab} (superiores e inferiores)`,
-  ppl: `${SPLIT_LABEL.ppl.replaceAll('​', '').toLowerCase()} (empurrar, puxar, pernas)`,
+  ppl: `${SPLIT_LABEL.ppl.toLowerCase()} (empurrar, puxar, pernas)`,
 }
 const EXTRAS = { ...EXTRA_LABEL, mobilidade: `${EXTRA_LABEL.mobilidade}/alongamento` }
 

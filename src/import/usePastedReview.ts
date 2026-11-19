@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { FormatError } from '@/format/envelope'
+import type { FormatError } from '@/format/envelope'
 
 /** `tab`: o treino/cardápio aberto na revisão, que volta pro 1º a cada texto novo.
  * `parse` lança FormatError com os problemas (readHalf já converte o inesperado); `review` (assíncrono: catálogo) monta o resultado, e só a falha dele vira `failed` */
@@ -30,8 +30,7 @@ export function usePastedReview<F, R>(parse: (text: string) => F, review: (file:
       try {
         file = fns.current.parse(req.text)
       } catch (e) {
-        if (!(e instanceof FormatError)) throw e
-        setProblems(e.problems)
+        setProblems((e as FormatError).problems)
         return
       }
       setReviewing(true)

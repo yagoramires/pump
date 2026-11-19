@@ -7,6 +7,7 @@ export const GRAMS = [1, 2000] as const
 export const GOAL_KCAL = [800, 6000] as const
 export const MACRO_G = [0, 600] as const
 export const MAX_KCAL_PER_100G = 900
+export const MAX_MACRO_PER_100G = 100
 export const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/
 
 export const WATER_LIMITS = { goalMl: [250, 10000], cupMl: [50, 1000] } as const

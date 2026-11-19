@@ -7,11 +7,11 @@ import { MACRO_KEYS, kcalOf, macrosOf } from './food'
 import { currentMenu, emptyMeal, emptyMenu, emptyOption } from './plan'
 import { planProblem } from './dietFormat'
 import { GOAL_KCAL, GRAMS, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
-import { useDietPlan } from './useDietPlan'
 import { FoodPicker } from './FoodPicker'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Toggle } from '@/components/ui/toggle'
+import { Chip, ChipRow } from '@/components/ChipRow'
 import { Input } from '@/components/ui/input'
 import { BackHeader } from '@/components/BackHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
@@ -19,8 +19,8 @@ import { NumberField } from '@/components/NumberField'
 import { TimePicker } from '@/components/TimePicker'
 import { Alert } from '@/components/ui/alert'
 
-/** sem `draft`, edita e grava o plano salvo; com `draft` (rascunho do import), só entrega o resultado em `onDone` — "Apagar todos" entrega o plano vazio */
-type Props = { draft?: DietPlan; onDone: (plan: DietPlan) => void; onCancel: () => void }
+/** "Apagar todos" entrega o plano vazio em `onSave` */
+type Props = { initial: DietPlan; onSave: (plan: DietPlan) => void; onCancel: () => void }
 
 const CONFIRM = {
   menu: { title: 'Apagar este cardápio?', text: 'As refeições dele saem do editor. O histórico fica.' },
@@ -41,13 +41,7 @@ const setMacro = (m: Menu, k: keyof Macros, n?: number): Menu => {
   return { ...m, goalMacros: MACRO_KEYS.some((x) => g[x]) ? g : undefined }
 }
 
-export function DietEditor({ draft, onDone, onCancel }: Props) {
-  const { plan: saved, replacePlan } = useDietPlan()
-  const initial = draft ?? saved
-  const onSave = (next: DietPlan) => {
-    if (!draft) replacePlan(next)
-    onDone(next)
-  }
+export function DietEditor({ initial, onSave, onCancel }: Props) {
   const [plan, setPlan] = useState<DietPlan>(() => (initial.menus.length ? structuredClone(initial) : { menus: [emptyMenu(1, [emptyMeal(1)])] }))
   const [menuId, setMenuId] = useState(() => currentMenu(plan)!.id)
   const [optOf, setOptOf] = useState<Record<string, number>>({})
@@ -99,14 +93,10 @@ export function DietEditor({ draft, onDone, onCancel }: Props) {
       </BackHeader>
       {error && <Alert variant="destructive">{error}</Alert>}
 
-      <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Cardápios">
-        {plan.menus.map((m) => (
-          <Toggle key={m.id} variant="outline" className="shrink-0 text-meta" pressed={m.id === menu.id} onPressedChange={() => setMenuId(m.id)}>
-            {m.name.trim() || 'Sem nome'}
-          </Toggle>
-        ))}
+      <ChipRow label="Cardápios" className="-mx-4">
+        {plan.menus.map((m) => <Chip key={m.id} pressed={m.id === menu.id} onPressedChange={() => setMenuId(m.id)}>{m.name.trim() || 'Sem nome'}</Chip>)}
         <Button variant="outline" size="sm" className="border-dashed border-border-strong text-text-2" disabled={plan.menus.length >= MAX_MENUS} onClick={() => addMenu(emptyMenu(plan.menus.length + 1))}><Plus aria-hidden="true" /> Novo cardápio</Button>
-      </div>
+      </ChipRow>
 
       <Card size="sm" className="gap-2.5">
         <div className="flex items-center gap-2">

@@ -17,6 +17,8 @@ test('offline: avisa e lista o exercício próprio salvo', async () => {
   expect(await screen.findByText('Sem internet: só seus exercícios aparecem')).toBeInTheDocument()
   expect(await screen.findByText('Remada do Yago')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Adicionar Remada do Yago' })).toBeInTheDocument()
+  await userEvent.setup().click(within(screen.getByRole('group', { name: 'Músculo' })).getByRole('button', { name: 'bíceps' }))
+  expect(screen.queryByText('Remada do Yago')).not.toBeInTheDocument()
 })
 
 test('filtro de músculo inclui secundários; com aparelho, os exercícios próprios somem', async () => {

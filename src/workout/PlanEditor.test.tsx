@@ -80,3 +80,23 @@ test('Renomear fecha o menu e põe o foco no nome do treino depois da animação
   await user.click(await screen.findByRole('button', { name: 'Renomear' }))
   await waitFor(() => expect(screen.getByDisplayValue('Peito')).toHaveFocus())
 })
+
+test('Subir e Descer movem dentro do grupo mostrado: cardio não troca com força', async () => {
+  const user = userEvent.setup()
+  const onSave = vi.fn()
+  const esteira = { name: 'Esteira', sets: 1, reps: '20 min' }
+  await renderLoaded(<PlanEditor initial={{ workouts: [workoutOf([esteira, supino, { ...supino, name: 'Remada' }])] }} onSave={onSave} onCancel={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: /Supino reto/ }))
+  await user.click(screen.getByRole('button', { name: 'Mais ações' }))
+  expect(screen.getByRole('button', { name: 'Subir' })).toBeDisabled()
+  await user.click(screen.getByRole('button', { name: 'Descer' }))
+  expect(screen.getByRole('button', { name: 'Descer' })).toBeDisabled()
+  await user.click(screen.getByRole('button', { name: 'Pronto' }))
+  await user.click(screen.getByRole('button', { name: /Esteira/ }))
+  await user.click(screen.getByRole('button', { name: 'Mais ações' }))
+  expect(screen.getByRole('button', { name: 'Subir' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Descer' })).toBeDisabled()
+  await user.click(screen.getByRole('button', { name: 'Pronto' }))
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  expect(onSave.mock.calls[0][0].workouts[0].exercises.map((e: { name: string }) => e.name)).toEqual(['Esteira', 'Remada', 'Supino reto'])
+})

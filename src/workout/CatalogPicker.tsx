@@ -2,17 +2,17 @@ import { useMemo, useState } from 'react'
 import { Plus } from 'lucide-react'
 import type { CustomExercise, Exercise } from './types'
 import { usePersisted } from '@/storage/db'
-import { fetchExercises, imageUrl } from '@/catalog/catalog'
+import { fetchExercises } from '@/catalog/catalog'
 import { searchByName } from '@/catalog/search'
 import { MUSCLE_GROUPS } from '@/catalog/muscles'
 import { useCatalog } from '@/catalog/useCatalog'
 import { isCustom, newCustomExercise } from './exercises'
-import { ExerciseIcon } from './ExerciseIcon'
+import { ExerciseThumb } from './ExerciseGroups'
 import { BackHeader } from '@/components/BackHeader'
 import { SearchField } from '@/components/SearchField'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Toggle } from '@/components/ui/toggle'
+import { Chip, ChipRow } from '@/components/ChipRow'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -23,13 +23,9 @@ const uniq = (xs: string[]) => [...new Set(xs)].sort((a, b) => a.localeCompare(b
 
 function Chips({ values, value, onChange, label }: { values: string[]; value?: string; onChange: (v?: string) => void; label: string }) {
   return (
-    <div className="flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label={label}>
-      {values.map((v) => (
-        <Toggle key={v} variant="outline" className="shrink-0 text-meta" pressed={value === v} onPressedChange={() => onChange(value === v ? undefined : v)}>
-          {v}
-        </Toggle>
-      ))}
-    </div>
+    <ChipRow label={label}>
+      {values.map((v) => <Chip key={v} pressed={value === v} onPressedChange={() => onChange(value === v ? undefined : v)}>{v}</Chip>)}
+    </ChipRow>
   )
 }
 
@@ -37,7 +33,7 @@ function Row({ e, mine, onPick }: { e: Exercise | CustomExercise; mine?: boolean
   const img = isCustom(e) ? undefined : e.images[0]
   return (
     <li className="flex items-center gap-3 border-t border-line px-3 py-2 first:border-t-0">
-      {img ? <img src={imageUrl(img)} alt="" loading="lazy" className="size-10 shrink-0 rounded-lg bg-surface object-cover" /> : <ExerciseIcon muscles={e.muscles} size={36} />}
+      <ExerciseThumb muscles={e.muscles} image={img} />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-body font-semibold text-strong">{e.name}</span>
         <span className="block truncate text-caption text-text-2">{e.muscles.join(', ')}{mine ? ' · seu exercício' : ''}</span>
@@ -58,7 +54,6 @@ export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | Cust
   const [creating, setCreating] = useState(false)
   const [draft, setDraft] = useState({ name: '', muscle: MUSCLES[0], note: '' })
 
-  const muscles = useMemo(() => uniq(catalog.flatMap((e) => e.muscles)), [catalog])
   const equipments = useMemo(() => uniq(catalog.map((e) => e.equipment).filter(Boolean)), [catalog])
   const byMuscle = (e: Exercise | CustomExercise) => !muscle || e.muscles.includes(muscle)
   const shownMine = equipment ? [] : searchByName(custom.filter(byMuscle), q) // exercício próprio não tem aparelho
@@ -77,7 +72,7 @@ export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | Cust
       <BackHeader title="Exercícios" onBack={onClose} className="px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2" />
       <SearchField className="mx-4 mb-2" placeholder={`Buscar entre ${catalog.length + custom.length}…`} aria-label="Buscar exercício" value={q} onChange={(e) => setQ(e.target.value)} />
       <div className="flex flex-col gap-1.5">
-        <Chips label="Músculo" values={muscles} value={muscle} onChange={setMuscle} />
+        <Chips label="Músculo" values={MUSCLES} value={muscle} onChange={setMuscle} />
         <Chips label="Aparelho" values={equipments} value={equipment} onChange={setEquipment} />
       </div>
       {offline && <p className="px-4 pt-2 text-meta text-text-2">Sem internet: só seus exercícios aparecem</p>}

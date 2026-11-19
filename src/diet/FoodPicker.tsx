@@ -1,23 +1,24 @@
 import { useMemo, useState } from 'react'
-import { Check, Minus, Plus } from 'lucide-react'
+import { Check, Plus } from 'lucide-react'
 import type { DietItem, Per100 } from './types'
 import { usePersisted } from '@/storage/db'
 import { fetchTaco } from '@/catalog/catalog'
 import { searchByName } from '@/catalog/search'
 import { useCatalog } from '@/catalog/useCatalog'
 import { SearchField } from '@/components/SearchField'
+import { Stepper } from '@/components/Stepper'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
 import { Toggle } from '@/components/ui/toggle'
 import { todayKey } from '@/lib/date'
-import { formatDec, parseDecimal } from '@/lib/number'
+import { formatDec, parseInRange } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { MACRO_KEYS, asFood, type Food, foodKey, fromTaco } from './food'
 import { recentFoods } from './day'
 import { MACRO_LABELS, iaLabel } from './display'
-import { GRAMS } from './limits'
+import { GRAMS, MAX_KCAL_PER_100G, MAX_MACRO_PER_100G } from './limits'
 
 type Props = {
   title: string
@@ -70,8 +71,8 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
 
   const pick = () => sel && onPick({ id: crypto.randomUUID(), ...sel, grams, ...(portion.trim() && { portion: portion.trim() }) })
 
-  const num = (s: string) => (s.trim() ? parseDecimal(s) : 0)
-  const values = { kcal: draft.kcal.trim() ? parseDecimal(draft.kcal) : null, p: num(draft.p), c: num(draft.c), f: num(draft.f) }
+  const macro = (s: string) => (s.trim() ? parseInRange(s, 0, MAX_MACRO_PER_100G) : 0)
+  const values = { kcal: parseInRange(draft.kcal, 0, MAX_KCAL_PER_100G), p: macro(draft.p), c: macro(draft.c), f: macro(draft.f) }
   const dup = !!draft.name.trim() && foods.some((f) => foodKey(f.name) === foodKey(draft.name))
   const valid = !!draft.name.trim() && !dup && Object.values(values).every((v) => v !== null)
   const create = () => {
@@ -128,9 +129,9 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
               <div className="flex shrink-0 items-center justify-between gap-3">
                 <span className="text-sm text-text-2">Quantidade</span>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="icon" aria-label="Diminuir quantidade" disabled={grams <= GRAMS[0]} onClick={() => setGrams((g) => Math.max(GRAMS[0], g - 10))}><Minus aria-hidden="true" /></Button>
-                  <span className="min-w-16 text-center text-base font-semibold tabular-nums text-strong">{formatDec(grams)} g</span>
-                  <Button variant="outline" size="icon" aria-label="Aumentar quantidade" disabled={grams >= GRAMS[1]} onClick={() => setGrams((g) => Math.min(GRAMS[1], g + 10))}><Plus aria-hidden="true" /></Button>
+                  <Stepper label="quantidade" value={grams} step={10} min={GRAMS[0]} max={GRAMS[1]} onChange={setGrams}>
+                    <span className="min-w-16 text-center text-base font-semibold tabular-nums text-strong">{formatDec(grams)} g</span>
+                  </Stepper>
                 </div>
               </div>
               <Input aria-label="Porção" className="shrink-0" placeholder="Porção (opcional), ex.: 2 un" autoComplete="off" value={portion} onChange={(e) => setPortion(e.target.value)} />
