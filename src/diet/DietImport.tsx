@@ -136,7 +136,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
                     </>
                   )
                   return i.source === 'ia'
-                    ? <Button key={i.id} variant="ghost" className="h-auto min-h-11 w-full justify-start gap-3 rounded-none px-3.5 py-1.5 text-left font-normal" onClick={() => setPicking(i)}>{body}</Button>
+                    ? <Button key={i.id} variant="ghost" className="h-auto min-h-11 w-full justify-start gap-3 rounded-none px-3.5 py-1.5 text-left font-normal whitespace-normal" onClick={() => setPicking(i)}>{body}</Button>
                     : <div key={i.id} className="flex min-h-11 items-center gap-3 px-3.5 py-1.5">{body}</div>
                 })}
               </div>
