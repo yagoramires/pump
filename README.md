@@ -108,7 +108,7 @@ Veja peso, medidas, estimativa de gordura corporal e frequência de treinos. O g
 
 ## Importar treino ou dieta
 
-No grupo **Treino** ou **Dieta** das configurações, escolha **Gerar com IA** para montar um plano a partir dos seus objetivos. Se você já tem uma ficha em texto, imagem ou PDF, use **Converter** e envie a ficha junto com o prompt na sua ferramenta de IA.
+No grupo **Treino** ou **Dieta** das configurações, escolha **Gerar com IA** para montar um plano a partir dos seus objetivos. Se você já tem uma ficha em texto, imagem ou PDF, use **Converter** e envie a ficha junto com o prompt na sua ferramenta de IA. Para mudar o plano que você já tem, use **Ajustar com IA**: ele copia seu plano com as regras do formato, você cola na IA, diz o que quer mudar e cola a resposta em **Gerar com IA**.
 
 1. Copie o prompt que o Pump prepara. Quando a ferramenta não conseguir abrir a lista do catálogo, use **Copiar a lista** e cole também.
 2. Cole a resposta no Pump ou selecione o arquivo JSON. O app aceita o texto da resposta junto com o bloco de código.
