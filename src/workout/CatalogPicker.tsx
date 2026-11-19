@@ -25,7 +25,7 @@ function Chips({ values, value, onChange, label }: { values: string[]; value?: s
   return (
     <div className="flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label={label}>
       {values.map((v) => (
-        <Toggle key={v} variant="outline" size="lg" className="h-11 shrink-0 text-[13px]" pressed={value === v} onPressedChange={() => onChange(value === v ? undefined : v)}>
+        <Toggle key={v} variant="outline" className="shrink-0 text-[13px]" pressed={value === v} onPressedChange={() => onChange(value === v ? undefined : v)}>
           {v}
         </Toggle>
       ))}

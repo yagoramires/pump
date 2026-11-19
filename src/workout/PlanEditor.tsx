@@ -8,6 +8,7 @@ import { isCardio } from './cardio'
 import { IconDot } from '@/components/IconDot'
 import { BackHeader } from '@/components/BackHeader'
 import { muscleColor } from '@/catalog/muscles'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -55,17 +56,17 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
       {plan.workouts.map((w) => (
         <Card key={w.id} className="gap-2 p-3">
           <div className="flex items-center gap-2">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-accent-bg text-base font-semibold text-accent">{w.label}</span>
+            <Badge variant="tile">{w.label}</Badge>
             <Input id={`name-${w.id}`} className="min-w-0 flex-1 border-transparent bg-transparent px-2 font-semibold focus-visible:bg-surface" aria-label={`Nome do treino ${w.label}`} autoComplete="off" enterKeyHint="done" value={w.name} onChange={(e) => patchWorkout(w.id, (x) => ({ ...x, name: e.target.value }))} />
             <Button variant="ghost" size="icon" className="text-text-2" aria-label={`Mais ações do treino ${w.label}`} onClick={() => setMenuFor(w.id)}><MoreHorizontal size={20} /></Button>
           </div>
           {[false, true].map((cardio) => {
             const items = w.exercises.map((e, i) => ({ e, i })).filter(({ e }) => isCardio(e) === cardio)
             return items.length > 0 && (
-              <div key={String(cardio)} className={cn('flex flex-col', cardio ? 'gap-2' : 'divide-y divide-line border-t border-line')}>
+              <div key={String(cardio)} className={cn('flex flex-col', cardio ? 'gap-2' : 'border-t border-line')}>
                 {cardio && <div className="label-caps border-t border-line pt-2">Cardio</div>}
                 {items.map(({ e, i }) => (
-                  <Button key={`${e.exerciseId}-${i}`} variant="ghost" className="h-auto min-h-14 justify-start gap-3 rounded-none px-0 text-left font-normal" onClick={() => setEditing({ wid: w.id, i })}>
+                  <Button key={`${e.exerciseId}-${i}`} variant="ghost" className="h-auto min-h-14 justify-start gap-3 rounded-none border-t border-line px-0 text-left font-normal first:border-t-0" onClick={() => setEditing({ wid: w.id, i })}>
                     <IconDot color={cardio ? 'var(--c1)' : muscleColor(e.muscles)} size={36}>{cardio ? <HeartPulse size={16} /> : <Dumbbell size={16} />}</IconDot>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[15px] font-semibold text-strong">{e.name}</span>

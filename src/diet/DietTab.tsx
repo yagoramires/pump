@@ -1,10 +1,11 @@
-import { Fragment, useState } from 'react'
+import { useState } from 'react'
 import { Check, Droplet, ListChecks, MoreHorizontal, Pencil, Sparkles } from 'lucide-react'
 import { usePersisted } from '@/storage/db'
 import { formatDayLabel } from '@/lib/date'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Toggle } from '@/components/ui/toggle'
+import { Checkbox } from '@/components/ui/checkbox'
+import { TabHeader } from '@/components/TabHeader'
 import { Overlay } from '@/components/Overlay'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
@@ -40,7 +41,7 @@ export function DietTab() {
   if (!day || !plan.menus.length) {
     return (
       <>
-        <div className="label-caps">Dieta</div>
+        <TabHeader eyebrow="Dieta" />
         <DietStart hint="Um cardápio pra seguir no dia a dia. Dá pra mudar quando quiser." />
       </>
     )
@@ -73,11 +74,10 @@ export function DietTab() {
 
   return (
     <div className="flex flex-col gap-2.5 pb-6">
-      <div className="mt-(--gear-offset) flex items-center justify-between gap-2 pr-2">
-        <span className="label-caps min-w-0 truncate">{`${formatDayLabel(today)} · ${day.menuName}`}</span>
-        <Button variant="outline" size="icon" aria-label="Mais opções da dieta" onClick={() => setSheet('more')}><MoreHorizontal aria-hidden="true" /></Button>
-      </div>
-      <h1 className="text-[26px] font-bold tracking-tight text-strong">Dieta</h1>
+      <TabHeader
+        eyebrow={`${formatDayLabel(today)} · ${day.menuName}`} title="Dieta"
+        actions={<Button variant="outline" size="icon" aria-label="Mais opções da dieta" onClick={() => setSheet('more')}><MoreHorizontal aria-hidden="true" /></Button>}
+      />
 
       <Card role="group" aria-label="Calorias" className="flex-row items-center gap-3 p-3.5">
         {!!goal && (
@@ -89,9 +89,9 @@ export function DietTab() {
         )}
         <div className="min-w-0 flex-1">
           <div className="text-[15px] font-semibold tabular-nums text-strong">{goal ? `${formatDec(s.kcal)} / ${formatDec(goal)} kcal` : `${formatDec(s.kcal)} kcal`}</div>
-          {/* quebra entre os macros, nunca no meio de um número (320 px com a pílula de água) */}
-          <div className={cn('text-[12.5px] tabular-nums', day.free ? 'text-accent' : 'text-text-2')}>
-            {day.free ? 'Dia livre' : macros.map((m, i) => <Fragment key={m[0]}>{i > 0 && ' · '}<span className="whitespace-nowrap">{m}</span></Fragment>)}
+          {/* cada macro é uma unidade: a linha quebra entre eles, nunca no meio de um número */}
+          <div className={cn('flex flex-wrap gap-x-2.5 text-[12.5px] tabular-nums', day.free ? 'text-accent' : 'text-text-2')}>
+            {day.free ? 'Dia livre' : macros.map((m) => <span key={m} className="whitespace-nowrap">{m}</span>)}
           </div>
         </div>
         {water.on && (
@@ -122,12 +122,10 @@ export function DietTab() {
                   <span className="shrink-0 rounded-md border border-accent-line px-1.5 text-[11px] font-semibold text-accent">{optionLetter(index)}</span>
                 )}
               </Button>
-              <Toggle
-                variant="check" size="check" pressed={m.done} aria-label={`${m.done ? 'Desmarcar' : 'Marcar'} ${m.name}`} disabled={!!day.free}
-                onPressedChange={() => act((d) => toggleMeal(d, m.id))}
-              >
-                {m.free ? <Sparkles aria-hidden="true" /> : <Check strokeWidth={3} aria-hidden="true" />}
-              </Toggle>
+              <Checkbox
+                size="check" shape="round" checked={m.done} aria-label={`${m.name} feita`} disabled={!!day.free} icon={m.free ? <Sparkles className="size-4" aria-hidden="true" /> : undefined}
+                onCheckedChange={() => act((d) => toggleMeal(d, m.id))}
+              />
             </li>
           )
         })}
@@ -154,7 +152,7 @@ export function DietTab() {
                 <>
                   <DrawerTitle className="shrink-0 truncate pb-1 text-[19px] font-semibold text-strong">Cardápio de hoje</DrawerTitle>
                   <DrawerDescription className="pb-3 text-[13px] text-text-2">Vale pra hoje e pros próximos dias.</DrawerDescription>
-                  <Card className="overflow-hidden"><ul aria-label="Cardápios">
+                  <Card variant="inset" className="overflow-hidden"><ul aria-label="Cardápios">
                     {!dayMenu && menuRow(day.menuId, day.menuName)}
                     {plan.menus.map((m) => menuRow(m.id, m.name))}
                   </ul></Card>
@@ -163,7 +161,7 @@ export function DietTab() {
                 <>
                   <DrawerTitle className="shrink-0 truncate pb-2 text-[19px] font-semibold text-strong">Dieta</DrawerTitle>
                   <DrawerDescription className="sr-only">Mais opções da dieta</DrawerDescription>
-                  <Card className="overflow-hidden"><ul>
+                  <Card variant="inset" className="overflow-hidden"><ul>
                     {plan.menus.length > 1 && <SheetRow icon={<ListChecks size={18} className="text-accent" aria-hidden="true" />} label="Cardápio de hoje" onClick={() => setSheet('menus')} />}
                     <SheetRow icon={<Sparkles size={18} className="text-accent" aria-hidden="true" />} label={day.free ? 'Desfazer dia livre' : 'Dia livre'} onClick={() => { setSheet(undefined); act((d) => ({ ...d, free: !d.free })) }} />
                     <SheetRow icon={<Pencil size={18} className="text-accent" aria-hidden="true" />} label="Editar cardápio" onClick={() => { setSheet(undefined); setEditing(true) }} />

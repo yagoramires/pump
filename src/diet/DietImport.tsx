@@ -87,7 +87,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
         {review.plan.menus.length > 1 && (
           <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Cardápios">
             {review.plan.menus.map((m, n) => (
-              <Toggle key={m.id} variant="outline" className="h-11 shrink-0 rounded-xl px-3 text-[13px]" pressed={m.id === menu.id} onPressedChange={() => setTab(n)}>
+              <Toggle key={m.id} variant="outline" className="shrink-0 text-[13px]" pressed={m.id === menu.id} onPressedChange={() => setTab(n)}>
                 {m.name}
               </Toggle>
             ))}
@@ -173,7 +173,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
           ? <Step n={1} title="Copie o prompt" sub="Botão lá embaixo; cole no ChatGPT" />
           : (
             <Step n={1} title="Copie o prompt" sub="Cole no ChatGPT">
-              <Button type="button" variant="outline" size="sm" className="h-9 bg-transparent" onClick={() => copy(buildDietConvertPrompt())}><Copy size={14} aria-hidden="true" />Copiar</Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => copy(buildDietConvertPrompt())}><Copy size={14} aria-hidden="true" />Copiar</Button>
             </Step>
           )}
         {mode === 'convert' && <Step n={2} title="Mande pra sua IA junto com sua dieta" sub="PDF, foto ou texto" />}

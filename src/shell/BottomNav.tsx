@@ -20,7 +20,7 @@ export function BottomNav({ tab, onChange, alerts = {} }: { tab: Tab; onChange: 
           aria-label={alerts[id] ? `${label}, ${alerts[id]}` : label}
           aria-current={tab === id ? 'page' : undefined}
           onClick={() => onChange(id)}
-          className={cn('h-auto min-h-11 flex-1 flex-col gap-1 rounded-none text-[10px] font-medium hover:bg-transparent', tab === id ? 'text-accent hover:text-accent' : 'text-faint hover:text-faint')}
+          className={cn('h-auto min-h-11 flex-1 flex-col gap-1 rounded-none text-[10px] font-medium', tab === id ? 'text-accent' : 'text-faint hover:text-text')}
         >
           <span className="relative">
             <Icon size={20} aria-hidden="true" />

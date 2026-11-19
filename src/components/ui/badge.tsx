@@ -14,9 +14,11 @@ const badgeVariants = cva(
         destructive:
           "bg-destructive text-white focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40 [a&]:hover:bg-destructive/90",
         outline:
-          "border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
-        ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+          "border-border text-foreground [a&]:hover:bg-hover [a&]:hover:text-strong",
+        ghost: "[a&]:hover:bg-hover [a&]:hover:text-strong",
         link: "text-primary underline-offset-4 [a&]:hover:underline",
+        // letra do treino (A, B, C…): quadradinho de marca
+        tile: "size-9 rounded-lg border-accent-line bg-accent-bg p-0 text-sm font-bold text-accent",
       },
     },
     defaultVariants: {

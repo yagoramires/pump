@@ -1,10 +1,9 @@
 import { useRef, useState } from 'react'
-import { Check } from 'lucide-react'
 import type { SessionExercise, SetDone } from './types'
 import { formatInput, formatKg, parseInRange } from '@/lib/number'
 import { MAX_KG } from './limits'
 import { Input } from '@/components/ui/input'
-import { Toggle } from '@/components/ui/toggle'
+import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 
 type Draft = { kg?: string; reps?: string }
@@ -18,7 +17,7 @@ type Props = {
 }
 
 const parseKg = (v: string) => parseInRange(v, 0, MAX_KG)
-const TH = 'label-caps pb-1.5 tracking-[.04em]'
+const TH = 'label-caps px-2 pb-1.5 tracking-[.04em]'
 
 export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
   const [drafts, setDrafts] = useState<Record<number, Draft>>({})
@@ -89,9 +88,7 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
                 />
               </td>
               <td className="py-1.5">
-                <Toggle variant="check" size="check" className="mx-auto touch-manipulation" aria-label={`Série ${n} de ${ex.name}`} pressed={s !== null} onPressedChange={() => check(i)}>
-                  <Check size={15} strokeWidth={3} aria-hidden="true" />
-                </Toggle>
+                <Checkbox size="check" className="mx-auto touch-manipulation" aria-label={`Série ${n} de ${ex.name}`} checked={s !== null} onCheckedChange={() => check(i)} />
               </td>
             </tr>
           )

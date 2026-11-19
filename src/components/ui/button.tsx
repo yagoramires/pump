@@ -12,12 +12,12 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-on-accent hover:bg-destructive/90 focus-visible:ring-destructive/20",
         outline:
-          "border border-border bg-panel hover:bg-surface hover:text-strong",
+          "border border-border bg-panel hover:bg-hover hover:text-strong",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground hover:bg-hover hover:text-strong",
         ghost:
-          "font-medium hover:bg-surface hover:text-strong",
-        link: "text-primary underline-offset-4 hover:underline",
+          "font-medium hover:bg-hover",
+        link: "h-auto rounded-sm px-0 py-1 font-medium text-primary underline-offset-4 hover:underline",
       },
       size: {
         default: "h-11 px-4 py-2 has-[>svg]:px-3",
@@ -26,7 +26,7 @@ const buttonVariants = cva(
         lg: "h-12 rounded-xl px-6 has-[>svg]:px-4",
         icon: "size-11",
         "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
-        "icon-sm": "size-11",
+        "icon-sm": "size-9",
         "icon-lg": "size-12",
       },
     },

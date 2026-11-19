@@ -1,5 +1,5 @@
 import { lazy, Suspense, use, useEffect, useState } from 'react'
-import { Settings as SettingsIcon, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -18,8 +18,8 @@ import { todayKey } from '@/lib/date'
 import { useCheckIn } from '@/evolution/useCheckIn'
 import { AchievementToasts } from '@/evolution/AchievementToasts'
 import { EvolutionTab } from '@/evolution/EvolutionTab'
-import { cn } from '@/lib/utils'
 import { Loading } from '@/components/Loading'
+import { OpenSettingsContext } from '@/shell/openSettings'
 import { migrationFor } from '@/profile/migrate'
 import { USER_KEYS } from './schema'
 
@@ -70,13 +70,14 @@ function Shell() {
           <Button type="button" variant="ghost" size="sm" className="text-accent" onClick={backup.send}>Enviar backup</Button>
         </Card></div>
       )}
-      <main className={cn(MAIN, 'relative', !showSettings && '[&>div:not(.fixed)>:first-child]:mr-12')}>
+      <main className={MAIN}>
         {showSettings ? (
           <SettingsScreen onClose={() => setShowSettings(false)} />
         ) : (
           <>
-            <Button type="button" variant="outline" size="icon" className="absolute top-[calc(var(--main-pt)+var(--gear-offset))] right-4" aria-label="Configurações" onClick={() => setShowSettings(true)}><SettingsIcon size={17} /></Button>
-            {tab === 'treino' ? <TreinoTab /> : tab === 'evolucao' ? <EvolutionTab /> : <Suspense fallback={<Loading />}><DietTab /></Suspense>}
+            <OpenSettingsContext value={() => setShowSettings(true)}>
+              {tab === 'treino' ? <TreinoTab /> : tab === 'evolucao' ? <EvolutionTab /> : <Suspense fallback={<Loading />}><DietTab /></Suspense>}
+            </OpenSettingsContext>
           </>
         )}
       </main>

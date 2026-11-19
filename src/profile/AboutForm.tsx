@@ -15,7 +15,7 @@ export function AboutForm({ value, onChange }: { value: Profile; onChange: (p: P
   const set = <K extends keyof Profile>(k: K, v: Profile[K]) => onChange({ ...value, [k]: v })
   return (
     <div className="flex flex-col gap-4">
-      <ToggleGroup type="single" size="lg" spacing={1} value={value.sex} onValueChange={(v) => v && set('sex', v as Profile['sex'])} aria-label="Sexo" variant="segmented">
+      <ToggleGroup type="single" spacing={1} value={value.sex} onValueChange={(v) => v && set('sex', v as Profile['sex'])} aria-label="Sexo" variant="segmented">
         {(['M', 'F'] as const).map((s) => (
           <ToggleGroupItem key={s} value={s} className="flex-1">{s === 'M' ? 'Masculino' : 'Feminino'}</ToggleGroupItem>
         ))}

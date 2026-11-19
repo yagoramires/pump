@@ -3,12 +3,15 @@ import { ArrowLeftRight, Check, ChevronRight, Dumbbell, HeartPulse, History, Moo
 import { toast } from 'sonner'
 import type { SetDone, WorkoutLog, WorkoutSession } from './types'
 import { usePersisted } from '@/storage/db'
+import { cn } from '@/lib/utils'
 import { formatDayLabel } from '@/lib/date'
 import { useToday } from '@/lib/useToday'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Toggle } from '@/components/ui/toggle'
+import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/EmptyState'
+import { TabHeader } from '@/components/TabHeader'
+import { Badge } from '@/components/ui/badge'
 import { formatKg, plural } from '@/lib/number'
 import { IconDot } from '@/components/IconDot'
 import { PlanEditor } from './PlanEditor'
@@ -86,15 +89,19 @@ export function TreinoTab() {
   )
   const closePreview = useCallback(() => setPreview(undefined), [])
 
-  const pastLink = <Button variant="ghost" size="sm" className="-mr-2.5 text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /> Treinos anteriores</Button>
+  // abaixo de 360 px o rótulo vira só leitor de tela: o eyebrow não pode ser espremido
+  const pastLink = <Button variant="ghost" size="sm" className="text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /><span className="max-[359px]:sr-only">Treinos anteriores</span></Button>
   if (pastOpen) return <Overlay><PastWorkouts onClose={() => setPastOpen(false)} /></Overlay>
   if (editingPlan) return <Overlay><PlanEditor initial={plan} onSave={(p) => { setPlan(p); setEditingPlan(false) }} onCancel={() => setEditingPlan(false)} /></Overlay>
   if (plan.workouts.length === 0) {
     return (
-      <EmptyState icon={<Dumbbell size={30} aria-hidden="true" />} title="Nenhum treino montado">
-        <p className="max-w-[260px] text-sm text-text-2">Monte seu treino pra começar a marcar as séries.</p>
-        <Button className="w-full max-w-xs" onClick={() => setEditingPlan(true)}>Montar treino</Button>
-      </EmptyState>
+      <div className="flex flex-col gap-2.5">
+        <TabHeader eyebrow={formatDayLabel(today)} title="Treino" />
+        <EmptyState icon={<Dumbbell size={30} aria-hidden="true" />} title="Nenhum treino montado">
+          <p className="max-w-[260px] text-sm text-text-2">Monte seu treino pra começar a marcar as séries.</p>
+          <Button className="w-full max-w-xs" onClick={() => setEditingPlan(true)}>Montar treino</Button>
+        </EmptyState>
+      </div>
     )
   }
 
@@ -108,8 +115,8 @@ export function TreinoTab() {
   if (rest && !chosenId) {
     return (
       <div className="flex flex-col gap-2.5">
+        <TabHeader eyebrow={formatDayLabel(today)} actions={pastLink} />
         {unfinished && <UnfinishedCard session={unfinished} setLog={setLog} />}
-        <div className="flex items-center justify-between"><div className="label-caps">{formatDayLabel(today)}</div>{pastLink}</div>
         <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Descanso marcado">
           <p className="max-w-[260px] text-sm text-text-2">Hoje é dia de recuperar. Quer treinar mesmo assim?</p>
           <Button variant="outline"  onClick={undoRest}><Undo2 aria-hidden="true" /> Desfazer</Button>
@@ -118,7 +125,7 @@ export function TreinoTab() {
         <Card className="overflow-hidden">
           {plan.workouts.map((w) => (
             <Button key={w.id} variant="ghost" onClick={() => setChosenId(w.id)} className="h-auto min-h-14 w-full justify-start gap-3 rounded-none border-t border-line px-3.5 py-2.5 text-left font-normal first:border-t-0">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-accent-line bg-accent-bg text-sm font-bold text-accent">{w.label}</span>
+              <Badge variant="tile">{w.label}</Badge>
               <span className="block min-w-0 flex-1">
                 <span className="block text-[15px] font-semibold text-strong">{w.name}</span>
                 <span className="block text-[13px] text-text-2">{plural(w.exercises.length, 'exercício', 'exercícios')}</span>
@@ -135,6 +142,8 @@ export function TreinoTab() {
   const stats = sessionStats(view, now)
   const minutes = session ? stats.minutes : null
   const restIdx = session?.restExIdx ?? Math.max(0, firstIncomplete(view)) // sem restExIdx (sessão antiga) vale o próximo a fazer
+  // descanso rodando: a RestCard fixa cobre a última série sem folga extra
+  const resting = !!session && (session.restEndsAt !== undefined || session.restPausedLeftMs !== undefined)
   const open = openIdx === 'auto' ? firstIncomplete(view) : openIdx
   const current = (prev: WorkoutLog) => {
     const s = prev[today]
@@ -189,12 +198,11 @@ export function TreinoTab() {
   }
 
   return (
-    <div className="flex flex-col gap-2.5 pb-24">
+    <div className={cn('flex flex-col gap-2.5', resting ? 'pb-44' : 'pb-24')}>
+      <TabHeader eyebrow={`${formatDayLabel(today)} · TREINO ${view.workoutLabel}`} title={view.workoutName} actions={pastLink} />
       {unfinished && <UnfinishedCard session={unfinished} setLog={setLog} />}
-      <div className="flex items-center justify-between"><div className="label-caps">{`${formatDayLabel(today)} · TREINO ${view.workoutLabel}`}</div>{pastLink}</div>
-      <h1 className="text-[26px] font-bold tracking-tight text-strong">{view.workoutName}</h1>
       {!session?.completedAt && plan.workouts.length > 1 && (
-        <Button variant="ghost" size="sm" className="-ml-2.5 self-start text-accent" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>
+        <Button variant="link" className="min-h-11 self-start" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>
       )}
 
       <Card className="flex-row items-center gap-3.5 p-3.5">
@@ -232,14 +240,12 @@ export function TreinoTab() {
             <span className="block text-[15px] font-semibold break-words text-strong">{e.name}</span>
             <span className="block text-[13px] text-text-2">{e.reps}</span>
           </span>
-          <Toggle variant="check" size="check" pressed={!!e.sets[0]} aria-label={`${e.name} feito`} onPressedChange={() => toggleCardio(i)}>
-            <Check size={18} aria-hidden="true" />
-          </Toggle>
+          <Checkbox size="check" className="mr-1.5" checked={!!e.sets[0]} aria-label={`${e.name} feito`} onCheckedChange={() => toggleCardio(i)} />
         </Card>
       ))}
 
       <div className="pointer-events-none fixed bottom-[calc(var(--nav-h)+env(safe-area-inset-bottom))] left-1/2 h-24 w-full max-w-md -translate-x-1/2 bg-linear-to-b from-transparent to-bg to-60%" />
-      {session && (session.restEndsAt !== undefined || session.restPausedLeftMs !== undefined) && (
+      {session && resting && (
         <RestCard
           endAt={session.restEndsAt}
           pausedLeftMs={session.restPausedLeftMs}

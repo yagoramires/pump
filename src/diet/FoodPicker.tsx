@@ -31,7 +31,7 @@ const LABEL = 'label-caps tracking-[.04em]'
 
 function Rows({ label, foods, selected, onSelect }: { label: string; foods: Food[]; selected?: string; onSelect: (f: Food) => void }) {
   return (
-    <Card className="overflow-hidden"><ul aria-label={label}>
+    <Card variant="inset" className="overflow-hidden"><ul aria-label={label}>
       {foods.map((f) => {
         const on = foodKey(f.name) === selected
         return (

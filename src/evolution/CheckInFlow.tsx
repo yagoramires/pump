@@ -5,7 +5,6 @@ import { formatKg, formatSigned, plural } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
 import { BackHeader } from '@/components/BackHeader'
 import { Overlay } from '@/components/Overlay'
 import { MeasureForm } from './MeasureForm'
@@ -51,16 +50,12 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
           </>
         )}
         {s.rows.map((r) => (
-          <div key={r.label} className="flex flex-col gap-2">
-            <Separator />
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-text-2">{r.label}</span>
-              <Delta value={r.delta} good={r.good} unit={r.unit} />
-            </div>
+          <div key={r.label} className="flex items-center justify-between border-t border-line pt-2 text-sm">
+            <span className="text-text-2">{r.label}</span>
+            <Delta value={r.delta} good={r.good} unit={r.unit} />
           </div>
         ))}
-        <Separator />
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between border-t border-line pt-2 text-sm">
           <span className="text-text-2">Fotos · {s.photos} de {ANGLES.length}</span>
         </div>
         {s.sinceStart !== undefined && (

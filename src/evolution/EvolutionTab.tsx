@@ -6,9 +6,10 @@ import { loadPhoto } from '@/storage/photos'
 import { daysBetween, formatDayMonth } from '@/lib/date'
 import { formatDec, formatKg, plural } from '@/lib/number'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { TabHeader } from '@/components/TabHeader'
 import { EmptyState } from '@/components/EmptyState'
 import { IconDot } from '@/components/IconDot'
 import type { Metric } from './bodyFat'
@@ -35,7 +36,7 @@ import { generatePdf } from './pdf/generate'
 import { shareFile } from '@/lib/share'
 
 type View = 'checkin' | 'anamnesis' | 'capture' | 'compare' | 'achievements' | 'history'
-const LINK = 'px-1 text-[13px] text-accent disabled:text-faint'
+const LINK = 'px-2 text-[13px] text-accent disabled:text-faint'
 const RANGES = [{ v: '30', label: '30 d' }, { v: '90', label: '90 d' }, { v: 'all', label: 'Tudo' }]
 const KPI: Metric[] = ['weightKg', 'fat']
 function Kpi({ label, value, children }: { label: string; value: string; children: ReactNode }) {
@@ -97,6 +98,7 @@ export function EvolutionTab() {
   if (!training.workouts && !input.measurements.length && !input.photoSets.length && !report.hasDiet) {
     return (
       <div className="flex flex-col gap-2.5">
+        <TabHeader eyebrow="Evolução" />
         {cards}
         <EmptyState icon={<TrendingUp size={30} aria-hidden="true" />} title="Sua evolução começa aqui">
           <p className="max-w-[260px] text-sm text-text-2">Registre peso, medidas e fotos pra acompanhar.</p>
@@ -134,10 +136,7 @@ export function EvolutionTab() {
 
   return (
     <div className="flex flex-col gap-2.5 pb-24">
-      <div className="flex flex-col gap-0.5 pb-0.5">
-        <div className="label-caps">{`Desde ${formatDayMonth(period.start)} · ${plural(period.days, 'dia', 'dias')}`}</div>
-        <h1 className="text-[26px] font-bold tracking-tight text-strong">Evolução</h1>
-      </div>
+      <TabHeader eyebrow={`Desde ${formatDayMonth(period.start)} · ${plural(period.days, 'dia', 'dias')}`} title="Evolução" />
       {cards}
 
       <div className="grid grid-cols-3 gap-2">
@@ -153,20 +152,22 @@ export function EvolutionTab() {
       </div>
 
       <Card className="overflow-hidden">
-        <div className="flex min-h-11 items-center justify-between pl-3.5 pr-2">
-          <span className="text-[15px] font-semibold text-strong">Peso</span>
-          <ToggleGroup type="single" variant="segmented" spacing={1} value={range} onValueChange={(v) => v && setRange(v)} aria-label="Período do gráfico" className="data-[variant=segmented]:w-fit">
-            {RANGES.map((r) => (
-              <ToggleGroupItem key={r.v} value={r.v} className="h-11 min-w-11 px-2">{r.label}</ToggleGroupItem>
-            ))}
-          </ToggleGroup>
-        </div>
+        <CardHeader>
+          <CardTitle>Peso</CardTitle>
+          <CardAction>
+            <Tabs value={range} onValueChange={setRange}>
+              <TabsList variant="segmented" aria-label="Período do gráfico" className="w-auto">
+                {RANGES.map((r) => <TabsTrigger key={r.v} variant="segmented" value={r.v}>{r.label}</TabsTrigger>)}
+              </TabsList>
+            </Tabs>
+          </CardAction>
+        </CardHeader>
         <div className="px-3.5 pb-3"><WeightChart points={points} empty={weights.length >= 2 ? 'Poucos registros nesse período' : undefined} /></div>
       </Card>
 
       {rows.length > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-3.5 pt-3 pb-2 text-[15px] font-semibold text-strong">Medidas</div>
+          <CardHeader className="pt-3 pb-2"><CardTitle>Medidas</CardTitle></CardHeader>
           {rows.map((r) => (
             <div key={r.key} className="flex items-center justify-between gap-3 border-t border-line px-3.5 py-2.5 text-sm">
               <span className="text-text-2">{r.label}</span>
@@ -182,13 +183,13 @@ export function EvolutionTab() {
       {report.hasDiet && <DietCard log={input.dietLog} water={input.waterLog} today={today} />}
 
       <Card className="overflow-hidden">
-        <div className="flex min-h-11 items-center justify-between pl-3.5 pr-2">
-          <span className="text-[15px] font-semibold text-strong">Fotos</span>
-          <span className="flex gap-2">
+        <CardHeader>
+          <CardTitle>Fotos</CardTitle>
+          <CardAction className="flex gap-1">
             <Button type="button" variant="ghost" size="sm" className={LINK} onClick={() => setView('capture')}>Nova foto</Button>
             <Button type="button" variant="ghost" size="sm" className={LINK} disabled={input.photoSets.length < 2} onClick={() => setView('compare')}>Comparar</Button>
-          </span>
-        </div>
+          </CardAction>
+        </CardHeader>
         <div className="grid grid-cols-3 gap-2 px-3.5 pb-3.5">
           {ANGLES.map((angle) => (
             <PhotoThumb key={angle} id={lastSet?.[angle]} alt={`Foto de ${angle}`} className="flex items-end justify-center rounded-[10px] pb-1.5 text-xs text-text-2">

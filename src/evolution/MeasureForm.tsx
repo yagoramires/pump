@@ -32,7 +32,7 @@ export function MeasureForm({ date, profile: draft, onSaved, submitLabel = 'Salv
   return (
     <div className="flex flex-col gap-2">
       {fields.map(({ key, label, unit }) => (
-        <Label key={key} className="justify-between gap-3 border-t border-line pt-2 text-sm font-normal normal-case tracking-normal text-text-2">
+        <Label key={key} className="justify-between gap-3 border-t border-line pt-2 text-sm first:border-t-0 first:pt-0 font-normal normal-case tracking-normal text-text-2">
           {label}
           <span className="relative w-[120px]">
             <Input

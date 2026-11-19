@@ -119,7 +119,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
 
       <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Cardápios">
         {plan.menus.map((m) => (
-          <Toggle key={m.id} variant="outline" className="h-11 shrink-0 rounded-xl px-3 text-[13px]" pressed={m.id === menu.id} onPressedChange={() => setMenuId(m.id)}>
+          <Toggle key={m.id} variant="outline" className="shrink-0 text-[13px]" pressed={m.id === menu.id} onPressedChange={() => setMenuId(m.id)}>
             {m.name.trim() || 'Sem nome'}
           </Toggle>
         ))}
@@ -159,7 +159,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
               {meal.options.map((o, j) => (
-                <Toggle key={o.id} variant="outline" className="h-11 rounded-xl px-2.5 text-[12.5px] font-semibold" pressed={j === oi} onPressedChange={() => setOptOf((s) => ({ ...s, [meal.id]: j }))}>
+                <Toggle key={o.id} variant="outline" className="px-2.5 text-[12.5px] font-semibold" pressed={j === oi} onPressedChange={() => setOptOf((s) => ({ ...s, [meal.id]: j }))}>
                   Opção {optionLetter(j)}
                 </Toggle>
               ))}

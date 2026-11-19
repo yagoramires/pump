@@ -80,7 +80,7 @@ test('gráfico: filtro de período com menos de 2 pesos avisa que é o período,
   await save('measurements', [{ id: 'a', date: '2026-05-02', weightKg: 82 }, { id: 'b', date: '2026-08-10', weightKg: 80 }])
   await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText('Poucos registros nesse período')).toBeInTheDocument()
-  await user.click(screen.getByRole('radio', { name: 'Tudo' }))
+  await user.click(screen.getByRole('tab', { name: 'Tudo' }))
   expect(screen.getByRole('img', { name: 'Gráfico de peso' })).toBeInTheDocument()
 })
 test('PDF offline: avisa que precisa de internet', async () => {

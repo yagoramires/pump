@@ -144,7 +144,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
                 <>
                   <DrawerTitle className="shrink-0 truncate pb-2 text-[19px] font-semibold text-strong">{meal.name}</DrawerTitle>
                   <DrawerDescription className="sr-only">Mais opções da refeição</DrawerDescription>
-                  <Card className="overflow-hidden"><ul>
+                  <Card variant="inset" className="overflow-hidden"><ul>
                     {!free && <SheetRow icon={<ArrowLeftRight size={18} className="text-accent" aria-hidden="true" />} label="Trocar por refeição de outro cardápio" onClick={() => setSheet('swap')} />}
                     <SheetRow icon={<Sparkles size={18} className="text-accent" aria-hidden="true" />} label={meal.free ? 'Desfazer refeição livre' : 'Refeição livre'} onClick={() => {
                       setSheet(undefined)
@@ -161,7 +161,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
                   {groups.map((g) => (
                     <div key={g.id} className="flex flex-col gap-1.5 pt-3">
                       <h3 className={LABEL}>{g.label}</h3>
-                      <Card className="overflow-hidden"><ul aria-label={g.label}>
+                      <Card variant="inset" className="overflow-hidden"><ul aria-label={g.label}>
                         {g.rows.map((r) => (
                           <li key={r.id} className="border-t border-line first:border-t-0">
                             <Button variant="ghost" className="h-auto min-h-14 w-full flex-col items-start justify-center gap-0 rounded-none px-3.5 py-2.5 text-left font-normal" onClick={() => { act((d) => swapMeal(d, meal.id, { name: r.name, items: r.items })); setSheet(undefined) }}>

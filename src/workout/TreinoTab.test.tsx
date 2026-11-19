@@ -34,7 +34,7 @@ afterEach(() => vi.useRealTimers())
 test('marcar série inicia descanso e persiste; concluir grava check-in', async () => {
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
-  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
   expect(await screen.findByText('01:00')).toBeInTheDocument()
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]).toEqual({ reps: '10', weightKg: 40 }))
   await user.click(screen.getByRole('button', { name: 'Concluir treino' }))
@@ -43,7 +43,7 @@ test('marcar série inicia descanso e persiste; concluir grava check-in', async 
 test('descanso sobrevive a recarregar: restante calculado do relógio', async () => {
   const user = userEvent.setup()
   const { unmount } = await renderLoaded(<TreinoTab />)
-  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].restEndsAt).toBeDefined())
   unmount()
   vi.setSystemTime(new Date(2026, 10, 16, 18, 0, 30))
@@ -53,7 +53,7 @@ test('descanso sobrevive a recarregar: restante calculado do relógio', async ()
 test('editar o plano no meio do treino não muda o que está na tela', async () => {
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
-  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
   await act(() => save('workoutPlan', { workouts: [{ ...plano.workouts[0], exercises: [pe({ name: 'Outro', reps: '5' })] }] }))
   expect(await screen.findByText('Remada X')).toBeInTheDocument()
   expect(screen.getByText('3 × 10 · 0 kg')).toBeInTheDocument()
@@ -74,7 +74,7 @@ test('editar carga inline e marcar; editar série feita grava a partir da guarda
   await renderLoaded(<TreinoTab />)
   const kg = await screen.findByRole('textbox', { name: 'Carga da série 1 de Supino reto' })
   await user.clear(kg); await user.type(kg, '45')
-  await user.click(screen.getByRole('button', { name: 'Série 1 de Supino reto' }))
+  await user.click(screen.getByRole('checkbox', { name: 'Série 1 de Supino reto' }))
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]).toEqual({ reps: '10', weightKg: 45 }))
   const reps = screen.getByRole('textbox', { name: 'Reps da série 1 de Supino reto' })
   await user.clear(reps); await user.type(reps, '8{Enter}')
@@ -87,7 +87,7 @@ test('treino em andamento passa da meia-noite e segue no mesmo dia ao voltar', a
   vi.setSystemTime(new Date(2026, 10, 16, 20, 0))
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
-  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16']).toBeDefined())
   vi.setSystemTime(new Date(2026, 10, 17, 0, 30))
   await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
@@ -96,7 +96,7 @@ test('treino em andamento passa da meia-noite e segue no mesmo dia ao voltar', a
 test('check recém-feito, ainda gravando, segura o dia ao voltar depois da meia-noite', async () => {
   vi.setSystemTime(new Date(2026, 10, 16, 20, 0))
   await renderLoaded(<TreinoTab />)
-  const s1 = await screen.findByRole('button', { name: 'Série 1 de Supino reto' })
+  const s1 = await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' })
   vi.mocked(idb.set).mockReturnValueOnce(new Promise(() => {})) // a gravação no IndexedDB nunca termina
   await act(async () => s1.click())
   vi.setSystemTime(new Date(2026, 10, 17, 0, 30))
@@ -108,20 +108,20 @@ test('carga com vírgula na tabela grava decimal', async () => {
   await renderLoaded(<TreinoTab />)
   const kg = await screen.findByRole('textbox', { name: 'Carga da série 1 de Supino reto' })
   await user.clear(kg); await user.type(kg, '22,5')
-  await user.click(screen.getByRole('button', { name: 'Série 1 de Supino reto' }))
+  await user.click(screen.getByRole('checkbox', { name: 'Série 1 de Supino reto' }))
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]).toEqual({ reps: '10', weightKg: 22.5 }))
 })
 test('dois checks rápidos em séries diferentes persistem os dois', async () => {
   await renderLoaded(<TreinoTab />)
-  const s1 = await screen.findByRole('button', { name: 'Série 1 de Supino reto' })
-  const s2 = screen.getByRole('button', { name: 'Série 2 de Supino reto' })
+  const s1 = await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' })
+  const s2 = screen.getByRole('checkbox', { name: 'Série 2 de Supino reto' })
   await act(async () => { s1.click(); s2.click() })
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets.filter(Boolean)).toHaveLength(2))
 })
 test('exercício com 6 séries e nome longo mostra 6 linhas', async () => {
   await save('workoutPlan', { workouts: [{ ...plano.workouts[0], exercises: [pe({ name: 'Supino inclinado com halteres e pegada neutra no banco a 45 graus', sets: 6 })] }] })
   await renderLoaded(<TreinoTab />)
-  for (let n = 1; n <= 6; n++) expect(await screen.findByRole('button', { name: `Série ${n} de Supino inclinado com halteres e pegada neutra no banco a 45 graus` })).toBeInTheDocument()
+  for (let n = 1; n <= 6; n++) expect(await screen.findByRole('checkbox', { name: `Série ${n} de Supino inclinado com halteres e pegada neutra no banco a 45 graus` })).toBeInTheDocument()
 })
 test('resumo: 1/2 séries e volume; sessão antiga sem startedAt não mostra minutos', async () => {
   await save('workoutLog', { '2026-11-16': { date: '2026-11-16', workoutId: 'a', workoutLabel: 'A', workoutName: 'Peito e tríceps', exercises: [{ ...plano.workouts[0].exercises[0], sets: [{ reps: '10', weightKg: 40 }, null] }] } })
@@ -133,14 +133,14 @@ test('resumo: 1/2 séries e volume; sessão antiga sem startedAt não mostra min
 test('completar o último set do aberto abre o próximo incompleto', async () => {
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
-  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
-  await user.click(screen.getByRole('button', { name: 'Série 2 de Supino reto' }))
-  expect(await screen.findByRole('button', { name: 'Série 1 de Remada X' })).toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Série 1 de Supino reto' })).not.toBeInTheDocument()
+  await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
+  await user.click(screen.getByRole('checkbox', { name: 'Série 2 de Supino reto' }))
+  expect(await screen.findByRole('checkbox', { name: 'Série 1 de Remada X' })).toBeInTheDocument()
+  expect(screen.queryByRole('checkbox', { name: 'Série 1 de Supino reto' })).not.toBeInTheDocument()
 })
 test('dois toques rápidos na mesma série desmarcam e o segundo não reinicia o descanso', async () => {
   await renderLoaded(<TreinoTab />)
-  const s1 = await screen.findByRole('button', { name: 'Série 1 de Supino reto' })
+  const s1 = await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' })
   act(() => {
     s1.click() // marca às 18:00:00 -> descanso até 18:01:00
     vi.setSystemTime(new Date(2026, 10, 16, 18, 0, 30))
@@ -151,7 +151,7 @@ test('dois toques rápidos na mesma série desmarcam e o segundo não reinicia o
     expect(s?.exercises[0].sets[0]).toBeNull()
     expect(s?.restEndsAt).toBe(new Date(2026, 10, 16, 18, 1, 0).getTime())
   })
-  expect(s1).toHaveAttribute('aria-pressed', 'false')
+  expect(s1).not.toBeChecked()
 })
 test('preview fecha pelo botão Fechar', async () => {
   const user = userEvent.setup()
@@ -169,7 +169,7 @@ test('volume do resumo separa milhar', async () => {
 test('desfazer o toast de concluir limpa completedAt', async () => {
   const user = userEvent.setup()
   await renderLoaded(<><TreinoTab /><Toaster /></>)
-  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
   await user.click(screen.getByRole('button', { name: 'Concluir treino' }))
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].completedAt).toBeDefined())
   await user.click(await screen.findByRole('button', { name: 'Desfazer' }))
@@ -178,7 +178,7 @@ test('desfazer o toast de concluir limpa completedAt', async () => {
 test('carga acima de 500 kg numa série feita é rejeitada e mantém a anterior', async () => {
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
-  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
   const kg = await screen.findByLabelText('Carga da série 1 de Supino reto')
   await user.clear(kg)
   await user.type(kg, '4045')
@@ -192,11 +192,11 @@ test('cardio fica num bloco à parte, só com a duração, e marca feito sem des
   expect(await screen.findByText('Cardio')).toBeInTheDocument()
   expect(screen.getByText('15 min')).toBeInTheDocument()
   expect(screen.queryByText(/1 × 15 min/)).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Série 1 de Supino reto' })).toBeInTheDocument()
-  await user.click(screen.getByRole('button', { name: 'Esteira feito' }))
+  expect(screen.getByRole('checkbox', { name: 'Série 1 de Supino reto' })).toBeInTheDocument()
+  await user.click(screen.getByRole('checkbox', { name: 'Esteira feito' }))
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]).toEqual({ reps: '15 min', weightKg: 0 }))
   expect(screen.queryByText('01:30')).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Esteira feito' })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByRole('checkbox', { name: 'Esteira feito' })).toBeChecked()
 })
 test('descansar hoje grava o registro e mostra Desfazer', async () => {
   const user = userEvent.setup()
@@ -215,7 +215,7 @@ test('iniciar treino depois de marcar descanso substitui o registro', async () =
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
   await user.click(await screen.findByRole('button', { name: /Peito e tríceps/ }))
-  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
   await waitFor(async () => {
     const s = (await load('workoutLog'))?.['2026-11-16']
     expect(s?.rest).toBeUndefined()
@@ -270,7 +270,7 @@ test('trocar depois de marcar pede confirmação e substitui a sessão', async (
   await save('workoutPlan', plano2)
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
-  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16']).toBeDefined())
   await user.click(screen.getByRole('button', { name: 'Trocar treino' }))
   await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: /Costas e bíceps/ }))
@@ -315,7 +315,7 @@ test('treino de hoje em andamento que passa da meia-noite não vira cartão de s
   vi.setSystemTime(new Date(2026, 10, 16, 20, 0))
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
-  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16']).toBeDefined())
   vi.setSystemTime(new Date(2026, 10, 17, 0, 30))
   await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
@@ -345,7 +345,7 @@ test('sessão com séries iniciada há mais de 6h vira o dia e aparece o cartão
   vi.setSystemTime(new Date(2026, 10, 16, 20, 0))
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
-  await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+  await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
   await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16']).toBeDefined())
   vi.setSystemTime(new Date(2026, 10, 17, 6, 30))
   await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
@@ -381,7 +381,7 @@ test('Concluir do cartão avisa e Desfazer restaura a sessão aberta', async () 
 
 describe('descanso: pausar e definir tempo', () => {
   const marcar = async (user: ReturnType<typeof userEvent.setup>) => {
-    await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+    await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
     await screen.findByText('01:00')
   }
   test('pausar congela o tempo, continuar retoma e sobrevive a recarregar', async () => {
@@ -430,10 +430,10 @@ describe('descanso: pausar e definir tempo', () => {
     const user = userEvent.setup()
     const { unmount } = await renderLoaded(<TreinoTab />)
     await user.click(await screen.findByRole('button', { name: /^Remada X/ }))
-    await user.click(await screen.findByRole('button', { name: 'Série 1 de Remada X' }))
+    await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Remada X' }))
     await user.click(screen.getByRole('button', { name: /^Supino reto/ }))
-    await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
-    await user.click(screen.getByRole('button', { name: 'Série 2 de Supino reto' })) // supino completo: o próximo a fazer passa a ser a remada
+    await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
+    await user.click(screen.getByRole('checkbox', { name: 'Série 2 de Supino reto' })) // supino completo: o próximo a fazer passa a ser a remada
     await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].restExIdx).toBe(0))
     unmount()
     await renderLoaded(<TreinoTab />)
