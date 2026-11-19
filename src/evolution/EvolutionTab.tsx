@@ -25,6 +25,7 @@ import { AchievementIcon } from './AchievementIcon'
 import { AchievementsScreen } from './AchievementsScreen'
 import { HistoryScreen } from './HistoryScreen'
 import { LoadsCard } from './LoadsCard'
+import { ExerciseLoadScreen } from './ExerciseLoadScreen'
 import type { LoadPeriod } from './loads'
 import { DietCard } from './DietCard'
 import { CheckInFlow, CheckInCard } from './CheckInFlow'
@@ -55,7 +56,7 @@ export function EvolutionTab() {
   const input = useEvolution()
   const [range, setRange] = useState('90')
   const [loadPeriod, setLoadPeriod] = useState<LoadPeriod>('90')
-  const [, setExerciseId] = useState<string>() // detalhe: Task 4
+  const [exerciseId, setExerciseId] = useState<string>()
   const [choosing, setChoosing] = useState(false)
   const [measurementDate, setMeasurementDate] = useState<string>()
   const [photoDate, setPhotoDate] = useState<string>()
@@ -70,6 +71,7 @@ export function EvolutionTab() {
   if (view === 'compare') return <PhotoCompare onClose={() => setView(undefined)} />
   if (view === 'achievements') return <AchievementsScreen onClose={() => setView(undefined)} />
   if (view === 'history') return <HistoryScreen onClose={() => setView(undefined)} />
+  if (exerciseId) return <ExerciseLoadScreen log={input.workoutLog} exerciseId={exerciseId} period={loadPeriod} today={today} onClose={() => setExerciseId(undefined)} />
 
   const drawers = (
     <>

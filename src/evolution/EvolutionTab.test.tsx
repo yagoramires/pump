@@ -127,3 +127,13 @@ test('card Cargas: período sem treino mostra o estado vazio', async () => {
   await user.click(within(screen.getByRole('tablist', { name: 'Período das cargas' })).getByRole('tab', { name: '30 d' }))
   expect(screen.getByText('Nenhum treino com carga nesse período')).toBeInTheDocument()
 })
+test('tocar no exercício abre o detalhe com gráfico e treinos; Voltar fecha', async () => {
+  const user = userEvent.setup()
+  await save('workoutLog', { '2026-11-01': treino('2026-11-01', [{ reps: '10', weightKg: 55 }]), '2026-11-15': treino('2026-11-15', [{ reps: '8', weightKg: 60 }, { reps: '6', weightKg: 62 }]) })
+  await renderLoaded(<EvolutionTab />)
+  await user.click(await screen.findByRole('button', { name: 'Supino reto' }))
+  expect(screen.getByRole('img', { name: 'Gráfico de carga e volume' })).toBeInTheDocument()
+  expect(screen.getByText('60×8 · 62×6')).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Voltar' }))
+  expect(await screen.findByText('Cargas')).toBeInTheDocument()
+})
