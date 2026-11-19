@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Settings as SettingsIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useOpenSettings } from '@/shell/openSettings'
+import { useOpenSettings } from './openSettings'
 
 /** cabeçalho único das abas: linha eyebrow + ações (engrenagem por último), título embaixo */
 export function TabHeader({ eyebrow, title, actions }: { eyebrow: ReactNode; title?: string; actions?: ReactNode }) {

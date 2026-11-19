@@ -1,14 +1,9 @@
 import { act, waitFor } from '@testing-library/react'
-import { clear } from 'idb-keyval'
-import { load, resetStoreForTests, save } from '@/storage/db'
+import { load, save } from '@/storage/db'
 import { loadPhoto, savePhoto } from '@/storage/photos'
 import { renderHookLoaded } from '../../test/render'
 import { hasPhoto, setAngle, usePhotoSets } from './photoSets'
 
-beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
-})
 
 test('setAngle substitui o ângulo do mesmo dia e mantém a ordem por data', () => {
   let s = setAngle([], '2026-11-17', 'frente', 'p1')

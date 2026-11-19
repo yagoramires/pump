@@ -1,15 +1,10 @@
 import { screen, waitFor } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
-import { clear } from 'idb-keyval'
-import { load, readCurrent, resetStoreForTests, save } from '@/storage/db'
+import { load, readCurrent, save } from '@/storage/db'
 import { buildBackup } from '@/storage/backup'
 import { Onboarding } from './Onboarding'
 
-beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
-})
 afterEach(() => {
   vi.unstubAllGlobals()
   vi.restoreAllMocks()

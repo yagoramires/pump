@@ -3,6 +3,7 @@ import { Check, Copy } from 'lucide-react'
 import type { WorkoutPlan } from './types'
 import { usePersisted } from '@/storage/db'
 import { fetchExercises } from '@/catalog/catalog'
+import { EXERCISE_LIST } from '@/catalog/urls'
 import { PLAN_NOT_FOUND, exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
 import { buildConvertPrompt, buildPrompt } from './prompt'
 import { AnamnesisForm } from './AnamnesisForm'
@@ -12,7 +13,8 @@ import { namesText } from '@/lib/text'
 import { IconDot } from '@/components/IconDot'
 import { BackHeader } from '@/components/BackHeader'
 import { BottomBar } from '@/components/BottomBar'
-import { CopyListButton, makeCopy, PasteBox, Step } from '@/components/ImportFlow'
+import { CopyListButton, PasteBox, Step } from '@/components/ImportFlow'
+import { makeCopy } from '@/lib/share'
 import { usePastedReview } from '@/components/usePastedReview'
 import { Alert } from '@/components/ui/alert'
 import { Card } from '@/components/ui/card'
@@ -57,7 +59,7 @@ export function PlanImport({ mode, onDone, onBack }: { mode: 'ia' | 'convert'; o
         {mode === 'convert' && <Step n={2} title="Mande pra sua IA junto com sua ficha" sub="PDF, foto ou texto" />}
         <Step n={mode === 'ia' ? 2 : 3} title="Cole a resposta aqui" sub={mode === 'ia' ? 'Pode colar o texto todo' : 'Pode colar o texto todo ou escolher o arquivo'} />
       </Card>
-      <CopyListButton file="exercicios.txt" noun="exercícios" ok="Lista copiada. Cole na sua IA." report={setNotice} />
+      <CopyListButton file={EXERCISE_LIST} noun="exercícios" ok="Lista copiada. Cole na sua IA." report={setNotice} />
       <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", ... }'>
         {(notice || paste.failed) && <p role="status" className="text-meta text-text-2">{notice || 'Precisa de internet pra casar os exercícios com o catálogo'}</p>}
       </PasteBox>

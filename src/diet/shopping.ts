@@ -1,6 +1,6 @@
-import { normalize } from '@/catalog/search'
+import { normalize } from '@/lib/text'
 import { formatDec, plural } from '@/lib/number'
-import { pluralWord, singularWord } from '@/lib/text'
+import { pluralWord, singularWord } from './units'
 import type { DietPlan } from './types'
 
 export interface ShoppingItem { key: string; name: string; grams: number; count?: { n: number; unit: string } }

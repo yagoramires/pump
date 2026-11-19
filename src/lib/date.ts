@@ -1,9 +1,7 @@
 export const WEEKDAY_SHORT = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB']
 export const WEEKDAY_LONG = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado']
-/** seg..dom, como `getDay()` */
-export const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0]
 const MESES = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ']
-const p2 = (n: number) => String(n).padStart(2, '0')
+export const p2 = (n: number) => String(n).padStart(2, '0')
 
 export const todayKey = (d = new Date()) => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`
 

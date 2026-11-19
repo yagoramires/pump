@@ -3,7 +3,6 @@ import type { DietItem, DietPlan } from './types'
 import { screen, waitFor } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
-import { clear } from 'idb-keyval'
 import { resetStoreForTests, save } from '@/storage/db'
 import { DietEditor } from './DietEditor'
 
@@ -26,8 +25,6 @@ const pickTime = async (user: ReturnType<typeof setup>, name: string, h: string,
 const saved = (onSave: ReturnType<typeof vi.fn>): DietPlan => onSave.mock.calls[0][0]
 
 beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
 })
 afterEach(() => vi.unstubAllGlobals())

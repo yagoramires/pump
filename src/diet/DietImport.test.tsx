@@ -2,7 +2,7 @@ import type { DietLog, DietPlan, TacoFood } from './types'
 import { act, screen, within } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
-import { clear, get } from 'idb-keyval'
+import { get } from 'idb-keyval'
 import { resetStoreForTests, save } from '@/storage/db'
 import { fetchTaco } from '@/catalog/catalog'
 import { Toaster } from '@/components/ui/sonner'
@@ -22,8 +22,6 @@ const json = (alimentos: object[]) =>
   JSON.stringify({ formato: 'pump-plano', versao: 1, dieta: { metaKcal: 2000, macros: { proteinaG: 150, carboG: 200, gorduraG: 60 }, refeicoes: [{ nome: 'Café da manhã', horario: '07:00', alimentos }] } })
 
 beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
   vi.mocked(fetchTaco).mockRejectedValue(new Error('offline'))
 })
 

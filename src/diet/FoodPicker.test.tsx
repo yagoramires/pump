@@ -2,7 +2,6 @@ import type { DayItem, DietItem, DietPlan } from './types'
 import { screen, waitFor, within } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
-import { clear } from 'idb-keyval'
 import { load, resetStoreForTests, save } from '@/storage/db'
 import { fetchTaco } from '@/catalog/catalog'
 import { FoodPicker } from './FoodPicker'
@@ -17,8 +16,6 @@ const planWith = (items: DietItem[]): DietPlan => ({
 const dayWith = (items: DayItem[]) => ({ menuId: 'A', menuName: 'Treino', meals: [{ id: 'm1', name: 'Almoço', time: '12:00', done: true, items }] })
 
 beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date(2026, 10, 18, 12, 0))
   vi.mocked(fetchTaco).mockRejectedValue(new Error('offline'))

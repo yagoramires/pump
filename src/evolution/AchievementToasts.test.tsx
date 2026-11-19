@@ -2,7 +2,7 @@ import { waitFor } from '@testing-library/react'
 import { toast } from 'sonner'
 import { pe } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
-import { load, resetStoreForTests, save } from '@/storage/db'
+import { load, save } from '@/storage/db'
 import { AchievementToasts } from './AchievementToasts'
 
 vi.mock('sonner', () => ({ toast: vi.fn() }))
@@ -10,9 +10,6 @@ vi.mock('sonner', () => ({ toast: vi.fn() }))
 const session = { date: '2026-11-16', workoutId: 'a', workoutLabel: 'A', workoutName: 'A', completedAt: '2026-11-16T19:00:00.000Z', exercises: [{ ...pe(), sets: [{ reps: '10', weightKg: 10 }] }] }
 
 beforeEach(async () => {
-  const { clear } = await import('idb-keyval')
-  await clear()
-  resetStoreForTests()
   vi.mocked(toast).mockClear()
 })
 

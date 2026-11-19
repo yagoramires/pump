@@ -1,5 +1,5 @@
 import * as idb from 'idb-keyval'
-import { clear, set } from 'idb-keyval'
+import { set } from 'idb-keyval'
 import type { Profile } from './types'
 import { migrateData, migrateStored, migrationFor } from './migrate'
 import { importBackupFile } from '@/storage/backup'
@@ -10,10 +10,6 @@ vi.mock('idb-keyval', async (orig) => {
   return { ...m, set: vi.fn(m.set) }
 })
 
-beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
-})
 let warn: { mockRestore: () => void } | undefined
 afterEach(() => warn?.mockRestore())
 

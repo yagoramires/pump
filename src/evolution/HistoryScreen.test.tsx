@@ -1,15 +1,12 @@
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { clear } from 'idb-keyval'
-import { load, resetStoreForTests, save } from '@/storage/db'
+import { load, save } from '@/storage/db'
 import { loadPhoto, savePhoto } from '@/storage/photos'
 import { dietDay, food, pe } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
 import { HistoryScreen } from './HistoryScreen'
 
 beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date(2026, 10, 17, 12))
 })

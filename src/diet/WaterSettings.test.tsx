@@ -1,14 +1,9 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { clear } from 'idb-keyval'
 import { renderLoaded } from '../../test/render'
 import { load, resetStoreForTests, save } from '@/storage/db'
 import { WaterSettings } from './WaterSettings'
 
-beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
-})
 
 test('liga com a meta pelo peso, grava meta e copo válidos, e religar mantém o ajuste', async () => {
   await save('settings', { lastTab: 'dieta', onboardingDone: true })

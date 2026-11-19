@@ -1,7 +1,6 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { clear } from 'idb-keyval'
-import { resetStoreForTests, save } from '@/storage/db'
+import { save } from '@/storage/db'
 import type { WorkoutSession } from './types'
 import { pe } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
@@ -14,7 +13,6 @@ const sess = (date: string, name: string, over: Partial<WorkoutSession> = {}): W
   ],
   ...over,
 })
-beforeEach(async () => { await clear(); resetStoreForTests() })
 test('lista em ordem decrescente e expande as séries feitas', async () => {
   await save('workoutLog', { '2026-11-10': sess('2026-11-10', 'Antigo'), '2026-11-14': sess('2026-11-14', 'Recente'), '2026-11-15': { ...sess('2026-11-15', 'Aberto'), completedAt: undefined } })
   const user = userEvent.setup()

@@ -1,6 +1,6 @@
 import type { DietItem, DietPlan, Menu, TacoFood } from './types'
 import { FormatError, readEnvelope, str, writeEnvelope } from '@/format/envelope'
-import { isObj } from '@/schema'
+import { isObj } from '@/lib/utils'
 import { GOAL_KCAL, GRAMS, HHMM, MACRO_G, MAX_ITEMS, MAX_KCAL_PER_100G, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 
 export const DIET_NOT_FOUND = 'Não encontrei um cardápio em JSON no texto'
@@ -93,7 +93,7 @@ export function parseDietFormat(text: string): PumpDieta {
 
 type Match = 'custom' | 'exact' | 'words' | 'ia' | 'none'
 /** como cada item do import casou (pelo id do item) e o nome que a IA escreveu */
-export type ItemReport = { match: Match; aiName: string }
+type ItemReport = { match: Match; aiName: string }
 export const matchLabel = (i: DietItem, r?: ItemReport): { text: string; warn: boolean } | undefined => {
   if (r?.match === 'none') return { text: 'sem valores — escolha na TACO', warn: true }
   if (i.source === 'ia' && hasValues(i)) return { text: 'estimativa da IA', warn: true }

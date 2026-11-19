@@ -4,19 +4,16 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert } from '@/components/ui/alert'
-import { copyText } from '@/lib/share'
+import { COPY_FAIL, makeCopy } from '@/lib/share'
+import { catalogFile } from '@/catalog/catalog'
 
 type Report = (msg: string) => unknown
 const OFFLINE = 'Sem internet pra copiar a lista.'
-const COPY_FAIL = 'Não consegui copiar. Tente de novo.'
-/** copia e avisa pelo canal da tela (toast ou aviso na própria tela) */
-// oxlint-disable-next-line react/only-export-components -- helper compartilhado pelas telas de importação, ao lado do CopyListButton que o usa
-export const makeCopy = (report: Report) => async (text: string, ok: string) => { report((await copyText(text)) ? ok : COPY_FAIL) }
 
 export function Step({ n, title, sub, children }: { n: number; title: string; sub: string; children?: ReactNode }) {
   return (
     <div className="flex items-center gap-3 border-t border-line p-3.5 first:border-t-0">
-      <Badge variant="outline" className="size-8 shrink-0 rounded-lg border-accent-line bg-accent-bg text-sm font-bold text-accent">{n}</Badge>
+      <Badge variant="tile" className="size-8">{n}</Badge>
       <div className="min-w-0 flex-1">
         <div className="text-body font-semibold text-strong">{title}</div>
         <div className="text-meta text-text-2">{sub}</div>
@@ -68,10 +65,7 @@ export function CopyListButton({ file, noun, ok, report }: { file: string; noun:
       variant="secondary"
       className="h-auto min-h-11 justify-start gap-3 px-3.5 py-2 text-left"
       onClick={async () => {
-        const text = fetch(`${import.meta.env.BASE_URL}catalog/${file}`).then((r) => {
-          if (!r.ok) throw new Error(String(r.status))
-          return r.text()
-        })
+        const text = catalogFile(file).then((r) => r.text())
         // iOS/WebKit só aceita a escrita dentro do toque: entrega a promessa do texto em vez de esperar o fetch
         if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
           try {

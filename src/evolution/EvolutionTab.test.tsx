@@ -1,7 +1,6 @@
 import { act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { clear } from 'idb-keyval'
-import { resetStoreForTests, save } from '@/storage/db'
+import { save } from '@/storage/db'
 import { Toaster } from '@/components/ui/sonner'
 import { dietDay } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
@@ -13,8 +12,6 @@ vi.mock('./pdf/generate', () => ({ generatePdf: vi.fn().mockResolvedValue(new Bl
 vi.mock('@/lib/share', () => ({ shareFile: vi.fn().mockResolvedValue('shared') }))
 
 beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date(2026, 10, 18, 12))
 })

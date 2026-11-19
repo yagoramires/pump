@@ -1,14 +1,8 @@
 import { screen } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
-import { clear } from 'idb-keyval'
-import { resetStoreForTests } from '@/storage/db'
 import { WorkoutSettings } from './WorkoutSettings'
 
-beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
-})
 
 test('linhas Gerar com IA e Converter abrem cada tela', async () => {
   const user = userEvent.setup()

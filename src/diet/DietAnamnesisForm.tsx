@@ -8,7 +8,6 @@ import { Textarea } from '@/components/ui/textarea'
 type Value = DietAnamnesis
 type EatOut = NonNullable<DietAnamnesis['eatOut']>
 
-const LABEL = 'label-caps tracking-caps-wide'
 const MEALS = [3, 4, 5, 6, 7]
 const RESTRICTION_LABEL: Record<Restriction, string> = { lactose: 'Sem lactose', gluten: 'Sem glúten', vegetariano: 'Vegetariano', vegano: 'Vegano' }
 const EAT_OUT_LABEL: Record<EatOut, string> = { casa: 'Em casa', fora: 'Fora', misto: 'Misto' }
@@ -24,12 +23,12 @@ export function DietAnamnesisForm({ value, onChange }: { value: Value; onChange:
       <Chips label="Refeições por dia" options={MEALS} value={value.meals} onChange={(v) => set('meals', v)} />
       <MultiChips label="Restrições" options={RESTRICTION_LABEL} value={value.restrictions} onChange={(v) => set('restrictions', v)} cols="grid-cols-2" />
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="dieta-avoid" className={LABEL}>Não como</Label>
+        <Label htmlFor="dieta-avoid" className="label-caps-wide">Não como</Label>
         <Input id="dieta-avoid" placeholder="Ex.: fígado, jiló" value={value.avoid ?? ''} onChange={(e) => set('avoid', e.target.value || undefined)} />
       </div>
       <Chips label="Onde come" options={EAT_OUT_LABEL} value={value.eatOut} onChange={(v) => set('eatOut', v)} />
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="dieta-notes" className={LABEL}>Observações</Label>
+        <Label htmlFor="dieta-notes" className="label-caps-wide">Observações</Label>
         <Textarea id="dieta-notes" rows={3} placeholder="Ex.: cole aqui a dieta do nutricionista pra transcrever" value={value.notes ?? ''} onChange={(e) => set('notes', e.target.value || undefined)} />
       </div>
     </Card>

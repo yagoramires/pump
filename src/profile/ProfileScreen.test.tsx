@@ -1,14 +1,9 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { clear } from 'idb-keyval'
 import { renderLoaded } from '../../test/render'
-import { readCurrent, resetStoreForTests, save } from '@/storage/db'
+import { readCurrent, save } from '@/storage/db'
 import { ProfileScreen } from './ProfileScreen'
 
-beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
-})
 
 test('Perfil nos Ajustes salva dados comuns e dia do check-in', async () => {
   await save('profile', { sex: 'M', heightCm: 180, focus: 'hipertrofia' })

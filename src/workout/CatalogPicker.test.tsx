@@ -2,7 +2,6 @@ import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ex } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
-import { clear } from 'idb-keyval'
 import { resetStoreForTests, save } from '@/storage/db'
 import { fetchExercises } from '@/catalog/catalog'
 import { CatalogPicker } from './CatalogPicker'
@@ -10,10 +9,6 @@ import { CatalogPicker } from './CatalogPicker'
 // fetchExercises guarda a promessa no módulo; mockado, cada teste escolhe online ou offline
 vi.mock('@/catalog/catalog', async (orig) => ({ ...(await orig<typeof import('@/catalog/catalog')>()), fetchExercises: vi.fn() }))
 
-beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
-})
 
 test('offline: avisa e lista o exercício próprio salvo', async () => {
   vi.mocked(fetchExercises).mockRejectedValue(new Error('offline'))

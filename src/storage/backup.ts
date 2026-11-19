@@ -1,7 +1,8 @@
 import { daysBetween, todayKey } from '@/lib/date'
-import { VALID, isObj, isUserKey, type Settings } from '@/schema'
+import { VALID, isUserKey, type Settings } from '@/schema'
+import { isObj } from '@/lib/utils'
 import { allData, readCurrent, replaceAll, save } from './db'
-import { isPhotoKey } from './photos'
+import { isPhotoKey, isPhotoValue } from './photos'
 import { shareFile } from '@/lib/share'
 
 export interface BackupFile { app: 'pump'; version: 1; exportedAt: string; data: Record<string, unknown> }
@@ -24,8 +25,7 @@ export function parseBackup(text: string): BackupFile {
   if (b.app !== 'pump') throw new Error('Esse arquivo não é um backup do Pump')
   if (b.version !== 1) throw new Error('Backup de uma versão mais nova do app')
   const { data } = b
-  const known = (k: string, v: unknown) =>
-    isUserKey(k) || (isPhotoKey(k) && typeof v === 'string' && v.startsWith('data:image/'))
+  const known = (k: string, v: unknown) => isUserKey(k) || (isPhotoKey(k) && isPhotoValue(v))
   if (!isObj(data) || Object.entries(data).some(([k, v]) => !known(k, v))) {
     throw new Error('Backup com conteúdo desconhecido')
   }
@@ -41,7 +41,11 @@ export const daysWithoutBackup = (s: Settings, today: string): number | undefine
 
 const BACKUP_REMINDER_DAYS = 14
 
-export const backupDue = (s: Settings, today: string): boolean => (daysWithoutBackup(s, today) ?? 0) >= BACKUP_REMINDER_DAYS
+/** dias sem backup, só quando já passou da hora de lembrar */
+export const backupDue = (s: Settings, today: string): number | undefined => {
+  const days = daysWithoutBackup(s, today)
+  return days !== undefined && days >= BACKUP_REMINDER_DAYS ? days : undefined
+}
 
 export async function exportBackup(now = new Date()): Promise<'shared' | 'downloaded' | 'cancelled'> {
   const day = todayKey(now)

@@ -2,7 +2,6 @@ import { screen, waitFor, within } from '@testing-library/react'
 import { renderLoaded } from '../test/render'
 import userEvent from '@testing-library/user-event'
 import * as idb from 'idb-keyval'
-import { clear } from 'idb-keyval'
 import { load, readCurrent, resetStoreForTests, save } from './storage/db'
 import App from './App'
 import { ErrorBoundary } from './shell/ErrorBoundary'
@@ -13,10 +12,6 @@ vi.mock('idb-keyval', async (orig) => {
   return { ...m, get: vi.fn(m.get) }
 })
 
-beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
-})
 afterEach(() => vi.unstubAllGlobals())
 
 test('primeira vez abre a montagem; pular leva à aba Treino; depois abre na última aba', async () => {

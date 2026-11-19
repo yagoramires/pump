@@ -16,7 +16,7 @@ import { BackHeader } from '@/components/BackHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { NumberField } from '@/components/NumberField'
 import { TimePicker } from '@/components/TimePicker'
-import { copyText } from '@/lib/share'
+import { makeCopy } from '@/lib/share'
 import { Alert } from '@/components/ui/alert'
 
 /** "Apagar todos" também chega pelo `onSave`, com o plano vazio */
@@ -108,7 +108,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
     }
     onSave(tidyPlan(plan))
   }
-  const copy = async () => setNotice((await copyText(exportDietFormat(tidyPlan(plan)))) ? 'Cardápio copiado. Cole na IA pra pedir ajustes.' : 'Não consegui copiar. Tente de novo.')
+  const copy = () => makeCopy(setNotice)(exportDietFormat(tidyPlan(plan)), 'Cardápio copiado. Cole na IA pra pedir ajustes.')
   const confirmed = () => (confirm === 'menu' ? removeMenu() : onSave(DEFAULTS.dietPlan))
 
   return (

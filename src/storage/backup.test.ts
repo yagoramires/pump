@@ -1,13 +1,8 @@
-import { clear } from 'idb-keyval'
 import type { Settings, UserData } from '@/schema'
 import { backupDue, buildBackup, daysWithoutBackup, exportBackup, importBackupFile, parseBackup } from './backup'
-import { allData, load, replaceAll, resetStoreForTests, save } from './db'
+import { allData, load, replaceAll, save } from './db'
 import { loadPhoto, savePhoto } from './photos'
 
-beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
-})
 afterEach(() => {
   vi.restoreAllMocks()
   Object.assign(navigator, { canShare: undefined, share: undefined })
@@ -44,10 +39,10 @@ test('importar arquivo válido substitui os dados', async () => {
 })
 test('backupDue com 14 dias de calendário', () => {
   const s: Settings = { lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01' }
-  expect(backupDue(s, '2026-11-14')).toBe(false)
-  expect(backupDue(s, '2026-11-15')).toBe(true)
-  expect(backupDue({ ...s, lastBackupAt: '2026-11-10' }, '2026-11-15')).toBe(false)
-  expect(backupDue({ lastTab: 'treino', onboardingDone: false }, '2026-11-15')).toBe(false)
+  expect(backupDue(s, '2026-11-14')).toBeUndefined()
+  expect(backupDue(s, '2026-11-15')).toBe(14)
+  expect(backupDue({ ...s, lastBackupAt: '2026-11-10' }, '2026-11-15')).toBeUndefined()
+  expect(backupDue({ lastTab: 'treino', onboardingDone: false }, '2026-11-15')).toBeUndefined()
 })
 
 test('backup com fotos: ida e volta traz a imagem', async () => {

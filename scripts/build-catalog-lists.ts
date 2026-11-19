@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import type { TacoFood } from '../src/diet/types.ts'
 import type { Exercise } from '../src/workout/types.ts'
+import { EXERCISE_LIST, FOOD_LIST } from '../src/catalog/urls.ts'
 
 const br = (a: string, b: string) => a.localeCompare(b, 'pt-BR')
 
@@ -21,7 +22,7 @@ export const foodList = (foods: TacoFood[]): string =>
 
 if (import.meta.main) {
   const read = <T>(f: string) => JSON.parse(readFileSync(`public/catalog/${f}`, 'utf8')) as T
-  writeFileSync('public/catalog/exercicios.txt', exerciseList(read('exercises.json')))
-  writeFileSync('public/catalog/alimentos.txt', foodList(read('taco.json')))
-  console.log('public/catalog/exercicios.txt e alimentos.txt escritos')
+  writeFileSync(`public/catalog/${EXERCISE_LIST}`, exerciseList(read('exercises.json')))
+  writeFileSync(`public/catalog/${FOOD_LIST}`, foodList(read('taco.json')))
+  console.log(`public/catalog/${EXERCISE_LIST} e ${FOOD_LIST} escritos`)
 }

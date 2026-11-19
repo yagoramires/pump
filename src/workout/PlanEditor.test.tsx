@@ -2,14 +2,9 @@ import { screen, waitFor } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import { workoutOf } from '../../test/helpers'
 import userEvent from '@testing-library/user-event'
-import { clear } from 'idb-keyval'
-import { load, resetStoreForTests } from '@/storage/db'
+import { load } from '@/storage/db'
 import { PlanEditor } from './PlanEditor'
 
-beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
-})
 
 test('Salvar entrega o plano editado pro onSave e não grava nada sozinho', async () => {
   const user = userEvent.setup()

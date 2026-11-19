@@ -1,4 +1,4 @@
-export const normalize = (s: string): string => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim()
+import { normalize } from '@/lib/text'
 
 export function searchByName<T extends { name: string }>(list: T[], q: string): T[] {
   const nq = normalize(q)

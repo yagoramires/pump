@@ -5,10 +5,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
+import { p2 } from '@/lib/date'
 
-const pad = (n: number) => String(n).padStart(2, '0')
-const HOURS = Array.from({ length: 24 }, (_, h) => pad(h))
-const MINUTES = Array.from({ length: 12 }, (_, i) => pad(i * 5))
+const HOURS = Array.from({ length: 24 }, (_, h) => p2(h))
+const MINUTES = Array.from({ length: 12 }, (_, i) => p2(i * 5))
 
 /** uma coluna = um grupo vertical (setas navegam, uma parada de Tab); ao abrir o popover rola até o valor atual */
 function Column({ title, label, items, current, unit, pick }: { title: string; label: string; items: string[]; current?: string; unit: string; pick: (v: string) => void }) {

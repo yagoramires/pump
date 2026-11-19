@@ -5,14 +5,18 @@ import { Button } from '@/components/ui/button'
 import { useBackupExport } from './useBackupExport'
 import { StorageReadError } from '@/storage/db'
 
+export function CenteredScreen({ role, children }: { role?: 'alert'; children: ReactNode }) {
+  return <main role={role} className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4">{children}</main>
+}
+
 function FatalScreen({ title, text, children }: { title: string; text: string; children: ReactNode }) {
   return (
-    <main role="alert" className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4">
+    <CenteredScreen role="alert">
       <EmptyState icon={<AlertTriangle size={30} aria-hidden="true" />} title={title} tone="negative">
         <p className="max-w-xs text-sm text-text-2">{text}</p>
         <div className="mt-3 flex w-full max-w-xs flex-col gap-2">{children}</div>
       </EmptyState>
-    </main>
+    </CenteredScreen>
   )
 }
 

@@ -11,7 +11,7 @@ export function SettingsSection({ title, children }: { title: string; children: 
   const id = useId()
   return (
     <>
-      <div id={id} className="label-caps px-1 pt-4 pb-1.5 tracking-caps-wide">{title}</div>
+      <div id={id} className="label-caps-wide px-1 pt-4 pb-1.5">{title}</div>
       <Card size="flush" role="group" aria-labelledby={id}>{children}</Card>
     </>
   )

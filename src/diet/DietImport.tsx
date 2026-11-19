@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import type { DietAnamnesis, DietItem, DietPlan } from './types'
 import { usePersisted } from '@/storage/db'
 import { fetchTaco } from '@/catalog/catalog'
+import { FOOD_LIST } from '@/catalog/urls'
 import { buildDietConvertPrompt, buildDietPrompt } from './prompt'
 import { DIET_NOT_FOUND, dietFromFormat, matchLabel, parseDietFormat } from './dietFormat'
 import { optionLetter } from './day'
@@ -12,7 +13,8 @@ import { savePlan } from './plan'
 import { DietAnamnesisForm } from './DietAnamnesisForm'
 import { DietEditor } from './DietEditor'
 import { FoodPicker } from './FoodPicker'
-import { CopyListButton, makeCopy, PasteBox, Step } from '@/components/ImportFlow'
+import { CopyListButton, PasteBox, Step } from '@/components/ImportFlow'
+import { makeCopy } from '@/lib/share'
 import { usePastedReview } from '@/components/usePastedReview'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -20,7 +22,7 @@ import { Toggle } from '@/components/ui/toggle'
 import { BackHeader } from '@/components/BackHeader'
 import { BottomBar } from '@/components/BottomBar'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { formatDec } from '@/lib/number'
+import { formatDec, plural } from '@/lib/number'
 import { namesText } from '@/lib/text'
 import { todayKey } from '@/lib/date'
 import { cn } from '@/lib/utils'
@@ -139,7 +141,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
           <Card className="flex-row items-start gap-2 text-meta text-text-2">
             <AlertTriangle size={16} className="mt-px shrink-0 text-c7" aria-hidden="true" />
             <span>
-              {`${outside} ${outside === 1 ? 'item fora da TACO usa' : 'itens fora da TACO usam'} os números da IA. Toque pra trocar.`}
+              {`${plural(outside, 'item fora da TACO usa', 'itens fora da TACO usam')} os números da IA. Toque pra trocar.`}
               <span className="block">{namesText(outsideNames)}</span>
             </span>
           </Card>
@@ -180,7 +182,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
         {mode === 'convert' && <Step n={2} title="Mande pra sua IA junto com sua dieta" sub="PDF, foto ou texto" />}
         <Step n={mode === 'ia' ? 2 : 3} title="Cole a resposta aqui" sub="Pode colar o texto todo ou escolher o arquivo" />
       </Card>
-      <CopyListButton file="alimentos.txt" noun="alimentos" ok="Lista copiada" report={toast} />
+      <CopyListButton file={FOOD_LIST} noun="alimentos" ok="Lista copiada" report={toast} />
       <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", "dieta": ... }'>
         {paste.reviewing && <p role="status" className="text-meta text-text-2">Conferindo na TACO…</p>}
       </PasteBox>

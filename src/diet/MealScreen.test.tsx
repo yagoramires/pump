@@ -1,6 +1,5 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { clear } from 'idb-keyval'
 import { renderLoaded } from '../../test/render'
 import { load, resetStoreForTests, save } from '@/storage/db'
 import type { DietDay, DietItem, DietPlan, Menu } from './types'
@@ -23,8 +22,6 @@ const plan: DietPlan = { menus: [menuA, menuB], lastMenuId: 'A' }
 const TODAY = '2026-11-18'
 
 beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
   vi.useFakeTimers({ toFake: ['Date'] }) // só o relógio; IndexedDB/findBy/user-event seguem com timers reais
   vi.setSystemTime(new Date(2026, 10, 18, 12, 0))
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))

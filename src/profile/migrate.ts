@@ -1,5 +1,6 @@
 import { todayKey } from '@/lib/date'
-import { isObj, type Settings } from '@/schema'
+import type { Settings } from '@/schema'
+import { isObj } from '@/lib/utils'
 import type { DietGoal, Focus, Profile } from './types'
 import { readCurrent, save } from '@/storage/db'
 import { upsertMeasurement } from '@/evolution/measurements'

@@ -1,7 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { createElement, Suspense, type ReactNode } from 'react'
 import * as idb from 'idb-keyval'
-import { clear } from 'idb-keyval'
 import { DEFAULTS, type UserData } from '@/schema'
 import { renderHookLoaded } from '../../test/render'
 import { allData, load, onStorageError, readKey, replaceAll, resetStoreForTests, save, StorageReadError, usePersisted } from './db'
@@ -11,10 +10,6 @@ vi.mock('idb-keyval', async (orig) => {
   return { ...m, get: vi.fn(m.get), set: vi.fn(m.set) }
 })
 
-beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
-})
 
 const wrapper = ({ children }: { children: ReactNode }) => createElement(Suspense, { fallback: null }, children)
 const persisted = <K extends keyof UserData>(k: K) => renderHookLoaded(() => usePersisted(k))

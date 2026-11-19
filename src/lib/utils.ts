@@ -13,3 +13,5 @@ export const omitKey = <T>(rec: Record<string, T>, key: string): Record<string, 
   const { [key]: _gone, ...rest } = rec
   return rest
 }
+
+export const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)

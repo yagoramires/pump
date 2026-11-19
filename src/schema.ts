@@ -1,5 +1,6 @@
+import { isObj } from '@/lib/utils'
 // só tipos das features: importar valores daqui criaria o ciclo schema → feature → db → schema
-import type { Tab } from './types'
+import type { Tab } from './shell/BottomNav'
 import type { Profile } from './profile/types'
 import type { CustomExercise, WorkoutLog, WorkoutPlan } from './workout/types'
 import type { DietItem, DietLog, DietPlan, WaterLog, WaterSettings } from './diet/types'
@@ -32,8 +33,6 @@ export const DEFAULTS = deepFreeze({
 
 export const USER_KEYS = Object.keys(DEFAULTS) as (keyof UserData)[]
 export const isUserKey = (k: string): k is keyof UserData => (USER_KEYS as readonly string[]).includes(k)
-
-export const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
 
 /** formato mínimo que um backup precisa ter em cada chave */
 export const VALID: Record<keyof UserData, (v: unknown) => boolean> = {

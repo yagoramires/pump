@@ -1,8 +1,8 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
-import { clear, set } from 'idb-keyval'
-import { load, resetStoreForTests } from '@/storage/db'
+import { set } from 'idb-keyval'
+import { load } from '@/storage/db'
 import { isPhotoKey, loadPhoto } from '@/storage/photos'
 import { Toaster } from '@/components/ui/sonner'
 import { PhotoCapture } from './PhotoCapture'
@@ -14,10 +14,6 @@ vi.mock('idb-keyval', async (orig) => {
   return { ...m, set: vi.fn(m.set) }
 })
 
-beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
-})
 afterEach(() => {
   delete (navigator as { mediaDevices?: unknown }).mediaDevices
   vi.mocked(set).mockReset()

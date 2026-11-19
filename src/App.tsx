@@ -10,7 +10,7 @@ import { isIOS, isStandalone } from '@/shell/platform'
 import { Onboarding } from '@/onboarding/Onboarding'
 import { TreinoTab } from '@/workout/TreinoTab'
 import { PreviewSync } from '@/workout/previews'
-import { backupDue, daysWithoutBackup } from '@/storage/backup'
+import { backupDue } from '@/storage/backup'
 import { useBackupExport } from '@/shell/useBackupExport'
 import { onStorageError, readKey, requestPersist, usePersisted } from '@/storage/db'
 import { todayKey } from '@/lib/date'
@@ -18,7 +18,7 @@ import { useCheckIn } from '@/evolution/useCheckIn'
 import { AchievementToasts } from '@/evolution/AchievementToasts'
 import { EvolutionTab } from '@/evolution/EvolutionTab'
 import { Loading } from '@/components/Loading'
-import { OpenSettingsContext } from '@/shell/openSettings'
+import { OpenSettingsContext } from '@/components/openSettings'
 import { migrationFor } from '@/profile/migrate'
 import { USER_KEYS } from './schema'
 import { Alert } from '@/components/ui/alert'
@@ -60,13 +60,14 @@ function Shell() {
   if (!settings.onboardingDone) return <>{banner}<PreviewSync /><main className="mx-auto max-w-md px-4 pt-(--main-pt) pb-(--main-pb)"><Onboarding /></main></>
 
   const tab = settings.lastTab
+  const backupDays = backupDue(settings, todayKey())
   return (
     <>
       {banner}
       <PreviewSync />
-      {backupDue(settings, todayKey()) && (
+      {backupDays !== undefined && (
         <div className="mx-auto mt-3 max-w-md px-4"><Alert variant="accent" role="status" className="flex items-center gap-2 py-1 pr-1">
-          <span className="flex-1">{`Faz ${daysWithoutBackup(settings, todayKey())} dias sem backup`}</span>
+          <span className="flex-1">{`Faz ${backupDays} dias sem backup`}</span>
           <Button type="button" variant="link" size="sm" className="text-accent" onClick={backup.send}>Enviar backup</Button>
         </Alert></div>
       )}
@@ -74,11 +75,9 @@ function Shell() {
         {showSettings ? (
           <SettingsScreen onClose={() => setShowSettings(false)} />
         ) : (
-          <>
-            <OpenSettingsContext value={() => setShowSettings(true)}>
-              {tab === 'treino' ? <TreinoTab /> : tab === 'evolucao' ? <EvolutionTab /> : <Suspense fallback={<Loading />}><DietTab /></Suspense>}
-            </OpenSettingsContext>
-          </>
+          <OpenSettingsContext value={() => setShowSettings(true)}>
+            {tab === 'treino' ? <TreinoTab /> : tab === 'evolucao' ? <EvolutionTab /> : <Suspense fallback={<Loading />}><DietTab /></Suspense>}
+          </OpenSettingsContext>
         )}
       </main>
       <BottomNav tab={tab} alerts={due ? { evolucao: 'atualização pendente' } : undefined} onChange={(lastTab) => { setShowSettings(false); setSettings((s) => ({ ...s, lastTab })) }} />

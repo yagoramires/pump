@@ -6,7 +6,7 @@ export function Steps({ n, total, action }: { n: number; total: number; action?:
     <div className="flex flex-col gap-2">
       <Progress aria-hidden="true" value={(n / total) * 100} className="h-1 bg-line" />
       <div className="flex items-center justify-between gap-3">
-        <div className="label-caps tracking-caps-wide">{`PASSO ${n} DE ${total}`}</div>
+        <div className="label-caps-wide">{`PASSO ${n} DE ${total}`}</div>
         {action}
       </div>
     </div>

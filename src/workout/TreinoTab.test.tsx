@@ -1,8 +1,7 @@
 import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import * as idb from 'idb-keyval'
-import { clear } from 'idb-keyval'
-import { load, resetStoreForTests, save } from '@/storage/db'
+import { load, save } from '@/storage/db'
 import type { WorkoutPlan } from './types'
 import { pe } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
@@ -24,8 +23,6 @@ const plano: WorkoutPlan = { workouts: [
   ] },
 ] }
 beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
   vi.useFakeTimers({ toFake: ['Date'] }) // só o relógio; IndexedDB/findBy/user-event seguem com timers reais
   vi.setSystemTime(new Date(2026, 10, 16, 18, 0)) // segunda
   await save('workoutPlan', plano)

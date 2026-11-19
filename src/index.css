@@ -105,6 +105,12 @@ body { background: var(--color-bg); color: var(--color-text); font-family: var(-
   font-size: var(--text-micro); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--color-faint);
 }
 
+/* rótulo de campo e de seção */
+@utility label-caps-wide {
+  @apply label-caps;
+  letter-spacing: var(--tracking-caps-wide);
+}
+
 @layer base {
   *, ::before, ::after { border-color: var(--color-border); }
 }

@@ -1,16 +1,13 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { clear } from 'idb-keyval'
 import { renderLoaded } from '../../test/render'
 import { DEFAULTS } from '@/schema'
-import { readCurrent, resetStoreForTests, save } from '@/storage/db'
+import { readCurrent, save } from '@/storage/db'
 import { AnamnesisFlow } from './AnamnesisFlow'
 
 const today = '2026-11-18'
 const mediaDevices = Object.getOwnPropertyDescriptor(navigator, 'mediaDevices')
 beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date(2026, 10, 18, 12, 0))
 })

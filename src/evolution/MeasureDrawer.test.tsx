@@ -1,14 +1,11 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { clear } from 'idb-keyval'
-import { load, resetStoreForTests, save } from '@/storage/db'
+import { load, save } from '@/storage/db'
 import { Toaster } from '@/components/ui/sonner'
 import { renderLoaded } from '../../test/render'
 import { MeasureDrawer } from './MeasureDrawer'
 
 beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date(2026, 10, 18, 12))
 })

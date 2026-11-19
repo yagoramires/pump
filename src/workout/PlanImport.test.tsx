@@ -1,14 +1,12 @@
 import { screen } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
-import { clear, get } from 'idb-keyval'
-import { resetStoreForTests, save } from '@/storage/db'
+import { get } from 'idb-keyval'
+import { save } from '@/storage/db'
 import { PlanImport } from './PlanImport'
 import { buildConvertPrompt } from './prompt'
 
 beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
   vi.stubGlobal('fetch', vi.fn(async () => new Response('[]')))
 })
 afterEach(() => vi.unstubAllGlobals())

@@ -1,5 +1,4 @@
 import { Dumbbell, TrendingUp, Utensils } from 'lucide-react'
-import type { Tab } from '@/types'
 import { Button } from '@/components/ui/button'
 
 const TABS = [
@@ -7,6 +6,7 @@ const TABS = [
   { id: 'evolucao', label: 'Evolução', Icon: TrendingUp },
   { id: 'dieta', label: 'Dieta', Icon: Utensils },
 ] as const
+export type Tab = (typeof TABS)[number]['id']
 
 export function BottomNav({ tab, onChange, alerts = {} }: { tab: Tab; onChange: (t: Tab) => void; alerts?: Partial<Record<Tab, string>> }) {
   return (

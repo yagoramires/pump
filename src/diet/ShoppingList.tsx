@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { makeCopy } from '@/components/ImportFlow'
+import { makeCopy } from '@/lib/share'
 import { countText, formatAmount, shoppingList, shoppingText } from './shopping'
 
 const PERIODS = [{ v: '7', label: 'Semana' }, { v: '30', label: 'Mês' }]

@@ -1,14 +1,9 @@
 import { screen } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
-import { clear } from 'idb-keyval'
-import { resetStoreForTests, save } from '@/storage/db'
+import { save } from '@/storage/db'
 import { savePhoto } from '@/storage/photos'
 import { PhotoCompare } from './PhotoCompare'
 
-beforeEach(async () => {
-  await clear()
-  resetStoreForTests()
-})
 
 test('comparar: primeiro × último e foto ausente vira espaço vazio', async () => {
   const id = await savePhoto('data:image/jpeg;base64,AAA')
