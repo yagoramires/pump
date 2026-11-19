@@ -63,7 +63,8 @@ export function loadsSummary(log: WorkoutLog, period: Period, today: string) {
       .map(({ exerciseId, name, mode, sessions, top, total }): LoadRow => ({ exerciseId, name, mode, sessions, top, total }))
       .sort((a, b) => b.sessions - a.sessions || a.name.localeCompare(b.name, 'pt-BR')),
   })).filter((g) => g.rows.length)
-  const rows = groups.flatMap((g) => g.rows)
+  // o resumo fala em kg (carga máx., volume): exercício de reps não entra na conta
+  const rows = groups.flatMap((g) => g.rows).filter((r) => r.mode === 'load')
   return { top: tally(rows, 'top'), total: tally(rows, 'total'), groups }
 }
 

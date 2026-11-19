@@ -3,7 +3,8 @@ import { save } from '@/storage/db'
 import { loadPhoto, savePhoto } from '@/storage/photos'
 import { renderHookLoaded } from '../../test/render'
 import { stored } from '../../test/store'
-import { hasPhoto, setAngle, usePhotoSets } from './photoSets'
+import { hasPhoto, photoCount, setAngle } from './photoSets'
+import { usePhotoSets } from './usePhotoSets'
 
 
 test('setAngle substitui o ângulo do mesmo dia e mantém a ordem por data', () => {
@@ -15,6 +16,8 @@ test('setAngle substitui o ângulo do mesmo dia e mantém a ordem por data', () 
   expect(s.map((x) => x.date)).toEqual(['2026-11-10', '2026-11-17'])
   expect(hasPhoto({ id: 'x', date: '2026-11-01' })).toBe(false)
   expect(hasPhoto(s[0])).toBe(true)
+  expect(photoCount(s[0])).toBe(1)
+  expect(photoCount(undefined)).toBe(0)
 })
 test('usePhotoSets: trocar a foto de um ângulo apaga a antiga do banco e mantém as outras', async () => {
   const [old, side, fresh] = [await savePhoto('data:image/jpeg;base64,A'), await savePhoto('data:image/jpeg;base64,B'), await savePhoto('data:image/jpeg;base64,C')]

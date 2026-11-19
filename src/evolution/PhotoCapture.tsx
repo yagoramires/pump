@@ -10,7 +10,7 @@ import { Overlay } from '@/components/Overlay'
 import { BackHeader } from '@/components/BackHeader'
 import { cn } from '@/lib/utils'
 import { ANGLE_LABEL, ANGLES } from './types'
-import { usePhotoSets } from './photoSets'
+import { usePhotoSets } from './usePhotoSets'
 import { AngleTabs } from './AngleTabs'
 import { fileToJpeg, videoToJpeg } from './resize'
 

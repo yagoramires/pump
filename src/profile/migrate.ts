@@ -4,6 +4,7 @@ import { isKeyOf, isObj } from '@/lib/utils'
 import type { DietGoal, Focus, Profile } from './types'
 import { readCurrent, save } from '@/storage/db'
 import type { Measurement } from '@/evolution/types'
+import { upsertMeasurement } from '@/evolution/measurements'
 
 type OldGoal = 'hipertrofia' | 'emagrecer' | 'forca' | 'saude'
 const FOCUS_OF: Record<OldGoal, Focus> = { hipertrofia: 'hipertrofia', emagrecer: 'hipertrofia', forca: 'forca', saude: 'condicionamento' }
@@ -43,10 +44,7 @@ export function migrateData(data: StoredData, today: string): Migrated {
   if (typeof weightKg === 'number' && weightKg > 0) {
     const ms = data.measurements ?? []
     if (!ms.some((m) => m.weightKg !== undefined)) {
-      const date = data.settings?.firstUseAt ?? today
-      const existing = ms.find((m) => m.date === date)
-      const measurement = { ...(existing ?? { id: crypto.randomUUID(), date }), weightKg }
-      out.measurements = [...ms.filter((m) => m.date !== date), measurement].sort((a, b) => a.date.localeCompare(b.date))
+      out.measurements = upsertMeasurement(ms, data.settings?.firstUseAt ?? today, { weightKg }).list
     }
   }
   return out

@@ -1,7 +1,7 @@
-import type { Profile } from '@/profile/types'
+import type { Profile, Sex } from '@/profile/types'
 import type { MeasureFields, Measurement } from './types'
 import { round1 } from '@/lib/number'
-import { bodyFat } from './bodyFat'
+import { bodyFat, usesHip } from './bodyFat'
 import { goalDirection, isGood, type GoalDirection, type Metric } from './goal'
 
 export type Point = { date: string; value: number }
@@ -21,6 +21,8 @@ const CM_FIELDS: (Field & { key: Key })[] = [
   { key: 'thighCm', label: 'Coxa', unit: 'cm' },
 ]
 export const FIELDS = [WEIGHT, ...CM_FIELDS]
+/** os campos que o formulário pede pra esse sexo */
+export const fieldsFor = (sex: Sex) => FIELDS.filter((f) => f.key !== 'hipCm' || usesHip(sex))
 export const FAT = { key: 'fat', label: 'Gordura', unit: '%', digits: 1, deltaUnit: 'pt' } satisfies Field
 
 export const BODY_FIELDS: Field[] = [WEIGHT, FAT, ...CM_FIELDS]
@@ -77,4 +79,7 @@ export const deltaUnit = (field: Field) => field.deltaUnit ?? field.unit
 
 export const formatMetric = (field: Field, value: number) => value.toLocaleString('pt-BR', { maximumFractionDigits: field.digits ?? 2 })
 
-export const metricUnit = (field: Field) => (field.unit === '%' ? field.unit : ` ${field.unit}`)
+/** espaço inquebrável: o número não quebra de linha longe da unidade */
+export const metricUnit = (field: Field) => (field.unit === '%' ? field.unit : `\u00a0${field.unit}`)
+
+export const formatValue = (field: Field, value: number) => `${formatMetric(field, value)}${metricUnit(field)}`

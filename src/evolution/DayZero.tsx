@@ -1,18 +1,19 @@
 import { useState } from 'react'
 import { Camera } from 'lucide-react'
-import type { Profile } from '@/profile/types'
+import type { DayZeroProps } from '@/profile/AnamnesisFlow'
 import { Alert } from '@/components/ui/alert'
 import { Optional } from '@/components/Optional'
 import { Button } from '@/components/ui/button'
-import { MeasureForm } from '@/evolution/MeasureForm'
-import { PhotoCapture } from '@/evolution/PhotoCapture'
-import { PhotoThumb } from '@/evolution/PhotoThumb'
-import { usePhotoSets } from '@/evolution/photoSets'
-import { ANGLE_LABEL, ANGLES } from '@/evolution/types'
-import { CheckInDayChips } from './CheckInDayChips'
+import { usePersisted } from '@/storage/db'
+import { CheckInDayChips } from '@/profile/CheckInDayChips'
+import { MeasureForm } from './MeasureForm'
+import { PhotoCapture } from './PhotoCapture'
+import { PhotoThumb } from './PhotoThumb'
+import { ANGLE_LABEL, ANGLES } from './types'
 
-export function DayZero({ profile, date, checkInDay, onCheckInDayChange, onDone }: { profile: Profile; date: string; checkInDay: number; onCheckInDayChange: (day: number) => void; onDone: () => void }) {
-  const { sets } = usePhotoSets()
+/** passo final da anamnese: quem abre o AnamnesisFlow passa este componente */
+export function DayZero({ profile, date, checkInDay, onCheckInDayChange, onDone }: DayZeroProps) {
+  const [sets] = usePersisted('photoSets')
   const [capturing, setCapturing] = useState(false)
   const todaySet = sets.find((s) => s.date === date)
   return (

@@ -75,7 +75,8 @@ function Big({ label, value, unit, accent, size = 57 }: { label: string; value: 
   )
 }
 
-const pdfDigits = (f: Field) => (f.unit === 'cm' ? 0 : 1)
+/** no PDF as medidas em cm vão inteiras; peso e gordura com uma casa */
+const pdfDigits = (f: Field) => (f.key === WEIGHT.key || f.key === FAT.key ? 1 : 0)
 
 /** `unit` já com o espaço, como em metricUnit */
 function FromTo({ first, last, unit, digits = 0 }: { first: number; last: number; unit: string; digits?: number }) {

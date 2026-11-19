@@ -20,6 +20,7 @@ import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { AnamnesisFlow } from '@/profile/AnamnesisFlow'
+import { DayZero } from '@/evolution/DayZero'
 import { ANAMNESIS_STEPS } from '@/profile/profile'
 import { Steps } from '@/components/Steps'
 import { Alert } from '@/components/ui/alert'
@@ -59,6 +60,7 @@ export function Onboarding() {
   if (step === 'anamnese') {
     return (
       <AnamnesisFlow
+        DayZero={DayZero}
         total={ONBOARDING_STEPS}
         resumeAtDayZero={resumeAtDayZero}
         onDone={() => setStep('treino')}
