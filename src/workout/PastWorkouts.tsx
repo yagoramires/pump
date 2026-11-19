@@ -1,16 +1,14 @@
 import { useState } from 'react'
 import { History } from 'lucide-react'
 import { usePersisted } from '@/storage/db'
-import { formatKg } from '@/lib/number'
 import { BackHeader } from '@/components/BackHeader'
 import { EmptyState } from '@/components/EmptyState'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Card } from '@/components/ui/card'
 import { completedSessions } from './stats'
-import { isCardio } from './reps'
 import { workoutDayLabel } from './display'
-import { markedSets } from './session'
 import { WorkoutDayLine } from './WorkoutDayLine'
+import { SessionSets } from './SessionSets'
 
 export function PastWorkouts({ onClose }: { onClose: () => void }) {
   const [log] = usePersisted('workoutLog')
@@ -33,16 +31,7 @@ export function PastWorkouts({ onClose }: { onClose: () => void }) {
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-1.5 px-3.5 pb-3">
-                  {s.exercises.map((e, i) => {
-                    const done = markedSets(e)
-                    if (done.length === 0) return null
-                    return (
-                      <div key={i}>
-                        <div className="text-sm font-semibold text-strong">{e.name}</div>
-                        {isCardio(e) ? <div className="text-meta text-text-2">feito</div> : done.map((d, j) => <div key={j} className="text-meta text-text-2 tabular-nums">{`${formatKg(d.weightKg)} kg × ${d.reps}`}</div>)}
-                      </div>
-                    )
-                  })}
+                  <SessionSets session={s} />
                 </AccordionContent>
               </AccordionItem>
             ))}

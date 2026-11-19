@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowLeftRight, Check, ChevronRight, Dumbbell, History, Moon, Undo2 } from 'lucide-react'
+import { ArrowLeftRight, Check, ChevronRight, Dumbbell, History, Moon, Pencil, Undo2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { SetDone, WorkoutLog, WorkoutSession } from './types'
 import { usePersisted } from '@/storage/db'
@@ -36,6 +36,7 @@ import { workoutDayLabel } from './display'
 import { UnfinishedCard } from './UnfinishedCard'
 import { SwitchWorkout, WorkoutRow } from './SwitchWorkout'
 import { PastWorkouts } from './PastWorkouts'
+import { DoneSummary } from './DoneSummary'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import type { Workout } from './types'
 
@@ -205,52 +206,56 @@ export function TreinoTab() {
         <Button variant="link" className="min-h-11 self-start" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>
       )}
 
-      <Card className="flex-row items-center gap-3.5">
-        <div
-          className="flex size-18 shrink-0 items-center justify-center rounded-full"
-          style={{ background: `conic-gradient(var(--color-accent) 0 ${stats.total ? (stats.done / stats.total) * 100 : 0}%, var(--color-line) 0)` }}
-        >
-          <div className="flex size-14.5 flex-col items-center justify-center rounded-full bg-panel">
-            <span className="text-body leading-none font-bold text-strong tabular-nums">{stats.done}/{stats.total}</span>
-            <span className="text-micro text-faint">séries</span>
+      {session?.completedAt ? <DoneSummary session={session} log={log} next={next} /> : (
+        <>
+        <Card className="flex-row items-center gap-3.5">
+          <div
+            className="flex size-18 shrink-0 items-center justify-center rounded-full"
+            style={{ background: `conic-gradient(var(--color-accent) 0 ${stats.total ? (stats.done / stats.total) * 100 : 0}%, var(--color-line) 0)` }}
+          >
+            <div className="flex size-14.5 flex-col items-center justify-center rounded-full bg-panel">
+              <span className="text-body leading-none font-bold text-strong tabular-nums">{stats.done}/{stats.total}</span>
+              <span className="text-micro text-faint">séries</span>
+            </div>
           </div>
-        </div>
-        <div>
-          <div className="text-meta text-text-2">Volume de hoje</div>
-          <div className="text-lg font-semibold text-strong tabular-nums">{`${formatKg(stats.volumeKg)} kg`}</div>
-          <div className="text-meta text-text-2">{minutes === null ? plural(view.exercises.length, 'exercício', 'exercícios') : `${minutes} min · ${plural(view.exercises.length, 'exercício', 'exercícios')}`}</div>
-        </div>
-      </Card>
-      {!log[today] && workout && (
-        <Button variant="outline" className="w-full" onClick={markRest}><Moon aria-hidden="true" /> Descansar hoje</Button>
-      )}
+          <div>
+            <div className="text-meta text-text-2">Volume de hoje</div>
+            <div className="text-lg font-semibold text-strong tabular-nums">{`${formatKg(stats.volumeKg)} kg`}</div>
+            <div className="text-meta text-text-2">{minutes === null ? plural(view.exercises.length, 'exercício', 'exercícios') : `${minutes} min · ${plural(view.exercises.length, 'exercício', 'exercícios')}`}</div>
+          </div>
+        </Card>
+        {!log[today] && workout && (
+          <Button variant="outline" className="w-full" onClick={markRest}><Moon aria-hidden="true" /> Descansar hoje</Button>
+        )}
 
-      <ExerciseGroups
-        exercises={view.exercises}
-        className={() => 'contents'}
-        row={(e, i, cardio) => {
-          if (cardio) {
+        <ExerciseGroups
+          exercises={view.exercises}
+          className={() => 'contents'}
+          row={(e, i, cardio) => {
+            if (cardio) {
+              return (
+                <Card size="sm" key={i} className="flex-row items-center gap-1.5">
+                  <Button variant="ghost" size="icon" aria-label={`Ver ${e.name}`} onClick={() => setPreview(i)}>
+                    <ExerciseIcon muscles={e.muscles} cardio size={32} />
+                  </Button>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-body font-semibold break-words text-strong">{e.name}</span>
+                    <span className="block text-meta text-text-2">{e.reps}</span>
+                  </span>
+                  <Checkbox size="check" className="mr-1.5" checked={!!e.sets[0]} aria-label={`${e.name} feito`} onCheckedChange={() => toggleCardio(i)} />
+                </Card>
+              )
+            }
+            const prev = previousSets(log, today, e.exerciseId)
             return (
-              <Card size="sm" key={i} className="flex-row items-center gap-1.5">
-                <Button variant="ghost" size="icon" aria-label={`Ver ${e.name}`} onClick={() => setPreview(i)}>
-                  <ExerciseIcon muscles={e.muscles} cardio size={32} />
-                </Button>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-body font-semibold break-words text-strong">{e.name}</span>
-                  <span className="block text-meta text-text-2">{e.reps}</span>
-                </span>
-                <Checkbox size="check" className="mr-1.5" checked={!!e.sets[0]} aria-label={`${e.name} feito`} onCheckedChange={() => toggleCardio(i)} />
-              </Card>
+              <ExerciseCard key={i} ex={e} prev={prev} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
+                <SetTable ex={e} prev={prev} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} />
+              </ExerciseCard>
             )
-          }
-          const prev = previousSets(log, today, e.exerciseId)
-          return (
-            <ExerciseCard key={i} ex={e} prev={prev} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
-              <SetTable ex={e} prev={prev} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} />
-            </ExerciseCard>
-          )
-        }}
-      />
+          }}
+        />
+        </>
+      )}
 
       <div className="pointer-events-none fixed bottom-[calc(var(--nav-h)+env(safe-area-inset-bottom))] left-1/2 h-24 w-full max-w-md -translate-x-1/2 bg-linear-to-b from-transparent to-bg to-60%" />
       {timer && (
@@ -280,7 +285,7 @@ export function TreinoTab() {
       />
       <div className="fixed bottom-[calc(var(--nav-h)+12px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2">
         {session?.completedAt ? (
-          <Button variant="secondary" className="w-full font-bold" disabled><Check aria-hidden="true" /> Treino concluído</Button>
+          <Button variant="secondary" className="w-full font-bold" onClick={() => patch(reopenSession)}><Pencil aria-hidden="true" /> Editar séries</Button>
         ) : (
           <Button className="w-full font-bold" disabled={!!session && stats.done === 0} onClick={session ? conclude : start}>{session ? <><Check aria-hidden="true" /> Concluir treino</> : 'Iniciar treino'}</Button>
         )}
