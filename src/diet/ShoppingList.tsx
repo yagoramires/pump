@@ -50,7 +50,7 @@ export function ShoppingList({ onClose }: { onClose: () => void }) {
               </li>
             ))}
           </ul></Card>
-          <Button variant="outline" onClick={() => makeCopy(toast)(shoppingText(checked.length ? missing : items), 'Lista copiada')}>{checked.length ? 'Copiar o que falta' : 'Copiar lista'}</Button>
+          <Button variant="outline" disabled={!missing.length} onClick={() => makeCopy(toast)(shoppingText(checked.length ? missing : items), 'Lista copiada')}>{!missing.length ? 'Tudo comprado' : checked.length ? 'Copiar o que falta' : 'Copiar lista'}</Button>
           {checked.length > 0 && <Button variant="link" onClick={() => setChecked([])}>Limpar marcações</Button>}
         </div>
       )}

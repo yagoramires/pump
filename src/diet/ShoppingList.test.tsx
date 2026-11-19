@@ -89,3 +89,15 @@ test('com marcas copia só o que falta', async () => {
   expect(text).toContain('Ovo')
   expect(text).not.toContain('Arroz')
 })
+
+test('tudo marcado desabilita a cópia', async () => {
+  await save('dietPlan', plan)
+  const user = userEvent.setup()
+  await renderLoaded(<ShoppingList onClose={() => {}} />)
+  await user.click(await screen.findByRole('checkbox', { name: 'Arroz' }))
+  await user.click(screen.getByRole('checkbox', { name: 'Ovo' }))
+  const btn = screen.getByRole('button', { name: 'Tudo comprado' })
+  expect(btn).toBeDisabled()
+  await user.click(btn)
+  expect(copyText).not.toHaveBeenCalled()
+})
