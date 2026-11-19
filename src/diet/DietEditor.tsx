@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { ArrowDown, ArrowUp, Copy, Plus, Trash2 } from 'lucide-react'
 import { DEFAULTS } from '@/schema'
 import type { DietItem, DietPlan, Macros, Meal, MealOption, Menu } from './types'
-import { MACRO_KEYS, MACRO_LABELS, iaLabel, itemKcalText, optionLabel, optionLetter } from './display'
-import { kcalOf } from './food'
+import { MACRO_LABELS, iaLabel, itemKcalText, optionLabel, optionLetter } from './display'
+import { MACRO_KEYS, kcalOf, macrosOf } from './food'
 import { currentMenu, emptyMeal, emptyMenu, emptyOption } from './plan'
 import { planProblem } from './dietFormat'
-import { GRAMS, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
+import { GOAL_KCAL, GRAMS, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
+import { useDietPlan } from './useDietPlan'
 import { FoodPicker } from './FoodPicker'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -18,8 +19,8 @@ import { NumberField } from '@/components/NumberField'
 import { TimePicker } from '@/components/TimePicker'
 import { Alert } from '@/components/ui/alert'
 
-/** "Apagar todos" também chega pelo `onSave`, com o plano vazio */
-type Props = { initial: DietPlan; onSave: (plan: DietPlan) => void; onCancel: () => void }
+/** sem `initial`, edita e grava o plano salvo; com `initial` (rascunho do import), entrega o resultado em `onSave`, e "Apagar todos" entrega o plano vazio */
+type Props = { onCancel: () => void } & ({ onDone: () => void } | { initial: DietPlan; onSave: (plan: DietPlan) => void })
 
 const CONFIRM = {
   menu: { title: 'Apagar este cardápio?', text: 'As refeições dele saem do editor. O histórico fica.' },
@@ -36,13 +37,16 @@ const copyMenu = (menu: Menu): Menu => {
   return { ...fresh(m), name: `${m.name} (cópia)`, meals }
 }
 const setMacro = (m: Menu, k: keyof Macros, n?: number): Menu => {
-  const g = { p: 0, c: 0, f: 0, ...m.goalMacros, [k]: n ?? 0 }
-  return { ...m, goalMacros: g.p || g.c || g.f ? g : undefined }
+  const g = { ...macrosOf([]), ...m.goalMacros, [k]: n ?? 0 }
+  return { ...m, goalMacros: MACRO_KEYS.some((x) => g[x]) ? g : undefined }
 }
 
-export function DietEditor({ initial, onSave, onCancel }: Props) {
+export function DietEditor(props: Props) {
+  const { plan: saved, replacePlan } = useDietPlan()
+  const initial = 'initial' in props ? props.initial : saved
+  const onSave = 'onSave' in props ? props.onSave : (next: DietPlan) => { replacePlan(next); props.onDone() }
   const [plan, setPlan] = useState<DietPlan>(() => (initial.menus.length ? structuredClone(initial) : { menus: [emptyMenu(1, [emptyMeal(1)])] }))
-  const [menuId, setMenuId] = useState(() => (currentMenu(plan) ?? plan.menus[0]).id)
+  const [menuId, setMenuId] = useState(() => currentMenu(plan)!.id)
   const [optOf, setOptOf] = useState<Record<string, number>>({})
   const [picking, setPicking] = useState<{ mealId: string; oi: number; name: string }>()
   const [confirm, setConfirm] = useState<keyof typeof CONFIRM>()
@@ -87,7 +91,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
 
   return (
     <div className="flex flex-col gap-3 pb-6">
-      <BackHeader title="Cardápio" onBack={onCancel} label="Cancelar">
+      <BackHeader title="Cardápio" onBack={props.onCancel} label="Cancelar">
         <Button size="sm" onClick={save}>Salvar</Button>
       </BackHeader>
       {error && <Alert variant="destructive">{error}</Alert>}
@@ -109,13 +113,13 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
         </div>
         <div className="flex items-center justify-between gap-3 border-t border-line pt-2">
           <span className="text-sm text-text-2">Meta diária (kcal)</span>
-          <NumberField className="w-28 text-center" aria-label="Meta diária em kcal" placeholder="opcional" autoComplete="off" enterKeyHint="done" min={0} max={Infinity} value={menu.goalKcal} onChange={(n) => n !== null && patchMenu((m) => ({ ...m, goalKcal: n === undefined ? undefined : Math.round(n) }))} />
+          <NumberField className="w-28 text-center" aria-label="Meta diária em kcal" placeholder="opcional" autoComplete="off" enterKeyHint="done" min={GOAL_KCAL[0]} max={GOAL_KCAL[1]} value={menu.goalKcal} onChange={(n) => n !== null && patchMenu((m) => ({ ...m, goalKcal: n === undefined ? undefined : Math.round(n) }))} />
         </div>
         <div className="grid grid-cols-3 gap-2">
           {MACRO_KEYS.map((k) => (
             <label key={k} className="flex flex-col gap-1">
               <span className="label-caps">{MACRO_LABELS[k]} (g)</span>
-              <NumberField className="text-center" aria-label={`Meta de ${MACRO_LABELS[k].toLowerCase()} em g`} placeholder="—" autoComplete="off" enterKeyHint="done" min={0} max={Infinity} value={menu.goalMacros?.[k] || undefined} onChange={(n) => n !== null && patchMenu((m) => setMacro(m, k, n))} />
+              <NumberField className="text-center" aria-label={`Meta de ${MACRO_LABELS[k].toLowerCase()} em g`} placeholder="—" autoComplete="off" enterKeyHint="done" min={MACRO_G[0]} max={MACRO_G[1]} value={menu.goalMacros?.[k] || undefined} onChange={(n) => n !== null && patchMenu((m) => setMacro(m, k, n))} />
             </label>
           ))}
         </div>
@@ -146,23 +150,26 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
               {meal.options.length > 1 && <Button variant="outline" size="icon" aria-label={`Remover opção ${optionLetter(oi)} da refeição ${mi + 1}`} onClick={() => removeOption(meal, oi)}><Trash2 aria-hidden="true" /></Button>}
             </div>
             <ul>
-              {opt.items.map((it, i) => (
-                <li key={it.id} className="flex flex-col gap-1.5 border-t border-line py-2.5">
-                  <div className="flex items-baseline gap-2">
-                    <span className="min-w-0 flex-1 truncate text-body text-strong">{it.name}</span>
-                    <span className="text-caption tabular-nums text-text-2">{itemKcalText(it)}</span>
-                  </div>
-                  {iaLabel(it) && <span className="text-caption text-c7">{iaLabel(it)}</span>}
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <Input className="min-w-24 flex-1" aria-label={`Porção de ${it.name}`} placeholder="Porção" autoComplete="off" value={it.portion ?? ''} onChange={(e) => patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, portion: e.target.value || undefined } : x)))} />
-                    <NumberField className="w-16 text-center" aria-label={`Gramas de ${it.name}`} autoComplete="off" enterKeyHint="done" min={GRAMS[0]} max={GRAMS[1]} value={it.grams} onChange={(n) => n != null && patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, grams: n } : x)))} />
-                    <span className="text-caption text-text-2">g</span>
-                    <Button variant="outline" size="icon" aria-label={`Subir ${it.name}`} disabled={i === 0} onClick={() => patchItems(meal.id, oi, (xs) => { const a = [...xs]; [a[i - 1], a[i]] = [a[i], a[i - 1]]; return a })}><ArrowUp aria-hidden="true" /></Button>
-                    <Button variant="outline" size="icon" aria-label={`Descer ${it.name}`} disabled={i === opt.items.length - 1} onClick={() => patchItems(meal.id, oi, (xs) => { const a = [...xs]; [a[i], a[i + 1]] = [a[i + 1], a[i]]; return a })}><ArrowDown aria-hidden="true" /></Button>
-                    <Button variant="outline" size="icon" aria-label={`Remover ${it.name}`} onClick={() => patchItems(meal.id, oi, (xs) => xs.filter((x) => x.id !== it.id))}><Trash2 aria-hidden="true" /></Button>
-                  </div>
-                </li>
-              ))}
+              {opt.items.map((it, i) => {
+                const ia = iaLabel(it)
+                return (
+                  <li key={it.id} className="flex flex-col gap-1.5 border-t border-line py-2.5">
+                    <div className="flex items-baseline gap-2">
+                      <span className="min-w-0 flex-1 truncate text-body text-strong">{it.name}</span>
+                      <span className="text-caption tabular-nums text-text-2">{itemKcalText(it)}</span>
+                    </div>
+                    {ia && <span className="text-caption text-c7">{ia}</span>}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <Input className="min-w-24 flex-1" aria-label={`Porção de ${it.name}`} placeholder="Porção" autoComplete="off" value={it.portion ?? ''} onChange={(e) => patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, portion: e.target.value || undefined } : x)))} />
+                      <NumberField className="w-16 text-center" aria-label={`Gramas de ${it.name}`} autoComplete="off" enterKeyHint="done" min={GRAMS[0]} max={GRAMS[1]} value={it.grams} onChange={(n) => n != null && patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, grams: n } : x)))} />
+                      <span className="text-caption text-text-2">g</span>
+                      <Button variant="outline" size="icon" aria-label={`Subir ${it.name}`} disabled={i === 0} onClick={() => patchItems(meal.id, oi, (xs) => { const a = [...xs]; [a[i - 1], a[i]] = [a[i], a[i - 1]]; return a })}><ArrowUp aria-hidden="true" /></Button>
+                      <Button variant="outline" size="icon" aria-label={`Descer ${it.name}`} disabled={i === opt.items.length - 1} onClick={() => patchItems(meal.id, oi, (xs) => { const a = [...xs]; [a[i], a[i + 1]] = [a[i + 1], a[i]]; return a })}><ArrowDown aria-hidden="true" /></Button>
+                      <Button variant="outline" size="icon" aria-label={`Remover ${it.name}`} onClick={() => patchItems(meal.id, oi, (xs) => xs.filter((x) => x.id !== it.id))}><Trash2 aria-hidden="true" /></Button>
+                    </div>
+                  </li>
+                )
+              })}
             </ul>
             <Button variant="ghost" className="w-full justify-start text-accent" disabled={opt.items.length >= MAX_ITEMS} onClick={() => setPicking({ mealId: meal.id, oi, name: meal.name })}><Plus aria-hidden="true" /> Alimento</Button>
           </Card>

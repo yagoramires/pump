@@ -6,12 +6,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
-type Value = DietAnamnesis
-
 const MEALS = [3, 4, 5, 6, 7]
 
-export function DietAnamnesisForm({ value, onChange }: { value: Value; onChange: (v: Value) => void }) {
-  const set = <K extends keyof Value>(k: K, v: Value[K]) => onChange({ ...value, [k]: v })
+export function DietAnamnesisForm({ value, onChange }: { value: DietAnamnesis; onChange: (v: DietAnamnesis) => void }) {
+  const set = <K extends keyof DietAnamnesis>(k: K, v: DietAnamnesis[K]) => onChange({ ...value, [k]: v })
   return (
     <Card role="region" aria-labelledby="anamnese-dieta" className="gap-3">
       <div>

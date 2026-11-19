@@ -154,15 +154,22 @@ test('DietEditor trava novos cardápios no limite do formato', async () => {
   expect(screen.getByRole('button', { name: 'Duplicar cardápio' })).toBeDisabled()
 })
 
-test('DietEditor recusa meta de macro acima de 600 g', async () => {
+test('metas fora da faixa do formato marcam o campo e não entram no plano', async () => {
   const onSave = vi.fn()
   const user = setup()
   await renderLoaded(<DietEditor initial={plan()} onSave={onSave} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Dia de treino' }))
-  await user.type(screen.getByRole('textbox', { name: 'Meta de proteína em g' }), '700')
+  const kcal = screen.getByRole('textbox', { name: 'Meta diária em kcal' })
+  await user.tripleClick(kcal)
+  await user.keyboard('7000')
+  expect(kcal).toHaveAttribute('aria-invalid', 'true')
+  const prot = screen.getByRole('textbox', { name: 'Meta de proteína em g' })
+  await user.type(prot, '700')
+  expect(prot).toHaveAttribute('aria-invalid', 'true')
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
-  expect(screen.getByRole('alert')).toHaveTextContent('Dia de treino: macros fora da faixa (0 a 600 g)')
-  expect(onSave).not.toHaveBeenCalled()
+  const menu = saved(onSave).menus.find((m) => m.name === 'Dia de treino')!
+  expect(menu.goalKcal).toBe(2000)
+  expect(menu.goalMacros?.p).not.toBe(700)
 })
 
 test('B8: 0 g marca o campo como inválido e não entra no plano (antes sumia calado)', async () => {

@@ -1,11 +1,15 @@
 import { HHMM } from './limits'
-import type { DietPlan, Meal, MealOption, Menu } from './types'
+import type { DietItem, DietPlan, Meal, MealOption, Menu } from './types'
 
 export const emptyOption = (): MealOption => ({ id: crypto.randomUUID(), items: [] })
 export const emptyMeal = (n: number): Meal => ({ id: crypto.randomUUID(), name: `Refeição ${n}`, time: '', options: [emptyOption()] })
 export const emptyMenu = (n: number, meals: Meal[] = []): Menu => ({ id: crypto.randomUUID(), name: `Cardápio ${n}`, meals })
 
 export const planItems = (plan: DietPlan) => plan.menus.flatMap((menu) => menu.meals.flatMap((meal) => meal.options.flatMap((option) => option.items)))
+export const mapItems = (plan: DietPlan, f: (i: DietItem) => DietItem): DietPlan => ({
+  ...plan,
+  menus: plan.menus.map((m) => ({ ...m, meals: m.meals.map((ml) => ({ ...ml, options: ml.options.map((o) => ({ ...o, items: o.items.map(f) })) })) })),
+})
 
 export const currentMenu = (plan: DietPlan): Menu | undefined => plan.menus.find((m) => m.id === plan.lastMenuId) ?? plan.menus[0]
 export const sortedMeals = <T extends { time: string }>(meals: T[]): T[] => [...meals].sort((a, b) => a.time.localeCompare(b.time))

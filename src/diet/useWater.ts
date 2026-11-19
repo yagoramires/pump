@@ -23,5 +23,5 @@ export function useWater() {
     setLog((l) => addWater(l, date, on, cups))
   }
 
-  return { settings: settings.water, ml: log[today]?.ml ?? 0, save, turnOn, act }
+  return { on, ml: log[today]?.ml ?? 0, save, turnOn, act }
 }

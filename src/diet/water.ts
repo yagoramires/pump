@@ -2,12 +2,13 @@ import type { WaterDay, WaterLog, WaterSettings } from './types'
 
 export const ML_PER_KG = 35
 const DEFAULT_GOAL_ML = 2000
-export const WATER_LIMITS = { goalMl: [250, 10000], cupMl: [50, 1000] } as const
+/** copo padrão; a meta pelo peso arredonda pra copos inteiros */
+const CUP_ML = 250
 
 export const activeWater = (settings?: WaterSettings) => settings?.enabled ? settings : undefined
 
 export const turnWaterOn = (w: WaterSettings | undefined, weightKg: number): WaterSettings =>
-  w ? { ...w, enabled: true } : { enabled: true, goalMl: weightKg > 0 ? Math.round((ML_PER_KG * weightKg) / 250) * 250 : DEFAULT_GOAL_ML, cupMl: 250 }
+  w ? { ...w, enabled: true } : { enabled: true, goalMl: weightKg > 0 ? Math.round((ML_PER_KG * weightKg) / CUP_ML) * CUP_ML : DEFAULT_GOAL_ML, cupMl: CUP_ML }
 
 export const addWater = (log: WaterLog, date: string, s: WaterSettings, cups: 1 | -1): WaterLog => ({
   ...log,

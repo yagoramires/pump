@@ -14,7 +14,8 @@ import { Toggle } from '@/components/ui/toggle'
 import { todayKey } from '@/lib/date'
 import { formatDec, parseDecimal } from '@/lib/number'
 import { cn } from '@/lib/utils'
-import { asFood, type Food, foodKey, fromTaco, recentFoods } from './food'
+import { MACRO_KEYS, asFood, type Food, foodKey, fromTaco } from './food'
+import { recentFoods } from './day'
 import { MACRO_LABELS, iaLabel } from './display'
 import { GRAMS } from './limits'
 
@@ -26,8 +27,6 @@ type Props = {
   onClose: () => void
   extraAction?: { label: string; onClick: () => void }
 }
-
-const LABEL = 'label-caps'
 
 function Rows({ label, foods, selected, onSelect }: { label: string; foods: Food[]; selected?: string; onSelect: (f: Food) => void }) {
   return (
@@ -83,7 +82,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
     setCreating(false)
   }
   const field = (k: keyof typeof draft, label: string, placeholder: string, decimal = true) => (
-    <Input aria-label={label} placeholder={placeholder} autoComplete="off" {...(decimal && { inputMode: 'decimal' as const })} value={draft[k]} onChange={(e) => setDraft({ ...draft, [k]: e.target.value })} />
+    <Input key={k} aria-label={label} placeholder={placeholder} autoComplete="off" {...(decimal && { inputMode: 'decimal' as const })} value={draft[k]} onChange={(e) => setDraft({ ...draft, [k]: e.target.value })} />
   )
 
   return (
@@ -100,9 +99,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
               <p className="text-caption text-text-2">Valores por 100 g</p>
               <div className="grid grid-cols-2 gap-2">
                 {field('kcal', 'kcal por 100 g', 'kcal')}
-                {field('p', `${MACRO_LABELS.p} por 100 g`, `${MACRO_LABELS.p} (g)`)}
-                {field('c', `${MACRO_LABELS.c} por 100 g`, `${MACRO_LABELS.c} (g)`)}
-                {field('f', `${MACRO_LABELS.f} por 100 g`, `${MACRO_LABELS.f} (g)`)}
+                {MACRO_KEYS.map((k) => field(k, `${MACRO_LABELS[k]} por 100 g`, `${MACRO_LABELS[k]} (g)`))}
               </div>
               <div className="flex gap-2">
                 <Button type="button" variant="outline" className="flex-1" onClick={() => setCreating(false)}>Cancelar</Button>
@@ -116,13 +113,13 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
               <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {shownRecents.length > 0 && (
                   <div className="flex flex-col gap-1.5">
-                    <h3 className={LABEL}>Recentes e do cardápio</h3>
+                    <h3 className="label-caps">Recentes e do cardápio</h3>
                     <Rows label="Recentes e do cardápio" foods={shownRecents} selected={sel && foodKey(sel.name)} onSelect={setSel} />
                   </div>
                 )}
                 {results.length > 0 && (
                   <div className="flex flex-col gap-1.5">
-                    <h3 className={LABEL}>TACO</h3>
+                    <h3 className="label-caps">TACO</h3>
                     <Rows label="Resultados da TACO" foods={results} selected={sel && foodKey(sel.name)} onSelect={setSel} />
                   </div>
                 )}
@@ -131,7 +128,7 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
               <div className="flex shrink-0 items-center justify-between gap-3">
                 <span className="text-sm text-text-2">Quantidade</span>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="icon" aria-label="Diminuir quantidade" disabled={grams <= 10} onClick={() => setGrams((g) => Math.max(10, g - 10))}><Minus aria-hidden="true" /></Button>
+                  <Button variant="outline" size="icon" aria-label="Diminuir quantidade" disabled={grams <= GRAMS[0]} onClick={() => setGrams((g) => Math.max(GRAMS[0], g - 10))}><Minus aria-hidden="true" /></Button>
                   <span className="min-w-16 text-center text-base font-semibold tabular-nums text-strong">{formatDec(grams)} g</span>
                   <Button variant="outline" size="icon" aria-label="Aumentar quantidade" disabled={grams >= GRAMS[1]} onClick={() => setGrams((g) => Math.min(GRAMS[1], g + 10))}><Plus aria-hidden="true" /></Button>
                 </div>

@@ -4,13 +4,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { formatDec, parseDecimal } from '@/lib/number'
-import { ML_PER_KG, WATER_LIMITS, activeWater } from './water'
+import { ML_PER_KG } from './water'
+import { WATER_LIMITS } from './limits'
 import { useWater } from './useWater'
 
 export function WaterSettings() {
-  const { settings, save, turnOn } = useWater()
-  const on = activeWater(settings)
-  const [draft, setDraft] = useState(() => ({ goalMl: String(settings?.goalMl ?? ''), cupMl: String(settings?.cupMl ?? '') }))
+  const { on, save, turnOn } = useWater()
+  const [draft, setDraft] = useState(() => ({ goalMl: String(on?.goalMl ?? ''), cupMl: String(on?.cupMl ?? '') }))
   const toggle = () => {
     if (on) return save({ ...on, enabled: false })
     const next = turnOn()

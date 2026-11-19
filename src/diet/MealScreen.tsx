@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { ArrowLeftRight, Check, MoreHorizontal, Plus, Sparkles } from 'lucide-react'
 import type { DayItem, DietDay } from './types'
 import { Overlay } from '@/components/Overlay'
@@ -12,26 +12,30 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { formatDec } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import { FoodPicker } from './FoodPicker'
-import { addExtra, chooseOption, mealOptions, removeItem, setMealFree, skipItem, swapItem, swapMeal, toggleMeal, undoSwap } from './day'
-import { itemKcal, itemMacros, kcalOf } from './food'
+import { addExtra, chooseOption, mealItems, mealOptions, removeItem, setMealFree, skipItem, swapItem, swapMeal, toggleMeal, undoSwap } from './day'
+import { itemKcal, kcalOf, macrosOf } from './food'
 import { iaLabel, macroText, optionLabel, optionLetter, portionText } from './display'
 import { useDietToday } from './useDietToday'
 
-const LABEL = 'label-caps'
 export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () => void }) {
-  const { plan, day, menu, act } = useDietToday()
+  const { tick, plan, day, menu, act } = useDietToday()
   const [picking, setPicking] = useState<DayItem | 'extra'>()
   const [sheet, setSheet] = useState<'more' | 'swap'>()
   const meal = day?.meals.find((m) => m.id === mealId)
+  // a refeição some do dia quando o cardápio muda por fora: fecha, pra não reabrir se ela voltar
+  const gone = !meal
+  useEffect(() => { if (gone) onClose() }, [gone, onClose])
   if (!day || !meal) return null
+  // o relógio pode ter andado (ex.: meia-noite) com a tela aberta
+  const back = () => { tick(); onClose() }
   const dayFree = !!day.free
   const free = dayFree || !!meal.free
 
   const { options, index: selIdx, canToggle } = mealOptions(plan, day, meal.id)
   const selected = options[selIdx]
 
-  const counted = meal.items.filter((i) => !i.skipped)
-  const t = counted.reduce((s, i) => { const x = itemMacros(i); return { p: s.p + x.p, c: s.c + x.c, f: s.f + x.f } }, { p: 0, c: 0, f: 0 })
+  const counted = mealItems(meal)
+  const t = macrosOf(counted)
   const total = `${formatDec(kcalOf(counted))} kcal · ${macroText({ p: Math.round(t.p), c: Math.round(t.c), f: Math.round(t.f) })}`
 
   const groups = plan.menus.filter((m) => m.id !== menu?.id).map((m) => ({
@@ -41,6 +45,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
   })).filter((g) => g.rows.length)
 
   const itemRow = (i: DayItem) => {
+    const ia = iaLabel(i)
     const body: ReactNode = (
       <>
         {i.swappedFrom && <ArrowLeftRight size={12} className="shrink-0 text-accent" aria-hidden="true" />}
@@ -48,7 +53,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
         <span className="min-w-0 flex-1 py-1.5">
           <span className={cn('block truncate text-sm', i.skipped ? 'text-faint line-through' : i.swappedFrom ? 'text-accent' : 'text-text')}>{i.name}</span>
           <span className="block truncate text-caption text-faint">{portionText(i)}</span>
-          {iaLabel(i) && <span className="block text-caption text-c7">{iaLabel(i)}</span>}
+          {ia && <span className="block text-caption text-c7">{ia}</span>}
         </span>
         <span className="w-10 shrink-0 text-right text-caption tabular-nums text-text-2">{Math.round(itemKcal(i))}</span>
       </>
@@ -72,7 +77,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
 
   return (
     <Overlay>
-      <BackHeader title={`${meal.name} · ${meal.time}`} onBack={onClose} titleClassName="min-w-0 truncate">
+      <BackHeader title={`${meal.name} · ${meal.time}`} onBack={back} titleClassName="min-w-0 truncate">
         {!dayFree && <Button variant="outline" size="icon" aria-label="Mais opções da refeição" onClick={() => setSheet('more')}><MoreHorizontal aria-hidden="true" /></Button>}
       </BackHeader>
 
@@ -117,7 +122,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
         {meal.done ? (
           <>
             <Button variant="outline" className="flex-1" onClick={() => act((d) => toggleMeal(d, meal.id))}>Desmarcar</Button>
-            <Button className="flex-[1.4]" onClick={onClose}>Voltar</Button>
+            <Button className="flex-[1.4]" onClick={back}>Voltar</Button>
           </>
         ) : (
           <>
@@ -161,7 +166,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
                   {!groups.length && <p className="text-meta text-text-2">Sem refeições em outros cardápios.</p>}
                   {groups.map((g) => (
                     <div key={g.id} className="flex flex-col gap-1.5 pt-3">
-                      <h3 className={LABEL}>{g.label}</h3>
+                      <h3 className="label-caps">{g.label}</h3>
                       <Card size="flush" variant="inset"><ul aria-label={g.label}>
                         {g.rows.map((r) => (
                           <li key={r.id} className="border-t border-line first:border-t-0">

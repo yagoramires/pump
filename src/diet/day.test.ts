@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 import type { DietItem, DietLog, DietPlan, Meal, Menu } from './types'
 import {
-  addExtra, chooseOption, currentMealId, dayFromMenu, dayOf, dayStatus, daySummary, freeCount, mealOptions, removeItem, resetDay,
-  setMealFree, skipItem, swapItem, swapMeal, toggleMeal, touched, undoSwap, updateDay,
+  addExtra, chooseOption, countsForAverage, currentMealId, dayFromMenu, dayOf, dayStatus, daySummary, freeCount, mealOptions, recentFoods, removeItem, resetDay,
+  setMealFree, skipItem, swapItem, swapMeal, toggleDayFree, toggleMeal, touched, undoSwap, updateDay,
 } from './day'
 import { countInWeekBefore } from '@/lib/date'
 
@@ -130,12 +130,29 @@ describe('day', () => {
     expect(setMealFree(d, 'm1', false).meals[0]).toMatchObject({ done: false, free: false })
     expect(daySummary(setMealFree(d, 'm1', false)).kcal).toBe(760)
 
-    const f = { ...d, free: true }
+    const f = toggleDayFree(d)
     s = daySummary(f)
     expect(s.kcal).toBe(0)
     expect(s.p).toBe(0)
     expect(s.dayFree).toBe(true)
-    expect(daySummary({ ...f, free: false }).kcal).toBe(260)
+    expect(daySummary(toggleDayFree(f)).kcal).toBe(260)
+  })
+
+  test('countsForAverage: só com refeição do plano feita; extra sozinho, refeição livre ou dia livre não entram', () => {
+    const d = dayFromMenu(menuA)
+    expect(countsForAverage(d)).toBe(false)
+    const extraOnly = addExtra(d, 'm1', it('e1', 'Doce', 500))
+    expect(daySummary(extraOnly).kcal).toBe(500)
+    expect(countsForAverage(extraOnly)).toBe(false)
+    expect(countsForAverage(setMealFree(d, 'm1', true))).toBe(false)
+    expect(countsForAverage(toggleMeal(d, 'm1'))).toBe(true)
+    expect(countsForAverage(toggleDayFree(toggleMeal(d, 'm1')))).toBe(false)
+  })
+
+  test('recentFoods: um por alimento (foodKey), criados primeiro, só os últimos 14 dias', () => {
+    const day = (items: DietItem[]) => ({ menuId: 'A', menuName: 'A', meals: [{ id: 'm', name: 'm', time: '12:00', done: true, items }] })
+    const out = recentFoods({ menus: [] }, { '2026-11-17': day([it('a', 'Bolo da vó', 1), it('b', 'Feijão', 1)]), '2026-11-01': day([it('c', 'Velho', 1)]) }, [it('d', 'Bolo, da vó', 1)], '2026-11-18')
+    expect(out.map((f) => f.name)).toEqual(['Bolo, da vó', 'Feijão'])
   })
 
   test('troca substitui o item e conta como troca; trocar de novo substitui a troca', () => {

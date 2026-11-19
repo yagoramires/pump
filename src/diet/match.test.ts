@@ -31,7 +31,7 @@ test('"com pele" não casa com "sem pele"', () =>
   expect(matchFood('Frango peito com pele', 100, 212, T, [])).toMatchObject({ food: { id: 4 } }))
 test('"de" é ignorado, mas o nome sem palavras úteis não casa nada', () => {
   expect(matchFood('Ovo de galinha cozido', 100, 146, T, [])).toMatchObject({ kind: 'words', food: { id: 5 } })
-  expect(matchFood('de, da', 100, undefined, T, [])).toBeNull()
+  expect(matchFood('de, da', 100, 146, T, [])).toBeNull()
 })
 test('alimento criado casa antes da TACO', () => {
   const mine: DietItem = { id: 'c1', name: 'Arroz integral cozido', grams: 150, per100: { kcal: 110, p: 2, c: 23, f: 1 }, source: 'custom' }
