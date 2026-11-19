@@ -2,9 +2,11 @@ import { hasMarkedSet, markedSets } from './session'
 import { isRest } from './rest'
 import type { SessionExercise, SetDone, WorkoutLog, WorkoutSession } from './types'
 
-const repsNumber = (reps: string): number => Number(/\d+/.exec(reps)?.[0] ?? 0)
+export const repsNumber = (reps: string): number => Number(/\d+/.exec(reps)?.[0] ?? 0)
 
 const doneSets = (s: WorkoutSession) => s.exercises.flatMap(markedSets)
+
+export const exerciseVolume = (e: SessionExercise) => markedSets(e).reduce((a, d) => a + d.weightKg * repsNumber(d.reps), 0)
 
 export const completedSessions = (log: WorkoutLog) => Object.values(log)
   .filter((s) => !isRest(s) && s.completedAt)
@@ -12,7 +14,7 @@ export const completedSessions = (log: WorkoutLog) => Object.values(log)
 
 export const maxLoad = (e: SessionExercise) => Math.max(0, ...e.sets.map((x) => x?.weightKg ?? 0))
 
-export const sessionVolume = (s: WorkoutSession) => doneSets(s).reduce((a, d) => a + d.weightKg * repsNumber(d.reps), 0)
+export const sessionVolume = (s: WorkoutSession) => s.exercises.reduce((a, e) => a + exerciseVolume(e), 0)
 
 export const sessionStats = (s: WorkoutSession, now: Date) => {
   const sets = s.exercises.flatMap((e) => e.sets)
