@@ -1,4 +1,4 @@
-import { previousSets, sessionStats } from './stats'
+import { exerciseVolume, previousSets, sessionStats } from './stats'
 import { startSession } from './session'
 import { pe, workoutOf } from '../../test/helpers'
 import type { SetDone } from './types'
@@ -37,4 +37,10 @@ test('previousSets ignora sessão anterior sem série marcada', () => {
   const mk = (date: string, sets: (SetDone | null)[]) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [{ ...pe({ exerciseId: 'Supino' }), sets }] })
   const log = { '2026-11-12': mk('2026-11-12', [{ reps: '10', weightKg: 40 }]), '2026-11-14': mk('2026-11-14', [null, null]) }
   expect(previousSets(log, '2026-11-16', 'Supino')).toEqual([{ reps: '10', weightKg: 40 }])
+})
+
+test('exerciseVolume soma carga × reps das séries marcadas', () => {
+  const s = startSession(workoutOf([{ sets: 3 }]), '2026-11-16')
+  s.exercises[0].sets = [{ reps: '10', weightKg: 40 }, null, { reps: '8-10', weightKg: 50 }]
+  expect(exerciseVolume(s.exercises[0])).toBe(800)
 })

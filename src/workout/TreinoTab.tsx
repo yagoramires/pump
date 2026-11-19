@@ -238,11 +238,14 @@ export function TreinoTab() {
         <Button variant="outline" className="w-full" onClick={markRest}><Moon aria-hidden="true" /> Descansar hoje</Button>
       )}
 
-      {strength.map(({ exercise: e, index: i }) => (
-        <ExerciseCard key={i} ex={e} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
-          <SetTable ex={e} prev={previousSets(log, today, e.exerciseId)} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} />
-        </ExerciseCard>
-      ))}
+      {strength.map(({ exercise: e, index: i }) => {
+        const prev = previousSets(log, today, e.exerciseId)
+        return (
+          <ExerciseCard key={i} ex={e} weightKg={prev.find(Boolean)?.weightKg ?? e.weightKg} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
+            <SetTable ex={e} prev={prev} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} />
+          </ExerciseCard>
+        )
+      })}
       {cardio.length > 0 && <div className="label-caps">Cardio</div>}
       {cardio.map(({ exercise: e, index: i }) => (
         <Card size="sm" key={i} className="flex-row items-center gap-1.5">

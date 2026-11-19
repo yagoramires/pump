@@ -24,6 +24,9 @@ import { PhotoCompare } from './PhotoCompare'
 import { AchievementIcon } from './AchievementIcon'
 import { AchievementsScreen } from './AchievementsScreen'
 import { HistoryScreen } from './HistoryScreen'
+import { LoadsCard } from './LoadsCard'
+import { ExerciseLoadScreen } from './ExerciseLoadScreen'
+import type { LoadPeriod } from './loads'
 import { DietCard } from './DietCard'
 import { CheckInFlow, CheckInCard } from './CheckInFlow'
 import { AnamnesisCard } from '@/profile/AnamnesisCard'
@@ -52,6 +55,8 @@ function Kpi({ label, value, children }: { label: string; value: string; childre
 export function EvolutionTab() {
   const input = useEvolution()
   const [range, setRange] = useState('90')
+  const [loadPeriod, setLoadPeriod] = useState<LoadPeriod>('90')
+  const [exerciseId, setExerciseId] = useState<string>()
   const [choosing, setChoosing] = useState(false)
   const [measurementDate, setMeasurementDate] = useState<string>()
   const [photoDate, setPhotoDate] = useState<string>()
@@ -66,6 +71,7 @@ export function EvolutionTab() {
   if (view === 'compare') return <PhotoCompare onClose={() => setView(undefined)} />
   if (view === 'achievements') return <AchievementsScreen onClose={() => setView(undefined)} />
   if (view === 'history') return <HistoryScreen onClose={() => setView(undefined)} />
+  if (exerciseId) return <ExerciseLoadScreen log={input.workoutLog} exerciseId={exerciseId} period={loadPeriod} today={today} onClose={() => setExerciseId(undefined)} />
 
   const drawers = (
     <>
@@ -163,6 +169,8 @@ export function EvolutionTab() {
         </CardHeader>
         <div className="px-3.5 pb-3"><WeightChart points={points} empty={weights.length >= 2 ? 'Poucos registros nesse período' : undefined} /></div>
       </Card>
+
+      <LoadsCard log={input.workoutLog} today={today} period={loadPeriod} onPeriod={setLoadPeriod} onOpen={setExerciseId} />
 
       {rows.length > 0 && (
         <Card size="flush">

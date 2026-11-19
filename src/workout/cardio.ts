@@ -4,6 +4,8 @@ type ExerciseShape = { sets: number | unknown[]; reps: string }
 export const isCardio = (e: ExerciseShape): boolean =>
   (typeof e.sets === 'number' ? e.sets : e.sets.length) === 1 && /^\s*\d+(\s*(-|–|a)\s*\d+)?\s*min(utos)?\s*$/i.test(e.reps)
 
+export const isTimed = (reps: string): boolean => /\d+\s*(s|seg(undos)?|min(utos)?)\b/i.test(reps)
+
 export function groupExercises<T extends ExerciseShape>(exercises: T[]) {
   const strength: { exercise: T; index: number }[] = []
   const cardio: typeof strength = []

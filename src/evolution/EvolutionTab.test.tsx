@@ -1,8 +1,9 @@
-import { act, screen } from '@testing-library/react'
+import { act, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { save } from '@/storage/db'
 import { Toaster } from '@/components/ui/sonner'
-import { dietDay } from '../../test/helpers'
+import { dietDay, pe } from '../../test/helpers'
+import type { SetDone, WorkoutSession } from '@/workout/types'
 import { renderLoaded } from '../../test/render'
 import { EvolutionTab } from './EvolutionTab'
 import { generatePdf } from './pdf/generate'
@@ -77,7 +78,7 @@ test('gráfico: filtro de período com menos de 2 pesos avisa que é o período,
   await save('measurements', [{ id: 'a', date: '2026-05-02', weightKg: 82 }, { id: 'b', date: '2026-08-10', weightKg: 80 }])
   await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText('Poucos registros nesse período')).toBeInTheDocument()
-  await user.click(screen.getByRole('tab', { name: 'Tudo' }))
+  await user.click(within(screen.getByRole('tablist', { name: 'Período do gráfico' })).getByRole('tab', { name: 'Tudo' }))
   expect(screen.getByRole('img', { name: 'Gráfico de peso' })).toBeInTheDocument()
 })
 test('gráfico: 7 d mostra só a última semana', async () => {
@@ -104,4 +105,59 @@ test('Evolução de quem só faz dieta mostra o cartão Dieta', async () => {
   await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText('Dieta · 30 dias')).toBeInTheDocument()
   expect(screen.queryByRole('heading', { name: 'Sua evolução começa aqui' })).not.toBeInTheDocument()
+})
+
+const treino = (date: string, sets: SetDone[]): WorkoutSession => ({
+  date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', completedAt: `${date}T20:00:00.000Z`,
+  exercises: [{ ...pe({ exerciseId: 'Supino', name: 'Supino reto', muscles: ['peito'] }), sets }],
+})
+
+test('card Cargas: resumo, grupo e linha com carga e diferença', async () => {
+  await save('workoutLog', { '2026-11-01': treino('2026-11-01', [{ reps: '10', weightKg: 55 }]), '2026-11-15': treino('2026-11-15', [{ reps: '10', weightKg: 60 }]) })
+  await renderLoaded(<EvolutionTab />)
+  expect(await screen.findByText('Cargas')).toBeInTheDocument()
+  expect(screen.getByText('Peito')).toBeInTheDocument()
+  expect(within(screen.getByRole('button', { name: /Supino reto/ })).getByText('+5 kg')).toHaveClass('text-accent')
+})
+test('card Cargas: período sem treino mostra o estado vazio', async () => {
+  const user = userEvent.setup()
+  await save('workoutLog', { '2026-09-15': treino('2026-09-15', [{ reps: '10', weightKg: 55 }]) })
+  await renderLoaded(<EvolutionTab />)
+  expect(await screen.findByRole('button', { name: /Supino reto/ })).toBeInTheDocument()
+  await user.click(within(screen.getByRole('tablist', { name: 'Período das cargas' })).getByRole('tab', { name: '30 d' }))
+  expect(screen.getByText('Nenhum treino com carga nesse período')).toBeInTheDocument()
+})
+test('tocar no exercício abre o detalhe com gráfico e treinos; Voltar fecha', async () => {
+  const user = userEvent.setup()
+  await save('workoutLog', { '2026-11-01': treino('2026-11-01', [{ reps: '10', weightKg: 55 }]), '2026-11-15': treino('2026-11-15', [{ reps: '8', weightKg: 60 }, { reps: '6', weightKg: 62 }]) })
+  await renderLoaded(<EvolutionTab />)
+  await user.click(await screen.findByRole('button', { name: /Supino reto/ }))
+  expect(screen.getByRole('img', { name: 'Gráfico de carga e volume' })).toBeInTheDocument()
+  expect(screen.getByText('60×8 · 62×6')).toBeInTheDocument()
+  expect(screen.getByText('Carga máx.')).toBeInTheDocument()
+  expect(screen.getByText('Volume')).toBeInTheDocument()
+  expect(screen.getByText('60×8 · 62×6').compareDocumentPosition(screen.getByText('55×10'))).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+  await user.click(screen.getByRole('button', { name: 'Voltar' }))
+  expect(await screen.findByText('Cargas')).toBeInTheDocument()
+})
+test('detalhe com um só treino: sem comparação e sem gráfico', async () => {
+  const user = userEvent.setup()
+  await save('workoutLog', { '2026-11-15': treino('2026-11-15', [{ reps: '8', weightKg: 60 }]) })
+  await renderLoaded(<EvolutionTab />)
+  await user.click(await screen.findByRole('button', { name: /Supino reto/ }))
+  expect(screen.getAllByText('sem comparação')).toHaveLength(2)
+  expect(screen.queryByRole('img', { name: 'Gráfico de carga e volume' })).toBeNull()
+  expect(screen.getByText('Poucos registros nesse período')).toBeInTheDocument()
+  expect(screen.queryByText(/carga máx\. · - - volume/)).toBeNull()
+})
+test('detalhe de exercício sem carga usa rótulos de reps', async () => {
+  const user = userEvent.setup()
+  await save('workoutLog', { '2026-11-01': treino('2026-11-01', [{ reps: '10', weightKg: 0 }]), '2026-11-15': treino('2026-11-15', [{ reps: '12', weightKg: 0 }]) })
+  await renderLoaded(<EvolutionTab />)
+  await user.click(await screen.findByRole('button', { name: /Supino reto/ }))
+  expect(screen.getByText('Máx. reps')).toBeInTheDocument()
+  expect(screen.getByText('Total de reps')).toBeInTheDocument()
+  expect(screen.getAllByText(/12 reps/).length).toBeGreaterThan(0)
+  expect(screen.getByText('12')).toBeInTheDocument()
+  expect(screen.queryByText(/0×/)).toBeNull()
 })
