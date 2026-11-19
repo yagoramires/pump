@@ -1,4 +1,9 @@
+import { isKeyOf } from '@/lib/utils'
 import { HEADER } from './envelope'
+
+export const label = <T extends string>(labels: Record<T, string>, v: unknown): string => (isKeyOf(labels, v) ? labels[v] : '')
+export const names = <T extends string>(v: unknown, labels: Record<T, string>) =>
+  Array.isArray(v) ? v.map((x) => label(labels, x)).filter(Boolean).join(', ') : ''
 
 export const listRule = (url: string, noun: string, detail: string, fallback: string) =>
   `Abra a lista em ${url} e use exatamente um nome dela para cada ${noun}${detail} ${fallback} Se não conseguir abrir o link, diga isso e me peça pra colar a lista aqui, em vez de inventar nomes.`

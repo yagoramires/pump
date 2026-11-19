@@ -5,6 +5,12 @@ import { allData, replaceAll, save } from '@/storage/db'
 import { loadPhoto, savePhoto } from '@/storage/photos'
 import * as idb from 'idb-keyval'
 
+const reload = vi.fn()
+beforeEach(() => {
+  reload.mockClear()
+  vi.stubGlobal('location', { ...location, reload })
+})
+
 vi.mock('idb-keyval', async (orig) => {
   const m = await orig<typeof import('idb-keyval')>()
   return { ...m, set: vi.fn(m.set) }
@@ -29,12 +35,14 @@ test.each([
 test('importar arquivo inválido não apaga nada', async () => {
   await save('profile', { sex: 'M', heightCm: 178 })
   await expect(importBackupFile(new File(['{lixo'], 'x.json'))).rejects.toThrow('Arquivo não é um backup válido')
+  expect(reload).not.toHaveBeenCalled()
   expect(await stored('profile')).toEqual({ sex: 'M', heightCm: 178 })
 })
 test('importar arquivo válido substitui os dados', async () => {
   await save('profile', { sex: 'M', heightCm: 178 })
   const b = buildBackup({ settings: { lastTab: 'dieta', onboardingDone: true } }, new Date(2026, 10, 16))
   await importBackupFile(new File([JSON.stringify(b)], 'x.json'))
+  expect(reload).toHaveBeenCalled()
   expect(await stored('profile')).toBeUndefined()
   expect((await stored('settings'))?.lastTab).toBe('dieta')
 })

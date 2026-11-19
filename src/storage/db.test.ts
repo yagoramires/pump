@@ -35,14 +35,6 @@ test('replaceAll mantém todos os dados se uma gravação falhar', async () => {
   await expect(replaceAll({ settings: DEFAULTS.settings, invalid: () => {} })).rejects.toThrow()
   expect(await allData()).toEqual({ settings, profile })
 })
-test('replaceAll preserva uma gravação enfileirada depois da restauração', async () => {
-  const settings = { ...DEFAULTS.settings, lastTab: 'dieta' as const }
-  const restore = replaceAll({ settings: DEFAULTS.settings })
-  const subsequentSave = save('settings', settings)
-  await Promise.all([restore, subsequentSave])
-  expect(await allData()).toEqual({ settings })
-  expect(await readCurrent('settings')).toEqual(settings)
-})
 test('chave nunca gravada lê DEFAULTS', async () => {
   const h = await persisted('workoutLog')
   expect(h.result.current[0]).toEqual(DEFAULTS.workoutLog)
@@ -57,11 +49,6 @@ test('duas cópias da mesma chave: o setter devolve o valor e a outra cópia vê
   act(() => void save('settings', { ...b.result.current[0], lastBackupAt: '2026-11-16' }))
   expect(a.result.current[0].lastBackupAt).toBe('2026-11-16')
   await waitFor(async () => expect((await stored('settings'))?.lastBackupAt).toBe('2026-11-16'))
-})
-test('replaceAll avisa as cópias abertas', async () => {
-  const h = await persisted('workoutLog')
-  await act(() => replaceAll({ workoutLog: { '2026-11-10': session('2026-11-10') } }))
-  expect(Object.keys(h.result.current[0])).toEqual(['2026-11-10'])
 })
 test('leitura lenta não sobrescreve um save que terminou antes', async () => {
   await seedStore({ settings: { ...DEFAULTS.settings, lastTab: 'evolucao' } })

@@ -1,6 +1,6 @@
 import { use, useCallback, useSyncExternalStore } from 'react'
 import { createStore, entries, get, keys, promisifyRequest, set } from 'idb-keyval'
-import { DEFAULTS, isUserKey, USER_KEYS, type UserData } from '@/schema'
+import { DEFAULTS, USER_KEYS, type UserData } from '@/schema'
 
 type Key = keyof UserData
 type Value<K extends Key> = UserData[K]
@@ -10,7 +10,6 @@ export const pumpStore = createStore('keyval-store', 'keyval')
 
 // só chaves do schema: fotos não passam pelo cache, loadPhoto lê direto do banco e o base64 aqui só gastaria memória
 const cache = new Map<Key, unknown>()
-const savesDuringRestore = new Set<Set<Key>>()
 const reads = new Map<Key, Promise<unknown>>()
 const listeners = new Map<Key, Set<() => void>>()
 const errorListeners = new Set<(message: string) => void>()
@@ -81,7 +80,6 @@ export async function readCurrent<K extends Key>(k: K): Promise<Value<K>> {
 }
 
 export function save<K extends Key>(k: K, v: Value<K>): Promise<void> {
-  for (const laterWrites of savesDuringRestore) laterWrites.add(k)
   cache.set(k, v)
   notify(k)
   return guarded(() => set(k, v, pumpStore))
@@ -93,33 +91,18 @@ export async function allData(): Promise<Record<string, unknown>> {
 
 export const hasAnyData = async () => (await keys(pumpStore)).length > 0
 
+/** troca tudo numa transação só; o cache em memória fica velho: quem chama recarrega a página (as migrações só rodam no boot) */
 export async function replaceAll(data: Record<string, unknown>): Promise<void> {
-  const restored = new Map(Object.entries(data))
-  const laterWrites = new Set<Key>()
-  savesDuringRestore.add(laterWrites)
-  try {
-    await guarded(() => pumpStore('readwrite', (store) => {
-      try {
-        store.clear()
-        for (const [key, value] of restored) store.put(value, key)
-      } catch (error) {
-        store.transaction.abort()
-        throw error
-      }
-      return promisifyRequest(store.transaction)
-    }))
-  } finally {
-    savesDuringRestore.delete(laterWrites)
-  }
-
-  // Um save enfileirado depois da restauração já atualizou o cache de forma otimista.
-  const touched = new Set([...cache.keys(), ...listeners.keys(), ...restored.keys()].filter(isUserKey))
-  for (const key of touched) {
-    if (laterWrites.has(key)) continue
-    if (restored.has(key)) cache.set(key, restored.get(key))
-    else cache.delete(key)
-  }
-  touched.forEach(notify)
+  await guarded(() => pumpStore('readwrite', (store) => {
+    try {
+      store.clear()
+      for (const [key, value] of Object.entries(data)) store.put(value, key)
+    } catch (error) {
+      store.transaction.abort()
+      throw error
+    }
+    return promisifyRequest(store.transaction)
+  }))
 }
 
 export async function requestPersist(): Promise<void> {

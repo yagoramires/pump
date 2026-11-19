@@ -63,7 +63,9 @@ export async function exportBackup(now = new Date()): Promise<'shared' | 'downlo
 
 export const sendBackup = () => void exportBackup().catch((e: Error) => toast.error(e.message))
 
+/** recarrega depois de gravar: as migrações rodam no boot e a tela inteira volta do zero com os dados novos */
 export async function importBackupFile(file: File): Promise<void> {
   const b = parseBackup(await file.text())
   await replaceAll(b.data)
+  location.reload()
 }

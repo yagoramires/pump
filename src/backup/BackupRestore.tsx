@@ -12,7 +12,6 @@ export function BackupRestore({ trigger }: { trigger: (pick: () => void) => Reac
     setError(undefined)
     try {
       await importBackupFile(file)
-      location.reload()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Falha ao importar')
     }

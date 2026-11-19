@@ -1,9 +1,8 @@
 import { useMemo } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatKg } from '@/lib/number'
 import type { WorkoutLog } from '@/workout/types'
-import { Delta } from './Delta'
+import { MeasureValue } from './Delta'
 import { MODE_TEXT, loadsSummary, type LoadRow, type Measure, type Tally } from './loads'
 import { PERIODS, type Period } from './chart'
 import { PeriodTabs } from './PeriodTabs'
@@ -15,8 +14,7 @@ function Value({ m, row }: { m: Measure; row: LoadRow }) {
   const { unit } = MODE_TEXT[row.mode]
   return (
     <span className="tabular-nums">
-      <b className="font-semibold text-strong">{`${formatKg(m.last)} ${unit}`}</b>
-      <Delta value={m.delta} good={(m.delta ?? 0) > 0} unit={unit} className="ml-2 text-meta" />
+      <MeasureValue m={m} unit={unit} deltaClassName="ml-2 text-meta" />
     </span>
   )
 }

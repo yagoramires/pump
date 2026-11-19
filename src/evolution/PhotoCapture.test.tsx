@@ -41,18 +41,19 @@ test('falha ao salvar a foto não cria registro', async () => {
   expect(await screen.findByText('Não consegui salvar a foto')).toBeInTheDocument()
   expect((await stored('photoSets')) ?? []).toHaveLength(0)
 })
-test('fechar para as tracks da câmera; Tirar foto só liga com o vídeo pronto', async () => {
+test('fechar e desmontar para as tracks da câmera; Tirar foto só liga com o vídeo pronto', async () => {
   const stop = vi.fn()
   const getUserMedia = vi.fn().mockResolvedValue({ getTracks: () => [{ stop }] })
   Object.defineProperty(navigator, 'mediaDevices', { value: { getUserMedia }, configurable: true })
   const onClose = vi.fn()
   const user = userEvent.setup()
-  await renderLoaded(<PhotoCapture date="2026-11-17" onClose={onClose} />)
+  const { unmount } = await renderLoaded(<PhotoCapture date="2026-11-17" onClose={onClose} />)
   await waitFor(() => expect(getUserMedia).toHaveBeenCalledWith({ video: { facingMode: 'user' } }))
   expect(screen.getByRole('button', { name: 'Tirar foto' })).toBeDisabled()
   await user.click(screen.getByRole('button', { name: 'Voltar' }))
-  expect(stop).toHaveBeenCalled()
   expect(onClose).toHaveBeenCalled()
+  unmount() // quem abre desmonta ao fechar
+  expect(stop).toHaveBeenCalled()
 })
 test('escolher da galeria durante a contagem cancela o disparo', async () => {
   vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })

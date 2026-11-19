@@ -75,9 +75,6 @@ function Big({ label, value, unit, accent, size = 57 }: { label: string; value: 
   )
 }
 
-/** no PDF as medidas em cm vão inteiras; peso e gordura com uma casa */
-const pdfDigits = (f: Field) => (f.key === WEIGHT.key || f.key === FAT.key ? 1 : 0)
-
 /** `unit` já com o espaço, como em metricUnit */
 function FromTo({ first, last, unit, digits = 0 }: { first: number; last: number; unit: string; digits?: number }) {
   return (
@@ -188,7 +185,7 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
             <View key={x.key} style={s.row}>
               <Text>{x.label}</Text>
               <View style={s.val}>
-                <FromTo first={x.first.value} last={x.last.value} unit={metricUnit(x)} digits={pdfDigits(x)} />
+                <FromTo first={x.first.value} last={x.last.value} unit={metricUnit(x)} digits={x.pdfDigits} />
                 <Text style={{ marginLeft: 11, color: x.good ? ACC : T2 }}>{formatChange(x)}</Text>
               </View>
             </View>

@@ -22,17 +22,12 @@ export function AnamnesisFlow({ DayZero, resumeAtDayZero, total = ANAMNESIS_STEP
   const canGoBack = step > 0 || !!onCancel
   return (
     <div className="flex flex-col gap-4 pb-20">
-      {!canGoBack ? (
-        <div className="flex flex-col gap-3">
-          <Steps n={1} total={total} />
-          <h1 className="text-display font-bold tracking-tight text-strong">{title}</h1>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-3">
-          <Steps n={step + 1} total={total} />
-          <BackHeader title={title} onBack={() => (step ? setStep(step - 1) : onCancel?.())} className="py-0" />
-        </div>
-      )}
+      <div className="flex flex-col gap-3">
+        <Steps n={step + 1} total={total} />
+        {canGoBack
+          ? <BackHeader title={title} onBack={() => (step ? setStep(step - 1) : onCancel?.())} className="py-0" />
+          : <h1 className="text-display font-bold tracking-tight text-strong">{title}</h1>}
+      </div>
       {step === 0 && (
         <>
           <Alert role="note">Só a altura é obrigatória. O resto deixa os prompts de IA mais precisos e dá pra completar depois em Configurações › Perfil.</Alert>

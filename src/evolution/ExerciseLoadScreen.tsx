@@ -4,7 +4,7 @@ import { Overlay } from '@/components/Overlay'
 import { formatDayMonth } from '@/lib/date'
 import { formatKg } from '@/lib/number'
 import type { WorkoutLog } from '@/workout/types'
-import { Delta } from './Delta'
+import { MeasureValue } from './Delta'
 import { LineChart } from './LineChart'
 import { MODE_TEXT, exerciseLoads, type Measure } from './loads'
 import type { Period } from './chart'
@@ -13,8 +13,7 @@ function Stat({ label, m, unit }: { label: string; m: Measure; unit: string }) {
   return (
     <div className="flex flex-col gap-0.5">
       <span className="text-meta text-faint">{label}</span>
-      <b className="text-lg font-semibold tabular-nums text-strong">{`${formatKg(m.last)} ${unit}`}</b>
-      {m.delta === undefined ? <span className="text-meta text-text-2">sem comparação</span> : <Delta value={m.delta} good={m.delta > 0} unit={unit} className="text-meta" />}
+      <MeasureValue m={m} unit={unit} className="text-lg" deltaClassName="text-meta" empty={<span className="text-meta text-text-2">sem comparação</span>} />
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { label, names } from './promptLines'
+import { label, names } from './promptRules'
 
 test('ignora rótulos desconhecidos vindos de um backup antigo', () => {
   const labels = { valido: 'Rótulo' }

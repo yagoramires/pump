@@ -6,11 +6,11 @@ import { goalDirection, isGood, type GoalDirection, type Metric } from './goal'
 
 export type Point = { date: string; value: number }
 type Key = keyof MeasureFields
-/** `digits`: casas decimais no máximo (padrão 2) */
-export interface Field { key: Metric; label: string; unit: string; digits?: number; deltaUnit?: string }
+/** `digits`: casas decimais no máximo (padrão 2); `pdfDigits`: casas sempre mostradas no PDF (padrão 0) */
+export interface Field { key: Metric; label: string; unit: string; digits?: number; pdfDigits?: number; deltaUnit?: string }
 export interface BodyRow extends Field { first: Point; last: Point; delta?: number; good: boolean }
 
-export const WEIGHT = { key: 'weightKg', label: 'Peso', unit: 'kg' } satisfies Field & { key: Key }
+export const WEIGHT = { key: 'weightKg', label: 'Peso', unit: 'kg', pdfDigits: 1 } satisfies Field & { key: Key }
 export const WAIST = { key: 'waistCm', label: 'Cintura', unit: 'cm' } satisfies Field & { key: Key }
 const CM_FIELDS: (Field & { key: Key })[] = [
   { key: 'neckCm', label: 'Pescoço', unit: 'cm' },
@@ -23,7 +23,7 @@ const CM_FIELDS: (Field & { key: Key })[] = [
 export const FIELDS = [WEIGHT, ...CM_FIELDS]
 /** os campos que o formulário pede pra esse sexo */
 export const fieldsFor = (sex: Sex) => FIELDS.filter((f) => f.key !== 'hipCm' || usesHip(sex))
-export const FAT = { key: 'fat', label: 'Gordura', unit: '%', digits: 1, deltaUnit: 'pt' } satisfies Field
+export const FAT = { key: 'fat', label: 'Gordura', unit: '%', digits: 1, pdfDigits: 1, deltaUnit: 'pt' } satisfies Field
 
 export const BODY_FIELDS: Field[] = [WEIGHT, FAT, ...CM_FIELDS]
 

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Optional } from './Optional'
+import { FieldLabel } from './FieldLabel'
 import { cn } from '@/lib/utils'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
@@ -12,7 +12,7 @@ type Base<T extends string | number> = { label: string; options: Options<T>; col
 function ChipsField({ label, optional, children }: { label: string; optional?: boolean; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="flex flex-wrap items-baseline gap-x-1.5"><span className="label-caps-wide">{label}</span>{optional && <Optional />}</div>
+      <FieldLabel label={label} optional={optional} />
       {children}
     </div>
   )

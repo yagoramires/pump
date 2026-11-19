@@ -37,7 +37,6 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
   const [preview, setPreview] = useState<string>()
   const [saving, setSaving] = useState(false)
   const video = useRef<HTMLVideoElement>(null)
-  const stream = useRef<MediaStream>(undefined)
   const tick = useRef<number>(undefined)
 
   useEffect(() => {
@@ -48,7 +47,6 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
       .then((got) => {
         s = got
         if (!alive) return got.getTracks().forEach((t) => t.stop())
-        stream.current = got
         if (video.current) video.current.srcObject = got
         setCamOk(true)
       })
@@ -66,9 +64,9 @@ export function PhotoCapture({ date, onClose }: { date: string; onClose: () => v
     clearInterval(tick.current)
     setCount(undefined)
   }
+  // quem abre desmonta ao fechar, e a limpeza do efeito para a câmera
   const close = () => {
     cancelCount()
-    stream.current?.getTracks().forEach((t) => t.stop())
     onClose()
   }
   const goTo = (n: number) => {
