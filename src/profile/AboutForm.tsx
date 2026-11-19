@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 const LABEL_ROW = 'flex flex-wrap items-baseline gap-x-1.5'
-const FIELD = 'flex flex-col gap-1.5'
+const FIELD = 'flex flex-col justify-end gap-1.5'
 const TIMES = [['wake', 'Acorda'], ['train', 'Treina'], ['sleep', 'Dorme']] as const
 const DAYS = [1, 2, 3, 4, 5, 6, 7] as const
 

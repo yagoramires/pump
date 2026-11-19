@@ -104,6 +104,7 @@ test('gerar com IA e converter: descrição e 5 passos', async () => {
   expect(await screen.findByRole('heading', { name: 'Gerar com IA' })).toBeInTheDocument()
   expect(screen.getByRole('radio', { name: 'Em casa' })).toBeInTheDocument()
   expect(screen.getByText('O Pump não tem IA própria. Você leva um prompt pra sua IA (ChatGPT ou outra), ela monta seu treino e você cola a resposta aqui pra revisar antes de salvar.')).toBeInTheDocument()
+  expect(screen.getByText(/O Pump não tem IA própria/).compareDocumentPosition(screen.getByRole('radio', { name: 'Em casa' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   expect(screen.getByText('ChatGPT, Gemini, Claude…')).toBeInTheDocument()
   expect(screen.getByText('Revise e salve')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Copie seu plano' })).toBeInTheDocument()

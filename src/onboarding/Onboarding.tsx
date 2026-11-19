@@ -80,7 +80,7 @@ export function Onboarding() {
     )
   }
   return (
-    <div className="flex flex-col gap-3 pb-28">
+    <div className="flex flex-col gap-3 pb-40">
       <Steps n={ANAMNESIS_STEPS + 1} total={ONBOARDING_STEPS} />
       <BackHeader title="Seu treino" onBack={() => { setResumeAtDayZero(true); setStep('anamnese') }} className="px-0 py-0" />
       <Card size="flush">

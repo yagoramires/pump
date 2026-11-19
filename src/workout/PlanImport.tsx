@@ -163,13 +163,14 @@ export function PlanImport({ mode, onDone, onBack }: { mode: 'ia' | 'convert'; o
   return (
     <div className="flex flex-col gap-3 pb-28">
       <BackHeader title={mode === 'ia' ? 'Gerar com IA' : 'Converter ficha'} onBack={onBack} className="min-h-11" />
-      {mode === 'ia' && <AnamnesisForm value={profile.anamnesis ?? {}} onChange={(anamnesis) => setProfile((p) => ({ ...p, anamnesis }))} />}
       <ImportGuide
         mode={mode}
         made="treino"
         source="ficha"
         copy={<Button type="button" variant="outline" size="sm" onClick={() => copy(mode === 'ia' ? buildPrompt(profile) : buildConvertPrompt(), 'Prompt copiado. Cole na sua IA.')}><Copy size={14} aria-hidden="true" />Copiar</Button>}
-      />
+      >
+        {mode === 'ia' && <AnamnesisForm value={profile.anamnesis ?? {}} onChange={(anamnesis) => setProfile((p) => ({ ...p, anamnesis }))} />}
+      </ImportGuide>
       <CopyListButton file={EXERCISE_LIST} noun="exercícios" ok="Lista copiada. Cole na sua IA." report={setNotice} />
       <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder='{ "formato": "pump-plano", ... }'>
         {notice && <p role="status" className="text-meta text-text-2">{notice}</p>}

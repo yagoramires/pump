@@ -24,7 +24,7 @@ export function Step({ n, title, sub, children }: { n: number; title: string; su
   )
 }
 
-export function ImportGuide({ mode, made, source, copy }: { mode: 'ia' | 'convert'; made: string; source: string; copy: ReactNode }) {
+export function ImportGuide({ mode, made, source, copy, children }: { mode: 'ia' | 'convert'; made: string; source: string; copy: ReactNode; children?: ReactNode }) {
   const ia = mode === 'ia'
   return (
     <>
@@ -33,6 +33,7 @@ export function ImportGuide({ mode, made, source, copy }: { mode: 'ia' | 'conver
           ? `O Pump não tem IA própria. Você leva um prompt pra sua IA (ChatGPT ou outra), ela monta seu ${made} e você cola a resposta aqui pra revisar antes de salvar.`
           : `Já tem uma ${source}? Mande ela pra sua IA junto com o prompt. A IA reescreve no formato do Pump e você cola a resposta aqui pra revisar antes de salvar.`}
       </p>
+      {children}
       <Card size="flush">
         <Step n={1} title="Copie o prompt">{copy}</Step>
         <Step n={2} title="Abra sua IA e cole o prompt" sub={ia ? 'ChatGPT, Gemini, Claude…' : `Junto com sua ${source} (PDF, foto ou texto)`} />

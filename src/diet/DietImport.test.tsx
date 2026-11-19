@@ -50,6 +50,7 @@ test('gerar com IA: copiar prompt grava a anamnese', async () => {
   await renderLoaded(<DietImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
   expect(await screen.findByRole('radio', { name: '5' })).toHaveAttribute('aria-checked', 'true')
   expect(screen.getByLabelText('Não como')).toHaveValue('fígado')
+  expect(screen.getByText(/O Pump não tem IA própria/).compareDocumentPosition(screen.getByLabelText('Não como')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
 })
 
 test('import offline: tudo vira estimativa com aviso e dá pra usar', async () => {
