@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { FormatError } from '@/format/envelope'
 
-/** `parse` lança FormatError com os problemas (readHalf já converte o inesperado); `review` (assíncrono: catálogo) monta o resultado, e só a falha dele vira `failed` */
+/** `tab`: o treino/cardápio aberto na revisão, que volta pro 1º a cada texto novo.
+ * `parse` lança FormatError com os problemas (readHalf já converte o inesperado); `review` (assíncrono: catálogo) monta o resultado, e só a falha dele vira `failed` */
 export function usePastedReview<F, R>(parse: (text: string) => F, review: (file: F) => Promise<R>) {
   const [req, setReq] = useState({ text: '', now: false })
   const [result, setResult] = useState<R>()
   const [problems, setProblems] = useState<string[]>([])
   const [reviewing, setReviewing] = useState(false)
   const [failed, setFailed] = useState(false)
+  const [tab, setTab] = useState(0)
   const fns = useRef({ parse, review })
   useEffect(() => { fns.current = { parse, review } })
 
@@ -17,6 +19,7 @@ export function usePastedReview<F, R>(parse: (text: string) => F, review: (file:
     setProblems([])
     setReviewing(false)
     setFailed(false)
+    setTab(0)
   }
 
   useEffect(() => {
@@ -45,5 +48,5 @@ export function usePastedReview<F, R>(parse: (text: string) => F, review: (file:
     return () => { stale = true; clearTimeout(t) }
   }, [req])
 
-  return { text: req.text, set, result, setResult, problems, reviewing, failed }
+  return { text: req.text, set, result, setResult, problems, reviewing, failed, tab, setTab }
 }

@@ -1,6 +1,6 @@
 import { DIET_GOAL_LABEL, type DietGoal, type Profile } from '@/profile/types'
 import { EAT_OUT_PROMPT, RESTRICTIONS } from './anamnesisLabels'
-import { str } from '@/format/envelope'
+import { str } from '@/lib/text'
 import type { Measurement } from '@/evolution/types'
 import { FIELDS, WEIGHT, fatSeries, latestWeight, series } from '@/evolution/measurements'
 import { addDays, daysBetween, weeksBetween } from '@/lib/date'
@@ -80,6 +80,7 @@ function aboutMe(p: Profile | undefined, ms: Measurement[], today: string): stri
 }
 
 const listRule = (fallback: string) => rule(FOOD_LIST_URL, 'alimento', ` (nomes da tabela TACO 4ª edição, no padrão "Alimento, tipo, preparo"; exemplos: ${TACO_EXAMPLES.map((n) => `"${n}"`).join(', ')}).`, fallback)
+const NEW_FOOD_RULE = listRule('Só use outro nome se nenhum da lista servir, escrevendo no mesmo padrão e sempre dizendo o preparo.')
 
 const FORMAT = formatSpec(`- "dieta":
   - "cardapios": lista de 1 a ${MAX_MENUS} cardápios. Cada cardápio tem:
@@ -143,7 +144,7 @@ Como fazer:
 4. Calcule uma meta diária de calorias e de macros (proteína, carboidrato e gordura) coerente com meu objetivo e meu perfil.
 5. Distribua as refeições nos meus horários, respeite minhas restrições e o que não como, e use comida simples do dia a dia no Brasil.
 6. Dê 2 opções em cada refeição (ex.: "Ovos com pão" e "Iogurte com aveia"), com calorias e macros parecidos, pra eu poder variar.
-7. ${listRule('Só use outro nome se nenhum da lista servir, escrevendo no mesmo padrão e sempre dizendo o preparo.')}
+7. ${NEW_FOOD_RULE}
 8. Pra cada alimento, informe as gramas, a porção caseira e os valores da quantidade indicada (não por 100 g): kcal, proteína, carboidrato e gordura.
 
 ${FORMAT}`
@@ -162,6 +163,6 @@ Como fazer:
 ${FORMAT}`
 
 export const buildDietAdjustPrompt = (plan: DietPlan): string => adjustPrompt('dieta', [
-  `Para alimento novo: ${listRule('Só use outro nome se nenhum da lista servir, escrevendo no mesmo padrão e sempre dizendo o preparo.')}`,
+  `Para alimento novo: ${NEW_FOOD_RULE}`,
   'Os valores (kcal, proteinaG, carboG, gorduraG) são da quantidade em gramas, não por 100 g: se mudar as gramas ou incluir um alimento, recalcule esses valores.',
 ], exportDietFormat(preparePlan(plan)))

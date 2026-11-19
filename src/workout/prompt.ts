@@ -1,7 +1,7 @@
 import { FOCUS_LABEL, type Focus, type Profile } from '@/profile/types'
 import { focusOf } from '@/profile/profile'
 import { EXTRA_LABEL, LEVEL_LABEL, MUSCLE_LABEL, PLACE_LABEL, SPLIT_LABEL } from './anamnesis'
-import { str } from '@/format/envelope'
+import { str } from '@/lib/text'
 import { label, names, profileLines } from '@/profile/promptLines'
 import { EXERCISE_LIST_URL } from '@/catalog/urls'
 import { aboutMe as aboutMeBlock, adjustPrompt, askFirst, formatSpec, listRule as rule } from '@/format/promptRules'
@@ -52,6 +52,7 @@ function aboutMe(p?: Profile): string[] {
 }
 
 const listRule = (fallback: string) => rule(EXERCISE_LIST_URL, 'exercício', '. Copie a linha inteira da lista, do jeito que está, com o equipamento entre parênteses (o app reconhece).', fallback)
+const NEW_EXERCISE_RULE = listRule('Só use outro nome se nenhum da lista servir.')
 
 const FORMAT = formatSpec(`- "treinos": lista com pelo menos um treino. Cada treino tem:
   - "letra": identificador curto e único ("A", "B", "C"...).
@@ -85,7 +86,7 @@ Como fazer:
 5. Cardio, abdômen ou mobilidade entram como exercícios do treino; ${CARDIO_REPS_RULE}.
 6. Só coloque "cargaKg" se souber quanto eu levanto; senão deixe de fora.
 7. Os treinos rodam em sequência, na ordem da lista (A, B, C…), um por dia de treino.
-8. ${listRule('Só use outro nome se nenhum da lista servir.')}
+8. ${NEW_EXERCISE_RULE}
 
 ${FORMAT}`
 
@@ -99,4 +100,4 @@ Como fazer:
 ${FORMAT}`
 
 export const buildAdjustPrompt = (plan: WorkoutPlan): string =>
-  adjustPrompt('treino', [`Para exercício novo: ${listRule('Só use outro nome se nenhum da lista servir.')}`], exportPlanFormat(plan))
+  adjustPrompt('treino', [`Para exercício novo: ${NEW_EXERCISE_RULE}`], exportPlanFormat(plan))

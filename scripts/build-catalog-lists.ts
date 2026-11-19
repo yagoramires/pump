@@ -1,8 +1,14 @@
-import { readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import type { Exercise, TacoFood } from '../src/catalog/types.ts'
+import { exerciseLine } from '../src/catalog/exerciseLine.ts'
 import { CATALOG_DIR, EXERCISE_LIST, EXERCISES_JSON, FOOD_LIST, TACO_JSON } from '../src/catalog/urls.ts'
 
 export const catalogPath = (file: string) => `public/${CATALOG_DIR}${file}`
+
+export function writeCatalog(file: string, text: string) {
+  mkdirSync(`public/${CATALOG_DIR}`, { recursive: true })
+  writeFileSync(catalogPath(file), text)
+}
 
 const br = (a: string, b: string) => a.localeCompare(b, 'pt-BR')
 
@@ -10,7 +16,7 @@ export function exerciseList(exercises: Exercise[]): string {
   const groups = new Map<string, string[]>()
   for (const e of exercises) {
     const k = e.muscles[0] || 'outros'
-    groups.set(k, [...(groups.get(k) ?? []), e.equipment ? `${e.name} (${e.equipment})` : e.name])
+    groups.set(k, [...(groups.get(k) ?? []), exerciseLine(e)])
   }
   const keys = [...groups.keys()].filter((k) => k !== 'outros').sort(br)
   if (groups.has('outros')) keys.push('outros')
@@ -25,8 +31,8 @@ export const readCatalog = <T>(file: string) => JSON.parse(readFileSync(catalogP
 
 /** reescreve as listas .txt a partir dos JSONs em public/ */
 export function writeLists() {
-  writeFileSync(catalogPath(EXERCISE_LIST), exerciseList(readCatalog(EXERCISES_JSON)))
-  writeFileSync(catalogPath(FOOD_LIST), foodList(readCatalog(TACO_JSON)))
+  writeCatalog(EXERCISE_LIST, exerciseList(readCatalog(EXERCISES_JSON)))
+  writeCatalog(FOOD_LIST, foodList(readCatalog(TACO_JSON)))
   console.log(`${catalogPath(EXERCISE_LIST)} e ${FOOD_LIST} escritos`)
 }
 

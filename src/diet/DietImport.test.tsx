@@ -4,7 +4,7 @@ import { renderLoaded } from '../../test/render'
 import { setupClipboard } from '../../test/helpers'
 import { seedStore, stored } from '../../test/store'
 import userEvent from '@testing-library/user-event'
-import { CatalogUnavailable, fetchTaco } from '@/catalog/catalog'
+import { fetchTaco } from '@/catalog/catalog'
 import { Toaster } from '@/components/ui/sonner'
 import { DietImport } from './DietImport'
 import { buildDietConvertPrompt } from './prompt'
@@ -22,7 +22,7 @@ const json = (alimentos: object[]) =>
   JSON.stringify({ formato: 'pump-plano', versao: 1, dieta: { metaKcal: 2000, macros: { proteinaG: 150, carboG: 200, gorduraG: 60 }, refeicoes: [{ nome: 'Café da manhã', horario: '07:00', alimentos }] } })
 
 beforeEach(async () => {
-  vi.mocked(fetchTaco).mockRejectedValue(new CatalogUnavailable('offline'))
+  vi.mocked(fetchTaco).mockRejectedValue(new TypeError('offline'))
 })
 
 async function paste(text: string) {

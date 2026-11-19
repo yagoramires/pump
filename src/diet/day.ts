@@ -81,7 +81,7 @@ export const mealOptions = (plan: DietPlan, day: DietDay, mealId: string) => {
 }
 
 export const mealItems = (m: DayMeal) => m.items.filter((i) => !i.skipped)
-export const eatenItems = (day: DietDay, m: DayMeal) => (day.free || m.free ? [] : mealItems(m).filter((i) => m.done || i.extra))
+const eatenItems = (day: DietDay, m: DayMeal) => (day.free || m.free ? [] : mealItems(m).filter((i) => m.done || i.extra))
 /** só extras, sem refeição do plano feita, não entra na média */
 export const countsForAverage = (day: DietDay) => !day.free && day.meals.some((m) => m.done && !m.free)
 

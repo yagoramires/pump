@@ -1,5 +1,6 @@
 import type { DietItem, DietPlan, Menu, TacoFood } from './types'
-import { FormatError, readHalf, str, writeEnvelope } from '@/format/envelope'
+import { FormatError, readHalf, writeEnvelope } from '@/format/envelope'
+import { str } from '@/lib/text'
 import { isObj } from '@/lib/utils'
 import { round1 } from '@/lib/number'
 import { GOAL_KCAL, GRAMS, HHMM, MACRO_G, MAX_ITEMS, MAX_KCAL_PER_100G, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'

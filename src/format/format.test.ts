@@ -1,10 +1,7 @@
-import { FormatError, readHalf } from './envelope'
+import { readHalf } from './envelope'
+import { problems } from '../../test/helpers'
 import { keepIdsByName } from './keepIds'
 
-const problems = (f: () => unknown) => {
-  try { f() } catch (e) { return (e as FormatError).problems }
-  throw new Error('não lançou')
-}
 
 test('cada aba lê a sua metade e ignora a outra do mesmo jeito', () => {
   const both = JSON.stringify({ treinos: [], dieta: {} })

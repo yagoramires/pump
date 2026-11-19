@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ConfirmDialog } from './ConfirmDialog'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 
 /** "Usar" por cima de um plano salvo pede confirmação antes de `commit` */
 export function useReplaceConfirm<T>(needsConfirm: (next: T) => boolean, commit: (next: T) => void, title: string, text: string) {

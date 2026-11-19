@@ -1,11 +1,9 @@
 import { useState } from 'react'
-import { AlertTriangle } from 'lucide-react'
 import type { DietItem, DietPlan } from './types'
 import { usePersisted } from '@/storage/db'
 import { catalogOrNull, fetchTaco } from '@/catalog/catalog'
 import { FOOD_LIST } from '@/catalog/urls'
 import { HEADER } from '@/format/envelope'
-import { keepIdsByName } from '@/format/keepIds'
 import { buildDietConvertPrompt, buildDietPrompt } from './prompt'
 import { dietFromFormat, parseDietFormat, type ItemReport } from './dietFormat'
 import { iaLabel, itemKcalText, macroText, optionLabel, portionText } from './display'
@@ -15,16 +13,13 @@ import { useDietPlan } from './useDietPlan'
 import { DietAnamnesisForm } from './DietAnamnesisForm'
 import { DietEditor } from './DietEditor'
 import { FoodPicker } from './FoodPicker'
-import { CopyListButton, ImportGuide, PasteBox, type ImportMode } from '@/components/ImportFlow'
-import { useReplaceConfirm } from '@/components/useReplaceConfirm'
-import { usePastedReview } from '@/components/usePastedReview'
+import { CopyListButton, ImportGuide, OutsideCatalog, PasteBox, ReviewActions, ReviewTabs, type ImportMode } from '@/import/ImportFlow'
+import { useReplaceConfirm } from '@/import/useReplaceConfirm'
+import { usePastedReview } from '@/import/usePastedReview'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Toggle } from '@/components/ui/toggle'
 import { BackHeader } from '@/components/BackHeader'
-import { BottomBar } from '@/components/BottomBar'
 import { formatDec, plural } from '@/lib/number'
-import { namesText } from '@/lib/text'
 import { todayKey } from '@/lib/date'
 import { cn } from '@/lib/utils'
 import { Alert } from '@/components/ui/alert'
@@ -45,7 +40,6 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   const { plan: saved, replacePlan } = useDietPlan()
   const [foods] = usePersisted('foods')
   const [measurements] = usePersisted('measurements')
-  const [tab, setTab] = useState(0)
   const [picking, setPicking] = useState<DietItem>()
   const [editing, setEditing] = useState(false)
   const paste = usePastedReview(parseDietFormat, async (file) => {
@@ -54,13 +48,8 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   })
   const review = paste.result
 
-  const edit = (v: string, now?: boolean) => {
-    setTab(0)
-    paste.set(v, now)
-  }
-
   const commit = (next: DietPlan) => {
-    replacePlan({ ...next, menus: keepIdsByName(saved.menus, next.menus, (m) => m.name) })
+    replacePlan(next)
     onDone()
   }
   const { offer, dialog: confirm } = useReplaceConfirm(
@@ -71,27 +60,18 @@ export function DietImport({ mode, onDone, onBack }: Props) {
   if (editing && review) return <><DietEditor draft={review.plan} onDone={offer} onCancel={() => setEditing(false)} />{confirm}</>
 
   if (review) {
-    const menu = review.plan.menus[tab] ?? review.plan.menus[0]
+    const menu = review.plan.menus[paste.tab] ?? review.plan.menus[0]
     const originalNames = new Map<string, string>()
     for (const item of planItems(review.plan)) {
       const key = foodKey(item.name)
       if (item.source === 'ia' && !originalNames.has(key)) originalNames.set(key, item.name)
     }
-    const outsideNames = [...originalNames.values()]
-    const outside = outsideNames.length
+    const outside = [...originalNames.values()]
     return (
       <div className="flex flex-col gap-3 pb-28">
-        <BackHeader title="Revisar cardápio" onBack={() => edit('')} className="min-h-11" />
+        <BackHeader title="Revisar cardápio" onBack={() => paste.set('')} className="min-h-11" />
         {review.offline && <Alert role="status">Sem internet: usei os números da IA. Dá pra trocar depois.</Alert>}
-        {review.plan.menus.length > 1 && (
-          <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Cardápios">
-            {review.plan.menus.map((m, n) => (
-              <Toggle key={m.id} variant="outline" className="shrink-0 text-meta" pressed={m.id === menu.id} onPressedChange={() => setTab(n)}>
-                {m.name}
-              </Toggle>
-            ))}
-          </div>
-        )}
+        <ReviewTabs label="Cardápios" items={review.plan.menus} current={menu.id} onPick={paste.setTab} />
         {(menu.goalKcal !== undefined || menu.goalMacros) && (
           <Card className="flex-row justify-between gap-3 text-meta tabular-nums text-text-2">
             <span>{menu.goalKcal !== undefined ? `Meta · ${formatDec(menu.goalKcal)} kcal` : 'Meta'}</span>
@@ -131,20 +111,8 @@ export function DietImport({ mode, onDone, onBack }: Props) {
             ))}
           </Card>
         ))}
-        {outside > 0 && (
-          <Card className="flex-row items-start gap-2 text-meta text-text-2">
-            <AlertTriangle size={16} className="mt-px shrink-0 text-c7" aria-hidden="true" />
-            <span>
-              {`${plural(outside, 'item fora da TACO usa', 'itens fora da TACO usam')} os números da IA. Toque pra trocar.`}
-              <span className="block">{namesText(outsideNames)}</span>
-            </span>
-          </Card>
-        )}
-        {review.ignoredWorkouts && <p className="text-meta text-text-2">Os treinos deste arquivo podem ser importados na aba Treino</p>}
-        <BottomBar className="gap-2">
-          <Button type="button" variant="outline" className="flex-1 bg-transparent" onClick={() => setEditing(true)}>Editar</Button>
-          <Button type="button" className="flex-1" onClick={() => offer(review.plan)}>Usar cardápios</Button>
-        </BottomBar>
+        <OutsideCatalog title={`${plural(outside.length, 'item fora da TACO usa', 'itens fora da TACO usam')} os números da IA. Toque pra trocar.`} names={outside} />
+        <ReviewActions ignored={review.ignoredWorkouts ? 'treinos' : undefined} use="Usar cardápios" onEdit={() => setEditing(true)} onUse={() => offer(review.plan)} />
         {picking && (
           <FoodPicker
             title={`Trocar · ${picking.name}`}
@@ -174,7 +142,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
         {mode === 'ia' && <DietAnamnesisForm value={profile.dietAnamnesis ?? {}} onChange={(dietAnamnesis) => setProfile((p) => ({ ...p, dietAnamnesis }))} />}
       </ImportGuide>
       <CopyListButton file={FOOD_LIST} noun="alimentos" />
-      <PasteBox text={paste.text} onText={edit} onFile={(t) => edit(t, true)} problems={paste.problems} placeholder={`{ "formato": "${HEADER.formato}", "dieta": ... }`}>
+      <PasteBox text={paste.text} onText={paste.set} onFile={(t) => paste.set(t, true)} problems={paste.problems} placeholder={`{ "formato": "${HEADER.formato}", "dieta": ... }`}>
         {paste.failed && <Alert variant="destructive">Não consegui revisar o cardápio. Tente colar ou escolher o arquivo novamente.</Alert>}
         {paste.reviewing && <p role="status" className="text-meta text-text-2">Conferindo na TACO…</p>}
       </PasteBox>

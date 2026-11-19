@@ -1,3 +1,5 @@
+import { toast } from 'sonner'
+
 // texto que ainda vai chegar (lista baixada): o iOS/WebKit só aceita a escrita dentro do toque, então entrega a promessa
 // pro ClipboardItem em vez de esperar o fetch
 async function copyText(text: string | Promise<string>): Promise<boolean> {
@@ -14,9 +16,9 @@ async function copyText(text: string | Promise<string>): Promise<boolean> {
 export const COPY_FAIL = 'Não consegui copiar. Tente de novo.'
 const COPY_OFFLINE = 'Sem internet pra copiar a lista.'
 
-export const makeCopy = (report: (msg: string) => unknown) => async (text: string | Promise<string>, ok: string) => {
-  if (await copyText(text)) return void report(ok)
-  report(await Promise.resolve(text).then(() => COPY_FAIL, () => COPY_OFFLINE))
+export async function copy(text: string | Promise<string>, ok: string) {
+  if (await copyText(text)) return void toast(ok)
+  toast(await Promise.resolve(text).then(() => COPY_FAIL, () => COPY_OFFLINE))
 }
 
 export async function shareFile(file: File): Promise<'shared' | 'downloaded' | 'cancelled'> {

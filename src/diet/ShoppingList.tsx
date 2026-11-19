@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { ShoppingCart } from 'lucide-react'
-import { toast } from 'sonner'
 import { usePersisted } from '@/storage/db'
 import { BackHeader } from '@/components/BackHeader'
 import { EmptyState } from '@/components/EmptyState'
@@ -8,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { makeCopy } from '@/lib/share'
+import { copy } from '@/lib/share'
 import { countText, formatAmount, shoppingList, shoppingText } from './shopping'
 
 const PERIODS = [{ v: '7', label: 'Semana' }, { v: '30', label: 'Mês' }]
@@ -53,7 +52,7 @@ export function ShoppingList({ onClose }: { onClose: () => void }) {
               </li>
             ))}
           </ul></Card>
-          <Button variant="outline" disabled={!missing.length} onClick={() => makeCopy(toast)(shoppingText(missing), 'Lista copiada')}>{!missing.length ? 'Tudo comprado' : checked.size ? 'Copiar o que falta' : 'Copiar lista'}</Button>
+          <Button variant="outline" disabled={!missing.length} onClick={() => copy(shoppingText(missing), 'Lista copiada')}>{!missing.length ? 'Tudo comprado' : checked.size ? 'Copiar o que falta' : 'Copiar lista'}</Button>
           {checked.size > 0 && <Button variant="link" onClick={() => setSettings((s) => ({ ...s, shoppingChecked: [] }))}>Limpar marcações</Button>}
         </div>
       )}

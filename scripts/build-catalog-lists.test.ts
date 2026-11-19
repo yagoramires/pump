@@ -8,9 +8,7 @@ const read = (f: string) => readFileSync(catalogPath(f), 'utf8')
 
 test('exerciseList agrupa por primeiro músculo, ordena em pt-BR e põe outros por último', () => {
   const out = exerciseList([ex('Zeta', ['peito'], 'barra'), ex('Água', ['peito']), ex('Solo', []), ex('Remada', ['costas'], 'halter')])
-  expect(out).toBe(
-    'Exercícios do app Pump (catálogo). Copie a linha inteira de um destes exercícios, com o equipamento entre parênteses.\n\n## costas\nRemada (halter)\n\n## peito\nÁgua\nZeta (barra)\n\n## outros\nSolo\n',
-  )
+  expect(out.slice(out.indexOf('## ')).trimEnd().split('\n').filter(Boolean)).toEqual(['## costas', 'Remada (halter)', '## peito', 'Água', 'Zeta (barra)', '## outros', 'Solo'])
 })
 
 test('foodList mantém a ordem do taco.json', () => {

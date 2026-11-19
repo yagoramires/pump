@@ -1,19 +1,20 @@
 import type { ReactNode } from 'react'
-import { Copy, FileUp, ListChecks } from 'lucide-react'
-import { toast } from 'sonner'
+import { AlertTriangle, Copy, FileUp, ListChecks } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert } from '@/components/ui/alert'
 import { Card } from '@/components/ui/card'
-import { makeCopy } from '@/lib/share'
+import { copy } from '@/lib/share'
 import { catalogFile } from '@/catalog/catalog'
+import { IGNORED, type Half } from '@/format/envelope'
+import { namesText } from '@/lib/text'
+import { BottomBar } from '@/components/BottomBar'
+import { Toggle } from '@/components/ui/toggle'
 
 export type ImportMode = 'ia' | 'convert'
 
-const copy = makeCopy(toast)
-
-export function Step({ n, title, sub, children }: { n: number; title: string; sub?: string; children?: ReactNode }) {
+function Step({ n, title, sub, children }: { n: number; title: string; sub?: string; children?: ReactNode }) {
   return (
     <div className="flex items-center gap-3 border-t border-line p-3.5 first:border-t-0">
       <Badge variant="tile" className="size-8">{n}</Badge>
@@ -98,5 +99,46 @@ export function CopyListButton({ file, noun }: { file: string; noun: string }) {
         <span className="block text-meta font-normal text-text-2">Se sua IA não abrir o link</span>
       </span>
     </Button>
+  )
+}
+
+/** um treino/cardápio por vez na revisão */
+export function ReviewTabs({ label, items, current, onPick }: { label: string; items: { id: string; name: string }[]; current: string; onPick: (n: number) => void }) {
+  if (items.length < 2) return null
+  return (
+    <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label={label}>
+      {items.map((it, n) => (
+        <Toggle key={it.id} variant="outline" className="shrink-0 text-meta" pressed={it.id === current} onPressedChange={() => onPick(n)}>
+          {it.name}
+        </Toggle>
+      ))}
+    </div>
+  )
+}
+
+/** o que ficou fora do catálogo, com os nomes */
+export function OutsideCatalog({ title, names }: { title: string; names: string[] }) {
+  if (!names.length) return null
+  return (
+    <Card className="flex-row items-start gap-2 text-meta text-text-2">
+      <AlertTriangle size={16} className="mt-px shrink-0 text-c7" aria-hidden="true" />
+      <span>
+        {title}
+        <span className="block">{namesText(names)}</span>
+      </span>
+    </Card>
+  )
+}
+
+/** `ignored`: a outra metade do arquivo, que esta aba não importa */
+export function ReviewActions({ ignored, use, onEdit, onUse }: { ignored?: Half; use: string; onEdit: () => void; onUse: () => void }) {
+  return (
+    <>
+      {ignored && <p className="text-meta text-text-2">{IGNORED[ignored]}</p>}
+      <BottomBar className="gap-2">
+        <Button type="button" variant="outline" className="flex-1 bg-transparent" onClick={onEdit}>Editar</Button>
+        <Button type="button" className="flex-1" onClick={onUse}>{use}</Button>
+      </BottomBar>
+    </>
   )
 }

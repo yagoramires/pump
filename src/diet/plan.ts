@@ -1,3 +1,4 @@
+import { keepIdsByName } from '@/format/keepIds'
 import { HHMM } from './limits'
 import type { DietItem, DietPlan, Meal, MealOption, Menu } from './types'
 
@@ -31,7 +32,9 @@ export const preparePlan = (plan: DietPlan): DietPlan => ({
   })),
 })
 
-export const savePlan = (prev: DietPlan, next: DietPlan): DietPlan => ({
-  ...preparePlan(next),
-  lastMenuId: currentMenu({ menus: next.menus, lastMenuId: prev.lastMenuId })?.id,
-})
+/** cardápio de mesmo nome mantém o id, que é o que lastMenuId guarda */
+export const savePlan = (prev: DietPlan, next: DietPlan): DietPlan => {
+  const prepared = preparePlan(next)
+  const menus = keepIdsByName(prev.menus, prepared.menus, (m) => m.name)
+  return { ...prepared, menus, lastMenuId: currentMenu({ menus, lastMenuId: prev.lastMenuId })?.id }
+}

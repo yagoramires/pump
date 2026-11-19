@@ -1,7 +1,6 @@
 import { lazy, Suspense, use, useEffect, useState, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Toaster } from '@/components/ui/sonner'
 import { BottomNav } from '@/shell/BottomNav'
 import { InstallGate } from '@/shell/InstallGate'
 import { SettingsScreen } from '@/shell/SettingsScreen'
@@ -9,8 +8,7 @@ import { isIOS, isStandalone } from '@/shell/platform'
 import { Onboarding } from '@/onboarding/Onboarding'
 import { TreinoTab } from '@/workout/TreinoTab'
 import { PreviewSync } from '@/workout/previews'
-import { backupDue } from '@/backup/backup'
-import { sendBackup } from '@/backup/useBackupExport'
+import { backupDue, sendBackup } from '@/backup/backup'
 import { boot, onStorageError, requestPersist, usePersisted } from '@/storage/db'
 import { todayKey } from '@/lib/date'
 import { useCheckIn } from '@/evolution/useCheckIn'
@@ -83,7 +81,6 @@ function Shell() {
         )}
       </main>
       <BottomNav tab={tab} alerts={due ? { evolucao: 'atualização pendente' } : undefined} onChange={(lastTab) => { setShowSettings(false); setSettings((s) => ({ ...s, lastTab })) }} />
-      <Toaster />
       <AchievementToasts />
     </>
   )

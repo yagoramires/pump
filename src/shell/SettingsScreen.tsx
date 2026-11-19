@@ -12,13 +12,9 @@ import { latestWeight } from '@/evolution/measurements'
 import { ProfileScreen } from '@/profile/ProfileScreen'
 import { WorkoutSettings } from '@/workout/WorkoutSettings'
 import { DietSettings } from '@/diet/DietSettings'
-import { sendBackup } from '@/backup/useBackupExport'
 import { BackupRestore } from '@/backup/BackupRestore'
-import { daysSinceBackup } from '@/backup/backup'
+import { daysSinceBackup, sendBackup } from '@/backup/backup'
 import { Alert } from '@/components/ui/alert'
-
-/** abre uma tela por cima das Configurações; sem argumento volta pro menu */
-export type OpenView = (view?: ReactNode) => void
 
 export function SettingsScreen({ onClose }: { onClose: () => void }) {
   const [settings, setSettings] = usePersisted('settings')

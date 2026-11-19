@@ -1,6 +1,7 @@
-import type { CustomExercise, Exercise, PlanExercise, WorkoutPlan } from './types'
-import { normalize } from '@/lib/text'
-import { FormatError, headerProblems, readHalf, str, writeEnvelope } from '@/format/envelope'
+import type { CustomExercise, Exercise, PlanExercise, Workout, WorkoutPlan } from './types'
+import { normalize, str } from '@/lib/text'
+import { splitExerciseLine } from '@/catalog/exerciseLine'
+import { FormatError, headerProblems, readHalf, writeEnvelope } from '@/format/envelope'
 import { isObj } from '@/lib/utils'
 import { KG, REST_SEC, SETS } from './limits'
 import { PLAN_DEFAULTS, newCustomExercise, toPlanExercise } from './exercises'
@@ -11,43 +12,46 @@ interface PumpExercicio { nome: string; series: number; reps: string; cargaKg?: 
 interface PumpTreino { letra: string; nome: string; exercicios: PumpExercicio[] }
 type PumpPlano = { treinos: PumpTreino[]; ignoredDiet: boolean }
 
+type DraftRule = 'name' | 'empty' | 'reps'
+type Problem = (text: string, rule?: DraftRule, exercise?: number) => void
+
+function parseTreino(t: unknown, n: number, seen: Set<string>, problem: Problem): PumpTreino {
+  const o = isObj(t) ? t : {}
+  const letra = str(o.letra)
+  const id = letra || String(n + 1)
+  const tag = `Treino ${id}`
+  if (!letra) problem(`Treino ${n + 1}: "letra" vazia`)
+  else if (seen.has(letra)) problem(`${tag}: "letra" repetida`)
+  seen.add(letra)
+  const nome = str(o.nome)
+  if (!nome) problem(`${tag}: "nome" vazio`, 'name')
+  const exs = Array.isArray(o.exercicios) ? o.exercicios : []
+  if (exs.length === 0) problem(`${tag}: precisa ter pelo menos um exercício`, 'empty')
+  const exercicios = exs.map((e: unknown, i): PumpExercicio => {
+    const x = isObj(e) ? e : {}
+    const at = `${tag}, exercício ${i + 1}`
+    const nome = str(x.nome)
+    if (!nome) problem(`${at}: "nome" vazio`)
+    const series = x.series as number
+    if (!Number.isInteger(series) || series < SETS[0] || series > SETS[1]) problem(`${at}: "series" precisa ser um número inteiro de ${SETS[0]} a ${SETS[1]}`)
+    const reps = typeof x.reps === 'number' ? String(x.reps) : str(x.reps)
+    if (!reps) problem(`${at}: "reps" vazio`, 'reps', i)
+    const carga = x.cargaKg as number | undefined
+    if (carga != null && !(Number.isFinite(carga) && carga >= KG[0] && carga <= KG[1])) problem(`${at}: "cargaKg" precisa ser um número de ${KG[0]} a ${KG[1]}`)
+    const desc = x.descansoSeg as number | undefined
+    if (desc != null && !(Number.isInteger(desc) && desc >= REST_SEC[0] && desc <= REST_SEC[1])) problem(`${at}: "descansoSeg" precisa ser um número inteiro de ${REST_SEC[0]} a ${REST_SEC[1]}`)
+    const obs = str(x.obs)
+    return { nome, series, reps, ...(carga != null && { cargaKg: carga }), ...(desc != null && { descansoSeg: desc }), ...(obs && { obs }) }
+  })
+  return { letra, nome, exercicios }
+}
+
 export const parsePlanFormat = (text: string): PumpPlano => readHalf(text, 'treinos', PLAN_NOT_FOUND, (raw, ignoredDiet) => {
   const problems = headerProblems(raw)
   const list = Array.isArray(raw.treinos) ? raw.treinos : []
   if (list.length === 0) problems.push('"treinos" precisa ter pelo menos um treino')
-
   const seen = new Set<string>()
-  const treinos = list.map((t: unknown, n): PumpTreino => {
-    const o = isObj(t) ? t : {}
-    const letra = str(o.letra)
-    const id = letra || String(n + 1)
-    const tag = `Treino ${id}`
-    if (!letra) problems.push(`Treino ${n + 1}: "letra" vazia`)
-    else if (seen.has(letra)) problems.push(`${tag}: "letra" repetida`)
-    seen.add(letra)
-    const nome = str(o.nome)
-    if (!nome) problems.push(`${tag}: "nome" vazio`)
-    const exs = Array.isArray(o.exercicios) ? o.exercicios : []
-    if (exs.length === 0) problems.push(`${tag}: precisa ter pelo menos um exercício`)
-    const exercicios = exs.map((e: unknown, i): PumpExercicio => {
-      const x = isObj(e) ? e : {}
-      const at = `${tag}, exercício ${i + 1}`
-      const nome = str(x.nome)
-      if (!nome) problems.push(`${at}: "nome" vazio`)
-      const series = x.series as number
-      if (!Number.isInteger(series) || series < SETS[0] || series > SETS[1]) problems.push(`${at}: "series" precisa ser um número inteiro de ${SETS[0]} a ${SETS[1]}`)
-      const reps = typeof x.reps === 'number' ? String(x.reps) : str(x.reps)
-      if (!reps) problems.push(`${at}: "reps" vazio`)
-      const carga = x.cargaKg as number | undefined
-      if (carga != null && !(Number.isFinite(carga) && carga >= KG[0] && carga <= KG[1])) problems.push(`${at}: "cargaKg" precisa ser um número de ${KG[0]} a ${KG[1]}`)
-      const desc = x.descansoSeg as number | undefined
-      if (desc != null && !(Number.isInteger(desc) && desc >= REST_SEC[0] && desc <= REST_SEC[1])) problems.push(`${at}: "descansoSeg" precisa ser um número inteiro de ${REST_SEC[0]} a ${REST_SEC[1]}`)
-      const obs = str(x.obs)
-      return { nome, series, reps, ...(carga != null && { cargaKg: carga }), ...(desc != null && { descansoSeg: desc }), ...(obs && { obs }) }
-    })
-    return { letra, nome, exercicios }
-  })
-
+  const treinos = list.map((t: unknown, n) => parseTreino(t, n, seen, (text) => problems.push(text)))
   if (problems.length) throw new FormatError(problems)
   return { treinos, ignoredDiet }
 })
@@ -55,20 +59,20 @@ export const parsePlanFormat = (text: string): PumpPlano => readHalf(text, 'trei
 // a lista do catálogo traz "nome (equipamento)": só aceita o nome sem o parêntese final se ele for o equipamento do exercício achado
 // (só do catálogo: um exercício seu com o mesmo nome base não pode esconder a variante)
 function withEquipment(nome: string, catalog: Map<string, Exercise>): Exercise | undefined {
-  const m = /^(.*?)\s*\(([^()]*)\)\s*$/.exec(nome)
-  const e = m && catalog.get(normalize(m[1]))
-  return e && normalize(e.equipment) === normalize(m[2]) ? e : undefined
+  const { name, equipment } = splitExerciseLine(nome)
+  const e = catalog.get(normalize(name))
+  return e && equipment !== undefined && normalize(e.equipment) === normalize(equipment) ? e : undefined
 }
 
 export function planFromFormat(
   f: PumpPlano,
-  catalog: Exercise[],
+  catalog: Exercise[] | null,
   customs: CustomExercise[],
-): { plan: WorkoutPlan; newCustoms: CustomExercise[]; ignoredDiet: boolean } {
+): { plan: WorkoutPlan; newCustoms: CustomExercise[]; offline: boolean; ignoredDiet: boolean } {
   const known = new Map<string, Exercise | CustomExercise>()
   const fromCatalog = new Map<string, Exercise>()
-  for (const e of catalog) if (!fromCatalog.has(normalize(e.name))) fromCatalog.set(normalize(e.name), e)
-  for (const e of [...customs, ...catalog]) if (!known.has(normalize(e.name))) known.set(normalize(e.name), e)
+  for (const e of catalog ?? []) if (!fromCatalog.has(normalize(e.name))) fromCatalog.set(normalize(e.name), e)
+  for (const e of [...customs, ...catalog ?? []]) if (!known.has(normalize(e.name))) known.set(normalize(e.name), e)
   const newCustoms: CustomExercise[] = []
 
   const plan: WorkoutPlan = {
@@ -95,22 +99,37 @@ export function planFromFormat(
       }),
     })),
   }
-  return { plan, newCustoms, ignoredDiet: f.ignoredDiet }
+  // sem catálogo tudo vira "próprio": guardar esses em customExercises esconderia o exercício do catálogo nas próximas importações
+  const offline = catalog === null
+  return { plan, newCustoms: offline ? [] : newCustoms, offline, ignoredDiet: f.ignoredDiet }
 }
 
-export function exportPlanFormat(plan: WorkoutPlan): string {
-  return writeEnvelope({
-    treinos: plan.workouts.map((w) => ({
-      letra: w.label,
-      nome: w.name,
-      exercicios: w.exercises.map((e) => ({
-        nome: e.name,
-        series: e.sets,
-        reps: e.reps,
-        cargaKg: e.weightKg,
-        descansoSeg: e.restSec,
-        ...(e.note && { obs: e.note }),
-      })),
-    })),
-  })
+const encodeTreino = (w: Workout): PumpTreino => ({
+  letra: w.label,
+  nome: w.name,
+  exercicios: w.exercises.map((e) => ({
+    nome: e.name,
+    series: e.sets,
+    reps: e.reps,
+    cargaKg: e.weightKg,
+    descansoSeg: e.restSec,
+    ...(e.note && { obs: e.note }),
+  })),
+})
+
+export const exportPlanFormat = (plan: WorkoutPlan): string => writeEnvelope({ treinos: plan.workouts.map(encodeTreino) })
+
+/** o que o editor não deixa salvar: as mesmas regras da importação (o "Ajustar com IA" reimporta), no texto do editor */
+export function planProblem(plan: WorkoutPlan): string | undefined {
+  const seen = new Set<string>()
+  for (const [n, w] of plan.workouts.entries()) {
+    let first: string | undefined
+    parseTreino(encodeTreino(w), n, seen, (text, rule, i = 0) => {
+      first ??= rule === 'name' ? `Treino ${w.label}: dê um nome ao treino`
+        : rule === 'empty' ? `Treino ${w.label}: adicione pelo menos um exercício`
+        : rule === 'reps' ? `Treino ${w.label}, ${w.exercises[i].name}: preencha as repetições`
+        : text
+    })
+    if (first) return first
+  }
 }

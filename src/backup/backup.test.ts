@@ -3,6 +3,12 @@ import { stored } from '../../test/store'
 import { backupDue, buildBackup, exportBackup, importBackupFile, parseBackup } from './backup'
 import { allData, replaceAll, save } from '@/storage/db'
 import { loadPhoto, savePhoto } from '@/storage/photos'
+import * as idb from 'idb-keyval'
+
+vi.mock('idb-keyval', async (orig) => {
+  const m = await orig<typeof import('idb-keyval')>()
+  return { ...m, set: vi.fn(m.set) }
+})
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -23,7 +29,7 @@ test.each([
 test('importar arquivo inválido não apaga nada', async () => {
   await save('profile', { sex: 'M', heightCm: 178 })
   await expect(importBackupFile(new File(['{lixo'], 'x.json'))).rejects.toThrow('Arquivo não é um backup válido')
-  expect(await stored('profile')).toBeDefined()
+  expect(await stored('profile')).toEqual({ sex: 'M', heightCm: 178 })
 })
 test('importar arquivo válido substitui os dados', async () => {
   await save('profile', { sex: 'M', heightCm: 178 })
@@ -56,6 +62,11 @@ test('erro ao enviar o backup vira mensagem em pt-BR', async () => {
   Object.assign(navigator, { canShare: () => true, share: vi.fn().mockRejectedValue(new TypeError('Failed to execute share')) })
   vi.spyOn(console, 'error').mockImplementation(() => {})
   await expect(exportBackup()).rejects.toThrow('Não consegui enviar o backup')
+})
+test('backup enviado mesmo se gravar a data falhar', async () => {
+  Object.assign(navigator, { canShare: () => true, share: vi.fn().mockResolvedValue(undefined) })
+  vi.mocked(idb.set).mockRejectedValueOnce(new Error('quota'))
+  await expect(exportBackup()).resolves.toBe('shared')
 })
 test('backup com dieta: ida e volta', async () => {
   const saved: Partial<UserData> = {

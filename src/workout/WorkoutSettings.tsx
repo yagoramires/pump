@@ -1,6 +1,5 @@
 import { List } from 'lucide-react'
-import { AiPlanRows, SettingsRow } from '@/components/SettingsSection'
-import type { OpenView } from '@/shell/SettingsScreen'
+import { AiPlanRows, SettingsRow, type OpenView } from '@/components/SettingsSection'
 import { PlanEditor } from './PlanEditor'
 import { PlanImport } from './PlanImport'
 import { buildAdjustPrompt } from './prompt'

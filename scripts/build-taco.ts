@@ -1,6 +1,6 @@
-import { readFileSync, writeFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import type { TacoFood } from '../src/catalog/types.ts'
-import { catalogPath, writeLists } from './build-catalog-lists.ts'
+import { catalogPath, writeCatalog, writeLists } from './build-catalog-lists.ts'
 import { TACO_JSON } from '../src/catalog/urls.ts'
 import { round1 } from '../src/lib/number.ts'
 
@@ -30,7 +30,7 @@ export function buildTaco(foodCsv: string, nutrientsCsv: string): TacoFood[] {
 
 if (import.meta.main) {
   const out = buildTaco(readFileSync('data/taco/food.csv', 'utf8'), readFileSync('data/taco/nutrients.csv', 'utf8'))
-  writeFileSync(catalogPath(TACO_JSON), JSON.stringify(out))
+  writeCatalog(TACO_JSON, JSON.stringify(out))
   console.log(`${catalogPath(TACO_JSON)} escrito (${out.length} alimentos)`)
   writeLists()
 }

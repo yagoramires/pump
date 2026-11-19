@@ -1,10 +1,10 @@
-import { ex } from '../../test/helpers'
+import { ex, problems } from '../../test/helpers'
 import type { WorkoutPlan } from './types'
 import { readFileSync } from 'node:fs'
 import { exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
 import { buildPrompt } from './prompt'
-import type { FormatError } from '@/format/envelope'
 import { normalize } from '@/lib/text'
+import { exerciseLine } from '@/catalog/exerciseLine'
 
 const ok = { formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'Peito', dias: ['seg', 'qui'], exercicios: [{ nome: 'supino reto com barra', series: 4, reps: 10, cargaKg: 40 }, { nome: 'Remada na máquina do Zé', series: 3, reps: '12', obs: 'banco 3' }] }] }
 const catalog = [ex('Supino reto com barra', { id: 'Barbell_Bench_Press_-_Medium_Grip' }), ex('Elevação lateral', { equipment: 'halter' }), ex('Abdominal tradicional (crunch)', { equipment: 'peso do corpo' })]
@@ -15,14 +15,13 @@ test('aceita JSON dentro de bloco de código da resposta da IA', () => {
 })
 test('lista todos os problemas em pt-BR, na ordem', () => {
   const bad = { formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'X', exercicios: [{ nome: '', series: 'quatro', reps: '10' }] }, { letra: 'A', nome: '', dias: [], exercicios: [] }] }
-  try { parsePlanFormat(JSON.stringify(bad)); throw new Error('não lançou') }
-  catch (e) { expect((e as FormatError).problems).toEqual([
+  expect(problems(() => parsePlanFormat(JSON.stringify(bad)))).toEqual([
     'Treino A, exercício 1: "nome" vazio',
     'Treino A, exercício 1: "series" precisa ser um número inteiro de 1 a 20',
     'Treino A: "letra" repetida',
     'Treino A: "nome" vazio',
     'Treino A: precisa ter pelo menos um exercício',
-  ]) }
+  ])
 })
 test('recusa texto sem JSON, outro formato ou versão mais nova', () => {
   expect(() => parsePlanFormat('oi')).toThrow('Não encontrei um plano em JSON no texto')
@@ -31,14 +30,12 @@ test('recusa texto sem JSON, outro formato ou versão mais nova', () => {
 })
 test('valida carga e descanso', () => {
   const t = { letra: 'A', nome: 'X', exercicios: [{ nome: 'a', series: 3, reps: '8', cargaKg: -1, descansoSeg: 1.5 }] }
-  try { parsePlanFormat(JSON.stringify({ ...ok, treinos: [t] })); throw new Error('não lançou') }
-  catch (e) { expect((e as FormatError).problems).toEqual([
+  expect(problems(() => parsePlanFormat(JSON.stringify({ ...ok, treinos: [t] })))).toEqual([
     'Treino A, exercício 1: "cargaKg" precisa ser um número de 0 a 500',
     'Treino A, exercício 1: "descansoSeg" precisa ser um número inteiro de 0 a 600',
-  ]) }
+  ])
   const over = { ...t, exercicios: [{ nome: 'a', series: 3, reps: '8', cargaKg: 501, descansoSeg: 601 }] }
-  try { parsePlanFormat(JSON.stringify({ ...ok, treinos: [over] })); throw new Error('não lançou') }
-  catch (e) { expect((e as FormatError).problems).toHaveLength(2) }
+  expect(problems(() => parsePlanFormat(JSON.stringify({ ...ok, treinos: [over] })))).toHaveLength(2)
   const edge = { ...t, exercicios: [{ nome: 'a', series: 3, reps: '8', cargaKg: 500, descansoSeg: 0 }] }
   expect(parsePlanFormat(JSON.stringify({ ...ok, treinos: [edge] })).treinos[0].exercicios[0]).toMatchObject({ cargaKg: 500, descansoSeg: 0 })
   expect(parsePlanFormat(JSON.stringify({ ...ok, treinos: [{ ...t, exercicios: [{ nome: 'a', series: 3, reps: '8' }] }] })).treinos).toHaveLength(1)
@@ -46,8 +43,7 @@ test('valida carga e descanso', () => {
 test('recusa carga infinita (1e999 no JSON)', () => {
   const t = { letra: 'A', nome: 'X', dias: ['seg'], exercicios: [{ nome: 'a', series: 3, reps: '8', cargaKg: 0 }] }
   const text = JSON.stringify({ ...ok, treinos: [t] }).replace('"cargaKg":0', '"cargaKg":1e999')
-  try { parsePlanFormat(text); throw new Error('não lançou') }
-  catch (e) { expect((e as FormatError).problems).toEqual(['Treino A, exercício 1: "cargaKg" precisa ser um número de 0 a 500']) }
+  expect(problems(() => parsePlanFormat(text))).toEqual(['Treino A, exercício 1: "cargaKg" precisa ser um número de 0 a 500'])
 })
 test('os nomes de exemplo do prompt existem no catálogo', () => {
   const names = new Set((JSON.parse(readFileSync('public/catalog/exercises.json', 'utf8')) as { name: string }[]).map((e) => normalize(e.name)))
@@ -115,4 +111,15 @@ test('"Elevação lateral (halter)" casa com o catálogo mesmo havendo um exerc�
   expect(r.newCustoms).toEqual([])
   expect(r.plan.workouts[0].exercises[0]).not.toHaveProperty('custom')
   expect(r.plan.workouts[0].exercises[0].name).toBe('Elevação lateral')
+})
+test('sem catálogo: avisa offline e não guarda como exercício seu o que só não foi achado', () => {
+  const r = planFromFormat(parsePlanFormat(JSON.stringify(ok)), null, [])
+  expect(r.offline).toBe(true)
+  expect(r.newCustoms).toEqual([])
+  expect(r.plan.workouts[0].exercises.every((e) => e.custom)).toBe(true)
+})
+test('a linha da lista do catálogo (exerciseLine) volta pro mesmo exercício', () => {
+  const exercicios = catalog.map((e) => ({ nome: exerciseLine(e), series: 3, reps: '10' }))
+  const r = planFromFormat(parsePlanFormat(JSON.stringify({ ...ok, treinos: [{ letra: 'A', nome: 'X', exercicios }] })), catalog, [])
+  expect(r.plan.workouts[0].exercises.map((e) => e.exerciseId)).toEqual(catalog.map((e) => e.id))
 })

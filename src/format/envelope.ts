@@ -12,8 +12,6 @@ export class FormatError extends Error {
   }
 }
 
-export const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
-
 function extractJson(text: string): unknown {
   const fence = text.match(/```[^\n`]*\n?([\s\S]*?)```/)
   const body = fence ? fence[1] : text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1)
@@ -24,10 +22,15 @@ function extractJson(text: string): unknown {
   }
 }
 
-type Half = 'treinos' | 'dieta'
+export type Half = 'treinos' | 'dieta'
 const ONLY: Record<Half, string> = {
   treinos: 'Este arquivo só tem treinos. Importe na aba Treino.',
   dieta: 'Este arquivo só tem dieta. Importe na aba Dieta.',
+}
+/** a revisão de uma metade avisa que a outra, ignorada, vai na outra aba */
+export const IGNORED: Record<Half, string> = {
+  treinos: 'Os treinos deste arquivo podem ser importados na aba Treino',
+  dieta: 'A dieta deste arquivo pode ser importada na aba Dieta',
 }
 
 /** cada aba lê a sua metade: a outra é ignorada (`ignored` avisa) e um arquivo só com ela aponta a outra aba.

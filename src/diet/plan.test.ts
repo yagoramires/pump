@@ -14,6 +14,12 @@ test('savePlan ordena as refeições e mantém o último cardápio se ele ainda 
   expect(savePlan({ menus: [] }, { menus: [] }).lastMenuId).toBeUndefined()
 })
 
+test('savePlan: cardápio novo de mesmo nome herda o id antigo e continua sendo o último usado', () => {
+  const out = savePlan({ menus: [{ id: 'old', name: 'B', meals: [] }], lastMenuId: 'old' }, plan)
+  expect(out.menus.map((m) => m.id)).toEqual(['A', 'old'])
+  expect(out.lastMenuId).toBe('old')
+})
+
 test('emptyMenu: uma refeição com uma opção vazia', () => {
   expect(emptyMenu(2, [emptyMeal(1)])).toMatchObject({ name: 'Cardápio 2', meals: [{ name: 'Refeição 1', time: '', options: [{ items: [] }] }] })
 })

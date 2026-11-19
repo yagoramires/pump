@@ -3,6 +3,7 @@ import { VALID, isUserKey, type Settings } from '@/schema'
 import { isObj } from '@/lib/utils'
 import { allData, readCurrent, replaceAll, save } from '@/storage/db'
 import { isPhotoKey, isPhotoValue } from '@/storage/photos'
+import { toast } from 'sonner'
 import { shareFile } from '@/lib/share'
 
 interface BackupFile { app: 'pump'; version: 1; exportedAt: string; data: Record<string, unknown> }
@@ -47,17 +48,20 @@ export const backupDue = (s: Settings, today: string): number | undefined => {
 
 export async function exportBackup(now = new Date()): Promise<'shared' | 'downloaded' | 'cancelled'> {
   const day = todayKey(now)
+  let result: Awaited<ReturnType<typeof shareFile>>
   try {
     const file = new File([JSON.stringify(buildBackup(await allData(), now))], `pump-backup-${day}.json`, { type: 'application/json' })
-    const result = await shareFile(file)
-    if (result === 'cancelled') return result
-    await save('settings', { ...(await readCurrent('settings')), lastBackupAt: day })
-    return result
+    result = await shareFile(file)
   } catch (e) {
     console.error(e)
     throw new Error('Não consegui enviar o backup. Tente de novo.', { cause: e })
   }
+  // o backup já saiu: falha ao gravar a data não é falha do envio (o save avisa pelo onStorageError)
+  if (result !== 'cancelled') await readCurrent('settings').then((s) => save('settings', { ...s, lastBackupAt: day })).catch(() => {})
+  return result
 }
+
+export const sendBackup = () => void exportBackup().catch((e: Error) => toast.error(e.message))
 
 export async function importBackupFile(file: File): Promise<void> {
   const b = parseBackup(await file.text())

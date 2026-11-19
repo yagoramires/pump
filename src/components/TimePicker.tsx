@@ -38,14 +38,13 @@ type Props = {
   /** HH:MM */
   value?: string
   onChange: (v: string | undefined) => void
-  placeholder?: string
   'aria-label'?: string
   /** mostra "Limpar" (o valor volta a `undefined`) */
   clearable?: boolean
   className?: string
 }
 
-export function TimePicker({ id, value, onChange, placeholder = '--:--', 'aria-label': ariaLabel, clearable, className }: Props) {
+export function TimePicker({ id, value, onChange, 'aria-label': ariaLabel, clearable, className }: Props) {
   const [open, setOpen] = useState(false)
   const [pendingMm, setPendingMm] = useState<string>() // minuto escolhido antes da hora: só vira valor quando a hora chegar
   const [hh, mm] = value?.match(/^(\d{2}):(\d{2})$/)?.slice(1) ?? []
@@ -56,7 +55,7 @@ export function TimePicker({ id, value, onChange, placeholder = '--:--', 'aria-l
       <PopoverTrigger asChild>
         <Button id={id} type="button" variant="outline" aria-label={ariaLabel && `${ariaLabel}: ${value || 'sem horário'}`} className={cn('w-full justify-start tabular-nums', !value && 'text-muted-foreground', className)}>
           <Clock aria-hidden="true" />
-          {value || placeholder}
+          {value || '--:--'}
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-48 p-2">

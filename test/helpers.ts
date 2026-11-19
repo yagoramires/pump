@@ -4,6 +4,7 @@ import type { Exercise, PlanExercise, Workout, WorkoutPlan } from '../src/workou
 import type { EvolutionInput } from '../src/evolution/types'
 import { PREVIEW_CACHE } from '../src/catalog/urls'
 import { DEFAULTS } from '../src/schema'
+import { FormatError } from '../src/format/envelope'
 
 export const pe = (over: Partial<PlanExercise> = {}): PlanExercise => ({
   exerciseId: 'X', name: 'X', muscles: [], images: [], instructions: [], sets: 3, reps: '10', weightKg: 0, restSec: 90, ...over,
@@ -60,4 +61,10 @@ export function setupClipboard() {
   const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
   Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
   return { user, writeText }
+}
+
+/** os problemas do FormatError que `f` lança */
+export const problems = (f: () => unknown): string[] => {
+  try { f() } catch (e) { if (e instanceof FormatError) return e.problems; throw e }
+  throw new Error('não lançou')
 }
