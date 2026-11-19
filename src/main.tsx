@@ -7,7 +7,12 @@ import { ErrorBoundary } from './shell/ErrorBoundary'
 import { Toaster } from './components/ui/sonner'
 import { registerSW } from 'virtual:pwa-register'
 
-registerSW({ immediate: true })
+registerSW({
+  immediate: true,
+  // voltar ao app não recarrega a página, então o navegador nunca procuraria versão nova sozinho
+  onRegisteredSW: (_url, r) =>
+    r && document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && r.update()),
+})
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
