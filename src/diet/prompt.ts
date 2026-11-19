@@ -175,7 +175,8 @@ export const buildDietAdjustPrompt = (plan: DietPlan): string => `Este é meu pl
 Regras:
 1. Mude só o que eu pedir. O resto fica igual, inclusive o formato e os nomes dos campos.
 2. Para alimento novo: ${listRule('Só use outro nome se nenhum da lista servir, escrevendo no mesmo padrão e sempre dizendo o preparo.')}
-3. ${COPYABLE_JSON_RULE}
+3. Os valores (kcal, proteinaG, carboG, gorduraG) são da quantidade em gramas, não por 100 g: se mudar as gramas ou incluir um alimento, recalcule esses valores.
+4. ${COPYABLE_JSON_RULE}
 
 Meu plano atual:
 \`\`\`json

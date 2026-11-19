@@ -120,6 +120,20 @@ test('substituir cardápio pede confirmação e preserva o que foi marcado hoje'
   expect(await get('dietLog')).toEqual(log)
 })
 
+test('reimportar mantém o id do cardápio de mesmo nome e a rotação', async () => {
+  await save('dietPlan', { menus: [{ id: 'old', name: 'Cardápio', meals: [{ id: 'm1', name: 'Café', time: '07:00', options: [{ id: 'o1', items: [] }] }] }], lastMenuId: 'old' })
+  resetStoreForTests()
+  const onDone = vi.fn()
+  await renderLoaded(<DietImport mode="convert" onDone={onDone} onBack={vi.fn()} />)
+  const user = await paste(json([PAO]))
+  await user.click(await screen.findByRole('button', { name: 'Usar cardápios' }))
+  await user.click(await within(await screen.findByRole('alertdialog')).findByRole('button', { name: 'Substituir' }))
+  await vi.waitFor(() => expect(onDone).toHaveBeenCalled())
+  const plan = (await get('dietPlan')) as DietPlan
+  expect(plan.menus[0].id).toBe('old')
+  expect(plan.lastMenuId).toBe('old')
+})
+
 test('uma falha na revisão é visível e dá para tentar o mesmo arquivo novamente', async () => {
   vi.mocked(fetchTaco).mockResolvedValueOnce([null as unknown as TacoFood]).mockResolvedValue(TACO)
   await renderLoaded(<DietImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
