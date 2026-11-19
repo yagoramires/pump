@@ -4,6 +4,7 @@ import type { PlanExercise } from './types'
 import { MAX_KG, SETS } from './limits'
 import { useNumberDraft } from '@/components/useNumberDraft'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 
 type Props = {
@@ -16,8 +17,7 @@ type Props = {
 }
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
-const ROUND = 'flex size-11 touch-manipulation items-center justify-center rounded-xl border border-border text-strong disabled:opacity-40'
-const FIELD = 'h-11 rounded-xl bg-surface px-3 text-center text-base font-semibold tabular-nums text-strong outline-none focus-visible:ring-2 focus-visible:ring-accent/40'
+const FIELD = 'bg-surface text-center font-semibold tabular-nums'
 const select = (e: React.FocusEvent<HTMLInputElement>) => e.currentTarget.select()
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
@@ -33,9 +33,9 @@ function Stepper({ label, text, value, step, min, max, onChange, children }: { l
   const go = (d: number) => onChange(Math.round(clamp(value + d, min, max) * 10) / 10)
   return (
     <>
-      <button type="button" className={ROUND} aria-label={`Diminuir ${label}`} disabled={value <= min} onClick={() => go(-step)}><Minus size={16} /></button>
+      <Button variant="outline" size="icon" className="touch-manipulation" aria-label={`Diminuir ${label}`} disabled={value <= min} onClick={() => go(-step)}><Minus /></Button>
       {children ?? <span className="min-w-14 text-center text-base font-semibold tabular-nums text-strong">{text}</span>}
-      <button type="button" className={ROUND} aria-label={`Aumentar ${label}`} disabled={value >= max} onClick={() => go(step)}><Plus size={16} /></button>
+      <Button variant="outline" size="icon" className="touch-manipulation" aria-label={`Aumentar ${label}`} disabled={value >= max} onClick={() => go(step)}><Plus /></Button>
     </>
   )
 }
@@ -49,32 +49,32 @@ export function ExerciseDrawer({ ex, onChange, onRemove, onMoveUp, onMoveDown, o
   return (
     <Drawer open onOpenChange={(o) => !o && onClose()}>
       <DrawerContent>
-        <div className="px-4 pb-5">
-          <div className="flex items-start justify-between gap-2 pb-2">
+        <div className="flex flex-col gap-2 px-4 pb-5">
+          <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <DrawerTitle className="text-[19px] font-semibold text-strong">{ex.name}</DrawerTitle>
-              <DrawerDescription className="mt-0.5 text-[13px] text-text-2 first-letter:uppercase">{ex.muscles.join(' · ')}</DrawerDescription>
+              <DrawerDescription className="text-[13px] text-text-2 first-letter:uppercase">{ex.muscles.join(' · ')}</DrawerDescription>
             </div>
-            <button type="button" className={`${ROUND} border-0`} aria-label="Mais ações" aria-expanded={menu} onClick={() => setMenu((m) => !m)}><MoreHorizontal size={20} /></button>
+            <Button variant="ghost" size="icon" aria-label="Mais ações" aria-expanded={menu} onClick={() => setMenu((m) => !m)}><MoreHorizontal size={20} /></Button>
           </div>
           {menu && (
-            <div className="mb-2 flex gap-2">
+            <div className="flex gap-2">
               <Button variant="outline" className="flex-1" disabled={!onMoveUp} onClick={onMoveUp}><ArrowUp /> Subir</Button>
               <Button variant="outline" className="flex-1" disabled={!onMoveDown} onClick={onMoveDown}><ArrowDown /> Descer</Button>
             </div>
           )}
           <Row label="Séries"><Stepper label="séries" value={ex.sets} text={String(ex.sets)} step={1} min={SETS[0]} max={SETS[1]} onChange={(sets) => patch({ sets })} /></Row>
           <Row label="Repetições">
-            <input className={`${FIELD} w-28`} aria-label="Repetições" value={ex.reps} onChange={(e) => patch({ reps: e.target.value })} {...inputProps} />
+            <Input className={`${FIELD} w-28`} aria-label="Repetições" value={ex.reps} onChange={(e) => patch({ reps: e.target.value })} {...inputProps} />
           </Row>
           <Row label="Carga">
             <Stepper label="carga" value={ex.weightKg} step={2.5} min={0} max={MAX_KG} onChange={(weightKg) => patch({ weightKg })}>
-            <input className={`${FIELD} w-20`} inputMode="decimal" aria-label="Carga em kg" {...inputProps} {...kg} />
+            <Input className={`${FIELD} w-20`} inputMode="decimal" aria-label="Carga em kg" {...inputProps} {...kg} />
             </Stepper>
           </Row>
           <Row label="Descanso"><Stepper label="descanso" value={ex.restSec} text={`${ex.restSec} s`} step={15} min={15} max={600} onChange={(restSec) => patch({ restSec })} /></Row>
-          <div className="mt-3 flex gap-2">
-            <Button variant="outline" className="flex-1 bg-surface text-negative hover:text-negative" onClick={onRemove}>Remover</Button>
+          <div className="flex gap-2 pt-1">
+            <Button variant="outline" className="flex-1 text-negative hover:text-negative" onClick={onRemove}>Remover</Button>
             <Button className="flex-1" onClick={onClose}>Pronto</Button>
           </div>
         </div>

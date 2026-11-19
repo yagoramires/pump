@@ -11,10 +11,11 @@ import { IconDot } from '@/components/IconDot'
 import { BackHeader } from '@/components/BackHeader'
 import { SearchField } from '@/components/SearchField'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Toggle } from '@/components/ui/toggle'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { cn } from '@/lib/utils'
 
 const MUSCLES = [...MUSCLE_GROUPS.keys()]
 
@@ -24,9 +25,9 @@ function Chips({ values, value, onChange, label }: { values: string[]; value?: s
   return (
     <div className="flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label={label}>
       {values.map((v) => (
-        <button key={v} type="button" className={cn('h-11 shrink-0 rounded-[10px] border px-3 text-[13px] whitespace-nowrap', value === v ? 'border-accent bg-accent-bg text-accent' : 'border-border text-text')} aria-pressed={value === v} onClick={() => onChange(value === v ? undefined : v)}>
+        <Toggle key={v} variant="outline" size="lg" className="h-11 shrink-0 text-[13px]" pressed={value === v} onPressedChange={() => onChange(value === v ? undefined : v)}>
           {v}
-        </button>
+        </Toggle>
       ))}
     </div>
   )
@@ -41,7 +42,7 @@ function Row({ e, mine, onPick }: { e: Exercise | CustomExercise; mine?: boolean
         <span className="block truncate text-[15px] font-semibold text-strong">{e.name}</span>
         <span className="block truncate text-[12.5px] text-text-2">{e.muscles.join(', ')}{mine ? ' · seu exercício' : ''}</span>
       </span>
-      <button type="button" className="icon-btn mr-1 bg-transparent text-accent" aria-label={`Adicionar ${e.name}`} onClick={onPick}><Plus size={18} /></button>
+      <Button variant="ghost" size="icon" className="text-accent" aria-label={`Adicionar ${e.name}`} onClick={onPick}><Plus /></Button>
     </li>
   )
 }
@@ -84,13 +85,13 @@ export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | Cust
         {shownMine.length > 0 && (
           <>
             <h2 className={LABEL}>Seus exercícios</h2>
-            <ul className="mx-4 overflow-hidden card">{shownMine.map((e) => <Row key={e.id} e={e} mine onPick={() => onPick(e)} />)}</ul>
+            <Card className="mx-4 overflow-hidden"><ul>{shownMine.map((e) => <Row key={e.id} e={e} mine onPick={() => onPick(e)} />)}</ul></Card>
           </>
         )}
         {list.length > 0 && (
           <>
             <h2 className={LABEL}>Catálogo</h2>
-            <ul className="mx-4 overflow-hidden card">{list.map((e) => <Row key={e.id} e={e} onPick={() => onPick(e)} />)}</ul>
+            <Card className="mx-4 overflow-hidden"><ul>{list.map((e) => <Row key={e.id} e={e} onPick={() => onPick(e)} />)}</ul></Card>
           </>
         )}
       </div>

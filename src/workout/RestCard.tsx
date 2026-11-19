@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Pause, Play, Timer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Chips } from '@/components/Chips'
 import { SheetBody } from '@/components/SheetRow'
@@ -49,16 +51,16 @@ export function RestCard({ endAt, pausedLeftMs, totalSec, restSec, onAdd15, onDo
   const pct = (left / Math.max(totalSec ?? initial, left)) * 100
   // em cima do botão Concluir do Treino (12px + 44px + 12px acima da barra de abas)
   return (
-    <div
+    <Card
       role="timer"
       aria-label="Descanso"
-      className="fixed bottom-[calc(var(--nav-h)+68px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) flex w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 items-center gap-2 rounded-[14px] border border-accent-line bg-surface py-1 pr-1 pl-2 shadow-[0_10px_30px_#000a]"
+      className="fixed bottom-[calc(var(--nav-h)+68px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 flex-row items-center gap-2 border-accent-line bg-surface py-1 pr-1 pl-2 shadow-lg"
     >
-      <Button variant="ghost" size="sm" aria-label="Definir tempo de descanso" className="px-1.5 text-accent" onClick={() => setPicking(true)}>
+      <Button variant="ghost" size="icon-sm" aria-label="Definir tempo de descanso" className="text-accent" onClick={() => setPicking(true)}>
         <Timer aria-hidden="true" />
       </Button>
       <b className="text-[19px] font-bold text-accent tabular-nums">{mmss(left)}</b>
-      <div className="h-1 flex-1 overflow-hidden rounded-sm bg-line"><div className="h-full bg-accent" style={{ width: `${pct}%` }} /></div>
+      <Progress value={pct} aria-label="Descanso restante" className="h-1 flex-1 bg-line" />
       <span className="text-[12px] text-text-2 tabular-nums">de {ms(restSec)}</span>
       <Button variant="outline" size="icon-sm" aria-label={paused ? 'Continuar descanso' : 'Pausar descanso'} onClick={onTogglePause}>
         {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
@@ -74,6 +76,6 @@ export function RestCard({ endAt, pausedLeftMs, totalSec, restSec, onAdd15, onDo
           </SheetBody>
         </DrawerContent>
       </Drawer>
-    </div>
+    </Card>
   )
 }

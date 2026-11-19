@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react'
 import { Check, ChevronDown, Dumbbell } from 'lucide-react'
 import type { SessionExercise } from './types'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { IconDot } from '@/components/IconDot'
 import { muscleColor } from '@/catalog/muscles'
 import { formatKg } from '@/lib/number'
@@ -15,23 +18,27 @@ export function ExerciseCard({ ex, open, onToggle, onPreview, children }: Props)
     ? [ex.muscles[0], `descanso ${ex.restSec} s`].filter(Boolean).join(' · ')
     : `${ex.sets.length} × ${ex.reps} · ${formatKg(ex.weightKg)} kg`
   return (
-    <div className={cn('mb-2.5 overflow-hidden rounded-[14px] border bg-panel', open ? 'border-accent-line' : 'border-border')}>
-      <div className="flex items-center pl-1.5 pr-3">
-        <button type="button" aria-label={`Ver ${ex.name}`} onClick={onPreview} className="flex size-11 shrink-0 items-center justify-center">
-          <IconDot color={muscleColor(ex.muscles)} size={32}><Dumbbell size={16} aria-hidden="true" /></IconDot>
-        </button>
-        <button type="button" aria-expanded={open} onClick={onToggle} className="flex min-h-14 min-w-0 flex-1 items-center gap-2 py-2.5 pl-1.5 text-left">
-          <span className="block min-w-0 flex-1">
-            <span className="block text-[15px] font-semibold break-words text-strong">{ex.name}</span>
-            <span className="mt-px block text-[13px] text-text-2 first-letter:uppercase">{sub}</span>
-          </span>
-          <span className={cn('flex shrink-0 items-center gap-1.5 text-[13px] tabular-nums', complete ? 'text-accent' : 'text-faint')}>
-            {done}/{ex.sets.length}
-            {complete ? <Check size={14} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" className={cn('transition-transform', open && 'rotate-180')} />}
-          </span>
-        </button>
-      </div>
-      {open && children}
-    </div>
+    <Collapsible asChild open={open} onOpenChange={onToggle}>
+      <Card className={cn('overflow-hidden', open && 'border-accent-line')}>
+        <div className="flex items-center pl-1.5 pr-3">
+          <Button variant="ghost" size="icon" aria-label={`Ver ${ex.name}`} onClick={onPreview}>
+            <IconDot color={muscleColor(ex.muscles)} size={32}><Dumbbell size={16} aria-hidden="true" /></IconDot>
+          </Button>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" className="h-auto min-h-14 min-w-0 flex-1 justify-start gap-2 py-2.5 pl-1.5 text-left font-normal whitespace-normal hover:bg-transparent">
+              <span className="block min-w-0 flex-1">
+                <span className="block text-[15px] font-semibold break-words text-strong">{ex.name}</span>
+                <span className="block text-[13px] text-text-2 first-letter:uppercase">{sub}</span>
+              </span>
+              <span className={cn('flex shrink-0 items-center gap-1.5 text-[13px] font-normal tabular-nums', complete ? 'text-accent' : 'text-faint')}>
+                {done}/{ex.sets.length}
+                {complete ? <Check size={14} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" className={cn('transition-transform', open && 'rotate-180')} />}
+              </span>
+            </Button>
+          </CollapsibleTrigger>
+        </div>
+        <CollapsibleContent>{children}</CollapsibleContent>
+      </Card>
+    </Collapsible>
   )
 }

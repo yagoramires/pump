@@ -426,4 +426,22 @@ describe('descanso: pausar e definir tempo', () => {
       expect((await load('workoutPlan'))?.workouts[0].exercises[0].restSec).toBe(120)
     })
   })
+  test('depois de recarregar, o tempo escolhido vai pro exercício do descanso, não pro próximo a fazer', async () => {
+    const user = userEvent.setup()
+    const { unmount } = await renderLoaded(<TreinoTab />)
+    await user.click(await screen.findByRole('button', { name: /^Remada X/ }))
+    await user.click(await screen.findByRole('button', { name: 'Série 1 de Remada X' }))
+    await user.click(screen.getByRole('button', { name: /^Supino reto/ }))
+    await user.click(await screen.findByRole('button', { name: 'Série 1 de Supino reto' }))
+    await user.click(screen.getByRole('button', { name: 'Série 2 de Supino reto' })) // supino completo: o próximo a fazer passa a ser a remada
+    await waitFor(async () => expect((await load('workoutLog'))?.['2026-11-16'].restExIdx).toBe(0))
+    unmount()
+    await renderLoaded(<TreinoTab />)
+    await user.click(await screen.findByRole('button', { name: 'Definir tempo de descanso' }))
+    await user.click(await screen.findByRole('radio', { name: '2 min' }))
+    await waitFor(async () => {
+      expect((await load('workoutLog'))?.['2026-11-16'].exercises[0].restSec).toBe(120)
+      expect((await load('workoutPlan'))?.workouts[0].exercises[0].restSec).toBe(120)
+    })
+  })
 })

@@ -18,4 +18,5 @@ export const completeSession = (s: WorkoutSession, now: Date): WorkoutSession =>
   ...s,
   completedAt: now.toISOString(),
   restEndsAt: undefined,
+  restExIdx: undefined,
 })

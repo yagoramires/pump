@@ -1,6 +1,7 @@
 import { toast } from 'sonner'
 import type { WorkoutLog, WorkoutSession } from './types'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { formatDayLabel } from '@/lib/date'
 
 type SetLog = (f: (prev: WorkoutLog) => WorkoutLog) => unknown
@@ -13,7 +14,7 @@ export function UnfinishedCard({ session, setLog }: { session: WorkoutSession; s
     setLog((prev) => {
       if (!prev[date]) return prev
       const { startedAt: _s, ...rest } = prev[date]
-      return { ...prev, [date]: { ...rest, completedAt: new Date(y, m - 1, d, 23, 59).toISOString(), restEndsAt: undefined, restPausedLeftMs: undefined } }
+      return { ...prev, [date]: { ...rest, completedAt: new Date(y, m - 1, d, 23, 59).toISOString(), restEndsAt: undefined, restPausedLeftMs: undefined, restExIdx: undefined } }
     })
     toast('Treino concluído', { action: { label: 'Desfazer', onClick: () => setLog((prev) => ({ ...prev, [date]: session })) } })
   }
@@ -22,12 +23,12 @@ export function UnfinishedCard({ session, setLog }: { session: WorkoutSession; s
     toast('Treino descartado', { action: { label: 'Desfazer', onClick: () => setLog((prev) => ({ ...prev, [date]: session })) } })
   }
   return (
-    <div className="mb-3 clear-right card p-3.5">
+    <Card className="gap-2.5 p-3.5">
       <p className="text-[14px] font-semibold text-strong">{`Treino ${session.workoutLabel} de ${formatDayLabel(date)} ficou sem concluir`}</p>
-      <div className="mt-2.5 flex gap-2">
-        <Button className="h-10 flex-1 rounded-[13px]" onClick={conclude}>Concluir</Button>
-        <Button variant="outline" className="h-10 flex-1 rounded-[13px]" onClick={discard}>Descartar</Button>
+      <div className="flex gap-2">
+        <Button className="flex-1" onClick={conclude}>Concluir</Button>
+        <Button variant="outline" className="flex-1" onClick={discard}>Descartar</Button>
       </div>
-    </div>
+    </Card>
   )
 }

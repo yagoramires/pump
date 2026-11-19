@@ -3,6 +3,8 @@ import { Check } from 'lucide-react'
 import type { SessionExercise, SetDone } from './types'
 import { formatInput, formatKg, parseInRange } from '@/lib/number'
 import { MAX_KG } from './limits'
+import { Input } from '@/components/ui/input'
+import { Toggle } from '@/components/ui/toggle'
 import { cn } from '@/lib/utils'
 
 type Draft = { kg?: string; reps?: string }
@@ -39,8 +41,7 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
     if (Object.keys(p).length) onEdit(i, p)
     clearDraft(i)
   }
-  const box = (done: boolean) =>
-    cn('h-11 w-16 rounded-lg text-center text-base font-semibold outline-none focus-visible:ring-2 focus-visible:ring-accent/40', done ? 'bg-transparent text-accent' : 'bg-surface text-strong')
+  const box = (done: boolean) => cn('mx-auto w-16 rounded-lg px-1 text-center font-semibold tabular-nums', done ? 'bg-transparent text-accent' : 'bg-surface')
   const inputProps = (i: number) => ({
     autoComplete: 'off',
     enterKeyHint: 'done' as const,
@@ -66,10 +67,10 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
           const p = prev[i]
           return (
             <tr key={i} className={cn('border-t border-line text-center', s && 'bg-accent-bg')}>
-              <td className="py-1 text-sm text-text-2">{n}</td>
-              <td className="py-1 text-[13px] text-faint">{p ? `${formatKg(p.weightKg)}×${p.reps}` : '—'}</td>
-              <td className="py-1">
-                <input
+              <td className="py-1.5 text-sm text-text-2">{n}</td>
+              <td className="py-1.5 text-[13px] text-faint">{p ? `${formatKg(p.weightKg)}×${p.reps}` : '—'}</td>
+              <td className="py-1.5">
+                <Input
                   className={box(!!s)}
                   inputMode="decimal"
                   aria-label={`Carga da série ${n} de ${ex.name}`}
@@ -78,8 +79,8 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
                   {...inputProps(i)}
                 />
               </td>
-              <td className="py-1">
-                <input
+              <td className="py-1.5">
+                <Input
                   className={box(!!s)}
                   aria-label={`Reps da série ${n} de ${ex.name}`}
                   value={drafts[i]?.reps ?? (s ? s.reps : ex.reps)}
@@ -87,12 +88,10 @@ export function SetTable({ ex, prev, onCheck, onEdit }: Props) {
                   {...inputProps(i)}
                 />
               </td>
-              <td className="py-1">
-                <button type="button" aria-label={`Série ${n} de ${ex.name}`} aria-pressed={s !== null} onClick={() => check(i)} className="inline-flex size-11 touch-manipulation items-center justify-center">
-                  <span className={cn('flex size-7 items-center justify-center rounded-lg border', s ? 'border-accent bg-accent text-on-accent' : 'border-border-strong text-transparent')}>
-                    <Check size={15} strokeWidth={3} aria-hidden="true" />
-                  </span>
-                </button>
+              <td className="py-1.5">
+                <Toggle variant="check" size="check" className="mx-auto touch-manipulation" aria-label={`Série ${n} de ${ex.name}`} pressed={s !== null} onPressedChange={() => check(i)}>
+                  <Check size={15} strokeWidth={3} aria-hidden="true" />
+                </Toggle>
               </td>
             </tr>
           )
