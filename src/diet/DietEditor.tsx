@@ -19,8 +19,8 @@ import { NumberField } from '@/components/NumberField'
 import { TimePicker } from '@/components/TimePicker'
 import { Alert } from '@/components/ui/alert'
 
-/** sem `initial`, edita e grava o plano salvo; com `initial` (rascunho do import), entrega o resultado em `onSave`, e "Apagar todos" entrega o plano vazio */
-type Props = { onCancel: () => void } & ({ onDone: () => void } | { initial: DietPlan; onSave: (plan: DietPlan) => void })
+/** sem `draft`, edita e grava o plano salvo; com `draft` (rascunho do import), só entrega o resultado em `onDone` — "Apagar todos" entrega o plano vazio */
+type Props = { draft?: DietPlan; onDone: (plan: DietPlan) => void; onCancel: () => void }
 
 const CONFIRM = {
   menu: { title: 'Apagar este cardápio?', text: 'As refeições dele saem do editor. O histórico fica.' },
@@ -41,10 +41,13 @@ const setMacro = (m: Menu, k: keyof Macros, n?: number): Menu => {
   return { ...m, goalMacros: MACRO_KEYS.some((x) => g[x]) ? g : undefined }
 }
 
-export function DietEditor(props: Props) {
+export function DietEditor({ draft, onDone, onCancel }: Props) {
   const { plan: saved, replacePlan } = useDietPlan()
-  const initial = 'initial' in props ? props.initial : saved
-  const onSave = 'onSave' in props ? props.onSave : (next: DietPlan) => { replacePlan(next); props.onDone() }
+  const initial = draft ?? saved
+  const onSave = (next: DietPlan) => {
+    if (!draft) replacePlan(next)
+    onDone(next)
+  }
   const [plan, setPlan] = useState<DietPlan>(() => (initial.menus.length ? structuredClone(initial) : { menus: [emptyMenu(1, [emptyMeal(1)])] }))
   const [menuId, setMenuId] = useState(() => currentMenu(plan)!.id)
   const [optOf, setOptOf] = useState<Record<string, number>>({})
@@ -91,7 +94,7 @@ export function DietEditor(props: Props) {
 
   return (
     <div className="flex flex-col gap-3 pb-6">
-      <BackHeader title="Cardápio" onBack={props.onCancel} label="Cancelar">
+      <BackHeader title="Cardápio" onBack={onCancel} label="Cancelar">
         <Button size="sm" onClick={save}>Salvar</Button>
       </BackHeader>
       {error && <Alert variant="destructive">{error}</Alert>}

@@ -7,10 +7,10 @@ import { FOOD_LIST } from '@/catalog/urls'
 import { HEADER } from '@/format/envelope'
 import { keepIdsByName } from '@/format/keepIds'
 import { buildDietConvertPrompt, buildDietPrompt } from './prompt'
-import { dietFromFormat, parseDietFormat } from './dietFormat'
-import { itemKcalText, macroText, matchLabel, optionLabel, portionText } from './display'
-import { planItems, preparePlan } from './plan'
-import { foodKey, kcalOf } from './food'
+import { dietFromFormat, parseDietFormat, type ItemReport } from './dietFormat'
+import { iaLabel, itemKcalText, macroText, optionLabel, portionText } from './display'
+import { mapItems, planItems, preparePlan } from './plan'
+import { foodKey, hasValues, kcalOf } from './food'
 import { useDietPlan } from './useDietPlan'
 import { DietAnamnesisForm } from './DietAnamnesisForm'
 import { DietEditor } from './DietEditor'
@@ -31,10 +31,15 @@ import { Alert } from '@/components/ui/alert'
 
 type Props = { mode: ImportMode; onDone: () => void; onBack: () => void }
 
-const replaceItem = (plan: DietPlan, id: string, next: DietItem): DietPlan => ({
-  ...plan,
-  menus: plan.menus.map((m) => ({ ...m, meals: m.meals.map((ml) => ({ ...ml, options: ml.options.map((o) => ({ ...o, items: o.items.map((i) => (i.id === id ? next : i)) })) })) })),
-})
+/** o nome que a IA mandou, e a nota de como o item casou com a TACO */
+const itemLines = (i: DietItem, r?: ItemReport): { shown: string; note?: string; warn?: boolean } => {
+  const shown = r?.match === 'words' ? r.aiName : i.name
+  if (r?.match === 'none') return { shown, note: 'sem valores — escolha na TACO', warn: true }
+  const estimate = iaLabel(i)
+  if (estimate && hasValues(i)) return { shown, note: estimate, warn: true }
+  if (shown !== i.name) return { shown, note: `na TACO: ${i.name}` }
+  return { shown }
+}
 
 export function DietImport({ mode, onDone, onBack }: Props) {
   const [profile, setProfile] = usePersisted('profile')
@@ -64,7 +69,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
     'Substituir cardápio?', 'O cardápio atual será substituído. O que você já marcou hoje continua.',
   )
 
-  if (editing && review) return <><DietEditor initial={review.plan} onSave={offer} onCancel={() => setEditing(false)} />{confirm}</>
+  if (editing && review) return <><DietEditor draft={review.plan} onDone={offer} onCancel={() => setEditing(false)} />{confirm}</>
 
   if (review) {
     const menu = review.plan.menus[tab] ?? review.plan.menus[0]
@@ -108,15 +113,13 @@ export function DietImport({ mode, onDone, onBack }: Props) {
                   </div>
                 )}
                 {o.items.map((i) => {
-                  const r = review.reports[i.id]
-                  const l = matchLabel(i, r)
-                  const shown = r?.match === 'words' ? r.aiName : i.name
+                  const { shown, note, warn } = itemLines(i, review.reports[i.id])
                   const body = (
                     <>
                       <span className="min-w-0 flex-1">
                         <span className="block text-body text-strong">{shown}</span>
                         <span className="block text-caption text-text-2">{portionText(i)}</span>
-                        {l && <span className={cn('block text-caption', l.warn ? 'text-c7' : 'text-faint')}>{l.text}</span>}
+                        {note && <span className={cn('block text-caption', warn ? 'text-c7' : 'text-faint')}>{note}</span>}
                       </span>
                       <span className="shrink-0 text-meta tabular-nums text-text-2">{itemKcalText(i)}</span>
                     </>
@@ -149,7 +152,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
             initialGrams={picking.grams}
             confirmLabel="Trocar"
             onPick={(next) => {
-              paste.setResult((r) => r && { ...r, plan: replaceItem(r.plan, picking.id, next) })
+              paste.setResult((r) => r && { ...r, plan: mapItems(r.plan, (i) => (i.id === picking.id ? next : i)) })
               setPicking(undefined)
             }}
             onClose={() => setPicking(undefined)}

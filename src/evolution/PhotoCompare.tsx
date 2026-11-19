@@ -12,9 +12,8 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/compone
 import { Overlay } from '@/components/Overlay'
 import { BackHeader } from '@/components/BackHeader'
 import { cn } from '@/lib/utils'
-import { goalDirection } from './bodyFat'
 import { Delta } from './Delta'
-import { FAT, WAIST, WEIGHT, byDate, deltaUnit, formatMetric, metricRow, metricSeries, metricUnit, pointAt } from './measurements'
+import { FAT, WAIST, WEIGHT, bodyRows, byDate, deltaUnit, formatMetric, metricUnit, pointAt } from './measurements'
 import { ANGLES } from './types'
 import { AngleTabs } from './AngleTabs'
 import { PhotoThumb } from './PhotoThumb'
@@ -44,14 +43,7 @@ export function PhotoCompare({ onClose }: { onClose: () => void }) {
   const header = <BackHeader title="Comparar" onBack={onClose} />
   if (!before || !after) return <Overlay>{header}<p className="text-sm text-text-2">Nenhuma foto ainda.</p></Overlay>
 
-  const dir = goalDirection(profile)
-  const rows = [WEIGHT, WAIST, FAT].flatMap((field) => {
-    const points = metricSeries(profile, ms, field)
-    const from = pointAt(points, before.date)
-    const to = pointAt(points, after.date)
-    if (from === undefined || to === undefined) return []
-    return [metricRow(field, dir, { date: before.date, value: from }, { date: after.date, value: to })]
-  })
+  const rows = bodyRows(profile, ms, [WEIGHT, WAIST, FAT], (points) => [pointAt(points, before.date), pointAt(points, after.date)])
 
   return (
     <Overlay>

@@ -1,6 +1,6 @@
 import { todayKey } from '@/lib/date'
 import type { Settings } from '@/schema'
-import { isObj } from '@/lib/utils'
+import { isKeyOf, isObj } from '@/lib/utils'
 import type { DietGoal, Focus, Profile } from './types'
 import { readCurrent, save } from '@/storage/db'
 import type { Measurement } from '@/evolution/types'
@@ -12,7 +12,6 @@ const DIET_OF: Partial<Record<OldGoal, DietGoal>> = { emagrecer: 'perder', hiper
 const LIFT_TRAIN = ['age', 'daysPerWeek', 'notes']
 const LIFT_DIET = ['wake', 'train', 'sleep']
 
-const isOldGoal = (g: unknown): g is OldGoal => typeof g === 'string' && Object.hasOwn(FOCUS_OF, g)
 const hasAny = (o: unknown, keys: string[]) => isObj(o) && keys.some((k) => k in o)
 
 type Migrated = Omit<StoredData, 'profile'> & { profile?: Profile }
@@ -34,7 +33,7 @@ export function migrateData(data: StoredData, today: string): Migrated {
   }
   lift(ana, LIFT_TRAIN)
   lift(diet, LIFT_DIET)
-  const trainGoal = isOldGoal(ana?.goal) ? ana.goal : undefined
+  const trainGoal = isKeyOf(FOCUS_OF, ana?.goal) ? ana.goal : undefined
   const dietGoal = diet?.goal ?? (trainGoal && DIET_OF[trainGoal])
   if (dietGoal && profile.dietGoal === undefined) profile.dietGoal = dietGoal
   if (trainGoal && profile.focus === undefined) profile.focus = FOCUS_OF[trainGoal]

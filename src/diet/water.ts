@@ -1,3 +1,4 @@
+import { omitKey } from '@/lib/utils'
 import type { WaterDay, WaterLog, WaterSettings } from './types'
 
 export const ML_PER_KG = 35
@@ -23,3 +24,4 @@ export const cupsShown = (ml: number, s: WaterSettings) => {
 
 export const waterMet = (d?: WaterDay) => !!d && d.goalMl > 0 && d.ml >= d.goalMl
 export const hasWater = (d?: WaterDay) => (d?.ml ?? 0) > 0
+export const removeWaterDay = (log: WaterLog, date: string): WaterLog => omitKey(log, date)

@@ -3,7 +3,7 @@ import { Camera, ChevronLeft, ChevronRight, Dumbbell, GlassWater, Moon, Ruler, U
 import { usePersisted } from '@/storage/db'
 import { WEEKDAY_SHORT, formatDayMonth, todayKey } from '@/lib/date'
 import { useToday } from '@/lib/useToday'
-import { formatDec, formatKg } from '@/lib/number'
+import { formatDec } from '@/lib/number'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Toggle } from '@/components/ui/toggle'
@@ -11,10 +11,12 @@ import { Overlay } from '@/components/Overlay'
 import { IconDot } from '@/components/IconDot'
 import { BackHeader } from '@/components/BackHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { cn, omitKey } from '@/lib/utils'
+import { cn } from '@/lib/utils'
+import { resetDay } from '@/diet/day'
+import { removeWaterDay } from '@/diet/water'
 import { WorkoutDayLine } from '@/workout/WorkoutDayLine'
 import { DietDayLine } from '@/diet/DietDayLine'
-import { FIELDS, removeMeasurement } from './measurements'
+import { FIELDS, formatMetric, removeMeasurement } from './measurements'
 import { ANGLES } from './types'
 import { hasPhoto, usePhotoSets } from './photoSets'
 import { dayRecords } from './dayRecords'
@@ -53,8 +55,8 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
 
   const remove = () => {
     if (!day) return
-    if (confirm === 'diet') setDiet((prev) => omitKey(prev, day))
-    if (confirm === 'water') setWater((prev) => omitKey(prev, day))
+    if (confirm === 'diet') setDiet((prev) => resetDay(prev, day))
+    if (confirm === 'water') setWater((prev) => removeWaterDay(prev, day))
     if (confirm === 'measures') setMeasures((prev) => removeMeasurement(prev, day))
     if (confirm === 'photos' && photos) removeSet(photos.id)
   }
@@ -138,7 +140,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                   <div className="min-w-0 flex-1">
                     <div className="text-body font-semibold text-strong">Medidas</div>
                     <div className="text-meta text-text-2 tabular-nums">
-                      {FIELDS.filter((f) => measure[f.key] !== undefined).map((f) => `${f.label} ${formatKg(measure[f.key]!)} ${f.unit}`).join(' · ')}
+                      {FIELDS.filter((f) => measure[f.key] !== undefined).map((f) => `${f.label} ${formatMetric(f, measure[f.key]!)} ${f.unit}`).join(' · ')}
                     </div>
                   </div>
                   <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('measures')}>Apagar medidas</Button>

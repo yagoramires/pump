@@ -18,7 +18,7 @@ afterEach(() => {
 })
 const next = (user: ReturnType<typeof userEvent.setup>) => user.click(screen.getByRole('button', { name: 'Continuar' }))
 
-test('passo 1 exige sexo e altura', async () => {
+test('passo 1 exige altura (o sexo já vem marcado)', async () => {
   const user = userEvent.setup()
   await renderLoaded(<AnamnesisFlow total={5} onDone={vi.fn()} />)
   expect(screen.getByRole('button', { name: 'Continuar' })).toBeDisabled()

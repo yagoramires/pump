@@ -2,8 +2,8 @@ import type { ReactNode } from 'react'
 import { Document, Font, Image, Page, Path, Polyline, StyleSheet, Svg, Text, View } from '@react-pdf/renderer'
 import { formatDayMonth, parseDayKey } from '@/lib/date'
 import { formatDec, formatSigned, plural } from '@/lib/number'
-import type { Metric } from '@/evolution/bodyFat'
-import { FAT, WEIGHT, deltaUnit, type BodyRow, type Field, type Point } from '@/evolution/measurements'
+import type { Metric } from '@/evolution/goal'
+import { FAT, WEIGHT, deltaUnit, metricUnit, type BodyRow, type Field, type Point } from '@/evolution/measurements'
 import { ANGLE_LABEL } from '@/evolution/types'
 import { scalePoints } from '@/evolution/chart'
 import type { Report } from '@/evolution/report'
@@ -75,12 +75,16 @@ function Big({ label, value, unit, accent, size = 57 }: { label: string; value: 
   )
 }
 
-function FromTo({ first, last, unit, digits = 0, spaced = true }: { first: number; last: number; unit: string; digits?: number; spaced?: boolean }) {
+/** no PDF, centímetro vai inteiro; kg e % com uma casa */
+const pdfDigits = (f: Field) => (f.unit === 'cm' ? 0 : 1)
+
+/** `unit` já com o espaço, como em metricUnit */
+function FromTo({ first, last, unit, digits = 0 }: { first: number; last: number; unit: string; digits?: number }) {
   return (
     <View style={s.val}>
       <Text>{formatDec(first, digits)}</Text>
       <Arrow />
-      <Text style={s.strong}>{`${formatDec(last, digits)}${spaced ? ' ' : ''}${unit}`}</Text>
+      <Text style={s.strong}>{`${formatDec(last, digits)}${unit}`}</Text>
     </View>
   )
 }
@@ -184,7 +188,7 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
             <View key={x.key} style={s.row}>
               <Text>{x.label}</Text>
               <View style={s.val}>
-                <FromTo first={x.first.value} last={x.last.value} unit={x.unit} digits={x.pdfDigits} spaced={x.spaced} />
+                <FromTo first={x.first.value} last={x.last.value} unit={metricUnit(x)} digits={pdfDigits(x)} />
                 <Text style={{ marginLeft: 11, color: x.good ? ACC : T2 }}>{formatChange(x)}</Text>
               </View>
             </View>
@@ -209,7 +213,7 @@ export function ReportDocument({ report: r, photos }: { report: Report; photos: 
           {t.topLifts.map((x, i) => (
             <View key={i} style={s.row}>
               <Text>{winAnsi(x.name)}</Text>
-              <FromTo first={x.first} last={x.max} unit="kg" />
+              <FromTo first={x.first} last={x.max} unit=" kg" />
             </View>
           ))}
           <Badges list={t.achievements} />

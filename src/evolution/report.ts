@@ -1,11 +1,10 @@
 import type { Angle, EvolutionInput, PhotoSet } from './types'
 import { daysBetween } from '@/lib/date'
 import { round1 } from '@/lib/number'
-import { completedSessions, maxLoad, sessionVolume } from '@/workout/stats'
+import { completedSessions, exerciseHistory, loadPoints, sessionVolume } from '@/workout/stats'
 import { computeAchievements, type Achievement } from './achievements'
-import { goalDirection } from './bodyFat'
-import { BODY_FIELDS, WEIGHT, byDate, metricRow, metricSeries, series, type BodyRow, type Point } from './measurements'
-import { dietStats, hasDiet, type DietStats } from './dietStats'
+import { BODY_FIELDS, WEIGHT, bodyRows, byDate, series, type BodyRow, type Point } from './measurements'
+import { dietStats, firstDietDate, hasDiet, type DietStats } from './dietStats'
 import { ANGLES } from './types'
 
 type Earned = { title: string; earnedAt: string }
@@ -24,18 +23,9 @@ export function buildReport(d: EvolutionInput, today: string): Report {
   const sessions = completedSessions(d.workoutLog)
   const ms = byDate(d.measurements)
   const sets = byDate(d.photoSets)
-  const dietDays = Object.keys(d.dietLog).sort()
-  const start = [sessions[0]?.date, ms[0]?.date, sets[0]?.date, dietDays[0], Object.keys(d.waterLog).sort()[0]].filter((x): x is string => !!x).sort()[0] ?? today
-  const dir = goalDirection(d.profile)
+  const start = [sessions[0]?.date, ms[0]?.date, sets[0]?.date, firstDietDate(d.dietLog, d.waterLog)].filter((x): x is string => !!x).sort()[0] ?? today
 
-  const weight = series(ms, WEIGHT.key)
-  const rows = BODY_FIELDS.flatMap((field) => {
-    const points = field.key === WEIGHT.key ? weight : metricSeries(d.profile, ms, field)
-    const first = points[0]
-    const last = points.at(-1)
-    return first && last ? [metricRow(field, dir, first, last)] : []
-  })
-  const body = ms.length ? { weight, rows } : null
+  const body = ms.length ? { weight: series(ms, WEIGHT.key), rows: bodyRows(d.profile, ms, BODY_FIELDS, (points) => [points[0], points.at(-1)]) } : null
 
   const [before, after] = [sets[0], sets[sets.length - 1]]
   const photoPairs = before && after && before !== after
@@ -46,16 +36,12 @@ export function buildReport(d: EvolutionInput, today: string): Report {
       })
     : []
 
-  const lifts = new Map<string, { name: string; first: number; max: number }>()
-  for (const s of sessions) {
-    for (const e of s.exercises) {
-      const kg = maxLoad(e)
-      const cur = lifts.get(e.exerciseId)
-      if (cur) cur.max = Math.max(cur.max, kg)
-      else lifts.set(e.exerciseId, { name: e.name, first: kg, max: kg })
-    }
-  }
-  const topLifts = [...lifts.values()].filter((l) => l.max > l.first).sort((a, b) => b.max - b.first - (a.max - a.first)).slice(0, 5)
+  const topLifts = [...exerciseHistory(sessions).values()].flatMap((entries) => {
+    const loads = loadPoints(entries)
+    const first = loads[0]?.value
+    const max = Math.max(...loads.map((p) => p.value))
+    return max > first ? [{ name: entries[entries.length - 1].e.name, first, max }] : []
+  }).sort((a, b) => b.max - b.first - (a.max - a.first)).slice(0, 5)
 
   const volume = sessions.reduce((a, s) => a + sessionVolume(s), 0)
   const weeks = sessions.length ? Math.max(1, (daysBetween(sessions[0].date, today) + 1) / 7) : 1
@@ -70,6 +56,6 @@ export function buildReport(d: EvolutionInput, today: string): Report {
     photoPairs,
     body,
     training: { workouts: sessions.length, perWeek: round1(sessions.length / weeks), volumeTons: round1(volume / 1000), topLifts, achievements: earned(false) },
-    diet: dietDays.length ? { ...dietStats(d.dietLog, d.waterLog, start, today), achievements: earned(true) } : null,
+    diet: Object.keys(d.dietLog).length ? { ...dietStats(d.dietLog, d.waterLog, start, today), achievements: earned(true) } : null,
   }
 }

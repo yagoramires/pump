@@ -1,4 +1,5 @@
-import { formatDayMonth, todayKey } from '@/lib/date'
+import { formatDayMonth } from '@/lib/date'
+import { useToday } from '@/lib/useToday'
 import { Overlay } from '@/components/Overlay'
 import { Badge } from '@/components/ui/badge'
 import { BackHeader } from '@/components/BackHeader'
@@ -8,7 +9,8 @@ import { AchievementIcon } from './AchievementIcon'
 import { useEvolution } from './useEvolution'
 
 export function AchievementsScreen({ onClose }: { onClose: () => void }) {
-  const list = computeAchievements(useEvolution(), todayKey())
+  const { today } = useToday()
+  const list = computeAchievements(useEvolution(), today)
 
   return (
     <Overlay>

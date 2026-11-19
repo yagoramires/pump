@@ -8,20 +8,19 @@ import { Steps } from '@/components/Steps'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { DayZero } from './DayZero'
-import { hasProfile } from './profile'
+import { ANAMNESIS_STEPS, ANAMNESIS_TITLES, hasProfile } from './profile'
 import { useProfileDraft } from './useProfileDraft'
 
-const TITLES = ['Sobre você', 'Objetivos', 'Dia zero']
-export const ANAMNESIS_STEPS = TITLES.length
-
-export function AnamnesisFlow({ resumeAtDayZero, total, onDone, onCancel, footer }: { resumeAtDayZero?: boolean; total: number; onDone: () => void; onCancel?: () => void; footer?: ReactNode }) {
+/** `total`: passos do fluxo em volta (o onboarding soma treino e dieta); sem `onCancel`, o 1º passo não tem voltar */
+export function AnamnesisFlow({ resumeAtDayZero, total = ANAMNESIS_STEPS, onDone, onCancel, footer }: { resumeAtDayZero?: boolean; total?: number; onDone: () => void; onCancel?: () => void; footer?: ReactNode }) {
   const [today, setToday] = useState(todayKey)
   const { draft, setDraft, day, setDay, saveDraft } = useProfileDraft(today)
   const [step, setStep] = useState(resumeAtDayZero ? ANAMNESIS_STEPS - 1 : 0)
-  const title = TITLES[step]
+  const title = ANAMNESIS_TITLES[step]
+  const canGoBack = step > 0 || !!onCancel
   return (
     <div className="flex flex-col gap-4 pb-20">
-      {step === 0 && !onCancel ? (
+      {!canGoBack ? (
         <div className="flex flex-col gap-3">
           <Steps n={1} total={total} />
           <h1 className="text-display font-bold tracking-tight text-strong">{title}</h1>

@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { todayKey } from '@/lib/date'
 import { usePersisted } from '@/storage/db'
-import { ANAMNESIS_STEPS } from './AnamnesisFlow'
+import { ANAMNESIS_STEPS } from './profile'
 
 export function AnamnesisCard({ onStart }: { onStart: () => void }) {
   const [settings, setSettings] = usePersisted('settings')

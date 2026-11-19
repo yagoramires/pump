@@ -2,10 +2,10 @@ import type { EvolutionInput } from './types'
 import { addDays, eachDay, weekStart, weekday } from '@/lib/date'
 import { formatKg } from '@/lib/number'
 import { dayStatus } from '@/diet/day'
-import { completedSessions, maxLoad } from '@/workout/stats'
+import { completedSessions, exerciseHistory, loadPoints } from '@/workout/stats'
 import { waterMet } from '@/diet/water'
-import { goalDirection } from './bodyFat'
-import { byDate, fatSeries, series } from './measurements'
+import { goalDirection } from './goal'
+import { WEIGHT, byDate, fatSeries, series } from './measurements'
 import { hasDiet } from './dietStats'
 import { hasPhoto } from './photoSets'
 
@@ -13,7 +13,10 @@ export type AchievementId = 'first-workout' | 'streak-3' | 'streak-7' | 'streak-
 /** `diet`: só aparece (e só conta no "de N") com cardápio ou dia de dieta (§167) */
 export interface Achievement { id: AchievementId; title: string; earnedAt?: string; progress?: string; diet?: true }
 
-const WEIGHT_BADGES = { loss: [[1, '−1 kg'], [5, '−5 kg']], gain: [[1, '+1 kg'], [3, '+3 kg']] } as const
+const WEIGHT_BADGES = {
+  loss: [['weight-small', 1, '−1 kg'], ['weight-big', 5, '−5 kg']],
+  gain: [['weight-small', 1, '+1 kg'], ['weight-big', 3, '+3 kg']],
+} as const
 
 const EPS = 1e-9
 
@@ -52,24 +55,15 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
   }
   const streakAt = (n: number) => [...reached].find(([c]) => c >= n)?.[1]
 
-  const max = new Map<string, number>()
-  let record: string | undefined
-  for (const s of sessions) {
-    const sessionMax = new Map<string, number>()
-    for (const e of s.exercises) {
-      const kg = maxLoad(e)
-      sessionMax.set(e.exerciseId, Math.max(kg, sessionMax.get(e.exerciseId) ?? 0))
-    }
-    for (const [id, kg] of sessionMax) {
-      const prev = max.get(id)
-      if (prev !== undefined && kg > prev && !record) record = s.date
-      max.set(id, Math.max(kg, prev ?? 0))
-    }
-  }
+  // 1º dia em que algum exercício passou da maior carga que já tinha
+  const record = [...exerciseHistory(sessions).values()].flatMap((entries) => {
+    const loads = loadPoints(entries)
+    return loads.find((p, i) => i > 0 && p.value > Math.max(...loads.slice(0, i).map((x) => x.value)))?.date ?? []
+  }).sort()[0]
 
   const dir = goalDirection(d.profile)
   const sign = dir === 'gain' ? -1 : 1
-  const weights = series(d.measurements, 'weightKg')
+  const weights = series(d.measurements, WEIGHT.key)
   const w0 = weights[0]?.value
   const wDelta = (w: number) => (w0 === undefined ? 0 : (w0 - w) * sign)
   const weightAt = (n: number) => weights.find((m) => wDelta(m.value) >= n - EPS)?.date
@@ -96,7 +90,7 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
     mk('workouts-100', '100 treinos', total(100), left(100, sessions.length)),
     mk('record', 'Recorde de carga', record),
     mk('first-photo', 'Primeira foto', byDate(d.photoSets.filter(hasPhoto))[0]?.date),
-    ...(dir ? WEIGHT_BADGES[dir].map(([n, title], i) => mk(i ? 'weight-big' : 'weight-small', title, weightAt(n), leftKg(n))) : []),
+    ...(dir ? WEIGHT_BADGES[dir].map(([id, n, title]) => mk(id, title, weightAt(n), leftKg(n))) : []),
     mk('fat-1', '−1 ponto de gordura', fatAt),
     { ...mk('diet-day', 'Dia no plano', diet.first), diet: true },
     { ...mk('diet-7', '7 dias na dieta', diet.seven, left(7, diet.n)), diet: true },

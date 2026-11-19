@@ -1,26 +1,25 @@
 import { GROUPS, muscleGroup } from '@/catalog/muscles'
-import { daysBetween } from '@/lib/date'
-import { isCardio, isTimed, repsNumber } from '@/workout/reps'
-import { hasMarkedSet, markedSets } from '@/workout/session'
-import { completedSessions, exerciseVolume, maxLoad } from '@/workout/stats'
+import { repsNumber } from '@/workout/reps'
+import { markedSets } from '@/workout/session'
+import { completedSessions, exerciseHistory, exerciseVolume, loadPoints, maxLoad } from '@/workout/stats'
 import type { SessionExercise, SetDone, WorkoutLog } from '@/workout/types'
 import type { Point } from './measurements'
+import { inPeriod, type Period } from './chart'
 
-export type LoadPeriod = '30' | '90' | 'all'
-export type LoadMode = 'load' | 'reps'
+type LoadMode = 'load' | 'reps'
+export const MODE_TEXT = {
+  load: { unit: 'kg', top: 'Carga máx.', total: 'Volume' },
+  reps: { unit: 'reps', top: 'Máx. reps', total: 'Total de reps' },
+} as const satisfies Record<LoadMode, unknown>
 export interface Measure { last: number; delta?: number }
 export interface LoadRow { exerciseId: string; name: string; mode: LoadMode; sessions: number; top: Measure; total: Measure }
-export interface LoadGroup { token: string; label: string; rows: LoadRow[] }
 export interface Tally { up: number; down: number; same: number }
-export interface LoadsSummary { top: Tally; total: Tally; groups: LoadGroup[] }
-export interface ExerciseLoads extends LoadRow {
+interface ExerciseLoads extends LoadRow {
   group: { token: string; label: string }
   topPoints: Point[]
   totalPoints: Point[]
   history: { date: string; sets: SetDone[] }[]
 }
-
-interface Calc extends ExerciseLoads { muscles: string[] }
 
 const measure = (points: Point[]): Measure => ({
   last: points[points.length - 1].value,
@@ -29,33 +28,24 @@ const measure = (points: Point[]): Measure => ({
 
 const repsOf = (e: SessionExercise) => markedSets(e).map((s) => repsNumber(s.reps))
 
-function calcAll(log: WorkoutLog, period: LoadPeriod, today: string): Calc[] {
-  const byId = new Map<string, { date: string; e: SessionExercise }[]>()
-  for (const s of completedSessions(log)) {
-    if (period !== 'all' && daysBetween(s.date, today) > Number(period)) continue
-    const seen = new Set<string>()
-    for (const e of s.exercises) {
-      if (!hasMarkedSet(e) || seen.has(e.exerciseId)) continue
-      seen.add(e.exerciseId)
-      byId.set(e.exerciseId, [...(byId.get(e.exerciseId) ?? []), { date: s.date, e }])
-    }
-  }
-  return [...byId].flatMap(([exerciseId, entries]) => {
+function calcAll(log: WorkoutLog, period: Period, today: string): ExerciseLoads[] {
+  const history = exerciseHistory(completedSessions(log).filter((s) => inPeriod(period, s.date, today)))
+  return [...history].map(([exerciseId, entries]) => {
     const latest = entries[entries.length - 1].e
-    if (isCardio(latest) || isTimed(latest.reps)) return []
-    const mode: LoadMode = entries.every(({ e }) => maxLoad(e) === 0) ? 'reps' : 'load'
+    const loads = loadPoints(entries)
+    const mode: LoadMode = loads.length ? 'load' : 'reps'
     const counted = mode === 'load' ? entries.filter(({ e }) => maxLoad(e) > 0) : entries
     const pts = (f: (e: SessionExercise) => number): Point[] => counted.map(({ date, e }) => ({ date, value: f(e) }))
-    const topPoints = pts(mode === 'load' ? maxLoad : (e) => Math.max(...repsOf(e)))
+    const topPoints = mode === 'load' ? loads : pts((e) => Math.max(...repsOf(e)))
     const totalPoints = pts(mode === 'load' ? exerciseVolume : (e) => repsOf(e).reduce((a, n) => a + n, 0))
     const token = muscleGroup(latest.muscles)
-    return [{
-      exerciseId, name: latest.name, muscles: latest.muscles, mode, sessions: counted.length,
+    return {
+      exerciseId, name: latest.name, mode, sessions: counted.length,
       top: measure(topPoints), total: measure(totalPoints),
       group: GROUPS.find((g) => g.token === token) ?? GROUPS[GROUPS.length - 1],
       topPoints, totalPoints,
       history: entries.map(({ date, e }) => ({ date, sets: markedSets(e) })).reverse(),
-    }]
+    }
   })
 }
 
@@ -65,7 +55,7 @@ const tally = (rows: LoadRow[], key: 'top' | 'total'): Tally => {
   return t
 }
 
-export function loadsSummary(log: WorkoutLog, period: LoadPeriod, today: string): LoadsSummary {
+export function loadsSummary(log: WorkoutLog, period: Period, today: string) {
   const all = calcAll(log, period, today)
   const groups = GROUPS.map(({ token, label }) => ({
     token, label,
@@ -77,9 +67,5 @@ export function loadsSummary(log: WorkoutLog, period: LoadPeriod, today: string)
   return { top: tally(rows, 'top'), total: tally(rows, 'total'), groups }
 }
 
-export function exerciseLoads(log: WorkoutLog, exerciseId: string, period: LoadPeriod, today: string): ExerciseLoads | undefined {
-  const c = calcAll(log, period, today).find((x) => x.exerciseId === exerciseId)
-  if (!c) return undefined
-  const { muscles: _m, ...rest } = c
-  return rest
-}
+export const exerciseLoads = (log: WorkoutLog, exerciseId: string, period: Period, today: string): ExerciseLoads | undefined =>
+  calcAll(log, period, today).find((x) => x.exerciseId === exerciseId)

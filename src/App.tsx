@@ -22,6 +22,7 @@ import { OpenSettingsContext } from '@/components/openSettings'
 import { migrateOnBoot } from '@/profile/migrate'
 import type { Tab } from './schema'
 import { Alert } from '@/components/ui/alert'
+import { isKeyOf } from '@/lib/utils'
 
 // dieta fora do chunk principal (orçamento de bundle); continua no precache
 const DietTab = lazy(() => import('@/diet/DietTab').then((m) => ({ default: m.DietTab })))
@@ -63,7 +64,7 @@ function Shell() {
   if (!settings.onboardingDone) return <>{banner}<PreviewSync /><main className="mx-auto max-w-md px-4 pt-(--main-pt) pb-(--main-pb)"><Onboarding /></main></>
 
   const tab = settings.lastTab
-  const screen = Object.prototype.hasOwnProperty.call(TAB_SCREENS, tab) ? TAB_SCREENS[tab] : TAB_SCREENS.dieta
+  const screen = isKeyOf(TAB_SCREENS, tab) ? TAB_SCREENS[tab] : TAB_SCREENS.dieta
   const backupDays = backupDue(settings, todayKey())
   return (
     <>

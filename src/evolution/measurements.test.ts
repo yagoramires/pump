@@ -26,8 +26,8 @@ test('series, fatSeries e pointAt', () => {
   const l = [{ id: 'c', date: '2026-11-17', weightKg: 78.4, neckCm: 38, waistCm: 85 }, { id: 'a', date: '2026-11-01', weightKg: 80 }, { id: 'b', date: '2026-11-10', waistCm: 84 }]
   const w = series(l, 'weightKg')
   expect(w).toEqual([{ date: '2026-11-01', value: 80 }, { date: '2026-11-17', value: 78.4 }])
-  expect(pointAt(w, '2026-11-12')).toBe(80)
-  expect(pointAt(w, '2026-10-01')).toBe(80)
+  expect(pointAt(w, '2026-11-12')).toEqual({ date: '2026-11-12', value: 80 })
+  expect(pointAt(w, '2026-10-01')).toEqual({ date: '2026-10-01', value: 80 })
   expect(pointAt([], '2026-11-12')).toBeUndefined()
   expect(fatSeries({ sex: 'M', heightCm: 178 }, l)).toEqual([{ date: '2026-11-17', value: 18.4 }])
 })

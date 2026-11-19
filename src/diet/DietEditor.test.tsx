@@ -34,7 +34,7 @@ test('do zero abre com uma refeição; Salvar entrega o plano e Apagar todos ent
   await seedStore({ foods: [shake] })
   const onSave = vi.fn()
   const user = setup()
-  const { unmount } = await renderLoaded(<DietEditor initial={DEFAULTS.dietPlan} onSave={onSave} onCancel={vi.fn()} />)
+  const { unmount } = await renderLoaded(<DietEditor draft={DEFAULTS.dietPlan} onDone={onSave} onCancel={vi.fn()} />)
   const name = await screen.findByRole('textbox', { name: 'Nome da refeição 1' })
   expect(name).toHaveValue('Refeição 1')
   await user.clear(name)
@@ -55,7 +55,7 @@ test('do zero abre com uma refeição; Salvar entrega o plano e Apagar todos ent
 
   unmount()
   onSave.mockClear()
-  await renderLoaded(<DietEditor initial={plan()} onSave={onSave} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor draft={plan()} onDone={onSave} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Apagar todos os cardápios' }))
   await user.click(await screen.findByRole('button', { name: 'Apagar' }))
   expect(onSave).toHaveBeenCalledWith(DEFAULTS.dietPlan)
@@ -64,7 +64,7 @@ test('do zero abre com uma refeição; Salvar entrega o plano e Apagar todos ent
 test('DietEditor exige horário HH:MM pra salvar', async () => {
   const onSave = vi.fn()
   const user = setup()
-  await renderLoaded(<DietEditor initial={plan('')} onSave={onSave} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor draft={plan('')} onDone={onSave} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Salvar' }))
   expect(screen.getByRole('alert')).toHaveTextContent('Dia de treino: preencha nome e horário (HH:MM) de cada refeição')
   expect(onSave).not.toHaveBeenCalled()
@@ -78,7 +78,7 @@ test('DietEditor duplica e apaga cardápios e edita opções', async () => {
   await seedStore({ foods: [shake] })
   const onSave = vi.fn()
   const user = setup()
-  await renderLoaded(<DietEditor initial={plan()} onSave={onSave} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor draft={plan()} onDone={onSave} onCancel={vi.fn()} />)
   expect(await screen.findByRole('textbox', { name: 'Nome do cardápio' })).toHaveValue('Descanso')
   await user.click(screen.getByRole('button', { name: 'Dia de treino' }))
   await user.click(screen.getByRole('button', { name: 'Duplicar cardápio' }))
@@ -114,7 +114,7 @@ test('DietEditor duplica e apaga cardápios e edita opções', async () => {
 })
 
 test('DietEditor não apaga o último cardápio', async () => {
-  await renderLoaded(<DietEditor initial={{ menus: [plan().menus[0]] }} onSave={vi.fn()} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor draft={{ menus: [plan().menus[0]] }} onDone={vi.fn()} onCancel={vi.fn()} />)
   expect(await screen.findByRole('button', { name: 'Apagar cardápio' })).toBeDisabled()
 })
 
@@ -127,7 +127,7 @@ test('DietEditor recusa opção vazia e meta fora da faixa; Salvar apara os text
       meals: [{ id: 'm1', name: ' Café ', time: '07:00', options: [{ id: 'o1', name: '  ', items: [{ ...pao, portion: ' 1 un ' }] }, { id: 'o2', items: [] }] }],
     }],
   }
-  await renderLoaded(<DietEditor initial={initial} onSave={onSave} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor draft={initial} onDone={onSave} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Salvar' }))
   expect(screen.getByRole('alert')).toHaveTextContent('Dia de treino: cada opção precisa de ao menos 1 alimento')
   await user.click(screen.getByRole('button', { name: 'Opção B' }))
@@ -149,7 +149,7 @@ test('DietEditor recusa opção vazia e meta fora da faixa; Salvar apara os text
 
 test('DietEditor trava novos cardápios no limite do formato', async () => {
   const five = Array.from({ length: 5 }, (_, i) => ({ ...plan().menus[0], id: `M${i}`, name: `C${i}` }))
-  await renderLoaded(<DietEditor initial={{ menus: five }} onSave={vi.fn()} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor draft={{ menus: five }} onDone={vi.fn()} onCancel={vi.fn()} />)
   expect(await screen.findByRole('button', { name: 'Novo cardápio' })).toBeDisabled()
   expect(screen.getByRole('button', { name: 'Duplicar cardápio' })).toBeDisabled()
 })
@@ -157,7 +157,7 @@ test('DietEditor trava novos cardápios no limite do formato', async () => {
 test('metas fora da faixa do formato marcam o campo e não entram no plano', async () => {
   const onSave = vi.fn()
   const user = setup()
-  await renderLoaded(<DietEditor initial={plan()} onSave={onSave} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor draft={plan()} onDone={onSave} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Dia de treino' }))
   const kcal = screen.getByRole('textbox', { name: 'Meta diária em kcal' })
   await user.tripleClick(kcal)
@@ -175,7 +175,7 @@ test('metas fora da faixa do formato marcam o campo e não entram no plano', asy
 test('B8: 0 g marca o campo como inválido e não entra no plano (antes sumia calado)', async () => {
   const onSave = vi.fn()
   const user = setup()
-  await renderLoaded(<DietEditor initial={plan()} onSave={onSave} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor draft={plan()} onDone={onSave} onCancel={vi.fn()} />)
   await user.click(screen.getByRole('button', { name: 'Dia de treino' }))
   const grams = screen.getByRole('textbox', { name: 'Gramas de Pão francês' })
   await user.clear(grams)
@@ -187,7 +187,7 @@ test('B8: 0 g marca o campo como inválido e não entra no plano (antes sumia ca
 
 test('trocar de cardápio mostra a meta do outro, e voltar mostra a do primeiro', async () => {
   const user = setup()
-  await renderLoaded(<DietEditor initial={plan()} onSave={vi.fn()} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor draft={plan()} onDone={vi.fn()} onCancel={vi.fn()} />)
   const kcal = () => screen.getByRole('textbox', { name: 'Meta diária em kcal' })
   await user.click(screen.getByRole('button', { name: 'Dia de treino' }))
   expect(kcal()).toHaveValue('2000')
@@ -202,7 +202,7 @@ test('pede correção de uma meta fracionária legada antes de salvar', async ()
   initial.menus[0].goalKcal = 2000.5
   const onSave = vi.fn()
   const user = setup()
-  await renderLoaded(<DietEditor initial={initial} onSave={onSave} onCancel={vi.fn()} />)
+  await renderLoaded(<DietEditor draft={initial} onDone={onSave} onCancel={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: 'Salvar' }))
   expect(screen.getByRole('alert')).toHaveTextContent('Dia de treino: informe a meta em kcal inteiras')
   expect(onSave).not.toHaveBeenCalled()

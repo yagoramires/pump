@@ -1,25 +1,27 @@
 import type { Profile } from '@/profile/types'
 import type { MeasureFields, Measurement } from './types'
-import { formatDec, formatKg, round1 } from '@/lib/number'
-import { bodyFat, isGood, type GoalDirection, type Metric } from './bodyFat'
+import { round1 } from '@/lib/number'
+import { bodyFat } from './bodyFat'
+import { goalDirection, isGood, type GoalDirection, type Metric } from './goal'
 
 export type Point = { date: string; value: number }
 type Key = keyof MeasureFields
-export interface Field { key: Metric; label: string; unit: string; pdfDigits: number; spaced?: false; deltaUnit?: string }
+/** `digits`: casas decimais no máximo (padrão 2) */
+export interface Field { key: Metric; label: string; unit: string; digits?: number; deltaUnit?: string }
 export interface BodyRow extends Field { first: Point; last: Point; delta?: number; good: boolean }
 
-export const WEIGHT = { key: 'weightKg', label: 'Peso', unit: 'kg', pdfDigits: 1 } satisfies Field & { key: Key }
-export const WAIST = { key: 'waistCm', label: 'Cintura', unit: 'cm', pdfDigits: 0 } satisfies Field & { key: Key }
+export const WEIGHT = { key: 'weightKg', label: 'Peso', unit: 'kg' } satisfies Field & { key: Key }
+export const WAIST = { key: 'waistCm', label: 'Cintura', unit: 'cm' } satisfies Field & { key: Key }
 const CM_FIELDS: (Field & { key: Key })[] = [
-  { key: 'neckCm', label: 'Pescoço', unit: 'cm', pdfDigits: 0 },
+  { key: 'neckCm', label: 'Pescoço', unit: 'cm' },
   WAIST,
-  { key: 'hipCm', label: 'Quadril', unit: 'cm', pdfDigits: 0 },
-  { key: 'armCm', label: 'Braço', unit: 'cm', pdfDigits: 0 },
-  { key: 'chestCm', label: 'Peito', unit: 'cm', pdfDigits: 0 },
-  { key: 'thighCm', label: 'Coxa', unit: 'cm', pdfDigits: 0 },
+  { key: 'hipCm', label: 'Quadril', unit: 'cm' },
+  { key: 'armCm', label: 'Braço', unit: 'cm' },
+  { key: 'chestCm', label: 'Peito', unit: 'cm' },
+  { key: 'thighCm', label: 'Coxa', unit: 'cm' },
 ]
 export const FIELDS = [WEIGHT, ...CM_FIELDS]
-export const FAT = { key: 'fat', label: 'Gordura', unit: '%', pdfDigits: 1, spaced: false, deltaUnit: 'pt' } satisfies Field
+export const FAT = { key: 'fat', label: 'Gordura', unit: '%', digits: 1, deltaUnit: 'pt' } satisfies Field
 
 export const BODY_FIELDS: Field[] = [WEIGHT, FAT, ...CM_FIELDS]
 
@@ -49,18 +51,31 @@ export const fatSeries = (p: Profile, ms: Measurement[]): Point[] =>
 
 export const latestWeight = (ms: Measurement[]): number | undefined => series(ms, WEIGHT.key).at(-1)?.value
 
-export const pointAt = (points: Point[], date: string) => (points.filter((p) => p.date <= date).pop() ?? points[0])?.value
+/** o valor vigente na data (o primeiro, se a data é anterior a tudo), datado com ela */
+export const pointAt = (points: Point[], date: string): Point | undefined => {
+  const p = points.filter((x) => x.date <= date).pop() ?? points[0]
+  return p && { date, value: p.value }
+}
 
-export const metricSeries = (p: Profile, ms: Measurement[], { key }: Field): Point[] =>
+const metricSeries = (p: Profile, ms: Measurement[], { key }: Field): Point[] =>
   key === FAT.key ? fatSeries(p, ms) : series(ms, key)
 
-export function metricRow(field: Field, direction: GoalDirection, first: Point, last: Point): BodyRow {
+function metricRow(field: Field, direction: GoalDirection, first: Point, last: Point): BodyRow {
   const delta = first.date !== last.date ? round1(last.value - first.value) : undefined
   return { ...field, first, last, delta, good: delta !== undefined && isGood(field.key, direction, delta) }
 }
 
+/** uma linha por campo que tem as duas pontas; `ends` escolhe as pontas na série do campo */
+export function bodyRows(p: Profile, ms: Measurement[], fields: Field[], ends: (points: Point[]) => [Point?, Point?]): BodyRow[] {
+  const dir = goalDirection(p)
+  return fields.flatMap((field) => {
+    const [first, last] = ends(metricSeries(p, ms, field))
+    return first && last ? [metricRow(field, dir, first, last)] : []
+  })
+}
+
 export const deltaUnit = (field: Field) => field.deltaUnit ?? field.unit
 
-export const formatMetric = (field: Field, value: number) => (field.key === FAT.key ? formatDec(value) : formatKg(value))
+export const formatMetric = (field: Field, value: number) => value.toLocaleString('pt-BR', { maximumFractionDigits: field.digits ?? 2 })
 
-export const metricUnit = (field: Field) => field.spaced === false ? field.unit : ` ${field.unit}`
+export const metricUnit = (field: Field) => (field.unit === '%' ? field.unit : ` ${field.unit}`)

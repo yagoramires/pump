@@ -1,13 +1,10 @@
-import type { Settings } from '@/schema'
 import type { Profile } from '@/profile/types'
 import type { Measurement, PhotoSet } from './types'
 import { addDays, daysBetween, weekStart, weeksBetween } from '@/lib/date'
-import { BODY_FIELDS, WEIGHT, deltaUnit, metricRow, metricSeries, series } from './measurements'
-import { goalDirection } from './bodyFat'
+import { BODY_FIELDS, WEIGHT, bodyRows, deltaUnit, series } from './measurements'
 import { ANGLES } from './types'
 
-export function checkInDue(settings: Settings, measurements: Measurement[], today: string): string | undefined {
-  const day = settings.checkInDay
+export function checkInDue(day: number | undefined, measurements: Measurement[], today: string): string | undefined {
   const weights = series(measurements, WEIGHT.key)
   if (day === undefined || !weights.length) return undefined
   let d = addDays(weekStart(today), day)
@@ -33,18 +30,11 @@ export function weekSummary(profile: Profile, measurements: Measurement[], photo
   const weights = series(measurements, WEIGHT.key)
   const now = weights.find((w) => w.date === today)
   if (!now) return undefined
-  const dir = goalDirection(profile)
   const first = weights[0]
   const prev = weights.filter((w) => w.date < today).pop()
-  const previousWeight = prev && metricRow(WEIGHT, dir, prev, now)
-  const rows = BODY_FIELDS.filter((field) => field.key !== WEIGHT.key).flatMap((field) => {
-    const points = metricSeries(profile, measurements, field)
-    const before = points.filter((p) => p.date < today).pop()
-    const current = points.find((p) => p.date === today)
-    if (!before || !current) return []
-    const { label, delta, good } = metricRow(field, dir, before, current)
-    return delta ? [{ label, unit: deltaUnit(field), delta, good }] : []
-  })
+  const sinceLast = bodyRows(profile, measurements, BODY_FIELDS, (points) => [points.filter((p) => p.date < today).pop(), points.find((p) => p.date === today)])
+  const previousWeight = sinceLast.find((r) => r.key === WEIGHT.key)
+  const rows = sinceLast.flatMap((r) => (r.key !== WEIGHT.key && r.delta ? [{ label: r.label, unit: deltaUnit(r), delta: r.delta, good: r.good }] : []))
   const photos = photoSets.find((set) => set.date === today)
   return {
     week: weeksBetween(first.date, today),
@@ -53,7 +43,7 @@ export function weekSummary(profile: Profile, measurements: Measurement[], photo
     weightGood: previousWeight?.good ?? false,
     prevDate: prev?.date,
     prevIsLastWeek: !!prev && daysBetween(prev.date, today) <= LAST_WEEK_MAX_DAYS,
-    sinceStart: metricRow(WEIGHT, dir, first, now).delta,
+    sinceStart: bodyRows(profile, measurements, [WEIGHT], () => [first, now])[0].delta,
     rows,
     photos: ANGLES.filter((angle) => photos?.[angle]).length,
   }

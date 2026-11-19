@@ -19,11 +19,15 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { ANAMNESIS_STEPS, AnamnesisFlow } from '@/profile/AnamnesisFlow'
+import { AnamnesisFlow } from '@/profile/AnamnesisFlow'
+import { ANAMNESIS_STEPS } from '@/profile/profile'
 import { Steps } from '@/components/Steps'
 import { Alert } from '@/components/ui/alert'
 
-const ONBOARDING_STEPS = ANAMNESIS_STEPS + 2
+/** a anamnese, depois treino e dieta */
+const TREINO_STEP = ANAMNESIS_STEPS + 1
+const DIETA_STEP = ANAMNESIS_STEPS + 2
+const ONBOARDING_STEPS = DIETA_STEP
 type Step = 'anamnese' | 'treino' | 'editor' | 'ia' | 'convert' | 'dieta'
 
 export function Onboarding() {
@@ -73,7 +77,7 @@ export function Onboarding() {
   if (step === 'dieta') {
     return (
       <div className="flex flex-col gap-3">
-        <Steps n={ANAMNESIS_STEPS + 2} total={ONBOARDING_STEPS} />
+        <Steps n={DIETA_STEP} total={ONBOARDING_STEPS} />
         <BackHeader title="Sua dieta" onBack={() => setStep('treino')} className="px-0 py-0" />
         <DietStart hint="A IA já recebe peso, % de gordura, massa magra, medidas e horários." onDone={finish} />
         <div className="flex justify-center"><Button type="button" variant="ghost" className="text-text-2" onClick={finish}>Pular por agora</Button></div>
@@ -82,7 +86,7 @@ export function Onboarding() {
   }
   return (
     <div className="flex flex-col gap-3 pb-40">
-      <Steps n={ANAMNESIS_STEPS + 1} total={ONBOARDING_STEPS} />
+      <Steps n={TREINO_STEP} total={ONBOARDING_STEPS} />
       <BackHeader title="Seu treino" onBack={() => { setResumeAtDayZero(true); setStep('anamnese') }} className="px-0 py-0" />
       <Card size="flush">
         <RadioGroup value={picked} onValueChange={setPicked} aria-label="Planos" className="gap-0">
