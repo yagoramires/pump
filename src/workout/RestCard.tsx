@@ -9,22 +9,21 @@ import { SheetBody } from '@/components/SheetRow'
 import { beep } from './restTimer'
 import { restRemainingSeconds, type ActiveRest } from './session'
 import { restClock, restSecondsLabel } from './display'
-import { REST_CHOICES } from './limits'
+import { REST_CHOICES, REST_STEP } from './limits'
 
 const DURATIONS = Object.fromEntries(REST_CHOICES.map((sec) => [String(sec), sec < 120 ? restSecondsLabel(sec) : `${sec / 60} min`]))
 
-/** Ao reabrir o app, a barra parte do tempo restante ao montar. */
 type Props = {
   timer: ActiveRest
   totalSec?: number
   restSec: number
-  onAdd15: () => void
+  onExtend: () => void
   onDone: () => void
   onTogglePause: () => void
   onPickDuration: () => void
 }
 
-export function RestCard({ timer, totalSec, restSec, onAdd15, onDone, onTogglePause, onPickDuration }: Props) {
+export function RestCard({ timer, totalSec, restSec, onExtend, onDone, onTogglePause, onPickDuration }: Props) {
   const [now, setNow] = useState(() => Date.now())
   const seenRunning = useRef(false)
   const left = restRemainingSeconds(timer, now)
@@ -68,7 +67,7 @@ export function RestCard({ timer, totalSec, restSec, onAdd15, onDone, onTogglePa
         <Button variant="outline" size="icon-sm" aria-label={timer.paused ? 'Continuar descanso' : 'Pausar descanso'} onClick={onTogglePause}>
           {timer.paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
         </Button>
-        <Button variant="outline" size="icon-sm" className="w-auto px-2 text-xs" onClick={onAdd15}>+15 s</Button>
+        <Button variant="outline" size="icon-sm" className="w-auto px-2 text-xs" onClick={onExtend}>{`+${restSecondsLabel(REST_STEP)}`}</Button>
         <Button variant="outline" size="icon-sm" aria-label="Pular descanso" onClick={onDone}><SkipForward aria-hidden="true" /></Button>
       </div>
     </Card>

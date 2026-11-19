@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { renderLoaded } from '../../test/render'
+import { setupClipboard } from '../../test/helpers'
 import { Toaster } from '@/components/ui/sonner'
 import { save } from '@/storage/db'
 import { COPY_FAIL } from '@/lib/share'
@@ -13,19 +13,11 @@ function Settings() {
   return view ?? <DietSettings open={(next) => setView(next)} />
 }
 
-const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
-// depois do userEvent.setup(), que troca o clipboard pelo dele
-const setupUser = () => {
-  const user = userEvent.setup()
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
-  return user
-}
 const plan: DietPlan = { menus: [{ id: 'A', name: 'Corte', meals: [{ id: 'm', name: 'Café', time: '07:00', options: [{ id: 'o', items: [{ id: 'arroz', name: 'Arroz', grams: 100, per100: { kcal: 1, p: 1, c: 1, f: 1 }, source: 'custom' }] }] }] }], lastMenuId: 'A' }
 
 test('Ajustar com IA copia o prompt com a dieta salva e avisa', async () => {
-  writeText.mockClear()
   await save('dietPlan', plan)
-  const user = setupUser()
+  const { user, writeText } = setupClipboard()
   await renderLoaded(<><Settings /><Toaster /></>)
   await user.click(await screen.findByRole('button', { name: /Ajustar com IA/ }))
   expect(writeText).toHaveBeenCalledWith(expect.stringContaining('"Corte"'))
@@ -33,7 +25,7 @@ test('Ajustar com IA copia o prompt com a dieta salva e avisa', async () => {
 })
 
 test('Ajustar com IA: clipboard negado mostra o erro', async () => {
-  const user = setupUser()
+  const { user, writeText } = setupClipboard()
   writeText.mockRejectedValueOnce(new Error('denied'))
   await renderLoaded(<><Settings /><Toaster /></>)
   await user.click(await screen.findByRole('button', { name: /Ajustar com IA/ }))

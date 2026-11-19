@@ -1,5 +1,5 @@
 import type { DietItem, DietPlan, Menu, TacoFood } from './types'
-import { FormatError, readEnvelope, str, writeEnvelope } from '@/format/envelope'
+import { FormatError, readHalf, str, writeEnvelope } from '@/format/envelope'
 import { isObj } from '@/lib/utils'
 import { round1 } from '@/lib/number'
 import { GOAL_KCAL, GRAMS, HHMM, MACRO_G, MAX_ITEMS, MAX_KCAL_PER_100G, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
@@ -7,14 +7,14 @@ import { matchFood } from './match'
 import { normalizeMealTime } from './plan'
 import { asFood, fromTaco, hasValues } from './food'
 
-export const DIET_NOT_FOUND = 'Não encontrei um cardápio em JSON no texto'
+const DIET_NOT_FOUND = 'Não encontrei um cardápio em JSON no texto'
 
 export interface PumpAlimento { nome: string; gramas: number; porcao?: string; kcal?: number; proteinaG?: number; carboG?: number; gorduraG?: number }
 interface PumpOpcao { nome?: string; alimentos: PumpAlimento[] }
 interface PumpRefeicao { nome: string; horario: string; opcoes: PumpOpcao[] }
 interface PumpMacros { proteinaG: number; carboG: number; gorduraG: number }
 interface PumpCardapio { nome: string; metaKcal?: number; macros?: PumpMacros; refeicoes: PumpRefeicao[] }
-export interface PumpDieta { cardapios: PumpCardapio[] }
+export interface PumpDieta { cardapios: PumpCardapio[]; ignoredWorkouts?: boolean }
 
 type Obj = Record<string, unknown>
 type DraftRule = 'menuName' | 'emptyMenu' | 'mealFields' | 'emptyOption' | 'goal' | 'macros'
@@ -78,9 +78,8 @@ function parseMenu(d: Obj | PumpCardapio, tag: string | undefined, problem: AddP
   }
 }
 
-export function parseDietFormat(text: string): PumpDieta {
-  // o cabeçalho não é conferido aqui: a dieta sempre aceitou arquivo sem "formato"/"versao"
-  const raw = readEnvelope(text, DIET_NOT_FOUND)
+// o cabeçalho não é conferido aqui (no treino é): a dieta sempre aceitou arquivo sem "formato"/"versao"
+export const parseDietFormat = (text: string): PumpDieta => readHalf(text, 'dieta', DIET_NOT_FOUND, (raw, ignoredWorkouts) => {
   if (!isObj(raw.dieta)) throw new FormatError(['Este arquivo não tem dieta.'])
   const d = raw.dieta
   const problems: string[] = []
@@ -92,8 +91,8 @@ export function parseDietFormat(text: string): PumpDieta {
     cardapios = d.cardapios.map((x: unknown, i) => parseMenu(isObj(x) ? x : {}, `Cardápio ${i + 1}`, problem))
   } else cardapios = [parseMenu(d, undefined, problem)]
   if (problems.length) throw new FormatError(problems)
-  return { cardapios }
-}
+  return { cardapios, ignoredWorkouts }
+})
 
 type Match = 'custom' | 'exact' | 'words' | 'ia' | 'none'
 export type ItemReport = { match: Match; aiName: string }
@@ -119,7 +118,7 @@ export function dietFromFormat(
   d: PumpDieta,
   taco: TacoFood[] | null,
   customs: DietItem[],
-): { plan: DietPlan; reports: Record<string, ItemReport>; offline: boolean } {
+): { plan: DietPlan; reports: Record<string, ItemReport>; offline: boolean; ignoredWorkouts: boolean } {
   const reports: Record<string, ItemReport> = {}
   const menus = d.cardapios.map((cd): Menu => ({
     id: crypto.randomUUID(),
@@ -141,7 +140,7 @@ export function dietFromFormat(
       })),
     })),
   }))
-  return { plan: { menus }, reports, offline: taco === null }
+  return { plan: { menus }, reports, offline: taco === null, ignoredWorkouts: !!d.ignoredWorkouts }
 }
 
 const exportFood = (i: DietItem) => {

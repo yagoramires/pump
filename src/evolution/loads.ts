@@ -1,8 +1,8 @@
 import { GROUPS, muscleGroup } from '@/catalog/muscles'
 import { daysBetween } from '@/lib/date'
-import { isCardio, isTimed } from '@/workout/cardio'
+import { isCardio, isTimed, repsNumber } from '@/workout/reps'
 import { hasMarkedSet, markedSets } from '@/workout/session'
-import { completedSessions, exerciseVolume, maxLoad, repsNumber } from '@/workout/stats'
+import { completedSessions, exerciseVolume, maxLoad } from '@/workout/stats'
 import type { SessionExercise, SetDone, WorkoutLog } from '@/workout/types'
 import type { Point } from './measurements'
 

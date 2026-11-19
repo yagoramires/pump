@@ -19,7 +19,7 @@ const one = (refeicoes: { nome: string; horario: string; alimentos: PumpAlimento
 
 test('parseDietFormat aceita JSON dentro de bloco de código', () => {
   const d = parseDietFormat('Pronto:\n```json\n' + file({ metaKcal: 1950, macros: { proteinaG: 150, carboG: 190, gorduraG: 60 }, refeicoes: [meal([pao])] }) + '\n```\nBom apetite!')
-  expect(d).toEqual({ cardapios: [{ nome: 'Cardápio', metaKcal: 1950, macros: { proteinaG: 150, carboG: 190, gorduraG: 60 }, refeicoes: [{ nome: 'Café', horario: '07:00', opcoes: [{ alimentos: [pao] }] }] }] })
+  expect(d).toEqual({ ignoredWorkouts: false, cardapios: [{ nome: 'Cardápio', metaKcal: 1950, macros: { proteinaG: 150, carboG: 190, gorduraG: 60 }, refeicoes: [{ nome: 'Café', horario: '07:00', opcoes: [{ alimentos: [pao] }] }] }] })
 })
 
 test('formato aceita cardapios/opcoes, refeicoes direto e alimentos direto', () => {
@@ -31,7 +31,7 @@ test('formato aceita cardapios/opcoes, refeicoes direto e alimentos direto', () 
     ] },
     { nome: 'Descanso', refeicoes: [meal([pao])] },
   ] }))
-  expect(d).toEqual({ cardapios: [
+  expect(d).toEqual({ ignoredWorkouts: false, cardapios: [
     { nome: 'Dia de treino', metaKcal: 2100, macros: { proteinaG: 160, carboG: 220, gorduraG: 60 }, refeicoes: [
       { nome: 'Café da manhã', horario: '07:00', opcoes: [{ nome: 'Ovos com pão', alimentos: [pao] }, { alimentos: [iogurte] }] },
       { nome: 'Lanche', horario: '16:00', opcoes: [{ alimentos: [iogurte] }] },
@@ -72,7 +72,8 @@ test('mensagens de cardápio/opção', () => {
 
 test('cada regra de validação tem sua mensagem', () => {
   expect(() => parseDietFormat('oi, tudo bem?')).toThrow('Não encontrei um cardápio em JSON no texto')
-  expect(() => parseDietFormat('{"formato":"pump-plano","versao":1,"treinos":[]}')).toThrow('Este arquivo não tem dieta.')
+  expect(() => parseDietFormat('{"formato":"pump-plano","versao":1,"treinos":[]}')).toThrow('Este arquivo só tem treinos. Importe na aba Treino.')
+  expect(() => parseDietFormat('{"formato":"pump-plano","versao":1}')).toThrow('Este arquivo não tem dieta.')
   expect(problems(file({ refeicoes: [] }))).toEqual(['Cardápio sem refeições'])
   expect(problems(file({ refeicoes: Array.from({ length: 11 }, () => meal([pao])) }))).toEqual(['Cardápio com mais de 10 refeições'])
   expect(problems(file({ refeicoes: [meal(Array.from({ length: 31 }, () => pao))] }))).toEqual(['Refeição 1: mais de 30 alimentos'])
@@ -179,4 +180,8 @@ test('exportar e importar de novo mantém alimento criado como custom', () => {
   expect(opts[0].items[0]).toEqual({ ...bolo, id: expect.any(String), grams: 80, portion: '1 fatia' })
   expect(opts[0].items[0].id).not.toBe('c1')
   expect(opts[0].items[1]).toMatchObject({ name: 'Pão, trigo, francês', source: 'taco', tacoId: 53 })
+})
+test('treinos junto com a dieta são ignorados com aviso, como a dieta no import de treino', () => {
+  const text = JSON.stringify({ formato: 'pump-plano', versao: 1, treinos: [], dieta: { refeicoes: [{ nome: 'Café', horario: '07:00', alimentos: [{ nome: 'Ovo', gramas: 50 }] }] } })
+  expect(dietFromFormat(parseDietFormat(text), null, []).ignoredWorkouts).toBe(true)
 })

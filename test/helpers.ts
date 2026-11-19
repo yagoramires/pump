@@ -1,3 +1,4 @@
+import userEvent from '@testing-library/user-event'
 import type { DietDay, DietItem } from '../src/diet/types'
 import type { Exercise, PlanExercise, Workout, WorkoutPlan } from '../src/workout/types'
 import type { EvolutionInput } from '../src/evolution/types'
@@ -52,3 +53,11 @@ export const evolutionInput = (over: Partial<EvolutionInput> = {}): EvolutionInp
   workoutLog: DEFAULTS.workoutLog, workoutPlan: DEFAULTS.workoutPlan, measurements: DEFAULTS.measurements, photoSets: DEFAULTS.photoSets,
   profile: DEFAULTS.profile, dietLog: DEFAULTS.dietLog, waterLog: DEFAULTS.waterLog, dietPlan: DEFAULTS.dietPlan, ...over,
 })
+
+/** userEvent com um clipboard falso: o setup troca o clipboard pelo dele, então o falso entra depois */
+export function setupClipboard() {
+  const user = userEvent.setup()
+  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
+  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+  return { user, writeText }
+}

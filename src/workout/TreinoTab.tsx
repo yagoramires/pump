@@ -21,7 +21,7 @@ import { SetTable } from './SetTable'
 import { RestCard, RestPicker } from './RestCard'
 import { nextWorkout, unfinishedSession } from './schedule'
 import {
-  activeRest, changeRestDuration, clearRest, completeSession, completeUnfinishedSession, extendRest,
+  activeRest, changePlanRest, changeRestDuration, clearRest, completeSession, completeUnfinishedSession, extendRest,
   firstIncompleteExercise, hasMarkedSets, holdsTrainingDay, isExerciseComplete, reopenSession, restExerciseIndex,
   setDone, startSession, toggleRestPause, toggleSetWithRest,
 } from './session'
@@ -29,8 +29,10 @@ import { previousSets, sessionStats } from './stats'
 import { isRest, restRecord } from './rest'
 import { unlockAudio } from './restTimer'
 import { PLAN_DEFAULTS } from './exercises'
-import { groupExercises } from './cardio'
+import { ExerciseGroups } from './ExerciseGroups'
 import { ExerciseIcon } from './ExerciseIcon'
+import { REST_STEP } from './limits'
+import { useWorkoutPlan } from './useWorkoutPlan'
 import { workoutDayLabel } from './display'
 import { UnfinishedCard } from './UnfinishedCard'
 import { SwitchWorkout } from './SwitchWorkout'
@@ -42,7 +44,7 @@ export function TreinoTab() {
   const clock = useToday()
   const [today, setToday] = useState(clock.today)
   const [seenAt, setSeenAt] = useState(clock.now)
-  const [plan, setPlan] = usePersisted('workoutPlan')
+  const { plan, replacePlan, patchPlan } = useWorkoutPlan()
   const [log, setLog] = usePersisted('workoutLog')
   const [chosenId, setChosenId] = useState<string>()
   const [editingPlan, setEditingPlan] = useState(false)
@@ -91,7 +93,7 @@ export function TreinoTab() {
   // abaixo de 360 px o rótulo vira só leitor de tela: o eyebrow não pode ser espremido
   const pastLink = <Button variant="link" size="sm" className="text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /><span className="max-[359px]:sr-only">Treinos anteriores</span></Button>
   if (pastOpen) return <Overlay><PastWorkouts onClose={() => setPastOpen(false)} /></Overlay>
-  if (editingPlan) return <Overlay><PlanEditor initial={plan} onSave={(p) => { setPlan(p); setEditingPlan(false) }} onCancel={() => setEditingPlan(false)} /></Overlay>
+  if (editingPlan) return <Overlay><PlanEditor initial={plan} onSave={(p) => { replacePlan(p); setEditingPlan(false) }} onCancel={() => setEditingPlan(false)} /></Overlay>
   if (plan.workouts.length === 0) {
     return (
       <div className="flex flex-col gap-2.5">
@@ -157,7 +159,6 @@ export function TreinoTab() {
   }
 
   const view = session ?? startSession(workout!, today)
-  const { strength, cardio } = groupExercises(view.exercises)
   const stats = sessionStats(view, now)
   const minutes = session ? stats.minutes : null
   const restIdx = restExerciseIndex(view)
@@ -173,7 +174,7 @@ export function TreinoTab() {
   }
 
   const check = (exIdx: number, setIdx: number, v: SetDone) => {
-    unlockAudio() // dentro do toque: o iOS só libera áudio num gesto
+    unlockAudio()
     const saved = setLog((prev) => ({ ...prev, [today]: toggleSetWithRest(current(prev), exIdx, setIdx, v, Date.now()) }))
     const exercise = saved[today].exercises[exIdx]
     if (!exercise.sets[setIdx]) return
@@ -238,27 +239,32 @@ export function TreinoTab() {
         <Button variant="outline" className="w-full" onClick={markRest}><Moon aria-hidden="true" /> Descansar hoje</Button>
       )}
 
-      {strength.map(({ exercise: e, index: i }) => {
-        const prev = previousSets(log, today, e.exerciseId)
-        return (
-          <ExerciseCard key={i} ex={e} weightKg={prev.find(Boolean)?.weightKg ?? e.weightKg} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
-            <SetTable ex={e} prev={prev} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} />
-          </ExerciseCard>
-        )
-      })}
-      {cardio.length > 0 && <div className="label-caps">Cardio</div>}
-      {cardio.map(({ exercise: e, index: i }) => (
-        <Card size="sm" key={i} className="flex-row items-center gap-1.5">
-          <Button variant="ghost" size="icon" aria-label={`Ver ${e.name}`} onClick={() => setPreview(i)}>
-            <ExerciseIcon muscles={e.muscles} cardio size={32} />
-          </Button>
-          <span className="min-w-0 flex-1">
-            <span className="block text-body font-semibold break-words text-strong">{e.name}</span>
-            <span className="block text-meta text-text-2">{e.reps}</span>
-          </span>
-          <Checkbox size="check" className="mr-1.5" checked={!!e.sets[0]} aria-label={`${e.name} feito`} onCheckedChange={() => toggleCardio(i)} />
-        </Card>
-      ))}
+      <ExerciseGroups
+        exercises={view.exercises}
+        className={() => 'contents'}
+        row={(e, i, cardio) => {
+          if (cardio) {
+            return (
+              <Card size="sm" key={i} className="flex-row items-center gap-1.5">
+                <Button variant="ghost" size="icon" aria-label={`Ver ${e.name}`} onClick={() => setPreview(i)}>
+                  <ExerciseIcon muscles={e.muscles} cardio size={32} />
+                </Button>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-body font-semibold break-words text-strong">{e.name}</span>
+                  <span className="block text-meta text-text-2">{e.reps}</span>
+                </span>
+                <Checkbox size="check" className="mr-1.5" checked={!!e.sets[0]} aria-label={`${e.name} feito`} onCheckedChange={() => toggleCardio(i)} />
+              </Card>
+            )
+          }
+          const prev = previousSets(log, today, e.exerciseId)
+          return (
+            <ExerciseCard key={i} ex={e} prev={prev} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
+              <SetTable ex={e} prev={prev} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} />
+            </ExerciseCard>
+          )
+        }}
+      />
 
       <div className="pointer-events-none fixed bottom-[calc(var(--nav-h)+env(safe-area-inset-bottom))] left-1/2 h-24 w-full max-w-md -translate-x-1/2 bg-linear-to-b from-transparent to-bg to-60%" />
       {timer && (
@@ -267,9 +273,9 @@ export function TreinoTab() {
           totalSec={restTotal}
           restSec={view.exercises[restIdx]?.restSec ?? PLAN_DEFAULTS.restSec}
           onDone={finishRest}
-          onAdd15={() => {
-            patch((s) => extendRest(s, 15_000))
-            setRestTotal((t) => t && t + 15)
+          onExtend={() => {
+            patch((s) => extendRest(s, REST_STEP * 1000))
+            setRestTotal((t) => t && t + REST_STEP)
           }}
           onTogglePause={() => patch((s) => toggleRestPause(s, Date.now()))}
           onPickDuration={() => setPickIdx(restIdx)}
@@ -281,10 +287,8 @@ export function TreinoTab() {
         onClose={() => setPickIdx(undefined)}
         onPick={(sec) => {
           const idx = pickIdx ?? restIdx
-          const exId = view.exercises[idx]?.exerciseId
           patch((s) => changeRestDuration(s, idx, sec, Date.now()))
-          // o plano pode ter sido editado no meio do treino: acha o exercício pelo id, não pela posição
-          setPlan((p) => ({ workouts: p.workouts.map((w) => (w.id === view.workoutId ? { ...w, exercises: w.exercises.map((e) => (e.exerciseId === exId ? { ...e, restSec: sec } : e)) } : w)) }))
+          patchPlan((p) => changePlanRest(p, view, idx, sec))
           setRestTotal(sec)
         }}
       />

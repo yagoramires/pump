@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { PlanExercise } from './types'
 import { imageUrl } from '@/catalog/catalog'
 import { X } from 'lucide-react'
@@ -8,12 +8,10 @@ import { cn } from '@/lib/utils'
 
 type PreviewExercise = Pick<PlanExercise, 'name' | 'images' | 'instructions' | 'muscles' | 'note'>
 
-export function ExercisePreview({ exercise, onClose, onCloseAutoFocus }: {
-  exercise: PreviewExercise
-  onClose: () => void
-  onCloseAutoFocus?: (event: Event) => void
-}) {
+export function ExercisePreview({ exercise, onClose }: { exercise: PreviewExercise; onClose: () => void }) {
   const [frame, setFrame] = useState(0)
+  // a prévia monta sem DrawerTrigger: guarda quem tinha o foco pra devolver ao fechar
+  const trigger = useRef(document.activeElement)
   const { images } = exercise
   const steps = exercise.instructions.filter(Boolean)
   useEffect(() => {
@@ -24,7 +22,12 @@ export function ExercisePreview({ exercise, onClose, onCloseAutoFocus }: {
 
   return (
     <Drawer open onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent onCloseAutoFocus={onCloseAutoFocus}>
+      <DrawerContent
+        onCloseAutoFocus={(event) => {
+          event.preventDefault()
+          if (trigger.current instanceof HTMLElement) trigger.current.focus()
+        }}
+      >
         <div className="flex flex-col gap-3 overflow-y-auto px-4 pt-3 pb-5">
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
@@ -40,7 +43,7 @@ export function ExercisePreview({ exercise, onClose, onCloseAutoFocus }: {
               <img className="h-52 w-full object-contain" src={imageUrl(images[frame % images.length])} alt={exercise.name} />
               {images.length > 1 && (
                 <div className="absolute inset-x-0 bottom-2 flex justify-center gap-1">
-                  {[0, 1].map((i) => <i key={i} className={cn('size-1.5 rounded-full', frame === i ? 'bg-accent' : 'bg-border-strong')} />)}
+                  {images.map((_, i) => <i key={i} className={cn('size-1.5 rounded-full', frame % images.length === i ? 'bg-accent' : 'bg-border-strong')} />)}
                 </div>
               )}
             </div>

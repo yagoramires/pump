@@ -1,19 +1,17 @@
 import type { CustomExercise, Exercise, PlanExercise, WorkoutPlan } from './types'
 import { normalize } from '@/lib/text'
-import { FormatError, headerProblems, readEnvelope, str, writeEnvelope, HEADER } from '@/format/envelope'
+import { FormatError, headerProblems, readHalf, str, writeEnvelope } from '@/format/envelope'
 import { isObj } from '@/lib/utils'
-import { MIN_IMPORTED_REST_SEC, MIN_KG, SETS } from './limits'
+import { KG, REST_SEC, SETS } from './limits'
 import { PLAN_DEFAULTS, newCustomExercise, toPlanExercise } from './exercises'
 
-export const PLAN_NOT_FOUND = 'Não encontrei um plano em JSON no texto'
+const PLAN_NOT_FOUND = 'Não encontrei um plano em JSON no texto'
 
 interface PumpExercicio { nome: string; series: number; reps: string; cargaKg?: number; descansoSeg?: number; obs?: string }
 interface PumpTreino { letra: string; nome: string; exercicios: PumpExercicio[] }
-export type PumpPlanoFile = typeof HEADER & { treinos: PumpTreino[]; dieta?: unknown }
+type PumpPlano = { treinos: PumpTreino[]; ignoredDiet: boolean }
 
-export function parsePlanFormat(text: string): PumpPlanoFile {
-  const raw = readEnvelope(text, PLAN_NOT_FOUND)
-  if (raw.dieta !== undefined && raw.treinos === undefined) throw new FormatError(['Este arquivo só tem dieta. Importe na aba Dieta.'])
+export const parsePlanFormat = (text: string): PumpPlano => readHalf(text, 'treinos', PLAN_NOT_FOUND, (raw, ignoredDiet) => {
   const problems = headerProblems(raw)
   const list = Array.isArray(raw.treinos) ? raw.treinos : []
   if (list.length === 0) problems.push('"treinos" precisa ter pelo menos um treino')
@@ -41,9 +39,9 @@ export function parsePlanFormat(text: string): PumpPlanoFile {
       const reps = typeof x.reps === 'number' ? String(x.reps) : str(x.reps)
       if (!reps) problems.push(`${at}: "reps" vazio`)
       const carga = x.cargaKg as number | undefined
-      if (carga != null && !(Number.isFinite(carga) && carga >= MIN_KG)) problems.push(`${at}: "cargaKg" precisa ser um número maior ou igual a ${MIN_KG}`)
+      if (carga != null && !(Number.isFinite(carga) && carga >= KG[0] && carga <= KG[1])) problems.push(`${at}: "cargaKg" precisa ser um número de ${KG[0]} a ${KG[1]}`)
       const desc = x.descansoSeg as number | undefined
-      if (desc != null && !(Number.isInteger(desc) && desc >= MIN_IMPORTED_REST_SEC)) problems.push(`${at}: "descansoSeg" precisa ser um número inteiro maior ou igual a ${MIN_IMPORTED_REST_SEC}`)
+      if (desc != null && !(Number.isInteger(desc) && desc >= REST_SEC[0] && desc <= REST_SEC[1])) problems.push(`${at}: "descansoSeg" precisa ser um número inteiro de ${REST_SEC[0]} a ${REST_SEC[1]}`)
       const obs = str(x.obs)
       return { nome, series, reps, ...(carga != null && { cargaKg: carga }), ...(desc != null && { descansoSeg: desc }), ...(obs && { obs }) }
     })
@@ -51,8 +49,8 @@ export function parsePlanFormat(text: string): PumpPlanoFile {
   })
 
   if (problems.length) throw new FormatError(problems)
-  return { ...HEADER, treinos, ...(raw.dieta !== undefined && { dieta: raw.dieta }) }
-}
+  return { treinos, ignoredDiet }
+})
 
 // a lista do catálogo traz "nome (equipamento)": só aceita o nome sem o parêntese final se ele for o equipamento do exercício achado
 // (só do catálogo: um exercício seu com o mesmo nome base não pode esconder a variante)
@@ -63,7 +61,7 @@ function withEquipment(nome: string, catalog: Map<string, Exercise>): Exercise |
 }
 
 export function planFromFormat(
-  f: PumpPlanoFile,
+  f: PumpPlano,
   catalog: Exercise[],
   customs: CustomExercise[],
 ): { plan: WorkoutPlan; newCustoms: CustomExercise[]; ignoredDiet: boolean } {
@@ -97,7 +95,7 @@ export function planFromFormat(
       }),
     })),
   }
-  return { plan, newCustoms, ignoredDiet: f.dieta !== undefined }
+  return { plan, newCustoms, ignoredDiet: f.ignoredDiet }
 }
 
 export function exportPlanFormat(plan: WorkoutPlan): string {

@@ -1,7 +1,7 @@
 import type { Exercise, WorkoutPlan } from './types'
 import { toPlanExercise } from './exercises'
 
-export interface PlanTemplate {
+interface PlanTemplate {
   id: string
   name: string
   description: string

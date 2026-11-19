@@ -1,9 +1,10 @@
 import type { DietLog, DietPlan, TacoFood } from './types'
 import { act, screen, within } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
+import { setupClipboard } from '../../test/helpers'
 import { seedStore, stored } from '../../test/store'
 import userEvent from '@testing-library/user-event'
-import { fetchTaco } from '@/catalog/catalog'
+import { CatalogUnavailable, fetchTaco } from '@/catalog/catalog'
 import { Toaster } from '@/components/ui/sonner'
 import { DietImport } from './DietImport'
 import { buildDietConvertPrompt } from './prompt'
@@ -21,7 +22,7 @@ const json = (alimentos: object[]) =>
   JSON.stringify({ formato: 'pump-plano', versao: 1, dieta: { metaKcal: 2000, macros: { proteinaG: 150, carboG: 200, gorduraG: 60 }, refeicoes: [{ nome: 'Café da manhã', horario: '07:00', alimentos }] } })
 
 beforeEach(async () => {
-  vi.mocked(fetchTaco).mockRejectedValue(new Error('offline'))
+  vi.mocked(fetchTaco).mockRejectedValue(new CatalogUnavailable('offline'))
 })
 
 async function paste(text: string) {
@@ -31,9 +32,7 @@ async function paste(text: string) {
 }
 
 test('gerar com IA: copiar prompt grava a anamnese', async () => {
-  const user = userEvent.setup()
-  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+  const { user, writeText } = setupClipboard()
   const { unmount } = await renderLoaded(<DietImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
   const copy = await screen.findByRole('button', { name: 'Copiar' })
   expect(screen.getByText(/ela monta seu cardápio/)).toBeInTheDocument()
@@ -196,9 +195,7 @@ test('criar alimento próprio na revisão não refaz a revisão nem perde as tro
 })
 
 test('converter: título, 5 passos, Copiar leva o prompt de conversão e lista os nomes fora da TACO', async () => {
-  const user = userEvent.setup()
-  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+  const { user, writeText } = setupClipboard()
   await renderLoaded(<DietImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
   expect(await screen.findByRole('heading', { name: 'Converter dieta' })).toBeInTheDocument()
   expect(screen.getByText('Junto com sua dieta (PDF, foto ou texto)')).toBeInTheDocument()
@@ -218,9 +215,7 @@ test('fora da TACO: variações do mesmo nome contam uma vez só', async () => {
 })
 
 test.each(['ia', 'convert'] as const)('%s: "Copiar a lista de alimentos" busca a lista do app e copia', async (mode) => {
-  const user = userEvent.setup()
-  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+  const { user, writeText } = setupClipboard()
   const f = vi.fn(async () => new Response('Alimentos TACO\nArroz\n'))
   vi.stubGlobal('fetch', f)
   await renderLoaded(<DietImport mode={mode} onDone={vi.fn()} onBack={vi.fn()} />)

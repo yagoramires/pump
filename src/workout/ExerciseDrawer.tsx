@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, Minus, MoreHorizontal, Plus } from 'lucide-react'
 import type { PlanExercise } from './types'
-import { MAX_KG, MAX_REST_EDIT_SEC, MIN_KG, REST_STEP, SETS } from './limits'
+import { KG, REST_SEC, REST_STEP, SETS } from './limits'
 import { restSecondsLabel } from './display'
 import { useNumberDraft } from '@/components/useNumberDraft'
+import { useFieldProps } from './useFieldProps'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
@@ -19,7 +20,6 @@ type Props = {
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
 const FIELD = 'bg-surface text-center font-semibold tabular-nums'
-const select = (e: React.FocusEvent<HTMLInputElement>) => e.currentTarget.select()
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -44,8 +44,8 @@ function Stepper({ label, text, value, step, min, max, onChange, children }: { l
 export function ExerciseDrawer({ ex, onChange, onRemove, onMoveUp, onMoveDown, onClose }: Props) {
   const [menu, setMenu] = useState(false)
   const patch = (p: Partial<PlanExercise>) => onChange({ ...ex, ...p })
-  const kg = useNumberDraft(ex.weightKg, MIN_KG, Infinity, (n) => n != null && patch({ weightKg: clamp(n, MIN_KG, MAX_KG) }))
-  const inputProps = { autoComplete: 'off', enterKeyHint: 'done' as const, onFocus: select }
+  const kg = useNumberDraft(ex.weightKg, ...KG, (n) => n != null && patch({ weightKg: n }))
+  const inputProps = useFieldProps()
 
   return (
     <Drawer open onOpenChange={(o) => !o && onClose()}>
@@ -69,11 +69,11 @@ export function ExerciseDrawer({ ex, onChange, onRemove, onMoveUp, onMoveDown, o
             <Input className={`${FIELD} w-28`} aria-label="Repetições" value={ex.reps} onChange={(e) => patch({ reps: e.target.value })} {...inputProps} />
           </Row>
           <Row label="Carga">
-            <Stepper label="carga" value={ex.weightKg} step={2.5} min={MIN_KG} max={MAX_KG} onChange={(weightKg) => patch({ weightKg })}>
+            <Stepper label="carga" value={ex.weightKg} step={2.5} min={KG[0]} max={KG[1]} onChange={(weightKg) => patch({ weightKg })}>
             <Input className={`${FIELD} w-20`} inputMode="decimal" aria-label="Carga em kg" {...inputProps} {...kg} />
             </Stepper>
           </Row>
-          <Row label="Descanso"><Stepper label="descanso" value={ex.restSec} text={restSecondsLabel(ex.restSec)} step={REST_STEP} min={REST_STEP} max={MAX_REST_EDIT_SEC} onChange={(restSec) => patch({ restSec })} /></Row>
+          <Row label="Descanso"><Stepper label="descanso" value={ex.restSec} text={restSecondsLabel(ex.restSec)} step={REST_STEP} min={REST_SEC[0]} max={REST_SEC[1]} onChange={(restSec) => patch({ restSec })} /></Row>
           <div className="flex gap-2 pt-1">
             <Button variant="outline" className="flex-1 text-negative hover:text-negative" onClick={onRemove}>Remover</Button>
             <Button className="flex-1" onClick={onClose}>Pronto</Button>

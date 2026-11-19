@@ -1,15 +1,19 @@
 import { formatDayLabel, p2 } from '@/lib/date'
 import { formatKg } from '@/lib/number'
 import type { PlanExercise, SessionExercise } from './types'
+import { isCardio } from './reps'
 
 export const workoutDayLabel = (date: string, label: string) => `${formatDayLabel(date)} · TREINO ${label}`
 
-export function exerciseSummary(e: PlanExercise | SessionExercise, weightKg = e.weightKg) {
+export function exerciseSummary(e: PlanExercise | SessionExercise) {
   const sets = typeof e.sets === 'number' ? e.sets : e.sets.length
-  return `${sets} × ${e.reps} · ${formatKg(weightKg)} kg`
+  return `${sets} × ${e.reps} · ${formatKg(e.weightKg)} kg`
 }
 
 export const restSecondsLabel = (sec: number) => `${sec} s`
+
+/** linha do exercício no plano: cardio só mostra a duração */
+export const planExerciseLine = (e: PlanExercise) => (isCardio(e) ? e.reps : `${exerciseSummary(e)} · ${restSecondsLabel(e.restSec)}`)
 
 export function restClock(sec: number, padMinutes = false) {
   const minutes = Math.floor(sec / 60)

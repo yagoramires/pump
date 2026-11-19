@@ -1,4 +1,4 @@
-import { syncPreviewCache } from './previews'
+import { syncPreviewCache } from './previewCache'
 import { imageUrl } from '@/catalog/catalog'
 import { cachedUrls, fakeCacheStorage, planWith } from '../../test/helpers'
 

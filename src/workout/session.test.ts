@@ -1,4 +1,4 @@
-import { activeRest, completeSession, setDone, startSession, toggleSetWithRest } from './session'
+import { activeRest, changePlanRest, completeSession, setDone, startSession, toggleSetWithRest } from './session'
 import { workoutOf } from '../../test/helpers'
 
 test('sessão é cópia completa: editar o plano depois não muda a sessão', () => {
@@ -38,4 +38,10 @@ test('marcar inicia o descanso do exercício certo e desmarcar mantém o tempo q
   expect(marked.exercises[1].sets[0]).toEqual(set)
   expect(unmarked.exercises[1].sets[0]).toBeNull()
   expect(activeRest(unmarked)).toEqual({ paused: false, endAt: 61_000 })
+})
+test('descanso novo vai pro plano na mesma ocorrência do exercício, mesmo com o plano reordenado', () => {
+  const w = workoutOf([{ exerciseId: 'Supino', restSec: 60 }, { exerciseId: 'Rosca' }, { exerciseId: 'Supino', restSec: 60 }])
+  const s = startSession(w, '2026-11-16')
+  const edited = { workouts: [{ ...w, exercises: [w.exercises[1], w.exercises[0], w.exercises[2]] }] }
+  expect(changePlanRest(edited, s, 2, 120).workouts[0].exercises.map((e) => e.restSec)).toEqual([90, 60, 120])
 })
