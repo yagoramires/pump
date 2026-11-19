@@ -4,7 +4,7 @@ import type { PlanExercise, WorkoutPlan } from './types'
 import { usePersisted } from '@/storage/db'
 import { fetchExercises, imageUrl } from '@/catalog/catalog'
 import { EXERCISE_LIST } from '@/catalog/urls'
-import { PLAN_NOT_FOUND, exportPlanFormat, parsePlanFormat, planFromFormat } from './planFormat'
+import { PLAN_NOT_FOUND, parsePlanFormat, planFromFormat } from './planFormat'
 import { buildConvertPrompt, buildPrompt } from './prompt'
 import { AnamnesisForm } from './AnamnesisForm'
 import { PlanEditor } from './PlanEditor'
@@ -53,7 +53,14 @@ export function PlanImport({ mode, onDone, onBack }: { mode: 'ia' | 'convert'; o
     const used = new Set(saved.workouts.flatMap((w) => w.exercises.map((e) => e.exerciseId)))
     const added = review && !review.offline ? review.newCustoms.filter((c) => used.has(c.id)) : []
     if (added.length) setCustoms((prev) => [...prev, ...added])
-    setPlan(saved)
+    // mantém o id do treino de mesma letra pra não zerar a rotação; cada id antigo vale uma vez só
+    const taken = new Set<string>()
+    const workouts = saved.workouts.map((w) => {
+      const old = plan.workouts.find((o) => o.label === w.label && !taken.has(o.id))
+      if (old) taken.add(old.id)
+      return old ? { ...w, id: old.id } : w
+    })
+    setPlan({ ...saved, workouts })
     onDone()
   }
 
@@ -177,7 +184,6 @@ export function PlanImport({ mode, onDone, onBack }: { mode: 'ia' | 'convert'; o
         {paste.reviewing && <p role="status" className="text-meta text-text-2">Buscando exercícios no catálogo…</p>}
         {paste.failed && <Alert variant="destructive">Não consegui preparar a revisão. Tente colar ou escolher o arquivo novamente.</Alert>}
       </PasteBox>
-      {mode === 'ia' && <p className="text-meta text-text-2">Quer só ajustar o plano atual? <Button type="button" variant="link" className="h-auto min-h-11 p-0 text-meta" onClick={() => copy(exportPlanFormat(plan), 'Plano copiado.')}>Copie seu plano</Button> e mande junto com o prompt.</p>}
     </div>
   )
 }

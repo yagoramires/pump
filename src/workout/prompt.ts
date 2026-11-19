@@ -4,6 +4,8 @@ import { HEADER, str } from '@/format/envelope'
 import { FOCUS, label, names, profileLines } from '@/profile/promptLines'
 import { EXERCISE_LIST_URL } from '@/catalog/urls'
 import { COPYABLE_JSON_RULE, listRule as rule } from '@/format/promptRules'
+import { exportPlanFormat } from './planFormat'
+import type { WorkoutPlan } from './types'
 import { MIN_IMPORTED_REST_SEC, MIN_KG, SETS } from './limits'
 
 const PLACES = {
@@ -107,3 +109,16 @@ Como fazer:
 3. O que a ficha trouxer além disso (observações, cardio) entra em "obs" ou como exercício, e cardio usa "series": 1 e o tempo em "reps", como "20 min".
 
 ${FORMAT}`
+
+export const buildAdjustPrompt = (plan: WorkoutPlan): string => `Este é meu plano de treino no formato do app Pump. Em seguida eu digo o que quero mudar.
+
+Regras:
+1. Mude só o que eu pedir. O resto fica igual, inclusive o formato e os nomes dos campos.
+2. Para exercício novo: ${listRule('Só use outro nome se nenhum da lista servir.')}
+3. ${COPYABLE_JSON_RULE}
+
+Meu plano atual:
+\`\`\`json
+${exportPlanFormat(plan)}
+\`\`\`
+`

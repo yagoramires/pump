@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { ArrowDown, ArrowUp, Copy, Plus, Share2, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, Copy, Plus, Trash2 } from 'lucide-react'
 import { DEFAULTS } from '@/schema'
 import type { DietItem, DietPlan, Macros, Meal, MealOption, Menu } from './types'
 import { MACRO_KEYS, MACRO_LABELS, iaLabel, itemKcalText, optionLabel, optionLetter } from './display'
 import { kcalOf } from './food'
-import { currentMenu, emptyMeal, emptyMenu, emptyOption, preparePlan } from './plan'
-import { exportDietFormat, planProblem } from './dietFormat'
+import { currentMenu, emptyMeal, emptyMenu, emptyOption } from './plan'
+import { planProblem } from './dietFormat'
 import { GRAMS, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 import { FoodPicker } from './FoodPicker'
 import { Button } from '@/components/ui/button'
@@ -16,7 +16,6 @@ import { BackHeader } from '@/components/BackHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { NumberField } from '@/components/NumberField'
 import { TimePicker } from '@/components/TimePicker'
-import { makeCopy } from '@/lib/share'
 import { Alert } from '@/components/ui/alert'
 
 /** "Apagar todos" também chega pelo `onSave`, com o plano vazio */
@@ -48,7 +47,6 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
   const [picking, setPicking] = useState<{ mealId: string; oi: number; name: string }>()
   const [confirm, setConfirm] = useState<keyof typeof CONFIRM>()
   const [error, setError] = useState('')
-  const [notice, setNotice] = useState('')
 
   const menu = plan.menus.find((m) => m.id === menuId) ?? plan.menus[0]
   const patchMenu = (f: (m: Menu) => Menu) => setPlan((p) => ({ ...p, menus: p.menus.map((m) => (m.id === menu.id ? f(m) : m)) }))
@@ -85,7 +83,6 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
     }
     onSave(plan)
   }
-  const copy = () => makeCopy(setNotice)(exportDietFormat(preparePlan(plan)), 'Cardápio copiado. Cole na IA pra pedir ajustes.')
   const confirmed = () => (confirm === 'menu' ? removeMenu() : onSave(DEFAULTS.dietPlan))
 
   return (
@@ -173,8 +170,6 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
       })}
       <Button variant="outline" className="w-full border-dashed border-border-strong text-text-2" disabled={menu.meals.length >= MAX_MEALS} onClick={addMeal}><Plus aria-hidden="true" /> Refeição</Button>
 
-      <Button variant="outline" onClick={copy}><Share2 /> Exportar cardápio</Button>
-      {notice && <p className="text-center text-meta text-text-2" role="status">{notice}</p>}
       <Button variant="link" className="text-negative hover:text-negative" onClick={() => setConfirm('all')}>Apagar todos os cardápios</Button>
 
       {picking && (

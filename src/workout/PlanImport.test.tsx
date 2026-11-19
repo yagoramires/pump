@@ -2,7 +2,8 @@ import { screen } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import userEvent from '@testing-library/user-event'
 import { get } from 'idb-keyval'
-import { save } from '@/storage/db'
+import { resetStoreForTests, save } from '@/storage/db'
+import type { WorkoutPlan } from './types'
 import { PlanImport } from './PlanImport'
 import { buildConvertPrompt } from './prompt'
 
@@ -107,7 +108,7 @@ test('gerar com IA e converter: descrição e 5 passos', async () => {
   expect(screen.getByText(/O Pump não tem IA própria/).compareDocumentPosition(screen.getByRole('radio', { name: 'Em casa' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   expect(screen.getByText('ChatGPT, Gemini, Claude…')).toBeInTheDocument()
   expect(screen.getByText('Revise e salve')).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Copie seu plano' })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Copie seu plano' })).not.toBeInTheDocument()
   unmount()
   await renderLoaded(<PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
   expect(await screen.findByRole('heading', { name: 'Converter ficha' })).toBeInTheDocument()
@@ -115,7 +116,6 @@ test('gerar com IA e converter: descrição e 5 passos', async () => {
   expect(screen.getByText('Junto com sua ficha (PDF, foto ou texto)')).toBeInTheDocument()
   expect(screen.getByText('Volte aqui e cole abaixo')).toBeInTheDocument()
   expect(screen.queryByRole('radio', { name: 'Em casa' })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Copie seu plano' })).not.toBeInTheDocument()
 })
 
 test('converter: Copiar leva o prompt de conversão e colar JSON funciona', async () => {
@@ -188,4 +188,21 @@ test('Usar plano por cima de um plano salvo pede confirmação', async () => {
   await user.click(screen.getByRole('button', { name: 'Substituir' }))
   expect(onDone).toHaveBeenCalled()
   await vi.waitFor(async () => expect((await get('workoutPlan'))?.workouts[0].name).toBe('Peito'))
+})
+
+test('reimportar mantém o id do treino de mesma letra (rotação) e dá id novo ao resto', async () => {
+  const user = userEvent.setup()
+  await save('workoutPlan', { workouts: [{ id: 'old-b', label: 'B', name: 'Costas', exercises: [] }] })
+  resetStoreForTests()
+  await renderLoaded(<PlanImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
+  await user.click(await screen.findByRole('textbox', { name: 'Resposta da IA' }))
+  const t = (letra: string) => ({ letra, nome: 'X', dias: ['seg'], exercicios: [REMADA] })
+  await user.paste(JSON.stringify({ formato: 'pump-plano', versao: 1, treinos: [t('A'), t('B')] }))
+  await user.click(await screen.findByRole('button', { name: 'Usar plano' }))
+  await user.click(await screen.findByRole('button', { name: 'Substituir' }))
+  await vi.waitFor(async () => expect((await get('workoutPlan'))?.workouts).toHaveLength(2))
+  const ids = ((await get('workoutPlan')) as WorkoutPlan).workouts.map((w) => w.id)
+  expect(ids[1]).toBe('old-b')
+  expect(ids[0]).not.toBe('old-b')
+  expect(new Set(ids).size).toBe(2)
 })
