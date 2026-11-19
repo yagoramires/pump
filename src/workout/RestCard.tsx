@@ -1,17 +1,33 @@
 import { useEffect, useRef, useState } from 'react'
-import { Timer } from 'lucide-react'
+import { Pause, Play, Timer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
+import { Chips } from '@/components/Chips'
+import { SheetBody } from '@/components/SheetRow'
 import { beep, remainingSec } from './restTimer'
 
 const mmss = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
+const ms = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+const DURATIONS = { '30': '30 s', '45': '45 s', '60': '60 s', '90': '90 s', '120': '2 min', '180': '3 min', '300': '5 min' }
 
-/** totalSec: descanso do exercício marcado; sem ele (app reaberto) a barra parte do restante ao montar */
-type Props = { endAt: number; totalSec?: number; onAdd15: () => void; onDone: () => void }
+/** totalSec: descanso do exercício marcado; sem ele (app reaberto) a barra parte do restante ao montar. restSec: tempo configurado do exercício */
+type Props = {
+  endAt?: number
+  pausedLeftMs?: number
+  totalSec?: number
+  restSec: number
+  onAdd15: () => void
+  onDone: () => void
+  onTogglePause: () => void
+  onPickDuration: (sec: number) => void
+}
 
-export function RestCard({ endAt, totalSec, onAdd15, onDone }: Props) {
+export function RestCard({ endAt, pausedLeftMs, totalSec, restSec, onAdd15, onDone, onTogglePause, onPickDuration }: Props) {
   const [now, setNow] = useState(() => Date.now())
+  const [picking, setPicking] = useState(false)
   const seenRunning = useRef(false)
-  const left = remainingSec(endAt, now)
+  const paused = pausedLeftMs !== undefined
+  const left = paused ? remainingSec(pausedLeftMs, 0) : remainingSec(endAt ?? 0, now)
   const [initial] = useState(left)
 
   useEffect(() => {
@@ -36,13 +52,28 @@ export function RestCard({ endAt, totalSec, onAdd15, onDone }: Props) {
     <div
       role="timer"
       aria-label="Descanso"
-      className="fixed bottom-[calc(var(--nav-h)+68px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) flex w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 items-center gap-2.5 rounded-[14px] border border-accent-line bg-surface py-1 pr-1 pl-3.5 shadow-[0_10px_30px_#000a]"
+      className="fixed bottom-[calc(var(--nav-h)+68px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) flex w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 items-center gap-2 rounded-[14px] border border-accent-line bg-surface py-1 pr-1 pl-2 shadow-[0_10px_30px_#000a]"
     >
-      <Timer size={18} className="shrink-0 text-accent" aria-hidden="true" />
+      <Button variant="ghost" size="sm" aria-label="Definir tempo de descanso" className="px-1.5 text-accent" onClick={() => setPicking(true)}>
+        <Timer aria-hidden="true" />
+      </Button>
       <b className="text-[19px] font-bold text-accent tabular-nums">{mmss(left)}</b>
       <div className="h-1 flex-1 overflow-hidden rounded-sm bg-line"><div className="h-full bg-accent" style={{ width: `${pct}%` }} /></div>
+      <span className="text-[12px] text-text-2 tabular-nums">de {ms(restSec)}</span>
+      <Button variant="outline" size="icon-sm" aria-label={paused ? 'Continuar descanso' : 'Pausar descanso'} onClick={onTogglePause}>
+        {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
+      </Button>
       <Button variant="outline" size="sm" onClick={onAdd15}>+15 s</Button>
       <Button variant="outline" size="sm" onClick={onDone}>Pular</Button>
+      <Drawer open={picking} onOpenChange={setPicking}>
+        <DrawerContent>
+          <SheetBody>
+            <DrawerTitle className="shrink-0 pb-1 text-[19px] font-semibold text-strong">Tempo de descanso</DrawerTitle>
+            <DrawerDescription className="pb-3 text-[13px] text-text-2">Vale pra este exercício, agora e nos próximos treinos.</DrawerDescription>
+            <Chips label="Tempo" options={DURATIONS} value={String(restSec)} cols="grid-cols-4" onChange={(v) => { if (v) { onPickDuration(Number(v)); setPicking(false) } }} />
+          </SheetBody>
+        </DrawerContent>
+      </Drawer>
     </div>
   )
 }

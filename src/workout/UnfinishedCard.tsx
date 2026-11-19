@@ -13,7 +13,7 @@ export function UnfinishedCard({ session, setLog }: { session: WorkoutSession; s
     setLog((prev) => {
       if (!prev[date]) return prev
       const { startedAt: _s, ...rest } = prev[date]
-      return { ...prev, [date]: { ...rest, completedAt: new Date(y, m - 1, d, 23, 59).toISOString(), restEndsAt: undefined } }
+      return { ...prev, [date]: { ...rest, completedAt: new Date(y, m - 1, d, 23, 59).toISOString(), restEndsAt: undefined, restPausedLeftMs: undefined } }
     })
     toast('Treino concluído', { action: { label: 'Desfazer', onClick: () => setLog((prev) => ({ ...prev, [date]: session })) } })
   }

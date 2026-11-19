@@ -21,6 +21,7 @@ import { completeSession, setDone, startSession } from './session'
 import { previousSets, sessionStats } from './stats'
 import { isRest, restRecord } from './rest'
 import { unlockAudio } from './restTimer'
+import { PLAN_DEFAULTS } from './exercises'
 import { isCardio } from './cardio'
 import { UnfinishedCard } from './UnfinishedCard'
 import { SwitchWorkout } from './SwitchWorkout'
@@ -44,6 +45,7 @@ export function TreinoTab() {
   const [preview, setPreview] = useState<number>()
   const [openIdx, setOpenIdx] = useState<'auto' | number | null>('auto')
   const [restTotal, setRestTotal] = useState<number>()
+  const [restEx, setRestEx] = useState<number>() // exercício do descanso em curso; sem ele (app reaberto) vale o próximo a fazer
   const [now, setNow] = useState(() => new Date())
 
   useEffect(() => {
@@ -78,7 +80,10 @@ export function TreinoTab() {
       }),
     [setLog, today],
   )
-  const finishRest = useCallback(() => patch((s) => (s.restEndsAt === undefined ? s : { ...s, restEndsAt: undefined })), [patch])
+  const finishRest = useCallback(
+    () => patch((s) => (s.restEndsAt === undefined && s.restPausedLeftMs === undefined ? s : { ...s, restEndsAt: undefined, restPausedLeftMs: undefined })),
+    [patch],
+  )
   const closePreview = useCallback(() => setPreview(undefined), [])
 
   const pastLink = <Button variant="ghost" className="h-8 px-1 text-[13px] text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /> Treinos anteriores</Button>
@@ -146,10 +151,11 @@ export function TreinoTab() {
       const s = current(prev)
       const marked = !s.exercises[exIdx].sets[setIdx]
       const next = setDone(s, exIdx, setIdx, marked ? v : null)
-      return { ...prev, [today]: marked ? { ...next, restEndsAt: Date.now() + restSec * 1000 } : next }
+      return { ...prev, [today]: marked ? { ...next, restEndsAt: Date.now() + restSec * 1000, restPausedLeftMs: undefined } : next }
     })
     if (!saved[today]?.exercises[exIdx].sets[setIdx]) return
     setRestTotal(restSec)
+    setRestEx(exIdx)
     if (view.exercises[exIdx].sets.every((d, j) => j === setIdx || d)) setOpenIdx('auto')
   }
   const start = () => setLog((prev) => ({ ...prev, [today]: current(prev) }))
@@ -233,14 +239,29 @@ export function TreinoTab() {
       ))}
 
       <div className="pointer-events-none fixed bottom-[calc(var(--nav-h)+env(safe-area-inset-bottom))] left-1/2 h-24 w-full max-w-md -translate-x-1/2 bg-linear-to-b from-transparent to-bg to-60%" />
-      {session?.restEndsAt !== undefined && (
+      {session && (session.restEndsAt !== undefined || session.restPausedLeftMs !== undefined) && (
         <RestCard
           endAt={session.restEndsAt}
+          pausedLeftMs={session.restPausedLeftMs}
           totalSec={restTotal}
+          restSec={view.exercises[restEx ?? Math.max(0, firstIncomplete(view))]?.restSec ?? PLAN_DEFAULTS.restSec}
           onDone={finishRest}
           onAdd15={() => {
-            patch((s) => ({ ...s, restEndsAt: (s.restEndsAt ?? Date.now()) + 15_000 }))
+            patch((s) => (s.restPausedLeftMs !== undefined ? { ...s, restPausedLeftMs: s.restPausedLeftMs + 15_000 } : { ...s, restEndsAt: (s.restEndsAt ?? Date.now()) + 15_000 }))
             setRestTotal((t) => t && t + 15)
+          }}
+          onTogglePause={() =>
+            patch((s) =>
+              s.restPausedLeftMs !== undefined
+                ? { ...s, restEndsAt: Date.now() + s.restPausedLeftMs, restPausedLeftMs: undefined }
+                : { ...s, restEndsAt: undefined, restPausedLeftMs: Math.max(0, (s.restEndsAt ?? Date.now()) - Date.now()) },
+            )
+          }
+          onPickDuration={(sec) => {
+            const idx = restEx ?? Math.max(0, firstIncomplete(view))
+            patch((s) => ({ ...s, restEndsAt: Date.now() + sec * 1000, restPausedLeftMs: undefined, exercises: s.exercises.map((e, i) => (i === idx ? { ...e, restSec: sec } : e)) }))
+            setPlan((p) => ({ workouts: p.workouts.map((w) => (w.id === view.workoutId ? { ...w, exercises: w.exercises.map((e, i) => (i === idx ? { ...e, restSec: sec } : e)) } : w)) }))
+            setRestTotal(sec)
           }}
         />
       )}

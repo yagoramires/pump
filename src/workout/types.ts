@@ -31,6 +31,8 @@ export interface WorkoutSession {
   workoutName: string
   exercises: SessionExercise[]
   restEndsAt?: number
+  /** descanso pausado: restante em ms (restEndsAt fica vazio) */
+  restPausedLeftMs?: number
   startedAt?: string
   completedAt?: string
   /** descanso marcado: sem exercícios e sem completedAt */
