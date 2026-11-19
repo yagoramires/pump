@@ -2,11 +2,9 @@ import type { ReactNode } from 'react'
 import { imageUrl } from '@/catalog/catalog'
 import { cn } from '@/lib/utils'
 import { ExerciseIcon } from './ExerciseIcon'
-import { groupExercises } from './reps'
+import { groupExercises, type ExerciseShape } from './reps'
 
-type Shape = { sets: number | unknown[]; reps: string }
-
-export function ExerciseGroups<T extends Shape>({ exercises, className, heading, row }: {
+export function ExerciseGroups<T extends ExerciseShape>({ exercises, className, heading, row }: {
   exercises: T[]
   className?: (cardio: boolean) => string
   heading?: string

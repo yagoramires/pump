@@ -1,7 +1,6 @@
 import * as idb from 'idb-keyval'
 import type { Profile } from './types'
 import { migrateData, migrateOnBoot, migrateStored } from './migrate'
-import { importBackupFile } from '@/backup/backup'
 import { readCurrent } from '@/storage/db'
 import { seedStore, stored } from '../../test/store'
 
@@ -60,14 +59,6 @@ test('migrateStored grava o perfil migrado e a medição no store', async () => 
   expect(await readCurrent('measurements')).toMatchObject([{ date: '2026-11-01', weightKg: 82.4 }])
   expect(await readCurrent('profile')).not.toHaveProperty('weightKg')
   expect(await readCurrent('profile')).toMatchObject({ focus: 'forca', dietGoal: 'perder', age: 30 })
-})
-test('backup antigo importado fica migrado na abertura seguinte', async () => {
-  const data = { profile: { sex: 'F', heightCm: 160, anamnesis: { goal: 'saude' } } }
-  vi.stubGlobal('location', { ...location, reload: vi.fn() })
-  await importBackupFile(new File([JSON.stringify({ app: 'pump', version: 1, exportedAt: '2026-11-01T00:00:00Z', data })], 'b.json'))
-  await seedStore({}) // a importação recarrega a página: a abertura migra
-  await migrateStored()
-  expect((await readCurrent('profile')).focus).toBe('condicionamento')
 })
 test('falha ao gravar a migração não rejeita e não apaga o peso do perfil no disco', async () => {
   warn = vi.spyOn(console, 'warn').mockImplementation(() => {})

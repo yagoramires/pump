@@ -4,4 +4,5 @@ import type { WorkoutSession } from './types'
 export const restRecord = (date: string): WorkoutSession => ({ date, workoutId: '', workoutLabel: '', workoutName: 'Descanso', exercises: [], rest: true })
 
 export const isRest = (s: WorkoutSession | undefined) => !!s?.rest
-export const isRestDay = (s: WorkoutSession | undefined) => isRest(s) && !s?.completedAt
+/** o registro do dia quando é treino, não descanso */
+export const sessionOf = (s: WorkoutSession | undefined) => (s && !isRest(s) ? s : undefined)

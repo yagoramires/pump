@@ -2,7 +2,6 @@ import { useState } from 'react'
 import type { PlanExercise, WorkoutPlan } from './types'
 import { usePersisted } from '@/storage/db'
 import { catalogOrNull, fetchExercises } from '@/catalog/catalog'
-import { HEADER } from '@/format/envelope'
 import { EXERCISE_LIST } from '@/catalog/urls'
 import { parsePlanFormat, planFromFormat } from './planFormat'
 import { buildConvertPrompt, buildPrompt } from './prompt'
@@ -95,7 +94,7 @@ export function PlanImport({ mode, onDone, onBack }: { mode: ImportMode; onDone:
           </Card>
         )}
         <OutsideCatalog title={`${plural(noPreview.length, 'exercício', 'exercícios')} sem prévia (fora do catálogo)`} names={noPreview} />
-        <ReviewActions ignored={review.ignoredDiet ? 'dieta' : undefined} use="Usar plano" onEdit={() => setEditing(true)} onUse={() => offer(review.plan)} />
+        <ReviewActions half="treinos" ignored={review.ignoredDiet} use="Usar plano" onEdit={() => setEditing(true)} onUse={() => offer(review.plan)} />
         {preview && <ExercisePreview exercise={preview} onClose={() => setPreview(undefined)} />}
         {confirm}
       </div>
@@ -114,7 +113,7 @@ export function PlanImport({ mode, onDone, onBack }: { mode: ImportMode; onDone:
         {mode === 'ia' && <AnamnesisForm value={profile.anamnesis ?? {}} onChange={(anamnesis) => setProfile((p) => ({ ...p, anamnesis }))} />}
       </ImportGuide>
       <CopyListButton file={EXERCISE_LIST} noun="exercícios" />
-      <PasteBox text={paste.text} onText={paste.set} onFile={(t) => paste.set(t, true)} problems={paste.problems} placeholder={`{ "formato": "${HEADER.formato}", "treinos": ... }`}>
+      <PasteBox paste={paste} half="treinos">
         {paste.reviewing && <p role="status" className="text-meta text-text-2">Buscando exercícios no catálogo…</p>}
         {paste.failed && <Alert variant="destructive">Não consegui preparar a revisão. Tente colar ou escolher o arquivo novamente.</Alert>}
       </PasteBox>

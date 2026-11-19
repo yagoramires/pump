@@ -17,7 +17,6 @@ import { liters, macroProgress, optionLetter } from './display'
 import { sortedMeals } from './plan'
 import { useDietToday } from './useDietToday'
 import { useWater } from './useWater'
-import { useDietPlan } from './useDietPlan'
 import { DietEditor } from './DietEditor'
 import { DietStart } from './DietStart'
 import { ShoppingList } from './ShoppingList'
@@ -28,8 +27,7 @@ const RING_R = 19
 const RING_C = 2 * Math.PI * RING_R
 
 export function DietTab() {
-  const { now, today, plan, day, menu: dayMenu, act, pickMenu } = useDietToday()
-  const { replacePlan } = useDietPlan()
+  const { now, today, plan, day, menu: dayMenu, act, pickMenu, replacePlan } = useDietToday()
   const water = useWater()
   const waterSettings = water.on
   const [editing, setEditing] = useState(false)

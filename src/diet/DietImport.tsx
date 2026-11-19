@@ -3,7 +3,6 @@ import type { DietItem, DietPlan } from './types'
 import { usePersisted } from '@/storage/db'
 import { catalogOrNull, fetchTaco } from '@/catalog/catalog'
 import { FOOD_LIST } from '@/catalog/urls'
-import { HEADER } from '@/format/envelope'
 import { buildDietConvertPrompt, buildDietPrompt } from './prompt'
 import { dietFromFormat, parseDietFormat, type ItemReport } from './dietFormat'
 import { iaLabel, itemKcalText, macroText, optionLabel, portionText } from './display'
@@ -112,7 +111,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
           </Card>
         ))}
         <OutsideCatalog title={`${plural(outside.length, 'item fora da TACO usa', 'itens fora da TACO usam')} os números da IA. Toque pra trocar.`} names={outside} />
-        <ReviewActions ignored={review.ignoredWorkouts ? 'treinos' : undefined} use="Usar cardápios" onEdit={() => setEditing(true)} onUse={() => offer(review.plan)} />
+        <ReviewActions half="dieta" ignored={review.ignoredWorkouts} use="Usar cardápios" onEdit={() => setEditing(true)} onUse={() => offer(review.plan)} />
         {picking && (
           <FoodPicker
             title={`Trocar · ${picking.name}`}
@@ -142,7 +141,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
         {mode === 'ia' && <DietAnamnesisForm value={profile.dietAnamnesis ?? {}} onChange={(dietAnamnesis) => setProfile((p) => ({ ...p, dietAnamnesis }))} />}
       </ImportGuide>
       <CopyListButton file={FOOD_LIST} noun="alimentos" />
-      <PasteBox text={paste.text} onText={paste.set} onFile={(t) => paste.set(t, true)} problems={paste.problems} placeholder={`{ "formato": "${HEADER.formato}", "dieta": ... }`}>
+      <PasteBox paste={paste} half="dieta">
         {paste.failed && <Alert variant="destructive">Não consegui revisar o cardápio. Tente colar ou escolher o arquivo novamente.</Alert>}
         {paste.reviewing && <p role="status" className="text-meta text-text-2">Conferindo na TACO…</p>}
       </PasteBox>

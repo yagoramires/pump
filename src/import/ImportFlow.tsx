@@ -7,7 +7,7 @@ import { Alert } from '@/components/ui/alert'
 import { Card } from '@/components/ui/card'
 import { copy } from '@/lib/share'
 import { catalogFile } from '@/catalog/catalog'
-import { IGNORED, type Half } from '@/format/envelope'
+import { HEADER, type Half } from '@/format/envelope'
 import { namesText } from '@/lib/text'
 import { BottomBar } from '@/components/BottomBar'
 import { Chip, ChipRow } from '@/components/ChipRow'
@@ -50,18 +50,19 @@ export function ImportGuide({ mode, made, source, prompt, children }: { mode: Im
   )
 }
 
-type PasteProps = { text: string; onText: (t: string) => void; onFile: (t: string) => void; problems: string[]; placeholder: string; children?: ReactNode }
+type PasteProps = { paste: { text: string; set: (t: string, now?: boolean) => void; problems: string[] }; half: Half; children?: ReactNode }
 
-export function PasteBox({ text, onText, onFile, problems, placeholder, children }: PasteProps) {
+/** `paste`: o retorno de usePastedReview */
+export function PasteBox({ paste: { text, set, problems }, half, children }: PasteProps) {
   return (
     <>
       <Textarea
         aria-label="Resposta da IA"
         rows={8}
         className="p-3.5"
-        placeholder={placeholder}
+        placeholder={`{ "formato": "${HEADER.formato}", "${half}": ... }`}
         value={text}
-        onChange={(e) => onText(e.target.value)}
+        onChange={(e) => set(e.target.value)}
       />
       <Button asChild variant="secondary" className="cursor-pointer font-medium">
        <label>
@@ -70,7 +71,7 @@ export function PasteBox({ text, onText, onFile, problems, placeholder, children
         <input type="file" hidden accept=".json,application/json,text/plain" onChange={async (e) => {
           const f = e.target.files?.[0]
           e.target.value = '' // o mesmo arquivo de novo dispara de novo
-          if (f) onFile(await f.text())
+          if (f) set(await f.text(), true)
         }} />
        </label>
       </Button>
@@ -124,11 +125,16 @@ export function OutsideCatalog({ title, names }: { title: string; names: string[
   )
 }
 
-/** `ignored`: a outra metade do arquivo, que esta aba não importa */
-export function ReviewActions({ ignored, use, onEdit, onUse }: { ignored?: Half; use: string; onEdit: () => void; onUse: () => void }) {
+/** a revisão da metade `half` avisa que a outra, ignorada, vai na outra aba */
+const IGNORED: Record<Half, string> = {
+  dieta: 'Os treinos deste arquivo podem ser importados na aba Treino',
+  treinos: 'A dieta deste arquivo pode ser importada na aba Dieta',
+}
+
+export function ReviewActions({ half, ignored, use, onEdit, onUse }: { half: Half; ignored: boolean; use: string; onEdit: () => void; onUse: () => void }) {
   return (
     <>
-      {ignored && <p className="text-meta text-text-2">{IGNORED[ignored]}</p>}
+      {ignored && <p className="text-meta text-text-2">{IGNORED[half]}</p>}
       <BottomBar className="gap-2">
         <Button type="button" variant="outline" className="flex-1 bg-transparent" onClick={onEdit}>Editar</Button>
         <Button type="button" className="flex-1" onClick={onUse}>{use}</Button>

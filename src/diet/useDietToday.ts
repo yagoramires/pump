@@ -8,7 +8,7 @@ type Act = (f: (d: DietDay) => DietDay) => void
 
 export function useDietToday() {
   const { now, today, tick } = useToday()
-  const { plan, selectMenu } = useDietPlan()
+  const { plan, selectMenu, replacePlan } = useDietPlan()
   const [log, setLog] = usePersisted('dietLog')
   const day = dayOf(log, plan, today)
   const menu = day && plan.menus.find((m) => m.id === day.menuId)
@@ -29,5 +29,5 @@ export function useDietToday() {
     go()
   }
 
-  return { now, today, tick, plan, day, menu, act, pickMenu }
+  return { now, today, tick, plan, day, menu, act, pickMenu, replacePlan }
 }

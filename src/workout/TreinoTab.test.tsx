@@ -136,7 +136,8 @@ test('treino em andamento passa da meia-noite e segue no mesmo dia ao voltar', a
   await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16']).toBeDefined())
   vi.setSystemTime(new Date(2026, 10, 17, 0, 30))
   await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
-  expect(screen.getByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
+  expect(screen.getByText(new RegExp(formatDayLabel('2026-11-16')))).toBeInTheDocument()
+  expect(screen.getByRole('checkbox', { name: 'Série 1 de Supino reto' })).toBeChecked()
 })
 test('check recém-feito, ainda gravando, segura o dia ao voltar depois da meia-noite', async () => {
   vi.setSystemTime(new Date(2026, 10, 16, 20, 0))
@@ -146,7 +147,8 @@ test('check recém-feito, ainda gravando, segura o dia ao voltar depois da meia-
   await act(async () => s1.click())
   vi.setSystemTime(new Date(2026, 10, 17, 0, 30))
   await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
-  expect(screen.getByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
+  expect(screen.getByText(new RegExp(formatDayLabel('2026-11-16')))).toBeInTheDocument()
+  expect(screen.getByRole('checkbox', { name: 'Série 1 de Supino reto' })).toBeChecked()
 })
 test('carga com vírgula na tabela grava decimal', async () => {
   const user = userEvent.setup()

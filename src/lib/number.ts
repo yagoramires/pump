@@ -18,9 +18,11 @@ export const formatSigned = (n: number, minus = '−') => `${n < 0 ? minus : n >
 /** valor salvo de volta no campo: sem milhar, senão "1.240" voltaria como 1,24 */
 export const formatInput = (n: number) => String(n).replace('.', ',')
 
+export const inRange = (v: unknown, min: number, max: number): v is number => typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max
+
 export function parseInRange(s: string, min: number, max: number): number | null {
   const n = parseDecimal(s)
-  return n !== null && n >= min && n <= max ? n : null
+  return inRange(n, min, max) ? n : null
 }
 
 export const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`

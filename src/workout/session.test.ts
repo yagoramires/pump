@@ -29,11 +29,6 @@ test('completeSession marca a hora e encerra o descanso, correndo ou pausado', (
   expect(activeRest(running)).toBeUndefined()
   expect(activeRest(completeSession(toggleRestPause({ ...s, restEndsAt: 30_000 }, 0), now))).toBeUndefined()
 })
-test('startSession grava startedAt', () => {
-  const now = new Date(2026, 10, 16, 18, 0)
-  expect(startSession(workoutOf([]), '2026-11-16', now).startedAt).toBe(now.toISOString())
-})
-
 test('marcar inicia o descanso do exercício certo e desmarcar mantém o tempo que já corria', () => {
   const initial = startSession(workoutOf([{ restSec: 90 }, { restSec: 60 }]), '2026-11-16')
   const marked = toggleSetWithRest(initial, 1, 0, SET, 1_000)

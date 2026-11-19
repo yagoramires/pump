@@ -3,6 +3,7 @@ import { normalize, str } from '@/lib/text'
 import { splitExerciseLine } from '@/catalog/exerciseLine'
 import { FormatError, headerProblems, readHalf, writeEnvelope } from '@/format/envelope'
 import { isObj } from '@/lib/utils'
+import { inRange } from '@/lib/number'
 import { KG, REST_SEC, SETS } from './limits'
 import { PLAN_DEFAULTS, newCustomExercise, toPlanExercise } from './exercises'
 
@@ -33,13 +34,13 @@ function parseTreino(t: unknown, n: number, seen: Set<string>, problem: Problem)
     const nome = str(x.nome)
     if (!nome) problem(`${at}: "nome" vazio`)
     const series = x.series as number
-    if (!Number.isInteger(series) || series < SETS[0] || series > SETS[1]) problem(`${at}: "series" precisa ser um número inteiro de ${SETS[0]} a ${SETS[1]}`)
+    if (!(Number.isInteger(series) && inRange(series, ...SETS))) problem(`${at}: "series" precisa ser um número inteiro de ${SETS[0]} a ${SETS[1]}`)
     const reps = typeof x.reps === 'number' ? String(x.reps) : str(x.reps)
     if (!reps) problem(`${at}: "reps" vazio`, 'reps', i)
     const carga = x.cargaKg as number | undefined
-    if (carga != null && !(Number.isFinite(carga) && carga >= KG[0] && carga <= KG[1])) problem(`${at}: "cargaKg" precisa ser um número de ${KG[0]} a ${KG[1]}`)
+    if (carga != null && !inRange(carga, ...KG)) problem(`${at}: "cargaKg" precisa ser um número de ${KG[0]} a ${KG[1]}`)
     const desc = x.descansoSeg as number | undefined
-    if (desc != null && !(Number.isInteger(desc) && desc >= REST_SEC[0] && desc <= REST_SEC[1])) problem(`${at}: "descansoSeg" precisa ser um número inteiro de ${REST_SEC[0]} a ${REST_SEC[1]}`)
+    if (desc != null && !(Number.isInteger(desc) && inRange(desc, ...REST_SEC))) problem(`${at}: "descansoSeg" precisa ser um número inteiro de ${REST_SEC[0]} a ${REST_SEC[1]}`)
     const obs = str(x.obs)
     return { nome, series, reps, ...(carga != null && { cargaKg: carga }), ...(desc != null && { descansoSeg: desc }), ...(obs && { obs }) }
   })

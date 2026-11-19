@@ -25,7 +25,7 @@ import {
   setDone, startSession, toggleRestPause, toggleSetWithRest,
 } from './session'
 import { previousSets, sessionStats } from './stats'
-import { isRest, restRecord } from './rest'
+import { isRest, restRecord, sessionOf } from './rest'
 import { unlockAudio } from './restTimer'
 import { PLAN_DEFAULTS } from './exercises'
 import { ExerciseGroups } from './ExerciseGroups'
@@ -70,7 +70,7 @@ export function TreinoTab() {
   }
 
   const rest = isRest(log[today])
-  const session = rest ? undefined : log[today]
+  const session = sessionOf(log[today])
   const next = nextWorkout(plan, log)
   const workout = plan.workouts.find((w) => w.id === chosenId) ?? next
   const unfinished = unfinishedSession(log, today)
@@ -78,8 +78,8 @@ export function TreinoTab() {
   const patch = useCallback(
     (f: (s: WorkoutSession) => WorkoutSession) =>
       setLog((prev) => {
-        const s = prev[today]
-        return s && !isRest(s) ? { ...prev, [today]: f(s) } : prev
+        const s = sessionOf(prev[today])
+        return s ? { ...prev, [today]: f(s) } : prev
       }),
     [setLog, today],
   )
@@ -153,10 +153,7 @@ export function TreinoTab() {
   const restIdx = restExerciseIndex(view)
   const timer = activeRest(session)
   const open = openIdx === 'auto' ? firstIncompleteExercise(view) : openIdx
-  const current = (prev: WorkoutLog) => {
-    const s = prev[today]
-    return s && !isRest(s) ? s : startSession(workout!, today)
-  }
+  const current = (prev: WorkoutLog) => sessionOf(prev[today]) ?? startSession(workout!, today)
   const markRest = () => {
     setLog((prev) => (prev[today] ? prev : { ...prev, [today]: restRecord(today) }))
     toast('Descanso marcado')

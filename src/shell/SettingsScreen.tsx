@@ -10,6 +10,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { SettingsRow, SettingsSection } from '@/components/SettingsSection'
 import { latestWeight } from '@/evolution/measurements'
 import { ProfileScreen } from '@/profile/ProfileScreen'
+import { hasProfile } from '@/profile/profile'
 import { WorkoutSettings } from '@/workout/WorkoutSettings'
 import { DietSettings } from '@/diet/DietSettings'
 import { BackupRestore } from '@/backup/BackupRestore'
@@ -36,7 +37,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
       <SettingsSection title="TREINO">
         <WorkoutSettings open={setView} />
         <SettingsRow
-          icon={<User size={18} aria-hidden="true" />} color="var(--c2)" title="Perfil" sub={weight && profile.heightCm ? `${formatKg(weight)} kg · ${profile.heightCm} cm` : undefined}
+          icon={<User size={18} aria-hidden="true" />} color="var(--c2)" title="Perfil" sub={weight && hasProfile(profile) ? `${formatKg(weight)} kg · ${profile.heightCm} cm` : undefined}
           onClick={() => setView(<><BackHeader title="Perfil" onBack={back} /><div className="mt-3"><ProfileScreen onDone={back} /></div></>)}
         />
       </SettingsSection>

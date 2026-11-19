@@ -52,7 +52,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const go = (n: number) => { setMonth(new Date(y, m + n, 1)); setDay(undefined) }
 
   const records = (k: string) => dayRecords({ workoutLog: log, dietLog: diet, waterLog: water, measurements: measures, photoSets: sets }, k)
-  const { session: done, rest, diet: meals, water: drank, measurement: measure, photos } = day ? records(day) : {}
+  const { session: done, rest, diet: meals, water: drank, measurement: measure, photos, others } = day ? records(day) : {}
 
   const remove = () => {
     if (!day) return
@@ -78,7 +78,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
         {keys.map((k, i) => {
           const r = records(k)
           const trained = !!r.session
-          const dot = r.rest || !!(r.diet || r.water || r.measurement || r.photos)
+          const dot = r.others
           return (
             <Toggle
               key={k}
@@ -105,7 +105,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
           <div className="label-caps mx-0.5 pt-1">
             {done ? `${formatDayMonth(day)} · Treino ${done.workoutLabel}` : formatDayMonth(day)}
           </div>
-          {!done && !rest && !meals && !drank && !measure && !photos ? (
+          {!done && !others ? (
             <p className="px-0.5 text-sm text-text-2">Nada registrado neste dia.</p>
           ) : (
             <Card size="flush">

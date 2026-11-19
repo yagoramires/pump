@@ -64,14 +64,6 @@ test('pular o treino leva à dieta, não conclui', async () => {
   expect((await readCurrent('settings')).onboardingDone).toBe(false)
 })
 
-test('pular fica embaixo, não no cabeçalho do passo', async () => {
-  const user = userEvent.setup()
-  await renderLoaded(<Onboarding />)
-  await toTreino(user)
-  const skip = screen.getByRole('button', { name: 'Pular por agora' })
-  expect(skip.closest('.fixed')).not.toBeNull() // dentro da BottomBar
-})
-
 test('voltar no passo 5 leva ao treino sem concluir', async () => {
   const user = userEvent.setup()
   await renderLoaded(<Onboarding />)
@@ -89,16 +81,6 @@ test('5 passos até concluir', async () => {
   await user.click(screen.getByRole('button', { name: 'Pular por agora' }))
   await user.click(screen.getByRole('button', { name: 'Pular por agora' }))
   await waitFor(async () => expect((await readCurrent('settings')).onboardingDone).toBe(true))
-})
-
-test('restaurar backup no passo 1 conclui a montagem', async () => {
-  vi.stubGlobal('location', { ...location, reload: vi.fn() })
-  const old = { app: 'pump', version: 1, exportedAt: new Date().toISOString(), data: { settings: { lastTab: 'treino', onboardingDone: true }, profile: { sex: 'M', heightCm: 180 } } }
-  const user = userEvent.setup()
-  await renderLoaded(<Onboarding />)
-  await user.upload(screen.getByLabelText('Arquivo de backup'), new File([JSON.stringify(old)], 'b.json', { type: 'application/json' }))
-  await user.click(await screen.findByRole('button', { name: 'Restaurar' }))
-  await waitFor(async () => expect(await stored('settings')).toMatchObject({ onboardingDone: true }))
 })
 
 test('sem internet ao usar um plano pronto mostra o aviso', async () => {

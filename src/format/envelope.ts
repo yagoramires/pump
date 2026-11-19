@@ -27,11 +27,6 @@ const ONLY: Record<Half, string> = {
   treinos: 'Este arquivo só tem treinos. Importe na aba Treino.',
   dieta: 'Este arquivo só tem dieta. Importe na aba Dieta.',
 }
-/** a revisão de uma metade avisa que a outra, ignorada, vai na outra aba */
-export const IGNORED: Record<Half, string> = {
-  treinos: 'Os treinos deste arquivo podem ser importados na aba Treino',
-  dieta: 'A dieta deste arquivo pode ser importada na aba Dieta',
-}
 
 /** cada aba lê a sua metade: a outra é ignorada (`ignored` avisa) e um arquivo só com ela aponta a outra aba.
  * O texto colado é qualquer coisa que a IA mandou: erro inesperado ao ler vira `notFound` */

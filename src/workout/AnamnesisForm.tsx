@@ -3,6 +3,7 @@ import { EXTRA_LABEL, LEVEL_LABEL, MUSCLE_LABEL, PLACE_LABEL, SPLIT_LABEL } from
 import { Chips, MultiChips } from '@/components/Chips'
 import { Card } from '@/components/ui/card'
 import { NumberField } from '@/components/NumberField'
+import { FieldLabel } from '@/components/FieldLabel'
 
 // \u200b deixa o chip quebrar na barra
 const SPLIT_CHIPS = { ...SPLIT_LABEL, ppl: SPLIT_LABEL.ppl.replaceAll('/', '/\u200b') }
@@ -20,8 +21,8 @@ export function AnamnesisForm({ value, onChange }: { value: Anamnesis; onChange:
       <Chips label="Divisão preferida" options={SPLIT_CHIPS} value={value.split} onChange={(v) => set('split', v)} cols="grid-cols-3" />
       <MultiChips label="Pontos fracos" options={MUSCLE_LABEL} value={value.weak} onChange={(v) => set('weak', v)} cols="grid-cols-3 xs:grid-cols-4" />
       <MultiChips label="Incluir também" options={EXTRA_LABEL} value={value.extras} onChange={(v) => set('extras', v)} />
-      <div>
-        <label htmlFor="tempo" className="label-caps-wide mb-1.5 block">Tempo por treino</label>
+      <div className="flex flex-col gap-1.5">
+        <FieldLabel label="Tempo por treino" htmlFor="tempo" />
         <NumberField id="tempo" className="pr-12" inputMode="numeric" unit="min" min={0} max={Infinity} value={value.minutes} onChange={(n) => set('minutes', n ? Math.trunc(n) || undefined : undefined)} />
       </div>
     </Card>
