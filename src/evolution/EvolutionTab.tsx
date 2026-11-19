@@ -185,7 +185,7 @@ export function EvolutionTab() {
       <Card size="flush">
         <CardHeader>
           <CardTitle>Fotos</CardTitle>
-          <CardAction className="flex gap-1">
+          <CardAction className="flex gap-4">
             <Button type="button" variant="link" className={LINK} onClick={() => setView('capture')}>Nova foto</Button>
             <Button type="button" variant="link" className={LINK} disabled={input.photoSets.length < 2} onClick={() => setView('compare')}>Comparar</Button>
           </CardAction>
