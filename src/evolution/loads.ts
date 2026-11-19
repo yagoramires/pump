@@ -35,9 +35,9 @@ function calcAll(log: WorkoutLog, period: LoadPeriod, today: string): Calc[] {
     if (period !== 'all' && daysBetween(s.date, today) > Number(period)) continue
     const seen = new Set<string>()
     for (const e of s.exercises) {
-      if (seen.has(e.exerciseId)) continue
+      if (!hasMarkedSet(e) || seen.has(e.exerciseId)) continue
       seen.add(e.exerciseId)
-      if (hasMarkedSet(e)) byId.set(e.exerciseId, [...(byId.get(e.exerciseId) ?? []), { date: s.date, e }])
+      byId.set(e.exerciseId, [...(byId.get(e.exerciseId) ?? []), { date: s.date, e }])
     }
   }
   return [...byId].flatMap(([exerciseId, entries]) => {

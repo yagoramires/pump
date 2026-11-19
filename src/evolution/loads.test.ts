@@ -54,6 +54,9 @@ test('com lastro no período usa carga e ignora sessões a 0 kg', () => {
 test('exercício repetido no mesmo treino vale a primeira ocorrência', () => {
   expect(rows(logOf(sess('2026-11-15', [supino([set(60)]), supino([set(90)])])))[0].top.last).toBe(60)
 })
+test('exercício repetido: ignora ocorrência sem série marcada e usa a primeira com série', () => {
+  expect(rows(logOf(sess('2026-11-15', [supino([null]), supino([set(60)]), supino([set(90)])])))[0].top.last).toBe(60)
+})
 test('agrupa por grupo muscular na ordem fixa; sem músculo e pescoço vão para Outros', () => {
   const ex = (id: string, muscles: string[]) => ({ exerciseId: id, name: id, muscles, sets: [set(10)] })
   const s = loadsSummary(logOf(sess('2026-11-15', [ex('A', ['quadríceps']), ex('B', ['peito']), ex('C', []), ex('D', ['pescoço'])])), 'all', today)
