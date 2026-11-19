@@ -18,9 +18,12 @@ export function ShoppingList({ onClose }: { onClose: () => void }) {
   const [settings, setSettings] = usePersisted('settings')
   const [days, setDays] = useState('30')
   const items = shoppingList(plan, Number(days))
-  const checked = settings.shoppingChecked ?? []
-  const setChecked = (next: string[]) => setSettings((s) => ({ ...s, shoppingChecked: next }))
+  const keys = new Set(items.map((i) => i.key))
+  // só vale o que está na lista de agora; marcas de planos antigos são podadas a cada alteração
+  const checked = (settings.shoppingChecked ?? []).filter((k) => keys.has(k))
+  const setChecked = (next: string[]) => setSettings((s) => ({ ...s, shoppingChecked: next.filter((k) => keys.has(k)) }))
   const toggle = (key: string) => setChecked(checked.includes(key) ? checked.filter((k) => k !== key) : [...checked, key])
+  const missing = items.filter((i) => !checked.includes(i.key))
   return (
     <>
       <BackHeader title="Lista de compras" onBack={onClose} />
@@ -47,7 +50,7 @@ export function ShoppingList({ onClose }: { onClose: () => void }) {
               </li>
             ))}
           </ul></Card>
-          <Button variant="outline" onClick={() => makeCopy(toast)(shoppingText(items), 'Lista copiada')}>Copiar lista</Button>
+          <Button variant="outline" onClick={() => makeCopy(toast)(shoppingText(checked.length ? missing : items), 'Lista copiada')}>{checked.length ? 'Copiar o que falta' : 'Copiar lista'}</Button>
           {checked.length > 0 && <Button variant="link" onClick={() => setChecked([])}>Limpar marcações</Button>}
         </div>
       )}

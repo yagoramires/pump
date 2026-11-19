@@ -26,7 +26,7 @@ describe('shoppingList', () => {
   })
   it('conta só quando todas as ocorrências têm a mesma unidade', () => {
     const ok = plan([meal([item('Ovo', 100, { portion: '2 ovos' })]), meal([item('Ovo', 50, { portion: '1 ovo' })])])
-    expect(shoppingList(ok, 7)[0].count).toEqual({ n: 21, unit: 'ovos' })
+    expect(shoppingList(ok, 7)[0].count).toEqual({ n: 21, unit: 'ovo' })
     const mixed = plan([meal([item('Ovo', 100, { portion: '2 ovos' })]), meal([item('Ovo', 50)])])
     expect(shoppingList(mixed, 7)[0].count).toBeUndefined()
     const other = plan([meal([item('Ovo', 100, { portion: '2 ovos' })]), meal([item('Ovo', 50, { portion: '1 colher' })])])
@@ -64,4 +64,30 @@ it('countText pluraliza só com n > 1', () => {
   expect(countText({ n: 45, unit: 'unidade' })).toBe('≈ 45 unidades')
   expect(countText({ n: 14, unit: 'ovos' })).toBe('≈ 14 ovos')
   expect(countText({ n: 1, unit: 'fatia' })).toBe('≈ 1 fatia')
+})
+
+describe('unidades', () => {
+  const one = (...portions: (string | undefined)[]) => shoppingList(plan(portions.map((po) => meal([item('X', 10, { portion: po })]))), 7)[0]
+  it('singular e plural da mesma unidade somam', () => {
+    expect(one('1 unidade', '2 unidades')?.count).toEqual({ n: 21, unit: 'unidade' })
+    expect(one('1 pote', '2 potes')?.count).toEqual({ n: 21, unit: 'pote' })
+    expect(one('1 pão', '2 pães')?.count).toEqual({ n: 21, unit: 'pão' })
+    expect(one('1 colher', '2 colheres')?.count?.n).toBe(21)
+  })
+  it('gramas e ml não são contáveis', () => {
+    expect(one('100 g')?.count).toBeUndefined()
+    expect(one('200 ml')?.count).toBeUndefined()
+    expect(one('1 litro')?.count).toBeUndefined()
+  })
+  it('a unidade é a expressão toda', () => {
+    expect(one('3 colheres de sopa', '1 colher de chá')?.count).toBeUndefined()
+    expect(one('3 colheres de sopa', '1 colher de sopa')?.count).toEqual({ n: 28, unit: 'colher de sopa' })
+  })
+  it('countText: singular com 1, plural da expressão, sigla intacta', () => {
+    expect(countText({ n: 1, unit: 'unidade' })).toBe('≈ 1 unidade')
+    expect(countText({ n: 3, unit: 'colher de sopa' })).toBe('≈ 3 colheres de sopa')
+    expect(countText({ n: 2, unit: 'un' })).toBe('≈ 2 un')
+    expect(countText({ n: 2, unit: 'col' })).toBe('≈ 2 col')
+    expect(countText({ n: 2, unit: 'pão' })).toBe('≈ 2 pães')
+  })
 })

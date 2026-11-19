@@ -67,3 +67,25 @@ test('copiar lista usa o helper de cópia', async () => {
   await user.click(await screen.findByRole('button', { name: 'Copiar lista' }))
   expect(copyText).toHaveBeenCalledWith(expect.stringContaining('• Arroz — 3 kg'))
 })
+
+test('marcas de itens que não existem mais não aparecem nem contam', async () => {
+  await save('dietPlan', plan)
+  await save('settings', { ...DEFAULTS.settings, onboardingDone: true, shoppingChecked: ['n:fantasma'] })
+  const user = userEvent.setup()
+  await renderLoaded(<ShoppingList onClose={() => {}} />)
+  await screen.findByRole('checkbox', { name: 'Arroz' })
+  expect(screen.queryByRole('button', { name: 'Limpar marcações' })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('checkbox', { name: 'Arroz' }))
+  await waitFor(async () => expect((await load('settings'))?.shoppingChecked).toEqual(['n:arroz']))
+})
+
+test('com marcas copia só o que falta', async () => {
+  await save('dietPlan', plan)
+  const user = userEvent.setup()
+  await renderLoaded(<ShoppingList onClose={() => {}} />)
+  await user.click(await screen.findByRole('checkbox', { name: 'Arroz' }))
+  await user.click(screen.getByRole('button', { name: 'Copiar o que falta' }))
+  const text = vi.mocked(copyText).mock.calls[0][0]
+  expect(text).toContain('Ovo')
+  expect(text).not.toContain('Arroz')
+})
