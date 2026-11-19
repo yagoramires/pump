@@ -12,15 +12,15 @@ import { TreinoTab } from '@/workout/TreinoTab'
 import { PreviewSync } from '@/workout/previews'
 import { backupDue } from '@/storage/backup'
 import { useBackupExport } from '@/shell/useBackupExport'
-import { onStorageError, readKey, requestPersist, usePersisted } from '@/storage/db'
+import { boot, onStorageError, requestPersist, usePersisted } from '@/storage/db'
 import { todayKey } from '@/lib/date'
 import { useCheckIn } from '@/evolution/useCheckIn'
 import { AchievementToasts } from '@/evolution/AchievementToasts'
 import { EvolutionTab } from '@/evolution/EvolutionTab'
 import { Loading } from '@/components/Loading'
 import { OpenSettingsContext } from '@/components/openSettings'
-import { migrationFor } from '@/profile/migrate'
-import { USER_KEYS, type Tab } from './schema'
+import { migrateOnBoot } from '@/profile/migrate'
+import type { Tab } from './schema'
 import { Alert } from '@/components/ui/alert'
 
 // dieta fora do chunk principal (orçamento de bundle); continua no precache
@@ -38,9 +38,7 @@ export default function App() {
 }
 
 function Shell() {
-  const reads = USER_KEYS.map((k) => readKey(k))
-  for (const r of reads) use(r)
-  use(migrationFor(readKey('profile')))
+  use(boot(migrateOnBoot))
   const [settings, setSettings] = usePersisted('settings')
   const [storageError, setStorageError] = useState<string>()
   const [showSettings, setShowSettings] = useState(false)

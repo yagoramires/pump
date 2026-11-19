@@ -1,9 +1,10 @@
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { load, save } from '@/storage/db'
+import { save } from '@/storage/db'
 import { loadPhoto, savePhoto } from '@/storage/photos'
 import { dietDay, food, pe } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
+import { stored } from '../../test/store'
 import { HistoryScreen } from './HistoryScreen'
 
 beforeEach(async () => {
@@ -20,7 +21,7 @@ test('apagar fotos do dia remove o registro e as fotos', async () => {
   await user.click(await screen.findByRole('button', { name: '17' }))
   await user.click(screen.getByRole('button', { name: 'Apagar fotos' }))
   await user.click(await screen.findByRole('button', { name: 'Apagar' }))
-  await waitFor(async () => expect(await load('photoSets')).toEqual([]))
+  await waitFor(async () => expect(await stored('photoSets')).toEqual([]))
   expect(await loadPhoto(id)).toBeUndefined()
 })
 test('detalhe do dia mostra o treino concluído', async () => {
@@ -60,7 +61,7 @@ test('apagar medidas do dia remove o registro', async () => {
   expect(screen.getByText('Peso 78,4 kg · Cintura 81 cm')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Apagar medidas' }))
   await user.click(await screen.findByRole('button', { name: 'Apagar' }))
-  await waitFor(async () => expect(await load('measurements')).toEqual([{ id: 'n', date: '2026-11-10', weightKg: 79 }]))
+  await waitFor(async () => expect(await stored('measurements')).toEqual([{ id: 'n', date: '2026-11-10', weightKg: 79 }]))
 })
 test('abre com hoje selecionado e o dia descreve o que tem registrado', async () => {
   await save('measurements', [{ id: 'm', date: '2026-11-17', weightKg: 78.4 }])
@@ -101,10 +102,10 @@ test('Histórico mostra dieta e água do dia e apaga com confirmação', async (
   await user.click(screen.getByRole('button', { name: 'Apagar dieta' }))
   expect(await screen.findByText('Apagar dieta?')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Apagar' }))
-  await waitFor(async () => expect(Object.keys((await load('dietLog'))!)).toEqual(['2026-11-14', '2026-11-15']))
+  await waitFor(async () => expect(Object.keys((await stored('dietLog'))!)).toEqual(['2026-11-14', '2026-11-15']))
   await user.click(screen.getByRole('button', { name: 'Apagar água' }))
   await user.click(await screen.findByRole('button', { name: 'Apagar' }))
-  await waitFor(async () => expect(await load('waterLog')).toEqual({}))
+  await waitFor(async () => expect(await stored('waterLog')).toEqual({}))
   expect(screen.queryByText('Dieta · 600 kcal')).not.toBeInTheDocument()
 })
 test('aberto na virada do dia, "hoje" segue o relógio ao voltar do segundo plano', async () => {

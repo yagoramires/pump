@@ -2,7 +2,7 @@ import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ex } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
-import { resetStoreForTests, save } from '@/storage/db'
+import { seedStore } from '../../test/store'
 import { fetchExercises } from '@/catalog/catalog'
 import { CatalogPicker } from './CatalogPicker'
 
@@ -12,8 +12,7 @@ vi.mock('@/catalog/catalog', async (orig) => ({ ...(await orig<typeof import('@/
 
 test('offline: avisa e lista o exercício próprio salvo', async () => {
   vi.mocked(fetchExercises).mockRejectedValue(new Error('offline'))
-  await save('customExercises', [{ id: 'custom-1', name: 'Remada do Yago', muscles: ['dorsais'] }])
-  resetStoreForTests()
+  await seedStore({ customExercises: [{ id: 'custom-1', name: 'Remada do Yago', muscles: ['dorsais'] }] })
   await renderLoaded(<CatalogPicker onPick={vi.fn()} onClose={vi.fn()} />)
   expect(await screen.findByText('Sem internet: só seus exercícios aparecem')).toBeInTheDocument()
   expect(await screen.findByText('Remada do Yago')).toBeInTheDocument()
@@ -23,8 +22,7 @@ test('offline: avisa e lista o exercício próprio salvo', async () => {
 test('filtro de músculo inclui secundários; com aparelho, os exercícios próprios somem', async () => {
   const list = [ex('Remada', { muscles: ['dorsais', 'bíceps'], equipment: 'barra' }), ex('Rosca', { muscles: ['bíceps'], equipment: 'halter' }), ex('Agachamento', { muscles: ['quadríceps'], equipment: 'barra' })]
   vi.mocked(fetchExercises).mockResolvedValue(list)
-  await save('customExercises', [{ id: 'custom-1', name: 'Rosca do Yago', muscles: ['bíceps'] }])
-  resetStoreForTests()
+  await seedStore({ customExercises: [{ id: 'custom-1', name: 'Rosca do Yago', muscles: ['bíceps'] }] })
   const user = userEvent.setup()
   await renderLoaded(<CatalogPicker onPick={vi.fn()} onClose={vi.fn()} />)
   const names = () => screen.queryAllByRole('button', { name: /^Adicionar / }).map((b) => b.getAttribute('aria-label'))

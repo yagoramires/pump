@@ -22,7 +22,7 @@ export function usePhotoSets() {
       gone = prev.flatMap(photoIds).filter((id) => !kept.has(id))
       return next
     })
-    // falhar aqui só deixa fotos órfãs no banco; o registro já não aponta pra elas
+    // guarded já avisou onStorageError; falhar aqui só deixa fotos órfãs no banco, o registro já não aponta pra elas
     if (gone.length) void deletePhotos(gone).catch(() => {})
   }
   return {

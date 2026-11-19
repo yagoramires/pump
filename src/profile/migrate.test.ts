@@ -1,9 +1,9 @@
 import * as idb from 'idb-keyval'
-import { set } from 'idb-keyval'
 import type { Profile } from './types'
-import { migrateData, migrateStored, migrationFor } from './migrate'
+import { migrateData, migrateOnBoot, migrateStored } from './migrate'
 import { importBackupFile } from '@/storage/backup'
-import { readCurrent, readKey, resetStoreForTests } from '@/storage/db'
+import { readCurrent } from '@/storage/db'
+import { seedStore, stored } from '../../test/store'
 
 vi.mock('idb-keyval', async (orig) => {
   const m = await orig<typeof import('idb-keyval')>()
@@ -16,8 +16,7 @@ afterEach(() => warn?.mockRestore())
 const OLD = { profile: { sex: 'M', heightCm: 178, weightKg: 82.4, anamnesis: { goal: 'forca', age: 30, daysPerWeek: 4, notes: 'ombro', level: 'avancado' }, dietAnamnesis: { goal: 'perder', wake: '06:30', train: '18:00', sleep: '23:00', meals: 5 } }, measurements: [], settings: { firstUseAt: '2026-11-01' } }
 
 test('abrir o app com perfil já migrado não grava nada', async () => {
-  await set('profile', { sex: 'M', heightCm: 178, focus: 'forca', anamnesis: { level: 'avancado' } })
-  await set('measurements', [])
+  await seedStore({ profile: { sex: 'M', heightCm: 178, focus: 'forca', anamnesis: { level: 'avancado' } }, measurements: [] })
   vi.mocked(idb.set).mockClear()
   await migrateStored()
   expect(idb.set).not.toHaveBeenCalled()
@@ -56,8 +55,7 @@ test('idempotente', () => {
   expect(migrateData(once, '2026-11-18')).toEqual(once)
 })
 test('migrateStored grava o perfil migrado e a medição no store', async () => {
-  await set('profile', OLD.profile)
-  await set('settings', { lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01' })
+  await seedStore({ profile: OLD.profile as never, settings: { lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01' } })
   await migrateStored()
   expect(await readCurrent('measurements')).toMatchObject([{ date: '2026-11-01', weightKg: 82.4 }])
   expect(await readCurrent('profile')).not.toHaveProperty('weightKg')
@@ -66,17 +64,16 @@ test('migrateStored grava o perfil migrado e a medição no store', async () => 
 test('backup antigo importado fica migrado na abertura seguinte', async () => {
   const data = { profile: { sex: 'F', heightCm: 160, anamnesis: { goal: 'saude' } } }
   await importBackupFile(new File([JSON.stringify({ app: 'pump', version: 1, exportedAt: '2026-11-01T00:00:00Z', data })], 'b.json'))
-  resetStoreForTests() // a importação recarrega a página: a abertura migra
+  await seedStore({}) // a importação recarrega a página: a abertura migra
   await migrateStored()
   expect((await readCurrent('profile')).focus).toBe('condicionamento')
 })
 test('falha ao gravar a migração não rejeita e não apaga o peso do perfil no disco', async () => {
   warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-  await set('profile', OLD.profile)
-  await set('settings', { lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01' })
+  await seedStore({ profile: OLD.profile as never, settings: { lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01' } })
   vi.mocked(idb.set).mockRejectedValueOnce(new Error("cheio"))
-  await expect(migrationFor(readKey('profile'))).resolves.toBeUndefined()
-  expect(await idb.get('profile')).toHaveProperty('weightKg')
+  await expect(migrateOnBoot()).resolves.toBeUndefined()
+  expect(await stored('profile')).toHaveProperty('weightKg')
   expect(await readCurrent('measurements')).toMatchObject([{ date: '2026-11-01', weightKg: 82.4 }])
   expect(console.warn).toHaveBeenCalled()
 })

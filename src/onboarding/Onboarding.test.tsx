@@ -1,7 +1,8 @@
 import { screen, waitFor } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
+import { stored } from '../../test/store'
 import userEvent from '@testing-library/user-event'
-import { load, readCurrent, save } from '@/storage/db'
+import { readCurrent, save } from '@/storage/db'
 import { buildBackup } from '@/storage/backup'
 import { Onboarding } from './Onboarding'
 
@@ -27,8 +28,8 @@ test('primeiro passo restaura um backup depois de confirmar e recarrega o app', 
   expect(await screen.findByText('Isso substitui todos os seus dados. Continuar?')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Restaurar' }))
   await waitFor(() => expect(reload).toHaveBeenCalled())
-  expect(await load('settings')).toEqual(settings)
-  expect(await load('profile')).toBeUndefined()
+  expect(await stored('settings')).toEqual(settings)
+  expect(await stored('profile')).toBeUndefined()
 })
 
 test('cancelar no diálogo não importa nada', async () => {
@@ -39,8 +40,8 @@ test('cancelar no diálogo não importa nada', async () => {
   await user.upload(screen.getByLabelText('Arquivo de backup'), backupFile().file)
   await user.click(await screen.findByRole('button', { name: 'Cancelar' }))
   await waitFor(() => expect(screen.queryByText('Restaurar backup?')).not.toBeInTheDocument())
-  expect(await load('profile')).toEqual(profile)
-  expect(await load('settings')).toBeUndefined()
+  expect(await stored('profile')).toEqual(profile)
+  expect(await stored('settings')).toBeUndefined()
 })
 
 const next = (user: ReturnType<typeof userEvent.setup>) => user.click(screen.getByRole('button', { name: 'Continuar' }))
@@ -97,7 +98,7 @@ test('restaurar backup no passo 1 conclui a montagem', async () => {
   await renderLoaded(<Onboarding />)
   await user.upload(screen.getByLabelText('Arquivo de backup'), new File([JSON.stringify(old)], 'b.json', { type: 'application/json' }))
   await user.click(await screen.findByRole('button', { name: 'Restaurar' }))
-  await waitFor(async () => expect(await load('settings')).toMatchObject({ onboardingDone: true }))
+  await waitFor(async () => expect(await stored('settings')).toMatchObject({ onboardingDone: true }))
 })
 
 test('sem internet ao usar um plano pronto mostra o aviso', async () => {

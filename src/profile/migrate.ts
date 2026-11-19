@@ -61,11 +61,7 @@ export async function migrateStored(): Promise<void> {
   if (after.profile && JSON.stringify(after.profile) !== JSON.stringify(before.profile)) await save('profile', after.profile)
 }
 
-const runs = new WeakMap<Promise<unknown>, Promise<void>>()
-/** uma migração por carga do store: a leitura do perfil muda a cada carga (e a cada reset do teste), então serve de chave */
-export const migrationFor = (profileRead: Promise<unknown>): Promise<void> => {
-  let p = runs.get(profileRead)
+/** a migração que o boot do storage roda depois de ler as chaves */
+export const migrateOnBoot = (): Promise<void> =>
   // escrita que falhou não derruba o app: o cache já tem o valor migrado e a gravação se repete na próxima abertura
-  if (!p) { p = migrateStored().catch((e) => console.warn('migração do perfil não gravada', e)); runs.set(profileRead, p) }
-  return p
-}
+  migrateStored().catch((e) => console.warn('migração do perfil não gravada', e))

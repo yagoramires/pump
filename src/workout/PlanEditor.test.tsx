@@ -1,8 +1,8 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
+import { stored } from '../../test/store'
 import { workoutOf } from '../../test/helpers'
 import userEvent from '@testing-library/user-event'
-import { load } from '@/storage/db'
 import { PlanEditor } from './PlanEditor'
 
 
@@ -15,7 +15,7 @@ test('Salvar entrega o plano editado pro onSave e não grava nada sozinho', asyn
   await user.type(name, 'Pernas')
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
   expect(onSave).toHaveBeenCalledWith({ workouts: [expect.objectContaining({ id: 'w1', name: 'Pernas' })] })
-  expect(await load('workoutPlan')).toBeUndefined()
+  expect(await stored('workoutPlan')).toBeUndefined()
 })
 
 const supino = { name: 'Supino reto', sets: 3, reps: '10-12', weightKg: 40, restSec: 90 }

@@ -1,8 +1,8 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
+import { stored } from '../../test/store'
 import userEvent from '@testing-library/user-event'
 import { set } from 'idb-keyval'
-import { load } from '@/storage/db'
 import { isPhotoKey, loadPhoto } from '@/storage/photos'
 import { Toaster } from '@/components/ui/sonner'
 import { PhotoCapture } from './PhotoCapture'
@@ -26,8 +26,8 @@ test('sem câmera: só galeria com aviso; foto da galeria salva frente e avança
   expect(await screen.findByText('Câmera indisponível — escolha da galeria.')).toBeInTheDocument()
   await user.upload(screen.getByLabelText('Escolher da galeria'), new File(['x'], 'a.jpg', { type: 'image/jpeg' }))
   await user.click(await screen.findByRole('button', { name: 'Usar' }))
-  await waitFor(async () => expect((await load('photoSets'))?.[0].frente).toBeTruthy())
-  expect(await loadPhoto((await load('photoSets'))![0].frente!)).toBe('data:image/jpeg;base64,FAKE')
+  await waitFor(async () => expect((await stored('photoSets'))?.[0].frente).toBeTruthy())
+  expect(await loadPhoto((await stored('photoSets'))![0].frente!)).toBe('data:image/jpeg;base64,FAKE')
   expect(screen.getByRole('tab', { name: 'Lado', selected: true })).toBeInTheDocument()
 })
 test('falha ao salvar a foto não cria registro', async () => {
@@ -39,7 +39,7 @@ test('falha ao salvar a foto não cria registro', async () => {
   await user.upload(await screen.findByLabelText('Escolher da galeria'), new File(['x'], 'a.jpg', { type: 'image/jpeg' }))
   await user.click(await screen.findByRole('button', { name: 'Usar' }))
   expect(await screen.findByText('Não consegui salvar a foto')).toBeInTheDocument()
-  expect((await load('photoSets')) ?? []).toHaveLength(0)
+  expect((await stored('photoSets')) ?? []).toHaveLength(0)
 })
 test('fechar para as tracks da câmera; Tirar foto só liga com o vídeo pronto', async () => {
   const stop = vi.fn()

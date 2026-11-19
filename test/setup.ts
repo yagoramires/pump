@@ -18,7 +18,7 @@ Blob.prototype.text ??= function (this: Blob) { return new Response(this).text()
 afterEach(() => { toast.dismiss() })
 // import dinâmico: estático, o db.ts carregaria antes do vi.mock('idb-keyval') dos testes
 beforeEach(async () => {
-  const [{ clear }, { resetStoreForTests }] = await Promise.all([import('idb-keyval'), import('../src/storage/db')])
-  await clear()
+  const [{ clear }, { pumpStore, resetStoreForTests }] = await Promise.all([import('idb-keyval'), import('../src/storage/db')])
+  await clear(pumpStore)
   resetStoreForTests()
 })

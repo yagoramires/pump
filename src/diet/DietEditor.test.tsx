@@ -2,8 +2,8 @@ import { DEFAULTS } from '@/schema'
 import type { DietItem, DietPlan } from './types'
 import { screen, waitFor } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
+import { seedStore } from '../../test/store'
 import userEvent from '@testing-library/user-event'
-import { resetStoreForTests, save } from '@/storage/db'
 import { DietEditor } from './DietEditor'
 import { savePlan } from './plan'
 
@@ -31,8 +31,7 @@ beforeEach(async () => {
 afterEach(() => vi.unstubAllGlobals())
 
 test('do zero abre com uma refeição; Salvar entrega o plano e Apagar todos entrega o plano vazio', async () => {
-  await save('foods', [shake])
-  resetStoreForTests()
+  await seedStore({ foods: [shake] })
   const onSave = vi.fn()
   const user = setup()
   const { unmount } = await renderLoaded(<DietEditor initial={DEFAULTS.dietPlan} onSave={onSave} onCancel={vi.fn()} />)
@@ -76,8 +75,7 @@ test('DietEditor exige horário HH:MM pra salvar', async () => {
 })
 
 test('DietEditor duplica e apaga cardápios e edita opções', async () => {
-  await save('foods', [shake])
-  resetStoreForTests()
+  await seedStore({ foods: [shake] })
   const onSave = vi.fn()
   const user = setup()
   await renderLoaded(<DietEditor initial={plan()} onSave={onSave} onCancel={vi.fn()} />)

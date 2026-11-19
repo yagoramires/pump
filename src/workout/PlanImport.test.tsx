@@ -1,8 +1,8 @@
 import { screen } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
+import { seedStore, stored } from '../../test/store'
 import userEvent from '@testing-library/user-event'
-import { get } from 'idb-keyval'
-import { resetStoreForTests, save } from '@/storage/db'
+import { save } from '@/storage/db'
 import type { WorkoutPlan } from './types'
 import { PlanImport } from './PlanImport'
 import { buildConvertPrompt } from './prompt'
@@ -23,11 +23,11 @@ test('salvar sem catálogo mantém os exercícios no plano e preserva o catálog
   await screen.findByText(/Catálogo indisponível/)
   await user.click(screen.getByRole('button', { name: 'Usar plano' }))
 
-  await vi.waitFor(async () => expect((await get('workoutPlan'))?.workouts[0].exercises).toMatchObject([
+  await vi.waitFor(async () => expect((await stored('workoutPlan'))?.workouts[0].exercises).toMatchObject([
     { exerciseId: custom.id, name: custom.name },
     { name: 'Supino novo' },
   ]))
-  expect(await get('customExercises')).toEqual([custom])
+  expect(await stored('customExercises')).toEqual([custom])
 })
 
 test('catálogo indisponível permite revisar e tentar buscar as prévias sem colar de novo', async () => {
@@ -78,7 +78,7 @@ test('anamnese fica salva no perfil e vai no prompt copiado', async () => {
   await user.click(await screen.findByRole('radio', { name: 'Em casa' }))
   await user.click(screen.getByRole('button', { name: 'Copiar' }))
   expect(writeText).toHaveBeenCalledWith(expect.stringContaining('- Onde treino: em casa, com pouco equipamento\n'))
-  expect((await get('profile'))?.anamnesis).toEqual({ place: 'casa' })
+  expect((await stored('profile'))?.anamnesis).toEqual({ place: 'casa' })
 })
 
 test('Editar abre o editor; Salvar grava o plano e os exercícios novos', async () => {
@@ -90,11 +90,11 @@ test('Editar abre o editor; Salvar grava o plano e os exercícios novos', async 
   await screen.findByText('1 treino · 1 exercício')
   await user.click(screen.getByRole('button', { name: 'Editar' }))
   expect(await screen.findByRole('heading', { name: 'Editar plano' })).toBeInTheDocument()
-  expect(await get('workoutPlan')).toBeUndefined()
+  expect(await stored('workoutPlan')).toBeUndefined()
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
   expect(onDone).toHaveBeenCalled()
-  await vi.waitFor(async () => expect((await get('workoutPlan'))?.workouts[0].exercises[0].name).toBe('Remada X'))
-  expect((await get('customExercises'))?.[0].name).toBe('Remada X')
+  await vi.waitFor(async () => expect((await stored('workoutPlan'))?.workouts[0].exercises[0].name).toBe('Remada X'))
+  expect((await stored('customExercises'))?.[0].name).toBe('Remada X')
 })
 
 const REMADA = { nome: 'Remada X', series: 3, reps: '10' }
@@ -187,21 +187,20 @@ test('Usar plano por cima de um plano salvo pede confirmação', async () => {
   expect(onDone).not.toHaveBeenCalled()
   await user.click(screen.getByRole('button', { name: 'Substituir' }))
   expect(onDone).toHaveBeenCalled()
-  await vi.waitFor(async () => expect((await get('workoutPlan'))?.workouts[0].name).toBe('Peito'))
+  await vi.waitFor(async () => expect((await stored('workoutPlan'))?.workouts[0].name).toBe('Peito'))
 })
 
 test('reimportar mantém o id do treino de mesma letra (rotação) e dá id novo ao resto', async () => {
   const user = userEvent.setup()
-  await save('workoutPlan', { workouts: [{ id: 'old-b', label: 'B', name: 'Costas', exercises: [] }] })
-  resetStoreForTests()
+  await seedStore({ workoutPlan: { workouts: [{ id: 'old-b', label: 'B', name: 'Costas', exercises: [] }] } })
   await renderLoaded(<PlanImport mode="ia" onDone={vi.fn()} onBack={vi.fn()} />)
   await user.click(await screen.findByRole('textbox', { name: 'Resposta da IA' }))
   const t = (letra: string) => ({ letra, nome: 'X', dias: ['seg'], exercicios: [REMADA] })
   await user.paste(JSON.stringify({ formato: 'pump-plano', versao: 1, treinos: [t('A'), t('B')] }))
   await user.click(await screen.findByRole('button', { name: 'Usar plano' }))
   await user.click(await screen.findByRole('button', { name: 'Substituir' }))
-  await vi.waitFor(async () => expect((await get('workoutPlan'))?.workouts).toHaveLength(2))
-  const ids = ((await get('workoutPlan')) as WorkoutPlan).workouts.map((w) => w.id)
+  await vi.waitFor(async () => expect((await stored('workoutPlan'))?.workouts).toHaveLength(2))
+  const ids = ((await stored('workoutPlan')) as WorkoutPlan).workouts.map((w) => w.id)
   expect(ids[1]).toBe('old-b')
   expect(ids[0]).not.toBe('old-b')
   expect(new Set(ids).size).toBe(2)

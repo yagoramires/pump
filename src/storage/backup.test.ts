@@ -1,6 +1,7 @@
 import type { Settings, UserData } from '@/schema'
+import { stored } from '../../test/store'
 import { backupDue, buildBackup, exportBackup, importBackupFile, parseBackup } from './backup'
-import { allData, load, replaceAll, save } from './db'
+import { allData, replaceAll, save } from './db'
 import { loadPhoto, savePhoto } from './photos'
 
 afterEach(() => {
@@ -28,14 +29,14 @@ test.each([
 test('importar arquivo inválido não apaga nada', async () => {
   await save('profile', { sex: 'M', heightCm: 178 })
   await expect(importBackupFile(new File(['{lixo'], 'x.json'))).rejects.toThrow('Arquivo não é um backup válido')
-  expect(await load('profile')).toBeDefined()
+  expect(await stored('profile')).toBeDefined()
 })
 test('importar arquivo válido substitui os dados', async () => {
   await save('profile', { sex: 'M', heightCm: 178 })
   const b = buildBackup({ settings: { lastTab: 'dieta', onboardingDone: true } }, new Date(2026, 10, 16))
   await importBackupFile(new File([JSON.stringify(b)], 'x.json'))
-  expect(await load('profile')).toBeUndefined()
-  expect((await load('settings'))?.lastTab).toBe('dieta')
+  expect(await stored('profile')).toBeUndefined()
+  expect((await stored('settings'))?.lastTab).toBe('dieta')
 })
 test('backupDue com 14 dias de calendário', () => {
   const s: Settings = { lastTab: 'treino', onboardingDone: true, firstUseAt: '2026-11-01' }
@@ -76,7 +77,7 @@ test('backup com dieta: ida e volta', async () => {
   const b = buildBackup(await allData(), new Date(2026, 10, 18))
   await replaceAll({})
   await importBackupFile(new File([JSON.stringify(b)], 'b.json'))
-  for (const k of keys) expect(await load(k)).toEqual(saved[k])
+  for (const k of keys) expect(await stored(k)).toEqual(saved[k])
 })
 test('backup recusa dietPlan sem menus', () => {
   for (const dietPlan of [{}, { meals: [] }, { menus: {} }, []])

@@ -1,6 +1,6 @@
 import { use, useCallback, useSyncExternalStore } from 'react'
 import { createStore, entries, get, promisifyRequest, set } from 'idb-keyval'
-import { DEFAULTS, isUserKey, type UserData } from '@/schema'
+import { DEFAULTS, isUserKey, USER_KEYS, type UserData } from '@/schema'
 
 type Key = keyof UserData
 type Value<K extends Key> = UserData[K]
@@ -14,12 +14,14 @@ const savesDuringRestore = new Set<Set<Key>>()
 const reads = new Map<Key, Promise<unknown>>()
 const listeners = new Map<Key, Set<() => void>>()
 const errorListeners = new Set<(message: string) => void>()
+let booted: Promise<void> | undefined
 
 export class StorageReadError extends Error {}
 
 export const resetStoreForTests = () => {
   cache.clear()
   reads.clear()
+  booted = undefined
 }
 
 const current = <K extends Key>(k: K): Value<K> => (cache.has(k) ? cache.get(k) : DEFAULTS[k]) as Value<K>
@@ -40,10 +42,19 @@ export async function guarded<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
-export function readKey<K extends Key>(k: K): Promise<Value<K>> {
+// o use() do React lê status/value: promise já resolvida não suspende nem num componente que monta depois
+const tracked = <T>(p: Promise<T>): Promise<T> => {
+  p.then(
+    (value) => void Object.assign(p, { status: 'fulfilled', value }),
+    (reason) => void Object.assign(p, { status: 'rejected', reason }),
+  )
+  return p
+}
+
+function readKey<K extends Key>(k: K): Promise<Value<K>> {
   const cached = reads.get(k)
   if (cached) return cached as Promise<Value<K>>
-  const p = get<Value<K>>(k, pumpStore).then(
+  const p = tracked(get<Value<K>>(k, pumpStore).then(
     (v) => {
       if (!cache.has(k) && v !== undefined) cache.set(k, v)
       return current(k)
@@ -51,27 +62,22 @@ export function readKey<K extends Key>(k: K): Promise<Value<K>> {
     (e) => {
       throw new StorageReadError(message(e), { cause: e })
     },
-  )
-  // o use() do React lê status/value: chave já lida não suspende nem num componente que monta depois
-  p.then(
-    (value) => void Object.assign(p, { status: 'fulfilled', value }),
-    (reason) => void Object.assign(p, { status: 'rejected', reason }),
-  )
+  ))
   // leitura que falhou fica no cache de propósito: apagar faria o use() suspender de novo pra sempre em vez de mostrar o erro; o "Tentar de novo" recarrega a página
   reads.set(k, p)
   return p
+}
+
+/** lê todas as chaves e só então roda as migrações, uma vez por carga do store; a mesma promise para quem pedir de novo */
+export function boot(migrate: () => Promise<void>): Promise<void> {
+  booted ??= tracked(Promise.all(USER_KEYS.map((k) => readKey(k))).then(migrate))
+  return booted
 }
 
 /** valor atual, ou o padrão do schema se a chave nunca foi gravada (o valor do readKey é o da primeira leitura) */
 export async function readCurrent<K extends Key>(k: K): Promise<Value<K>> {
   await readKey(k)
   return current(k)
-}
-
-/** valor guardado, ou undefined se a chave nunca foi gravada */
-export async function load<K extends Key>(k: K): Promise<Value<K> | undefined> {
-  await readKey(k)
-  return cache.get(k) as Value<K> | undefined
 }
 
 export function save<K extends Key>(k: K, v: Value<K>): Promise<void> {
@@ -114,8 +120,8 @@ export async function replaceAll(data: Record<string, unknown>): Promise<void> {
   touched.forEach(notify)
 }
 
-export async function requestPersist(): Promise<boolean> {
-  return (await navigator.storage?.persist?.()) ?? false
+export async function requestPersist(): Promise<void> {
+  await navigator.storage?.persist?.()
 }
 
 type Update<K extends Key> = Value<K> | ((prev: Value<K>) => Value<K>)

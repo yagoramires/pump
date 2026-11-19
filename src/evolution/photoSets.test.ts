@@ -1,7 +1,8 @@
 import { act, waitFor } from '@testing-library/react'
-import { load, save } from '@/storage/db'
+import { save } from '@/storage/db'
 import { loadPhoto, savePhoto } from '@/storage/photos'
 import { renderHookLoaded } from '../../test/render'
+import { stored } from '../../test/store'
 import { hasPhoto, setAngle, usePhotoSets } from './photoSets'
 
 
@@ -22,12 +23,12 @@ test('usePhotoSets: trocar a foto de um ângulo apaga a antiga do banco e manté
   act(() => h.result.current.setAngle('2026-11-17', 'frente', fresh))
   await waitFor(async () => expect(await loadPhoto(old)).toBeUndefined())
   expect(await loadPhoto(side)).toBeDefined()
-  expect(await load('photoSets')).toEqual([{ id: 's', date: '2026-11-17', frente: fresh, lado: side }])
+  expect(await stored('photoSets')).toEqual([{ id: 's', date: '2026-11-17', frente: fresh, lado: side }])
 })
 test('usePhotoSets grava sobre o valor guardado: o que mudou depois do render não se perde', async () => {
   const h = await renderHookLoaded(() => usePhotoSets())
   const { setAngle: stale } = h.result.current
   act(() => void save('photoSets', [{ id: 'a', date: '2026-11-10', lado: 'p0' }]))
   act(() => stale('2026-11-17', 'frente', 'p1'))
-  expect((await load('photoSets'))?.map((s) => s.date)).toEqual(['2026-11-10', '2026-11-17'])
+  expect((await stored('photoSets'))?.map((s) => s.date)).toEqual(['2026-11-10', '2026-11-17'])
 })
