@@ -22,6 +22,7 @@ import { DietStart } from './DietStart'
 import { ShoppingList } from './ShoppingList'
 import { MealScreen } from './MealScreen'
 import { WaterCard } from './WaterCard'
+import { SupplementsCard } from './SupplementsCard'
 
 const RING_R = 19
 const RING_C = 2 * Math.PI * RING_R
@@ -46,6 +47,7 @@ export function DietTab() {
       <>
         <TabHeader eyebrow="Dieta" />
         <DietStart hint="Um cardápio pra seguir no dia a dia. Dá pra mudar quando quiser." />
+        <SupplementsCard />
       </>
     )
   }
@@ -132,6 +134,8 @@ export function DietTab() {
         })}
       </ul>
       </Card>
+
+      <SupplementsCard />
 
       {!waterSettings && (
         <Button variant="link" className="w-full text-accent" onClick={water.turnOn}>

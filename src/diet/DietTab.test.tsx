@@ -366,3 +366,33 @@ test('copo de água depois da meia-noite vai pro dia novo e a aba anda junto', a
   expect((await stored('waterLog'))?.[TODAY]).toBeUndefined()
   expect(await screen.findByText('QUI, 19 NOV', { exact: false })).toBeInTheDocument()
 })
+
+const SUPS = [{ id: 'a', name: 'Creatina', dose: '5 g', when: 'qualquer hora' }, { id: 'b', name: 'Vitamina D' }]
+const supCard = () => screen.findByRole('region', { name: 'Suplementos' })
+
+test('suplementos: card abaixo das refeições, marcar grava no dia', async () => {
+  await seedStore({ dietPlan: plan, settings: { ...DEFAULTS.settings, supplements: SUPS } })
+  const user = userEvent.setup()
+  await renderLoaded(<DietTab />)
+  const card = await supCard()
+  expect(within(card).getByText('0 de 2')).toBeInTheDocument()
+  expect(within(card).getByText('Creatina')).toBeInTheDocument()
+  expect(within(card).getByText('5 g · qualquer hora')).toBeInTheDocument()
+  await user.click(within(card).getByRole('checkbox', { name: 'Creatina tomado' }))
+  expect(await within(card).findByText('1 de 2')).toBeInTheDocument()
+  await waitFor(async () => expect(await stored('supplementLog')).toEqual({ [TODAY]: { taken: ['a'], total: 2 } }))
+})
+
+test('suplementos: sem nenhum cadastrado, o card não aparece', async () => {
+  await seedStore({ dietPlan: plan })
+  await renderLoaded(<DietTab />)
+  await screen.findByRole('list', { name: 'Refeições' })
+  expect(screen.queryByRole('region', { name: 'Suplementos' })).not.toBeInTheDocument()
+})
+
+test('suplementos: sem cardápio, o card aparece abaixo do convite', async () => {
+  await seedStore({ settings: { ...DEFAULTS.settings, supplements: [SUPS[1]] } })
+  await renderLoaded(<DietTab />)
+  expect(await screen.findByRole('heading', { name: 'Monte seu cardápio' })).toBeInTheDocument()
+  expect(within(await supCard()).getByText('Vitamina D')).toBeInTheDocument()
+})
