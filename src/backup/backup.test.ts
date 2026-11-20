@@ -1,6 +1,6 @@
 import type { Settings, UserData } from '@/schema'
 import { stored } from '../../test/store'
-import { backupDue, buildBackup, exportBackup, importBackupFile, parseBackup } from './backup'
+import { backupDue, backupParts, buildBackup, exportBackup, importBackupFile, parseBackup } from './backup'
 import { allData, replaceAll, save } from '@/storage/db'
 import { loadPhoto, savePhoto } from '@/storage/photos'
 import * as idb from 'idb-keyval'
@@ -31,6 +31,8 @@ test.each([
   ['versão mais nova', JSON.stringify({ app: 'pump', version: 2, data: {} }), 'Backup de uma versão mais nova do app'],
   ['chave estranha', JSON.stringify({ app: 'pump', version: 1, data: { hack: 1 } }), 'Backup com conteúdo desconhecido'],
   ['plano corrompido', JSON.stringify({ app: 'pump', version: 1, data: { workoutPlan: { workouts: 'x' } } }), 'Backup corrompido'],
+  ['medida sem data', JSON.stringify({ app: 'pump', version: 1, data: { measurements: [{ id: 'm', weightKg: 80 }] } }), 'Backup corrompido'],
+  ['fotos sem data', JSON.stringify({ app: 'pump', version: 1, data: { photoSets: [{ id: 's' }] } }), 'Backup corrompido'],
 ])('recusa %s', (_, txt, msg) => expect(() => parseBackup(txt)).toThrow(msg))
 test('importar arquivo inválido não apaga nada', async () => {
   await save('profile', { sex: 'M', heightCm: 178 })
@@ -63,6 +65,14 @@ test('backup com fotos: ida e volta traz a imagem', async () => {
   expect(await loadPhoto(id)).toBeUndefined()
   await importBackupFile(new File([JSON.stringify(b)], 'b.json'))
   expect(await loadPhoto(id)).toBe('data:image/jpeg;base64,BBB')
+})
+test('arquivo montado em pedaços é o mesmo JSON e volta igual', async () => {
+  const data = { profile: { sex: 'F', heightCm: 165 }, photoSets: [{ id: 's', date: '2026-11-17' }], 'photo:x': 'data:image/jpeg;base64,BBB' }
+  const now = new Date(2026, 10, 16)
+  const text = await new File(backupParts(data, now), 'b.json').text()
+  expect(text).toBe(JSON.stringify(buildBackup(data, now)))
+  expect(parseBackup(text).data).toEqual(data)
+  expect(await new File(backupParts({}, now), 'b.json').text()).toBe(JSON.stringify(buildBackup({}, now)))
 })
 test('backup recusa photo: com valor que não é imagem', () =>
   expect(() => parseBackup(JSON.stringify({ app: 'pump', version: 1, data: { 'photo:x': 'oi' } }))).toThrow('Backup com conteúdo desconhecido'))

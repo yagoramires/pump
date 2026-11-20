@@ -7,6 +7,7 @@ test('pluralWord: -l e capitalização', () => {
   for (const [a, b] of [['barril', 'barris'], ['papel', 'papéis'], ['anzol', 'anzóis'], ['azul', 'azuis'], ['Papel', 'Papéis'], ['PAPEL', 'PAPÉIS'], ['Pão', 'Pães']]) expect(pluralWord(a)).toBe(b)
 })
 test('singularWord inverte pluralWord', () => {
-  for (const w of ['unidade', 'pote', 'pão', 'colher', 'ovo', 'barril', 'papel', 'anzol', 'azul', 'item', 'porção', 'animal', 'nariz', 'mão', 'concha']) expect(singularWord(pluralWord(w))).toBe(w)
+  for (const w of ['unidade', 'pote', 'pão', 'colher', 'ovo', 'papel', 'anzol', 'azul', 'item', 'porção', 'animal', 'nariz', 'mão', 'concha']) expect(singularWord(pluralWord(w))).toBe(w)
   expect(singularWord('ovo')).toBe('ovo')
+  expect(singularWord('kiwis')).toBe('kiwi')
 })

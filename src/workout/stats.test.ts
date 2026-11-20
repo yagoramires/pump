@@ -44,6 +44,23 @@ test('exerciseVolume soma carga × reps das séries marcadas', () => {
   s.exercises[0].sets = [{ reps: '10', weightKg: 40 }, null, { reps: '8-10', weightKg: 50 }]
   expect(exerciseVolume(s.exercises[0])).toBe(800)
 })
+test('exerciseVolume: por tempo não soma segundos como reps', () => {
+  const s = startSession(workoutOf([{ reps: '45 s', sets: 3 }]), '2026-11-16')
+  s.exercises[0].sets = [{ reps: '45 s', weightKg: 10 }, { reps: '45 s', weightKg: 10 }, null]
+  expect(exerciseVolume(s.exercises[0])).toBe(0)
+})
+test('exercício repetido no treino: previousSets pega a mesma aparição e o histórico junta as séries', () => {
+  const day = (date: string, ...kgs: number[]) => {
+    const s = startSession(workoutOf(kgs.map(() => ({ exerciseId: 'Supino', sets: 1 }))), date)
+    s.exercises.forEach((e, i) => { e.sets = [{ reps: '10', weightKg: kgs[i] }] })
+    return s
+  }
+  const log = { '2026-11-12': day('2026-11-12', 30, 80) }
+  expect(previousSets(log, '2026-11-16', 'Supino', 1)).toEqual([{ reps: '10', weightKg: 80 }])
+  expect(previousSets(log, '2026-11-16', 'Supino', 2)).toEqual([{ reps: '10', weightKg: 30 }])
+  const h = exerciseHistory([day('2026-11-12', 60, 80), day('2026-11-14', 70)])
+  expect(loadPoints(h.get('Supino')!)).toEqual([{ date: '2026-11-12', value: 80 }, { date: '2026-11-14', value: 70 }])
+})
 test('carga sugerida: mesma série do último treino, a primeira feita no cabeçalho, senão a do plano', () => {
   const prev = [null, { reps: '10', weightKg: 30 }]
   expect(suggestedKg({ weightKg: 20 }, prev, 1)).toBe(30)

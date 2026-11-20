@@ -5,7 +5,7 @@ import type { SetDone, WorkoutLog, WorkoutSession } from './types'
 import { usePersisted } from '@/storage/db'
 import { cn, omitKey } from '@/lib/utils'
 import { formatDayLabel } from '@/lib/date'
-import { useToday } from '@/lib/useToday'
+import { tick, useToday } from '@/lib/useToday'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -20,7 +20,7 @@ import { SetTable } from './SetTable'
 import { RestCard, RestPicker } from './RestCard'
 import { nextWorkout, unfinishedSession } from './schedule'
 import {
-  activeRest, changePlanRest, changeRestDuration, clearRest, completeSession, completeUnfinishedSession, extendRest,
+  activeRest, changePlanRest, changeRestDuration, clearRest, completeSession, completeUnfinishedSession, editSession, extendRest,
   firstIncompleteExercise, hasMarkedSets, holdsTrainingDay, isExerciseComplete, reopenSession, restExerciseIndex,
   setDone, startSession, toggleRestPause, toggleSetWithRest,
 } from './session'
@@ -54,10 +54,9 @@ export function TreinoTab() {
   const [openIdx, setOpenIdx] = useState<'auto' | number | null>('auto')
   const [restTotal, setRestTotal] = useState<number>()
   const [pickIdx, setPickIdx] = useState<number>() // exercício cujo descanso o seletor edita; vive aqui pra sobreviver ao fim da contagem
-  const [now, setNow] = useState(() => new Date())
-
+  // relógio compartilhado: além do tempo do treino, faz a virada do dia rodar com o app aberto
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 30_000)
+    const id = setInterval(tick, 30_000)
     return () => clearInterval(id)
   }, [])
 
@@ -149,7 +148,7 @@ export function TreinoTab() {
   }
 
   const view = session ?? startSession(workout!, today)
-  const stats = sessionStats(view, now)
+  const stats = sessionStats(view, clock.now)
   const minutes = session ? stats.minutes : null
   const restIdx = restExerciseIndex(view)
   const timer = activeRest(session)
@@ -246,9 +245,9 @@ export function TreinoTab() {
                 </Card>
               )
             }
-            const prev = previousSets(log, today, e.exerciseId)
+            const prev = previousSets(log, today, e.exerciseId, view.exercises.slice(0, i).filter((x) => x.exerciseId === e.exerciseId).length)
             return (
-              <ExerciseCard key={i} ex={e} prev={prev} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
+              <ExerciseCard key={`${view.workoutId}-${today}-${i}`} ex={e} prev={prev} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
                 <SetTable ex={e} prev={prev} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} />
               </ExerciseCard>
             )
@@ -285,7 +284,7 @@ export function TreinoTab() {
       />
       <div className="fixed bottom-[calc(var(--nav-h)+12px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2">
         {session?.completedAt ? (
-          <Button variant="secondary" className="w-full font-bold" onClick={() => patch(reopenSession)}><Pencil aria-hidden="true" /> Editar séries</Button>
+          <Button variant="secondary" className="w-full font-bold" onClick={() => patch(editSession)}><Pencil aria-hidden="true" /> Editar séries</Button>
         ) : (
           <Button className="w-full font-bold" disabled={!!session && stats.done === 0} onClick={session ? conclude : start}>{session ? <><Check aria-hidden="true" /> Concluir treino</> : 'Iniciar treino'}</Button>
         )}

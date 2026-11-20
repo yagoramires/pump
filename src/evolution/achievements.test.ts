@@ -20,6 +20,13 @@ test('sequência: semana fechada abaixo da meta zera; na meta mantém', () => {
   const b = computeAchievements(goalInput({ ...first, '2026-11-16': done('2026-11-16'), '2026-11-17': done('2026-11-17'), '2026-11-23': done('2026-11-23') }, 2), '2026-11-24')
   expect(get(b, 'streak-3').earnedAt).toBe('2026-11-23')
 })
+test('conquista já ganha não some quando a meta sobe', () => {
+  const log = { ...first, '2026-11-16': done('2026-11-16'), '2026-11-17': done('2026-11-17'), '2026-11-23': done('2026-11-23') }
+  expect(get(computeAchievements(goalInput(log, 2), '2026-11-24'), 'streak-3').earnedAt).toBe('2026-11-23')
+  expect(get(computeAchievements(goalInput(log, 3), '2026-11-24'), 'streak-3').earnedAt).toBeUndefined()
+  const kept = get(computeAchievements({ ...goalInput(log, 3), earnedAchievements: { 'streak-3': '2026-11-23' } }, '2026-11-24'), 'streak-3')
+  expect(kept).toMatchObject({ earnedAt: '2026-11-23', progress: undefined })
+})
 test('sequência: a semana da 1ª sessão é parcial e nunca zera', () => {
   // começa na quinta 19, meta 4, treina qui/sex/sáb: a sequência de 3 sobrevive ao sábado
   const log = { '2026-11-19': done('2026-11-19'), '2026-11-20': done('2026-11-20'), '2026-11-21': done('2026-11-21') }

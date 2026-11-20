@@ -12,14 +12,21 @@ export class FormatError extends Error {
   }
 }
 
-function extractJson(text: string): unknown {
-  const fence = text.match(/```[^\n`]*\n?([\s\S]*?)```/)
-  const body = fence ? fence[1] : text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1)
+const tryParse = (body: string): unknown => {
   try {
     return JSON.parse(body)
   } catch {
     return undefined
   }
+}
+
+// a IA às vezes manda outro bloco (exemplo, comando) antes do JSON: vale o primeiro bloco que for objeto
+function extractJson(text: string): unknown {
+  for (const [, body] of text.matchAll(/```[^\n`]*\n?([\s\S]*?)```/g)) {
+    const raw = tryParse(body)
+    if (isObj(raw)) return raw
+  }
+  return tryParse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1))
 }
 
 export type Half = 'treinos' | 'dieta'

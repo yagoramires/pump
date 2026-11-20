@@ -11,7 +11,11 @@ export function useWater() {
   const [log, setLog] = usePersisted('waterLog')
   const on = activeWater(settings.water)
 
-  const save = (water: WaterSettings) => setSettings((s) => ({ ...s, water }))
+  const save = (water: WaterSettings) => {
+    setSettings((s) => ({ ...s, water }))
+    // o dia de hoje guarda a meta do momento; sem isso, subir a meta depois de bater a antiga ainda contaria hoje como cumprido
+    setLog((l) => (l[today] ? { ...l, [today]: { ...l[today], goalMl: water.goalMl } } : l))
+  }
   const turnOn = () => save(turnWaterOn(settings.water, latestWeight(measurements) ?? 0))
   const act = (cups: 1 | -1) => {
     if (!on) return

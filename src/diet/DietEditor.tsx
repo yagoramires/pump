@@ -18,6 +18,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { NumberField } from '@/components/NumberField'
 import { TimePicker } from '@/components/TimePicker'
 import { Alert } from '@/components/ui/alert'
+import { useHoldUpdates } from '@/lib/holdUpdates'
 
 /** "Apagar todos" entrega o plano vazio em `onSave` */
 type Props = { initial: DietPlan; onSave: (plan: DietPlan) => void; onCancel: () => void }
@@ -42,6 +43,7 @@ const setMacro = (m: Menu, k: keyof Macros, n?: number): Menu => {
 }
 
 export function DietEditor({ initial, onSave, onCancel }: Props) {
+  useHoldUpdates()
   const [plan, setPlan] = useState<DietPlan>(() => (initial.menus.length ? structuredClone(initial) : { menus: [emptyMenu(1, [emptyMeal(1)])] }))
   const [menuId, setMenuId] = useState(() => currentMenu(plan)!.id)
   const [optOf, setOptOf] = useState<Record<string, number>>({})

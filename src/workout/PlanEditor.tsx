@@ -17,6 +17,7 @@ import { Alert } from '@/components/ui/alert'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { planExerciseLine } from './display'
 import { groupExercises } from './reps'
+import { useHoldUpdates } from '@/lib/holdUpdates'
 
 type Props = { initial: WorkoutPlan; onSave: (plan: WorkoutPlan) => void; onCancel: () => void }
 
@@ -27,6 +28,7 @@ const neighbor = (exercises: PlanExercise[], i: number, d: number) => {
 }
 
 export function PlanEditor({ initial, onSave, onCancel }: Props) {
+  useHoldUpdates()
   const [plan, setPlan] = useState<WorkoutPlan>(() => structuredClone(initial))
   const [picking, setPicking] = useState<string>()
   const [editing, setEditing] = useState<{ wid: string; i: number }>()
