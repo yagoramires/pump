@@ -1,9 +1,11 @@
-import { Check, Trophy } from 'lucide-react'
+import { Check, ChevronDown, Trophy } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { formatKg } from '@/lib/number'
 import { cn } from '@/lib/utils'
 import type { Workout, WorkoutLog, WorkoutSession } from './types'
 import { sessionRecords, sessionStats, volumeChange } from './stats'
+import { SessionSets } from './SessionSets'
 
 function Stat({ value, unit, label }: { value: string; unit?: string; label: string }) {
   return (
@@ -59,6 +61,15 @@ export function DoneSummary({ session, log, next }: { session: WorkoutSession; l
           </Card>
         </>
       )}
+      <Collapsible asChild>
+        <Card className="gap-0 py-0">
+          <CollapsibleTrigger className="group flex min-h-12 items-center justify-between gap-3 text-body font-semibold text-strong">
+            Exercícios
+            <ChevronDown size={18} className="text-faint transition-transform group-data-[state=open]:rotate-180" aria-hidden="true" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="flex flex-col gap-1.5 border-t border-line py-3"><SessionSets session={session} /></CollapsibleContent>
+        </Card>
+      </Collapsible>
       {next && (
         <Card className="flex-row items-center gap-3 py-3">
           <span className="size-2 rounded-full bg-accent" aria-hidden="true" />
