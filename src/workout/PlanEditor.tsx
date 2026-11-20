@@ -36,7 +36,7 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
   const renaming = useRef<string>(undefined)
 
   const patchWorkout = (id: string, f: (w: Workout) => Workout) =>
-    setPlan((p) => ({ workouts: p.workouts.map((w) => (w.id === id ? f(w) : w)) }))
+    setPlan((p) => ({ ...p, workouts: p.workouts.map((w) => (w.id === id ? f(w) : w)) }))
   const patchEx = (wid: string, i: number, patch: Partial<PlanExercise>) =>
     patchWorkout(wid, (w) => ({ ...w, exercises: w.exercises.map((e, j) => (j === i ? { ...e, ...patch } : e)) }))
   const move = (wid: string, i: number, d: number) => {
@@ -58,7 +58,7 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
       const used = new Set(p.workouts.map((w) => w.label))
       const label = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].find((l) => !used.has(l))
       if (!label) return p
-      return { workouts: [...p.workouts, { id: crypto.randomUUID(), label, name: `Treino ${label}`, exercises: [] }] }
+      return { ...p, workouts: [...p.workouts, { id: crypto.randomUUID(), label, name: `Treino ${label}`, exercises: [] }] }
     })
 
   const save = () => {
@@ -138,7 +138,7 @@ export function PlanEditor({ initial, onSave, onCancel }: Props) {
             <DrawerTitle className="text-title font-semibold text-strong">{mw ? `Treino ${mw.label}` : ''}</DrawerTitle>
             <DrawerDescription className="sr-only">Ações do treino</DrawerDescription>
             <DrawerClose asChild><Button variant="ghost" className="justify-start" onClick={() => { renaming.current = menuFor }}>Renomear</Button></DrawerClose>
-            <Button variant="ghost" className="justify-start text-negative" onClick={() => { setPlan((p) => ({ workouts: p.workouts.filter((x) => x.id !== menuFor) })); setMenuFor(undefined) }}>Remover treino</Button>
+            <Button variant="ghost" className="justify-start text-negative" onClick={() => { setPlan((p) => ({ ...p, workouts: p.workouts.filter((x) => x.id !== menuFor) })); setMenuFor(undefined) }}>Remover treino</Button>
           </div>
         </DrawerContent>
       </Drawer>

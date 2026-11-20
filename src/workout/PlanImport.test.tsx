@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import { setupClipboard } from '../../test/helpers'
 import { seedStore, stored } from '../../test/store'
@@ -183,4 +183,29 @@ test('reimportar mantém o id do treino de mesma letra (rotação) e dá id novo
   expect(ids[1]).toBe('old-b')
   expect(ids[0]).not.toBe('old-b')
   expect(new Set(ids).size).toBe(2)
+})
+
+const planJson2 = () => JSON.stringify({ formato: 'pump-plano', versao: 1, treinos: [
+  { letra: 'A', nome: 'Peito', dias: ['seg'], exercicios: [REMADA] },
+  { letra: 'B', nome: 'Costas', dias: ['ter'], exercicios: [REMADA] },
+] })
+const revisar = async (text: string) => {
+  const user = userEvent.setup()
+  await renderLoaded(<PlanImport mode="convert" onDone={vi.fn()} onBack={vi.fn()} />)
+  await user.click(screen.getByRole('textbox', { name: 'Resposta da IA' }))
+  await user.paste(text)
+  await screen.findByRole('button', { name: 'Usar plano' })
+  return user
+}
+test('revisão: Começar pelo vem no sugerido e a escolha vai para o plano', async () => {
+  const user = await revisar(planJson2())
+  const comecar = within(screen.getByRole('radiogroup', { name: 'Começar pelo' }))
+  expect(comecar.getByRole('radio', { name: 'A' })).toHaveAttribute('aria-checked', 'true')
+  await user.click(comecar.getByRole('radio', { name: 'B' }))
+  await user.click(screen.getByRole('button', { name: 'Usar plano' }))
+  await vi.waitFor(async () => expect((await stored('workoutPlan'))?.start).toMatchObject({ label: 'B', since: expect.any(String) }))
+})
+test('revisão com um treino só não mostra Começar pelo', async () => {
+  await revisar(planJson([REMADA]))
+  expect(screen.queryByRole('radiogroup', { name: 'Começar pelo' })).not.toBeInTheDocument()
 })

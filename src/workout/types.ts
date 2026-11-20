@@ -20,7 +20,11 @@ export interface PlanExercise {
 }
 /** label = letra 'A', 'B'… */
 export interface Workout { id: string; label: string; name: string; exercises: PlanExercise[] }
-export interface WorkoutPlan { workouts: Workout[] }
+export interface WorkoutPlan {
+  workouts: Workout[]
+  /** escolhido no import; vale até o primeiro treino concluído depois de `since` (ISO) */
+  start?: { label: string; since: string }
+}
 export interface SetDone { reps: string; weightKg: number }
 /** sets.length = séries planejadas */
 export type SessionExercise = Omit<PlanExercise, 'sets'> & { sets: (SetDone | null)[] }
