@@ -22,3 +22,9 @@ test('anterior antiga: devolve a data; ruído de float não vira linha 0,0', () 
   expect(r.prevDate).toBe('2026-08-01')
   expect(r.rows).toEqual([])
 })
+test('"semana passada" só com a anterior a 6–8 dias', () => {
+  const at = (prev: string) => weekSummary({ sex: 'M', heightCm: 178 }, [m(prev, 82), m('2026-11-18', 81.6)], [], '2026-11-18')!.prevIsLastWeek
+  expect(at('2026-11-11')).toBe(true)
+  expect(at('2026-11-17')).toBe(false)
+  expect(at('2026-11-09')).toBe(false)
+})

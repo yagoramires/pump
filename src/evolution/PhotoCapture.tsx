@@ -9,7 +9,7 @@ import { Toggle } from '@/components/ui/toggle'
 import { Overlay } from '@/components/Overlay'
 import { BackHeader } from '@/components/BackHeader'
 import { cn } from '@/lib/utils'
-import { ANGLE_LABEL, ANGLES } from './types'
+import { ANGLE_LABEL, ANGLES, type Angle } from './types'
 import { usePhotoSets } from './usePhotoSets'
 import { AngleTabs } from './AngleTabs'
 import { fileToJpeg, videoToJpeg } from './resize'
@@ -26,9 +26,9 @@ const Silhouette = () => (
   </svg>
 )
 
-export function PhotoCapture({ date, onClose }: { date: string; onClose: () => void }) {
+export function PhotoCapture({ date, angle, onClose }: { date: string; angle?: Angle; onClose: () => void }) {
   const { setAngle } = usePhotoSets()
-  const [i, setI] = useState(0)
+  const [i, setI] = useState(ANGLES.indexOf(angle ?? 'frente'))
   const [facing, setFacing] = useState<'user' | 'environment'>('user')
   const [camOk, setCamOk] = useState<boolean | undefined>(() => (hasCamera() ? undefined : false))
   const [ready, setReady] = useState(false)

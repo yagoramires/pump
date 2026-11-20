@@ -30,3 +30,10 @@ test('conquista nova: um toast só', async () => {
   await waitFor(async () => expect((await stored('settings'))?.seenAchievements).toContain('first-workout'))
   expect(toast).toHaveBeenCalledTimes(1)
 })
+test('quem já tinha visto: grava a data ganha sem repetir o toast', async () => {
+  await save('workoutLog', { '2026-11-16': session })
+  await save('settings', { lastTab: 'treino', onboardingDone: true, seenAchievements: ['first-workout'] })
+  await renderLoaded(<AchievementToasts />)
+  await waitFor(async () => expect((await stored('settings'))?.earnedAchievements).toEqual({ 'first-workout': '2026-11-16' }))
+  expect(toast).not.toHaveBeenCalled()
+})

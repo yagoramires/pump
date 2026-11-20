@@ -79,7 +79,10 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
   const water = dayRun(Object.keys(wl).sort()[0], today, (k) => waterMet(wl[k]))
 
   const left = (n: number, have: number) => `falta ${n - have}`
-  const mk = (id: AchievementId, title: string, earnedAt?: string, progress?: string): Achievement => ({ id, title, earnedAt, progress: earnedAt ? undefined : progress })
+  const mk = (id: AchievementId, title: string, at?: string, progress?: string): Achievement => {
+    const earnedAt = at ?? d.earnedAchievements?.[id]
+    return { id, title, earnedAt, progress: earnedAt ? undefined : progress }
+  }
   const list: Achievement[] = [
     mk('first-workout', 'Primeiro treino', total(1)),
     mk('streak-3', '3 treinos seguidos', streakAt(3), left(3, count)),
@@ -96,5 +99,5 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
     { ...mk('diet-7', '7 dias na dieta', diet.seven, left(7, diet.n)), diet: true },
     { ...mk('water-7', 'Água 7 dias', water.seven, left(7, water.n)), diet: true },
   ]
-  return hasDiet(d.dietPlan, d.dietLog) ? list : list.filter((a) => !a.diet)
+  return hasDiet(d.dietPlan, d.dietLog) ? list : list.filter((a) => !a.diet || a.earnedAt)
 }

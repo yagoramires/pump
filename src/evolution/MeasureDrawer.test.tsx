@@ -52,6 +52,14 @@ test('0 apaga o campo em vez de virar medida', async () => {
   await waitFor(async () => expect((await stored('measurements'))?.[0].weightKg).toBeUndefined())
   expect((await stored('measurements'))?.[0]).toMatchObject({ waistCm: 85 })
 })
+test('peso fora da faixa (805 por 80,5) trava o Salvar', async () => {
+  const user = userEvent.setup()
+  await save('profile', { sex: 'M', heightCm: 178 })
+  await open()
+  await user.type(await screen.findByLabelText('Peso'), '805')
+  expect(screen.getByLabelText('Peso')).toHaveAttribute('aria-invalid', 'true')
+  expect(screen.getByRole('button', { name: 'Salvar' })).toBeDisabled()
+})
 test('limpar tudo apaga o registro do dia e avisa "Medidas apagadas"', async () => {
   const user = userEvent.setup()
   await save('measurements', [{ id: 'a', date: TODAY, waistCm: 85 }])

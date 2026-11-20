@@ -19,4 +19,6 @@ export interface EvolutionInput {
   dietLog: DietLog
   waterLog: WaterLog
   dietPlan: DietPlan
+  /** id → data da 1ª vez que ganhou (settings): conquista ganha não some se o perfil mudar */
+  earnedAchievements?: Record<string, string>
 }

@@ -4,6 +4,7 @@ import { FieldLabel } from '@/components/FieldLabel'
 import { Chips } from '@/components/Chips'
 import { TimePicker } from '@/components/TimePicker'
 import { Textarea } from '@/components/ui/textarea'
+import { HEIGHT_CM } from '@/evolution/limits'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 const FIELD = 'flex flex-col justify-end gap-1.5'
@@ -26,7 +27,7 @@ export function AboutForm({ value, onChange }: { value: Profile; onChange: (p: P
         </div>
         <div className={FIELD}>
           <FieldLabel label="Altura" htmlFor="altura" />
-          <NumberField id="altura" className="pr-11" unit="cm" min={0} max={Infinity} value={value.heightCm || undefined} onChange={(n) => set('heightCm', n ?? 0)} />
+          <NumberField id="altura" className="pr-11" unit="cm" min={HEIGHT_CM[0]} max={HEIGHT_CM[1]} value={value.heightCm || undefined} onChange={(n) => set('heightCm', n ?? 0)} />
         </div>
       </div>
       <div className="grid grid-cols-3 gap-3">

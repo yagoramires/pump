@@ -3,6 +3,7 @@ import type { Measurement, PhotoSet } from './types'
 import { addDays, daysBetween, weekStart, weeksBetween } from '@/lib/date'
 import { BODY_FIELDS, WEIGHT, bodyRows, deltaUnit, series } from './measurements'
 import { photoCount } from './photoSets'
+import { inRange } from '@/lib/number'
 
 export function checkInDue(day: number | undefined, measurements: Measurement[], today: string): string | undefined {
   const weights = series(measurements, WEIGHT.key)
@@ -12,7 +13,8 @@ export function checkInDue(day: number | undefined, measurements: Measurement[],
   return weights.some((w) => w.date >= d) ? undefined : d
 }
 
-const LAST_WEEK_MAX_DAYS = 8
+// "semana passada" só pra 6 a 8 dias; ontem ou 3 dias atrás mostra a data
+const LAST_WEEK_DAYS = [6, 8] as const
 
 interface WeekSummary {
   week: number
@@ -41,7 +43,7 @@ export function weekSummary(profile: Profile, measurements: Measurement[], photo
     sincePrev: previousWeight?.delta,
     weightGood: previousWeight?.good ?? false,
     prevDate: prev?.date,
-    prevIsLastWeek: !!prev && daysBetween(prev.date, today) <= LAST_WEEK_MAX_DAYS,
+    prevIsLastWeek: !!prev && inRange(daysBetween(prev.date, today), ...LAST_WEEK_DAYS),
     sinceStart: bodyRows(profile, measurements, [WEIGHT], () => [first, now])[0].delta,
     rows,
     photos: photoCount(photoSets.find((set) => set.date === today)),

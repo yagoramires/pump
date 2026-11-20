@@ -30,6 +30,16 @@ test('sem câmera: só galeria com aviso; foto da galeria salva frente e avança
   expect(await loadPhoto((await stored('photoSets'))![0].frente!)).toBe('data:image/jpeg;base64,FAKE')
   expect(screen.getByRole('tab', { name: 'Lado', selected: true })).toBeInTheDocument()
 })
+test('abre no ângulo pedido: foto salva em costas sem tocar na frente', async () => {
+  Object.defineProperty(navigator, 'mediaDevices', { value: undefined, configurable: true })
+  const user = userEvent.setup()
+  await renderLoaded(<PhotoCapture date="2026-11-17" angle="costas" onClose={vi.fn()} />)
+  expect(await screen.findByRole('tab', { name: 'Costas', selected: true })).toBeInTheDocument()
+  await user.upload(screen.getByLabelText('Escolher da galeria'), new File(['x'], 'a.jpg', { type: 'image/jpeg' }))
+  await user.click(await screen.findByRole('button', { name: 'Usar' }))
+  await waitFor(async () => expect((await stored('photoSets'))?.[0].costas).toBeTruthy())
+  expect((await stored('photoSets'))![0].frente).toBeUndefined()
+})
 test('falha ao salvar a foto não cria registro', async () => {
   Object.defineProperty(navigator, 'mediaDevices', { value: undefined, configurable: true })
   const realSet = vi.mocked(set).getMockImplementation()!
