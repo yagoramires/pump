@@ -33,9 +33,8 @@ export function weekStart(key: string): string {
 }
 
 export function countInWeekBefore<T>(log: Record<string, T>, date: string, count: (v: T) => number): number {
-  const from = weekStart(date)
   let n = 0
-  for (const [k, v] of Object.entries(log)) if (k >= from && k < date) n += count(v)
+  for (const k of eachDay(weekStart(date), date)) if (k in log) n += count(log[k])
   return n
 }
 

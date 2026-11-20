@@ -1,6 +1,6 @@
 import {
-  activeRest, changePlanRest, changeRestDuration, completeSession, completeUnfinishedSession, extendRest, holdsTrainingDay,
-  restExerciseIndex, restRemainingSeconds, setDone, startSession, toggleRestPause, toggleSetWithRest,
+  activeRest, changePlanRest, changeRestDuration, completeSession, completeUnfinishedSession, editSession, extendRest, holdsTrainingDay,
+  reopenSession, restExerciseIndex, restRemainingSeconds, setDone, startSession, toggleRestPause, toggleSetWithRest,
 } from './session'
 import { workoutOf } from '../../test/helpers'
 
@@ -28,6 +28,14 @@ test('completeSession marca a hora e encerra o descanso, correndo ou pausado', (
   expect(running.completedAt).toBe(now.toISOString())
   expect(activeRest(running)).toBeUndefined()
   expect(activeRest(completeSession(toggleRestPause({ ...s, restEndsAt: 30_000 }, 0), now))).toBeUndefined()
+})
+test('editar séries depois mantém a hora do fim; desfazer na hora marca a nova', () => {
+  const s = completeSession(startSession(workoutOf([{}]), '2026-11-16', new Date(2026, 10, 16, 18)), new Date(2026, 10, 16, 19))
+  const edited = completeSession(editSession(s), new Date(2026, 10, 16, 22))
+  expect(edited.completedAt).toBe(s.completedAt)
+  expect(edited).not.toHaveProperty('editedFrom')
+  const late = new Date(2026, 10, 16, 19, 30)
+  expect(completeSession(reopenSession(s), late).completedAt).toBe(late.toISOString())
 })
 test('marcar inicia o descanso do exercício certo e desmarcar mantém o tempo que já corria', () => {
   const initial = startSession(workoutOf([{ restSec: 90 }, { restSec: 60 }]), '2026-11-16')

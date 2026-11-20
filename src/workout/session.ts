@@ -91,9 +91,16 @@ export function changePlanRest(plan: WorkoutPlan, s: WorkoutSession, exIdx: numb
   }
 }
 
-export const completeSession = (s: WorkoutSession, now: Date): WorkoutSession => ({ ...clearRest(s), completedAt: now.toISOString() })
+export function completeSession(s: WorkoutSession, now: Date): WorkoutSession {
+  const { editedFrom, ...rest } = clearRest(s)
+  return { ...rest, completedAt: editedFrom ?? now.toISOString() }
+}
 
+/** desfaz o "concluir" recém-feito: concluir de novo marca a hora nova */
 export const reopenSession = (s: WorkoutSession): WorkoutSession => ({ ...s, completedAt: undefined })
+
+/** "Editar séries" mais tarde não deve esticar a duração: concluir de novo reaproveita a hora do fim */
+export const editSession = (s: WorkoutSession): WorkoutSession => ({ ...reopenSession(s), editedFrom: s.completedAt })
 
 export function completeUnfinishedSession(s: WorkoutSession) {
   const end = parseDayKey(s.date)

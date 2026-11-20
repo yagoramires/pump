@@ -2,6 +2,7 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderLoaded } from '../../test/render'
 import { seedStore, stored } from '../../test/store'
+import { todayKey } from '@/lib/date'
 import { WaterSettings } from './WaterSettings'
 
 
@@ -34,4 +35,18 @@ test('liga com a meta pelo peso, grava meta e copo válidos, e religar mantém o
   await renderLoaded(<WaterSettings />)
   expect(sw()).toHaveAttribute('aria-checked', 'true')
   expect(meta()).toHaveValue('3000')
+})
+
+test('mudar a meta atualiza a meta gravada no dia de hoje', async () => {
+  const today = todayKey()
+  await seedStore({
+    settings: { lastTab: 'dieta', onboardingDone: true, water: { enabled: true, goalMl: 2000, cupMl: 250 } },
+    waterLog: { [today]: { ml: 2000, goalMl: 2000 } },
+  })
+  const user = userEvent.setup()
+  await renderLoaded(<WaterSettings />)
+  const meta = screen.getByRole('textbox', { name: 'Meta (ml)' })
+  await user.clear(meta)
+  await user.type(meta, '3000')
+  await waitFor(async () => expect((await stored('waterLog'))?.[today]).toEqual({ ml: 2000, goalMl: 3000 }))
 })

@@ -47,7 +47,8 @@ test('carga: o texto digitado fica enquanto digita; acima do máximo fica invál
   await user.type(kg, `${KG[1] + 1}`)
   expect(kg).toHaveValue(`${KG[1] + 1}`)
   expect(kg).toHaveAttribute('aria-invalid', 'true')
-  expect(current.weightKg).toBe(50)
+  // volta ao valor de antes da edição (o campo não perdeu o foco desde o 20), não ao prefixo válido 50
+  expect(current.weightKg).toBe(20)
   await user.click(screen.getByRole('button', { name: 'Aumentar séries' }))
-  expect(kg).toHaveValue('50')
+  expect(kg).toHaveValue('20')
 })

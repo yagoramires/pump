@@ -3,7 +3,7 @@ import { FormatError, readHalf, writeEnvelope } from '@/format/envelope'
 import { str } from '@/lib/text'
 import { isObj } from '@/lib/utils'
 import { inRange, round1 } from '@/lib/number'
-import { GOAL_KCAL, GRAMS, HHMM, MACRO_G, MAX_ITEMS, MAX_KCAL_PER_100G, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
+import { GOAL_KCAL, GRAMS, HHMM, MACRO_G, MAX_ITEMS, MAX_KCAL_PER_100G, MAX_MACRO_PER_100G, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 import { matchFood } from './match'
 import { normalizeMealTime } from './plan'
 import { asFood, fromTaco, hasValues } from './food'
@@ -36,7 +36,7 @@ function parseFoods(v: unknown, tag: string, problem: AddProblem): PumpAlimento[
     const porcao = str(x.porcao)
     const out: PumpAlimento = { nome, gramas, ...(porcao && { porcao }) }
     for (const k of VALUES) if (inRange(x[k], 0, Infinity)) out[k] = x[k] as number
-    if (out.kcal !== undefined && (out.kcal * 100) / gramas > MAX_KCAL_PER_100G) delete out.kcal
+    for (const k of VALUES) if (out[k] !== undefined && (out[k] * 100) / gramas > (k === 'kcal' ? MAX_KCAL_PER_100G : MAX_MACRO_PER_100G)) delete out[k]
     return out
   })
 }
