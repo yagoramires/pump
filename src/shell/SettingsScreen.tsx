@@ -1,7 +1,9 @@
 import { useState, type ReactNode } from 'react'
-import { RotateCcw, Share2, Upload, User } from 'lucide-react'
+import { RotateCcw, Share2, Sparkles, Upload, User } from 'lucide-react'
 import { usePersisted } from '@/storage/db'
-import { todayKey } from '@/lib/date'
+import { formatDayMonth, todayKey } from '@/lib/date'
+import { ChangelogList } from './Changelog'
+import { CHANGELOG } from './releases'
 import { formatKg, plural } from '@/lib/number'
 import { Card } from '@/components/ui/card'
 import { Overlay } from '@/components/Overlay'
@@ -49,6 +51,12 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         <BackupRestore trigger={(pick) => (
           <SettingsRow icon={<Upload size={18} aria-hidden="true" />} color="var(--c5)" title="Restaurar backup" onClick={pick} />
         )} />
+      </SettingsSection>
+      <SettingsSection title="APP">
+        <SettingsRow
+          icon={<Sparkles size={18} aria-hidden="true" />} color="var(--c3)" title="Novidades" sub={`Atualizado em ${formatDayMonth(CHANGELOG[0].date)}`}
+          onClick={() => setView(<><BackHeader title="Novidades" onBack={back} /><ChangelogList /></>)}
+        />
       </SettingsSection>
       <Alert role="note" className="mt-2.5">Seus dados ficam só neste aparelho. Envie um backup de vez em quando.</Alert>
       <Card size="flush" className="mt-2.5">

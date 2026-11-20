@@ -8,7 +8,7 @@ import type { Measurement, PhotoSet } from './evolution/types'
 export type Tab = 'treino' | 'evolucao' | 'dieta'
 
 /** datas = todayKey */
-interface CoreSettings { lastTab: Tab; onboardingDone: boolean; firstUseAt?: string; lastBackupAt?: string; installDismissed?: boolean }
+interface CoreSettings { lastTab: Tab; onboardingDone: boolean; firstUseAt?: string; lastBackupAt?: string; installDismissed?: boolean; seenChangelog?: number }
 export type Settings = CoreSettings & { seenAchievements?: string[]; earnedAchievements?: Record<string, string>; shoppingChecked?: string[]; water?: WaterSettings; supplements?: Supplement[]; checkInDay?: number; anamnesisAt?: string }
 export interface UserData { profile: Profile; workoutPlan: WorkoutPlan; workoutLog: WorkoutLog; customExercises: CustomExercise[]; settings: Settings; measurements: Measurement[]; photoSets: PhotoSet[]; dietPlan: DietPlan; dietLog: DietLog; waterLog: WaterLog; supplementLog: SupplementLog; foods: DietItem[] }
 
