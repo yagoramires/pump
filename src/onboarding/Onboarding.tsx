@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
+import { CHANGELOG } from '@/shell/releases'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { AnamnesisFlow } from '@/profile/AnamnesisFlow'
 import { DayZero } from '@/evolution/DayZero'
@@ -40,7 +41,7 @@ export function Onboarding() {
   const [error, setError] = useState<string>()
   const [resumeAtDayZero, setResumeAtDayZero] = useState(false)
   const [picked, setPicked] = useState(TEMPLATES[0].id)
-  const finish = () => setSettings((s) => ({ ...s, onboardingDone: true, firstUseAt: s.firstUseAt ?? todayKey() }))
+  const finish = () => setSettings((s) => ({ ...s, onboardingDone: true, firstUseAt: s.firstUseAt ?? todayKey(), seenChangelog: s.seenChangelog ?? CHANGELOG[0]?.date }))
   const template = TEMPLATES.find((t) => t.id === picked)!
 
   const startTemplate = async () => {

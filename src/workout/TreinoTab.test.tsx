@@ -114,6 +114,12 @@ test('carga começa com a do último treino, série por série; sem série anter
   expect(await screen.findByRole('textbox', { name: 'Carga da série 1 de Supino reto' })).toHaveValue('50')
   expect(screen.getByRole('textbox', { name: 'Carga da série 2 de Supino reto' })).toHaveValue('40')
 })
+test('reps editadas no último treino não passam pro próximo: volta às do plano', async () => {
+  await save('workoutLog', sessaoAnterior([{ reps: '6', weightKg: 50 }]))
+  await renderLoaded(<TreinoTab />)
+  expect(await screen.findByRole('textbox', { name: 'Reps da série 1 de Supino reto' })).toHaveValue('10')
+  expect((await stored('workoutPlan'))?.workouts[0].exercises[0].reps).toBe('10')
+})
 test('resumo do exercício fechado mostra a última carga usada', async () => {
   await save('workoutLog', sessaoAnterior([{ reps: '10', weightKg: 50 }]))
   const user = userEvent.setup()

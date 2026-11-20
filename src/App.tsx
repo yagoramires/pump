@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { BottomNav } from '@/shell/BottomNav'
 import { InstallGate } from '@/shell/InstallGate'
 import { SettingsScreen } from '@/shell/SettingsScreen'
+import { WhatsNew } from '@/shell/Changelog'
 import { isIOS, isStandalone } from '@/shell/platform'
 import { Onboarding } from '@/onboarding/Onboarding'
 import { TreinoTab } from '@/workout/TreinoTab'
@@ -82,6 +83,7 @@ function Shell() {
       </main>
       <BottomNav tab={tab} alerts={due ? { evolucao: 'atualização pendente' } : undefined} onChange={(lastTab) => { setShowSettings(false); setSettings((s) => ({ ...s, lastTab })) }} />
       <AchievementToasts />
+      <WhatsNew seen={settings.seenChangelog} onClose={(seenChangelog) => setSettings((s) => ({ ...s, seenChangelog }))} />
     </>
   )
 }
