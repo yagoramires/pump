@@ -15,6 +15,13 @@ export const buildBackup = (data: Record<string, unknown>, now: Date): BackupFil
   data,
 })
 
+/** mesmo texto que JSON.stringify(buildBackup(...)), em pedaços: com anos de fotos em base64 uma string única passaria de 100 MB */
+export const backupParts = (data: Record<string, unknown>, now: Date): string[] => [
+  JSON.stringify(buildBackup({}, now)).slice(0, -2),
+  ...Object.entries(data).map(([k, v], i) => `${i ? ',' : ''}${JSON.stringify(k)}:${JSON.stringify(v)}`),
+  '}}',
+]
+
 export function parseBackup(text: string): BackupFile {
   let b: unknown
   try {
@@ -50,7 +57,7 @@ export async function exportBackup(now = new Date()): Promise<'shared' | 'downlo
   const day = todayKey(now)
   let result: Awaited<ReturnType<typeof shareFile>>
   try {
-    const file = new File([JSON.stringify(buildBackup(await allData(), now))], `pump-backup-${day}.json`, { type: 'application/json' })
+    const file = new File(backupParts(await allData(), now), `pump-backup-${day}.json`, { type: 'application/json' })
     result = await shareFile(file)
   } catch (e) {
     console.error(e)

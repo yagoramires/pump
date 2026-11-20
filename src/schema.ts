@@ -35,6 +35,9 @@ export const DEFAULTS = deepFreeze({
 export const USER_KEYS = Object.keys(DEFAULTS) as (keyof UserData)[]
 export const isUserKey = (k: string): k is keyof UserData => (USER_KEYS as readonly string[]).includes(k)
 
+// byDate ordena por date no boot: item sem date travaria o app inteiro depois de restaurar
+const datedList = (v: unknown) => Array.isArray(v) && v.every((d) => isObj(d) && typeof d.date === 'string')
+
 /** formato mínimo que um backup precisa ter em cada chave */
 export const VALID: Record<keyof UserData, (v: unknown) => boolean> = {
   profile: isObj,
@@ -42,8 +45,8 @@ export const VALID: Record<keyof UserData, (v: unknown) => boolean> = {
   workoutLog: (v) => isObj(v) && Object.values(v).every((d) => isObj(d) && Array.isArray(d.exercises)),
   customExercises: Array.isArray,
   settings: isObj,
-  measurements: Array.isArray,
-  photoSets: Array.isArray,
+  measurements: datedList,
+  photoSets: datedList,
   dietPlan: (v) => isObj(v) && Array.isArray(v.menus),
   dietLog: (v) => isObj(v) && Object.values(v).every((d) => isObj(d) && Array.isArray(d.meals)),
   waterLog: (v) => isObj(v) && Object.values(v).every((d) => isObj(d) && typeof d.ml === 'number' && typeof d.goalMl === 'number'),

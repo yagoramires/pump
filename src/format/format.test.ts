@@ -17,6 +17,11 @@ test('sem JSON ou erro inesperado lendo o texto colado vira o aviso de não enco
   expect(problems(() => readHalf('{}', 'dieta', 'Não achei', () => { throw new TypeError('x') }))).toEqual(['Não achei'])
 })
 
+test('bloco que não é JSON antes do bloco do plano não esconde o plano', () => {
+  const reply = 'Rode isto:\n```bash\necho oi\n```\nAqui o plano:\n```json\n{"treinos":[1]}\n```'
+  expect(readHalf(reply, 'treinos', 'nf', (raw) => raw.treinos)).toEqual([1])
+})
+
 test('mesmo nome herda o id antigo uma vez; id que já é do plano antigo fica', () => {
   const prev = [{ id: 'a', n: 'A' }, { id: 'b', n: 'B' }]
   const next = [{ id: 'x', n: 'B' }, { id: 'y', n: 'B' }, { id: 'a', n: 'C' }, { id: 'z', n: 'A' }]

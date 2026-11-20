@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    // autoUpdate: o app da tela de início quase nunca é fechado de vez, então a versão nova entra e recarrega na hora
+    // autoUpdate: o app da tela de início quase nunca é fechado de vez, então a versão nova entra e recarrega na hora (menos com rascunho aberto: src/lib/holdUpdates.ts)
     VitePWA({
       registerType: 'autoUpdate',
       strategies: 'injectManifest',

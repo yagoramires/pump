@@ -37,6 +37,7 @@ export async function shareFile(file: File): Promise<'shared' | 'downloaded' | '
   a.href = url
   a.download = file.name
   a.click()
-  URL.revokeObjectURL(url)
+  // WebKit ainda lê o blob depois do click: revogar na hora pode falhar o download
+  setTimeout(() => URL.revokeObjectURL(url), 40_000)
   return 'downloaded'
 }

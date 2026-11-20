@@ -23,8 +23,10 @@ import { Alert } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useHoldUpdates } from '@/lib/holdUpdates'
 
 export function PlanImport({ mode, onDone, onBack }: { mode: ImportMode; onDone: () => void; onBack: () => void }) {
+  useHoldUpdates()
   const { plan, replacePlan } = useWorkoutPlan()
   const [customs, setCustoms] = usePersisted('customExercises')
   const [profile, setProfile] = usePersisted('profile')

@@ -22,6 +22,7 @@ import { formatDec, plural } from '@/lib/number'
 import { todayKey } from '@/lib/date'
 import { cn } from '@/lib/utils'
 import { Alert } from '@/components/ui/alert'
+import { useHoldUpdates } from '@/lib/holdUpdates'
 
 type Props = { mode: ImportMode; onDone: () => void; onBack: () => void }
 
@@ -35,6 +36,7 @@ const itemLines = (i: DietItem, r?: ItemReport): { shown: string; note?: string;
 }
 
 export function DietImport({ mode, onDone, onBack }: Props) {
+  useHoldUpdates()
   const [profile, setProfile] = usePersisted('profile')
   const { plan: saved, replacePlan } = useDietPlan()
   const [foods] = usePersisted('foods')

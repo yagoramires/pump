@@ -24,6 +24,7 @@ import { DayZero } from '@/evolution/DayZero'
 import { ANAMNESIS_STEPS } from '@/profile/profile'
 import { Steps } from '@/components/Steps'
 import { Alert } from '@/components/ui/alert'
+import { useHoldUpdates } from '@/lib/holdUpdates'
 
 const TREINO_STEP = ANAMNESIS_STEPS + 1
 const DIETA_STEP = ANAMNESIS_STEPS + 2
@@ -31,6 +32,7 @@ const ONBOARDING_STEPS = DIETA_STEP
 type Step = 'anamnese' | 'treino' | 'editor' | 'ia' | 'convert' | 'dieta'
 
 export function Onboarding() {
+  useHoldUpdates()
   const [, setSettings] = usePersisted('settings')
   const [step, setStep] = useState<Step>('anamnese')
   const [initial, setInitial] = useState<WorkoutPlan>(DEFAULTS.workoutPlan)
