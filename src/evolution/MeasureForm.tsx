@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react'
 import type { Profile } from '@/profile/types'
 import type { MeasureFields } from './types'
 import { usePersisted } from '@/storage/db'
-import { formatInput, parseDecimal } from '@/lib/number'
+import { formatInput, inRange, parseDecimal } from '@/lib/number'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,9 +10,11 @@ import { bodyFat } from './bodyFat'
 import { FIELDS, fieldsFor, upsertMeasurement, type UpsertStatus } from './measurements'
 import { Optional } from '@/components/Optional'
 import { Alert } from '@/components/ui/alert'
+import { CM, WEIGHT_KG } from './limits'
 
 type Key = keyof MeasureFields
 const select = (e: React.FocusEvent<HTMLInputElement>) => e.currentTarget.select()
+const range = (k: Key): readonly [number, number] => (k === 'weightKg' ? WEIGHT_KG : CM)
 
 export function MeasureForm({ date, profile: draft, onSaved, submitLabel = 'Salvar', needWeight, children }: { date: string; profile?: Profile; onSaved: (status: UpsertStatus) => void; submitLabel?: string; needWeight?: boolean; children?: ReactNode }) {
   const [list, setList] = usePersisted('measurements')
@@ -23,10 +25,10 @@ export function MeasureForm({ date, profile: draft, onSaved, submitLabel = 'Salv
   const [text, setText] = useState(() =>
     Object.fromEntries(FIELDS.map(({ key }) => [key, initial?.[key] === undefined ? '' : formatInput(initial[key])])) as Record<Key, string>,
   )
-  // vazio ou 0 vira null (apaga o campo); texto inválido trava o Salvar em vez de apagar o valor salvo
+  // vazio ou 0 vira null (apaga o campo); texto inválido ou fora da faixa trava o Salvar em vez de apagar o valor salvo
   const num = (k: Key) => (text[k].trim() ? parseDecimal(text[k]) : null)
   const parsed = Object.fromEntries(fields.map(({ key }) => { const n = num(key); return [key, n !== null && n > 0 ? n : null] })) as { [K in Key]?: number | null }
-  const invalid = fields.filter(({ key }) => text[key].trim() && num(key) === null).map((f) => f.key)
+  const invalid = fields.filter(({ key }) => { const n = num(key); return text[key].trim() && (n === null || (n > 0 && !inRange(n, ...range(key)))) }).map((f) => f.key)
   const fat = bodyFat(profile.sex, profile.heightCm, Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== null)))
 
   return (

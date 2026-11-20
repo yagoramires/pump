@@ -12,8 +12,9 @@ export function useEvolution(): EvolutionInput {
   const [dietLog] = usePersisted('dietLog')
   const [waterLog] = usePersisted('waterLog')
   const [dietPlan] = usePersisted('dietPlan')
+  const [{ earnedAchievements }] = usePersisted('settings')
   return useMemo(
-    () => ({ workoutLog, workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan }),
-    [workoutLog, workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan],
+    () => ({ workoutLog, workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan, earnedAchievements }),
+    [workoutLog, workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan, earnedAchievements],
   )
 }
