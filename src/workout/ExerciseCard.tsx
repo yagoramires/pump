@@ -4,7 +4,7 @@ import type { SessionExercise, SetDone } from './types'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { ExerciseIcon } from './ExerciseIcon'
+import { ExerciseThumb } from './ExerciseGroups'
 import { exerciseSummary, restSecondsLabel } from './display'
 import { isExerciseComplete, markedSets } from './session'
 import { suggestedKg } from './stats'
@@ -23,7 +23,7 @@ export function ExerciseCard({ ex, open, onToggle, onPreview, prev, children }: 
       <Card size="flush" className={cn(open && 'border-accent-line')}>
         <div className="flex items-center pl-1.5 pr-3">
           <Button variant="ghost" size="icon" aria-label={`Ver ${ex.name}`} onClick={onPreview}>
-            <ExerciseIcon muscles={ex.muscles} size={32} />
+            <ExerciseThumb muscles={ex.muscles} image={ex.images[0]} />
           </Button>
           <CollapsibleTrigger asChild>
             <Button variant="ghost" className="h-auto min-h-14 min-w-0 flex-1 justify-start gap-2 py-2.5 pl-1.5 text-left font-normal whitespace-normal hover:bg-transparent">

@@ -28,8 +28,7 @@ import { previousSets, sessionStats } from './stats'
 import { isRest, restRecord, sessionOf } from './rest'
 import { unlockAudio } from './restTimer'
 import { PLAN_DEFAULTS } from './exercises'
-import { ExerciseGroups } from './ExerciseGroups'
-import { ExerciseIcon } from './ExerciseIcon'
+import { ExerciseGroups, ExerciseThumb } from './ExerciseGroups'
 import { REST_STEP } from './limits'
 import { useWorkoutPlan } from './useWorkoutPlan'
 import { workoutDayLabel } from './display'
@@ -235,7 +234,7 @@ export function TreinoTab() {
               return (
                 <Card size="sm" key={i} className="flex-row items-center gap-1.5">
                   <Button variant="ghost" size="icon" aria-label={`Ver ${e.name}`} onClick={() => setPreview(i)}>
-                    <ExerciseIcon muscles={e.muscles} cardio size={32} />
+                    <ExerciseThumb muscles={e.muscles} image={e.images[0]} cardio />
                   </Button>
                   <span className="min-w-0 flex-1">
                     <span className="block text-body font-semibold break-words text-strong">{e.name}</span>
