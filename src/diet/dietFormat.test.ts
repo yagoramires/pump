@@ -107,6 +107,11 @@ test('kcal por 100 g acima de 900 é tratada como ausente', () => {
   expect(d.cardapios[0].refeicoes[0].opcoes[0].alimentos).toEqual([{ nome: 'Azeite', gramas: 10, gorduraG: 10 }, { nome: 'Manteiga', gramas: 10, kcal: 88 }, { nome: 'X', gramas: 10 }])
 })
 
+test('macro por 100 g acima de 100 g é tratado como ausente', () => {
+  const d = parseDietFormat(file({ refeicoes: [meal([{ nome: 'Whey', gramas: 30, kcal: 120, proteinaG: 240, carboG: 3 }])] }))
+  expect(d.cardapios[0].refeicoes[0].opcoes[0].alimentos).toEqual([{ nome: 'Whey', gramas: 30, kcal: 120, carboG: 3 }])
+})
+
 test('dietFromFormat: casados guardam o nome da TACO; sem casamento vira ia com per100 da IA', () => {
   const d = one([
     { nome: 'Almoço', horario: '12:00', alimentos: [{ nome: 'Arroz integral', gramas: 100, porcao: '4 colheres', kcal: 130 }, { nome: 'Whey protein', gramas: 30, kcal: 120, proteinaG: 24, carboG: 3 }] },

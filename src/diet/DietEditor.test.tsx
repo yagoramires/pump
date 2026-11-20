@@ -169,7 +169,7 @@ test('metas fora da faixa do formato marcam o campo e não entram no plano', asy
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
   const menu = saved(onSave).menus.find((m) => m.name === 'Dia de treino')!
   expect(menu.goalKcal).toBe(2000)
-  expect(menu.goalMacros?.p).not.toBe(700)
+  expect(menu.goalMacros?.p).toBeUndefined()
 })
 
 test('B8: 0 g marca o campo como inválido e não entra no plano (antes sumia calado)', async () => {

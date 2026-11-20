@@ -15,7 +15,6 @@ export const singularWord = (w: string) => {
   if (SINGULAR_AO[l]) return SINGULAR_AO[l]
   if (/ões$/.test(l)) return `${l.slice(0, -3)}ão`
   if (SING_L[l.slice(-3)]) return l.slice(0, -3) + SING_L[l.slice(-3)]
-  if (/[^aeiouáéíóú]is$/.test(l)) return `${l.slice(0, -1)}l`
   if (/ns$/.test(l)) return `${l.slice(0, -2)}m`
   if (/[rz]es$/.test(l)) return l.slice(0, -2)
   return /s$/.test(l) ? l.slice(0, -1) : l
