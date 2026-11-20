@@ -3,6 +3,13 @@ import { todayKey } from './date'
 
 const clocks = new Set<(d: Date) => void>()
 
+/** relê a hora em todos os relógios montados e devolve o dia de agora */
+export function tick() {
+  const at = new Date()
+  for (const set of clocks) set(at)
+  return todayKey(at)
+}
+
 /** o PWA volta do segundo plano sem remontar, então o relógio relê a hora ao ficar visível */
 export function useToday() {
   const [now, setNow] = useState(() => new Date())
@@ -15,10 +22,5 @@ export function useToday() {
       document.removeEventListener('visibilitychange', onVisible)
     }
   }, [])
-  const tick = () => {
-    const at = new Date()
-    for (const set of clocks) set(at)
-    return todayKey(at)
-  }
   return { now, today: todayKey(now), tick }
 }

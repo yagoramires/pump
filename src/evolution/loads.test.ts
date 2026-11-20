@@ -52,11 +52,13 @@ test('com lastro no período usa carga e ignora sessões a 0 kg', () => {
   expect(r).toMatchObject({ mode: 'load', sessions: 1, top: { last: 10 } })
   expect(r.top.delta).toBeUndefined()
 })
-test('exercício repetido no mesmo treino vale a primeira ocorrência', () => {
-  expect(rows(logOf(sess('2026-11-15', [supino([set(60)]), supino([set(90)])])))[0].top.last).toBe(60)
+test('exercício repetido no mesmo treino junta as séries das aparições', () => {
+  expect(rows(logOf(sess('2026-11-15', [supino([set(60)]), supino([set(90)])])))[0].top.last).toBe(90)
 })
-test('exercício repetido: ignora ocorrência sem série marcada e usa a primeira com série', () => {
-  expect(rows(logOf(sess('2026-11-15', [supino([null]), supino([set(60)]), supino([set(90)])])))[0].top.last).toBe(60)
+test('exercício repetido: ocorrência sem série marcada não atrapalha', () => {
+  const r = rows(logOf(sess('2026-11-15', [supino([null]), supino([set(60)]), supino([set(90)])])))[0]
+  expect(r.top.last).toBe(90)
+  expect(r.sessions).toBe(1)
 })
 test('agrupa por grupo muscular na ordem fixa; sem músculo e pescoço vão para Outros', () => {
   const ex = (id: string, muscles: string[]) => ({ exerciseId: id, name: id, muscles, sets: [set(10)] })

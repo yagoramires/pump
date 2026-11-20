@@ -5,7 +5,8 @@ import type { SessionExercise, SetDone, WorkoutLog, WorkoutSession } from './typ
 
 const doneSets = (s: WorkoutSession) => s.exercises.flatMap(markedSets)
 
-export const exerciseVolume = (e: SessionExercise) => markedSets(e).reduce((a, d) => a + d.weightKg * repsNumber(d.reps), 0)
+// por tempo: as "reps" são segundos, não entram no volume
+export const exerciseVolume = (e: SessionExercise) => isTimed(e.reps) ? 0 : markedSets(e).reduce((a, d) => a + d.weightKg * repsNumber(d.reps), 0)
 
 export const completedSessions = (log: WorkoutLog) => Object.values(log)
   .filter((s) => !isRest(s) && s.completedAt)
@@ -14,13 +15,18 @@ export const completedSessions = (log: WorkoutLog) => Object.values(log)
 export const maxLoad = (e: SessionExercise) => Math.max(0, ...e.sets.map((x) => x?.weightKg ?? 0))
 
 type Entry = { date: string; e: SessionExercise }
-/** as sessões (em ordem) em que cada exercício teve série marcada; cardio e por tempo (pelo último registro) ficam de fora */
+/** as sessões (em ordem) em que cada exercício teve série marcada; cardio e por tempo (pelo último registro) ficam de fora.
+ * Exercício repetido no mesmo treino vira uma entrada só, com as séries de todas as aparições */
 export function exerciseHistory(sessions: WorkoutSession[]): Map<string, Entry[]> {
   const byId = new Map<string, Entry[]>()
   for (const s of sessions) {
     for (const e of s.exercises) {
-      const list = byId.get(e.exerciseId) ?? []
-      if (hasMarkedSet(e) && list.at(-1)?.date !== s.date) byId.set(e.exerciseId, [...list, { date: s.date, e }])
+      if (!hasMarkedSet(e)) continue
+      const list = byId.get(e.exerciseId)
+      const last = list?.at(-1)
+      if (last?.date === s.date) last.e = { ...last.e, sets: [...last.e.sets, ...e.sets] }
+      else if (list) list.push({ date: s.date, e })
+      else byId.set(e.exerciseId, [{ date: s.date, e }])
     }
   }
   for (const [id, list] of byId) if (isCardio(list.at(-1)!.e) || isTimed(list.at(-1)!.e.reps)) byId.delete(id)
@@ -44,10 +50,12 @@ export const sessionStats = (s: WorkoutSession, now?: Date) => {
   }
 }
 
-export const previousSets = (log: WorkoutLog, today: string, exerciseId: string): (SetDone | null)[] => {
+/** nth: qual aparição do exercício no treino de hoje (o 2º supino compara com o 2º supino); sem par, usa a 1ª */
+export const previousSets = (log: WorkoutLog, today: string, exerciseId: string, nth = 0): (SetDone | null)[] => {
   const dates = Object.keys(log).filter((d) => d < today).sort().reverse()
   for (const d of dates) {
-    const ex = log[d].exercises.find((e) => e.exerciseId === exerciseId)
+    const same = log[d].exercises.filter((e) => e.exerciseId === exerciseId)
+    const ex = same[nth] ?? same[0]
     if (ex && hasMarkedSet(ex)) return ex.sets
   }
   return []
