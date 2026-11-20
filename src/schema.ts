@@ -45,7 +45,8 @@ export const VALID: Record<keyof UserData, (v: unknown) => boolean> = {
   workoutPlan: (v) => isObj(v) && Array.isArray(v.workouts),
   workoutLog: (v) => isObj(v) && Object.values(v).every((d) => isObj(d) && Array.isArray(d.exercises)),
   customExercises: Array.isArray,
-  settings: isObj,
+  // supplements vira .map na aba Dieta: formato errado travaria o app a cada abertura
+  settings: (v) => isObj(v) && (v.supplements === undefined || (Array.isArray(v.supplements) && v.supplements.every((x) => isObj(x) && typeof x.id === 'string' && typeof x.name === 'string'))),
   measurements: datedList,
   photoSets: datedList,
   dietPlan: (v) => isObj(v) && Array.isArray(v.menus),

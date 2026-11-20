@@ -37,3 +37,11 @@ test('VALID.supplementLog recusa formato errado', () => {
   expect(VALID.supplementLog({ [D]: { taken: ['a'], total: 2 } })).toBe(true)
   expect(VALID.supplementLog({ x: { taken: 'a', total: 1 } })).toBe(false)
 })
+
+test('VALID.settings recusa supplements malformado (senão a aba Dieta quebra ao abrir)', () => {
+  const base = { lastTab: 'dieta', onboardingDone: true }
+  expect(VALID.settings(base)).toBe(true)
+  expect(VALID.settings({ ...base, supplements: [{ id: 'a', name: 'Creatina' }] })).toBe(true)
+  expect(VALID.settings({ ...base, supplements: {} })).toBe(false)
+  expect(VALID.settings({ ...base, supplements: [{ id: 'a' }] })).toBe(false)
+})
