@@ -13,19 +13,24 @@ const sess = (date: string, name: string, over: Partial<WorkoutSession> = {}): W
   ],
   ...over,
 })
-test('lista em ordem decrescente e expande as séries feitas', async () => {
+test('lista em ordem decrescente; tocar abre o resumo e os exercícios ficam atrás de um toque', async () => {
   await save('workoutLog', { '2026-11-10': sess('2026-11-10', 'Antigo'), '2026-11-14': sess('2026-11-14', 'Recente'), '2026-11-15': { ...sess('2026-11-15', 'Aberto'), completedAt: undefined } })
   const user = userEvent.setup()
   await renderLoaded(<PastWorkouts onClose={() => {}} />)
-  const rows = screen.getAllByRole('button', { expanded: false })
+  const rows = screen.getAllByRole('button', { name: /TREINO A/ })
   expect(rows).toHaveLength(2)
   expect(rows[0]).toHaveTextContent('Recente')
   expect(rows[1]).toHaveTextContent('Antigo')
   await user.click(rows[0])
-  expect(rows[0]).toHaveAttribute('aria-expanded', 'true')
+  expect(screen.getByRole('heading', { name: 'Recente' })).toBeInTheDocument()
+  expect(screen.getByText('Treino concluído')).toBeInTheDocument()
+  expect(screen.queryByText('40 kg × 10')).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Exercícios' }))
   expect(screen.getByText('Supino reto')).toBeInTheDocument()
   expect(screen.getByText('40 kg × 10')).toBeInTheDocument()
   expect(screen.queryByText('Rosca direta')).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Voltar' }))
+  expect(screen.getByRole('heading', { name: 'Treinos anteriores' })).toBeInTheDocument()
 })
 test('vazio', async () => {
   await renderLoaded(<PastWorkouts onClose={() => {}} />)
