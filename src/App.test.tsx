@@ -50,6 +50,7 @@ test('Configurações: grupo DIETA abre cardápio, IA e a tela da água, e cada 
   const user = userEvent.setup()
   await renderLoaded(<App />)
   await user.click(await screen.findByRole('button', { name: 'Configurações' }))
+  expect(screen.getByText(/^Pump v\d+ · [0-9a-f]{7} · /)).toBeInTheDocument()
   expect(screen.getByText('DIETA')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: /Cardápio/ }))
   expect(await screen.findByRole('heading', { name: 'Cardápio' })).toBeInTheDocument()
