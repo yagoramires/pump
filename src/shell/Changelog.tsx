@@ -25,7 +25,7 @@ export function ChangelogList() {
   return (
     <div className="mt-3 space-y-5">
       {CHANGELOG.map((r) => (
-        <article key={r.date}>
+        <article key={r.version}>
           <h2 className="text-title font-semibold text-strong">{formatDayMonth(r.date)}</h2>
           <ReleaseNotes release={r} />
         </article>
@@ -35,17 +35,17 @@ export function ChangelogList() {
 }
 
 /** abre sozinho uma vez quando entra uma versão nova no topo do CHANGELOG */
-export function WhatsNew({ seen, onClose }: { seen?: string; onClose: (date: string) => void }) {
+export function WhatsNew({ seen, onClose }: { seen?: number; onClose: (version: number) => void }) {
   const latest = CHANGELOG[0]
-  if (!latest || seen === latest.date) return null
+  if (seen === latest.version) return null
   return (
-    <Drawer open onOpenChange={(o) => !o && onClose(latest.date)}>
+    <Drawer open onOpenChange={(o) => !o && onClose(latest.version)}>
       <DrawerContent>
         <SheetBody>
           <DrawerTitle className="shrink-0 text-title font-semibold text-strong">Novidades</DrawerTitle>
           <DrawerDescription className="text-meta text-text-2">{`Atualização de ${formatDayMonth(latest.date)}`}</DrawerDescription>
           <ReleaseNotes release={latest} />
-          <Button className="mt-4 w-full font-bold" onClick={() => onClose(latest.date)}>Entendi</Button>
+          <Button className="mt-4 w-full font-bold" onClick={() => onClose(latest.version)}>Entendi</Button>
         </SheetBody>
       </DrawerContent>
     </Drawer>

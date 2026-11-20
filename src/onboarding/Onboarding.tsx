@@ -41,7 +41,7 @@ export function Onboarding() {
   const [error, setError] = useState<string>()
   const [resumeAtDayZero, setResumeAtDayZero] = useState(false)
   const [picked, setPicked] = useState(TEMPLATES[0].id)
-  const finish = () => setSettings((s) => ({ ...s, onboardingDone: true, firstUseAt: s.firstUseAt ?? todayKey(), seenChangelog: s.seenChangelog ?? CHANGELOG[0]?.date }))
+  const finish = () => setSettings((s) => ({ ...s, onboardingDone: true, firstUseAt: s.firstUseAt ?? todayKey(), seenChangelog: s.seenChangelog ?? CHANGELOG[0].version }))
   const template = TEMPLATES.find((t) => t.id === picked)!
 
   const startTemplate = async () => {

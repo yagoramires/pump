@@ -46,7 +46,7 @@ test('abrir com perfil no formato antigo grava o peso como medição', async () 
 })
 test('Configurações: grupo DIETA abre cardápio, IA e a tela da água, e cada uma volta pro menu', async () => {
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
-  await seedStore({ settings: { lastTab: 'dieta', onboardingDone: true, seenChangelog: CHANGELOG[0].date }, profile: { sex: 'M', heightCm: 180 } })
+  await seedStore({ settings: { lastTab: 'dieta', onboardingDone: true, seenChangelog: CHANGELOG[0].version }, profile: { sex: 'M', heightCm: 180 } })
   const user = userEvent.setup()
   await renderLoaded(<App />)
   await user.click(await screen.findByRole('button', { name: 'Configurações' }))
@@ -83,7 +83,7 @@ const backupFile = (data: Record<string, unknown>) => new File([JSON.stringify(b
 test('Configurações: restaurar backup confirma, troca os dados e recarrega; arquivo ruim mostra o erro', async () => {
   const reload = vi.fn()
   vi.stubGlobal('location', { ...location, reload })
-  await seedStore({ settings: { lastTab: 'treino', onboardingDone: true, seenChangelog: CHANGELOG[0].date } })
+  await seedStore({ settings: { lastTab: 'treino', onboardingDone: true, seenChangelog: CHANGELOG[0].version } })
   const user = userEvent.setup()
   await renderLoaded(<App />)
   await user.click(await screen.findByRole('button', { name: 'Configurações' }))
@@ -91,7 +91,7 @@ test('Configurações: restaurar backup confirma, troca os dados e recarrega; ar
   await user.click(await screen.findByRole('button', { name: 'Restaurar' }))
   expect(await screen.findByRole('alert')).toHaveTextContent(/backup/i)
   expect(reload).not.toHaveBeenCalled()
-  const settings = { lastTab: 'dieta' as const, onboardingDone: true, seenChangelog: CHANGELOG[0].date }
+  const settings = { lastTab: 'dieta' as const, onboardingDone: true, seenChangelog: CHANGELOG[0].version }
   await user.upload(screen.getByLabelText('Arquivo de backup'), backupFile({ settings }))
   expect(await screen.findByText('Isso substitui todos os seus dados. Continuar?')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Restaurar' }))
@@ -103,9 +103,9 @@ test('versão nova abre as Novidades uma vez; Configurações lista o histórico
   const user = userEvent.setup()
   const { unmount } = await renderLoaded(<App />)
   const sheet = await screen.findByRole('dialog', { name: 'Novidades' })
-  expect(within(sheet).getByText('Correções')).toBeInTheDocument()
+  expect(within(sheet).getByText(`Atualização de ${formatDayMonth(CHANGELOG[0].date)}`)).toBeInTheDocument()
   await user.click(within(sheet).getByRole('button', { name: 'Entendi' }))
-  await waitFor(async () => expect((await stored('settings'))?.seenChangelog).toBe(CHANGELOG[0].date))
+  await waitFor(async () => expect((await stored('settings'))?.seenChangelog).toBe(CHANGELOG[0].version))
   unmount()
   await renderLoaded(<App />)
   await user.click(await screen.findByRole('button', { name: /configurações/i }))

@@ -1,8 +1,10 @@
-/** Mais recente primeiro. Entrada nova no topo abre o aviso de Novidades uma vez. `date` é o id (todayKey). */
-export type Release = { date: string; novidades: string[]; correcoes: string[] }
+/** Mais recente primeiro. Entrada nova no topo, com `version` maior, abre o aviso de Novidades uma vez.
+ * `version` e não a data: dá pra ter mais de uma versão no mesmo dia. `date` = todayKey */
+export type Release = { version: number; date: string; novidades: string[]; correcoes: string[] }
 
-export const CHANGELOG: Release[] = [
+export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 2,
     date: '2026-11-20',
     novidades: [
       'Tela de Novidades nas configurações',
@@ -18,6 +20,7 @@ export const CHANGELOG: Release[] = [
     ],
   },
   {
+    version: 1,
     date: '2026-11-19',
     novidades: [
       'Escolher o primeiro treino ao importar a ficha',

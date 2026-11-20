@@ -15,6 +15,8 @@ export function unlockAudio(): void {
 export function beep(): void {
   if (ctx) {
     const audio = ctx
+    // já liberado por um gesto antes; retoma caso o fim do bipe anterior tenha suspendido
+    void audio.resume()
     const osc = audio.createOscillator()
     osc.frequency.value = 880
     osc.connect(audio.destination)
