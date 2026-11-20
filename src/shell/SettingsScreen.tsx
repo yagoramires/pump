@@ -19,6 +19,10 @@ import { BackupRestore } from '@/backup/BackupRestore'
 import { daysSinceBackup, sendBackup } from '@/backup/backup'
 import { Alert } from '@/components/ui/alert'
 
+const BUILT_AT = new Date(import.meta.env.VITE_BUILT_AT).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+/** hash do commit e hora do build mudam a cada deploy: dá pra ver se a versão nova já entrou */
+const versionLabel = () => `Pump v${CHANGELOG[0].version} · ${import.meta.env.VITE_COMMIT} · ${BUILT_AT}`
+
 export function SettingsScreen({ onClose }: { onClose: () => void }) {
   const [settings, setSettings] = usePersisted('settings')
   const [view, setView] = useState<ReactNode>()
@@ -66,6 +70,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         open={confirmRedo} title="Refazer montagem?" text="Você volta ao passo a passo inicial. Seus dados continuam salvos." confirm="Refazer" destructive
         onConfirm={() => { setSettings((s) => ({ ...s, onboardingDone: false })); onClose() }} onCancel={() => setConfirmRedo(false)}
       />
+      <p className="mt-4 text-center text-caption text-faint tabular-nums">{versionLabel()}</p>
     </Overlay>
   )
 }

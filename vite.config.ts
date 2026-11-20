@@ -1,9 +1,17 @@
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
+import { execSync } from 'node:child_process'
 import path from 'node:path'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
 import { BASE } from './src/catalog/urls.ts'
+
+// rodapé das Configurações: mostra qual deploy está rodando no aparelho
+const commit = () => {
+  try { return process.env.GITHUB_SHA ?? execSync('git rev-parse HEAD').toString().trim() } catch { return 'dev' }
+}
+process.env.VITE_COMMIT = commit().slice(0, 7)
+process.env.VITE_BUILT_AT = new Date().toISOString()
 
 export default defineConfig({
   plugins: [
