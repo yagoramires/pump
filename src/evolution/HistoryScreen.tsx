@@ -1,5 +1,5 @@
 import { useId, useState } from 'react'
-import { Camera, ChevronLeft, ChevronRight, Dumbbell, GlassWater, Moon, Ruler, Utensils } from 'lucide-react'
+import { Camera, ChevronLeft, ChevronRight, Dumbbell, GlassWater, Moon, Pill, Ruler, Utensils } from 'lucide-react'
 import { usePersisted } from '@/storage/db'
 import { WEEKDAY_SHORT, formatDayMonth, todayKey } from '@/lib/date'
 import { useToday } from '@/lib/useToday'
@@ -14,6 +14,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { cn } from '@/lib/utils'
 import { resetDay } from '@/diet/day'
 import { removeWaterDay } from '@/diet/water'
+import { removeSupplementDay } from '@/diet/supplements'
 import { WorkoutDayLine } from '@/workout/WorkoutDayLine'
 import { DietDayLine } from '@/diet/DietDayLine'
 import { FIELDS, formatValue, removeMeasurement } from './measurements'
@@ -30,6 +31,7 @@ const CONFIRM = {
   photos: { title: 'Apagar fotos?', text: 'As fotos deste dia são apagadas do aparelho.' },
   diet: { title: 'Apagar dieta?', text: 'O que foi marcado na dieta deste dia some do histórico.' },
   water: { title: 'Apagar água?', text: 'A água registrada neste dia some do histórico.' },
+  supplements: { title: 'Apagar suplementos?', text: 'Os suplementos marcados neste dia somem do histórico.' },
 }
 
 export function HistoryScreen({ onClose }: { onClose: () => void }) {
@@ -38,6 +40,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const { sets, removeSet } = usePhotoSets()
   const [diet, setDiet] = usePersisted('dietLog')
   const [water, setWater] = usePersisted('waterLog')
+  const [supLog, setSupLog] = usePersisted('supplementLog')
   const { now, today } = useToday()
   const [month, setMonth] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1))
   const [day, setDay] = useState<string | undefined>(today)
@@ -51,13 +54,14 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const title = month.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
   const go = (n: number) => { setMonth(new Date(y, m + n, 1)); setDay(undefined) }
 
-  const records = (k: string) => dayRecords({ workoutLog: log, dietLog: diet, waterLog: water, measurements: measures, photoSets: sets }, k)
-  const { session: done, rest, diet: meals, water: drank, measurement: measure, photos, others } = day ? records(day) : {}
+  const records = (k: string) => dayRecords({ workoutLog: log, dietLog: diet, waterLog: water, supplementLog: supLog, measurements: measures, photoSets: sets }, k)
+  const { session: done, rest, diet: meals, water: drank, supplements: sups, measurement: measure, photos, others } = day ? records(day) : {}
 
   const remove = () => {
     if (!day) return
     if (confirm === 'diet') setDiet((prev) => resetDay(prev, day))
     if (confirm === 'water') setWater((prev) => removeWaterDay(prev, day))
+    if (confirm === 'supplements') setSupLog((prev) => removeSupplementDay(prev, day))
     if (confirm === 'measures') setMeasures((prev) => removeMeasurement(prev, day))
     if (confirm === 'photos' && photos) removeSet(photos.id)
   }
@@ -133,6 +137,13 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                   <IconDot size={32} color="var(--c6)"><GlassWater size={16} aria-hidden="true" /></IconDot>
                   <div className="min-w-0 flex-1 text-body font-semibold text-strong tabular-nums">{`Água · ${formatDec(drank.ml / 1000)} L`}</div>
                   <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('water')}>Apagar água</Button>
+                </div>
+              )}
+              {sups && (
+                <div className={ROW}>
+                  <IconDot size={32} color="var(--c4)"><Pill size={16} aria-hidden="true" /></IconDot>
+                  <div className="min-w-0 flex-1 text-body font-semibold text-strong tabular-nums">{`Suplementos · ${sups.taken.length} de ${sups.total}`}</div>
+                  <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('supplements')}>Apagar suplementos</Button>
                 </div>
               )}
               {measure && (

@@ -91,6 +91,7 @@ test('backup com dieta: ida e volta', async () => {
     dietPlan: { menus: [{ id: 'A', name: 'Cardápio', meals: [{ id: 'm1', name: 'Café', time: '07:00', options: [{ id: 'o1', items: [] }] }] }], lastMenuId: 'A' },
     dietLog: { '2026-11-18': { menuId: 'A', menuName: 'Cardápio', meals: [], free: true } },
     waterLog: { '2026-11-18': { ml: 500, goalMl: 2500 } },
+    supplementLog: { '2026-11-18': { taken: ['a'], total: 2 } },
     foods: [],
   }
   const keys = Object.keys(saved) as (keyof UserData)[]

@@ -81,6 +81,7 @@ test('Histórico mostra dieta e água do dia e apaga com confirmação', async (
   freeMeal.meals[1].free = true
   await save('dietLog', { '2026-11-14': freeMeal, '2026-11-15': dietDay([false, false], { free: true }), '2026-11-16': day })
   await save('waterLog', { '2026-11-16': { ml: 2500, goalMl: 2000 } })
+  await save('supplementLog', { '2026-11-16': { taken: ['a', 'b'], total: 3 } })
   await save('workoutLog', { '2026-11-16': { date: '2026-11-16', workoutId: 'a', workoutLabel: 'A', workoutName: 'Peito', exercises: [], rest: true } })
   const user = userEvent.setup()
   await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
@@ -96,6 +97,7 @@ test('Histórico mostra dieta e água do dia e apaga com confirmação', async (
   expect(screen.getByText('Dieta · 600 kcal')).toBeInTheDocument()
   expect(screen.getByText('Dia de treino · 2 de 3 refeições · 1 troca · 1 extra')).toBeInTheDocument()
   expect(screen.getByText('Água · 2,5 L')).toBeInTheDocument()
+  expect(screen.getByText('Suplementos · 2 de 3')).toBeInTheDocument()
   expect(screen.getByText('Descanso')).toBeInTheDocument()
   expect(screen.queryByText(/Treino A/)).not.toBeInTheDocument()
 
@@ -106,6 +108,10 @@ test('Histórico mostra dieta e água do dia e apaga com confirmação', async (
   await user.click(screen.getByRole('button', { name: 'Apagar água' }))
   await user.click(await screen.findByRole('button', { name: 'Apagar' }))
   await waitFor(async () => expect(await stored('waterLog')).toEqual({}))
+  await user.click(screen.getByRole('button', { name: 'Apagar suplementos' }))
+  expect(await screen.findByText('Apagar suplementos?')).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Apagar' }))
+  await waitFor(async () => expect(await stored('supplementLog')).toEqual({}))
   expect(screen.queryByText('Dieta · 600 kcal')).not.toBeInTheDocument()
 })
 test('aberto na virada do dia, "hoje" segue o relógio ao voltar do segundo plano', async () => {
@@ -116,4 +122,10 @@ test('aberto na virada do dia, "hoje" segue o relógio ao voltar do segundo plan
   act(() => { document.dispatchEvent(new Event('visibilitychange')) })
   expect(screen.getByRole('button', { name: '18' })).toHaveAttribute('aria-current', 'date')
   expect(screen.getByRole('button', { name: '17' })).not.toHaveAttribute('aria-current')
+})
+
+test('só suplementos marca o dia com registro', async () => {
+  await save('supplementLog', { '2026-11-10': { taken: ['a'], total: 2 } })
+  await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
+  expect(await screen.findByRole('button', { name: '10' })).toHaveAccessibleDescription('com registro')
 })
