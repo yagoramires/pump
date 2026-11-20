@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 import type { DietItem, DietLog, DietPlan, Meal, Menu } from './types'
 import {
   addExtra, chooseOption, countsForAverage, currentMealId, dayFromMenu, dayOf, dayStatus, daySummary, freeCount, mealOptions, recentFoods, removeItem, resetDay,
-  setMealFree, skipItem, swapItem, swapMeal, toggleDayFree, toggleMeal, touched, undoSwap, updateDay,
+  rebaseDay, setMealFree, skipItem, swapItem, swapMeal, toggleDayFree, toggleMeal, touched, undoSwap, updateDay,
 } from './day'
 import { countInWeekBefore } from '@/lib/date'
 
@@ -210,6 +210,19 @@ describe('day', () => {
     expect(dayOf({}, { ...both, lastMenuId: 'sumiu' }, 'd')?.menuId).toBe('A')
     expect(dayOf(log, { menus: [] }, '2026-11-18')).toBeUndefined()
     expect(dayOf(marked, { menus: [] }, '2026-11-18')).toBe(marked['2026-11-18'])
+  })
+
+  test('rebaseDay: cardápio novo entra no dia marcado, refeição marcada fica (por id ou nome) e a que sumiu também', () => {
+    const marked = { ...toggleMeal(dayFromMenu(menuA), 'm1'), free: true }
+    const novo: Menu = { id: 'A', name: 'Novo', goalKcal: 1800, meals: [meal('x1', 'Café', '07:30', [it('n1', 'Tapioca', 200)]), meal('x2', 'Jantar', '19:00', [it('n2', 'Peixe', 150)])] }
+    const out = rebaseDay(marked, novo)
+    expect(out).toMatchObject({ menuName: 'Novo', goalKcal: 1800, free: true })
+    expect(out.meals.map((m) => [m.id, m.done, m.items[0].id])).toEqual([['x1', true, 'i1'], ['x2', false, 'n2']])
+    const marked2 = toggleMeal(dayFromMenu(menuA), 'm2')
+    expect(rebaseDay(marked2, novo).meals.map((m) => m.id)).toEqual(['x1', 'm2', 'x2'])
+    const picked = chooseOption(dayFromMenu(menuA), 'm1', menuA.meals[0].options[1])
+    expect(rebaseDay(picked, novo).meals[0]).not.toHaveProperty('optionId')
+    expect(rebaseDay(picked, menuA).meals[0].optionId).toBe('m1-o1')
   })
 
   test('livre, troca de refeição e extra também contam como tocado', () => {

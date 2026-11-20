@@ -96,7 +96,10 @@ test('JSON inválido lista os erros e não grava', async () => {
   expect(await stored('dietPlan')).toBeUndefined()
 })
 
-test('substituir cardápio pede confirmação e preserva o que foi marcado hoje', async () => {
+test('substituir cardápio pede confirmação, traz o cardápio novo pro dia e preserva o que foi marcado hoje', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] }) // só o relógio: o dia marcado tem que ser hoje
+  vi.setSystemTime(new Date(2026, 10, 18, 9, 0))
+  onTestFinished(() => void vi.useRealTimers())
   const old: DietPlan = { menus: [{ id: 'old', name: 'Antigo', meals: [{ id: 'm1', name: 'Café', time: '07:00', options: [{ id: 'o1', items: [] }] }] }], lastMenuId: 'old' }
   const log: DietLog = { '2026-11-18': { menuId: 'old', menuName: 'Antigo', meals: [{ id: 'm1', name: 'Café', time: '07:00', done: true, items: [] }] } }
   await seedStore({ dietPlan: old, dietLog: log })
@@ -113,7 +116,9 @@ test('substituir cardápio pede confirmação e preserva o que foi marcado hoje'
   expect(plan.menus).toHaveLength(1)
   expect(plan.menus[0].name).toBe('Cardápio')
   expect(plan.lastMenuId).toBe(plan.menus[0].id)
-  expect(await stored('dietLog')).toEqual(log)
+  const day = ((await stored('dietLog')) as DietLog)['2026-11-18']
+  expect(day.menuName).toBe('Cardápio')
+  expect(day.meals.map((m) => [m.name, m.done])).toEqual([['Café da manhã', false], ['Café', true]])
 })
 
 test('reimportar mantém o id do cardápio de mesmo nome e a rotação', async () => {

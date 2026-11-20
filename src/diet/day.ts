@@ -21,8 +21,26 @@ export const dayFromMenu = (menu: Menu): DietDay => ({
   goalMacros: menu.goalMacros && { ...menu.goalMacros },
 })
 
-export const touched = (d: DietDay) =>
-  !!d.free || d.meals.some((m) => DAY_MEAL_FLAGS.some((k) => m[k]) || m.items.some((i) => DAY_ITEM_FLAGS.some((k) => i[k])))
+const mealTouched = (m: DayMeal) => DAY_MEAL_FLAGS.some((k) => m[k]) || m.items.some((i) => DAY_ITEM_FLAGS.some((k) => i[k]))
+export const touched = (d: DietDay) => !!d.free || d.meals.some(mealTouched)
+
+/** cardápio trocado no meio do dia: refeição marcada fica como está (casa por id, senão por nome); o resto vem do cardápio novo */
+export const rebaseDay = (d: DietDay, menu: Menu): DietDay => {
+  const fresh = dayFromMenu(menu)
+  const left = d.meals.filter(mealTouched)
+  const take = (m: DayMeal) => {
+    const byId = left.findIndex((o) => o.id === m.id)
+    const at = byId >= 0 ? byId : left.findIndex((o) => o.name === m.name)
+    if (at < 0) return m
+    const { optionId, ...kept } = left.splice(at, 1)[0]
+    // opção que não existe mais no cardápio novo travaria o seletor na opção errada
+    const stillThere = menu.meals.find((x) => x.id === m.id)?.options.some((o) => o.id === optionId)
+    return { ...kept, id: m.id, ...(stillThere && { optionId }) }
+  }
+  const meals = fresh.meals.map(take)
+  // marcada que sumiu do cardápio novo continua: já foi comida
+  return { ...fresh, free: d.free, meals: sortedMeals([...meals, ...left]) }
+}
 
 export const dayOf = (log: DietLog, plan: DietPlan, date: string): DietDay | undefined => {
   const saved = log[date]
