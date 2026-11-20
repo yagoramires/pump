@@ -18,3 +18,7 @@ export type WaterLog = Record<string, WaterDay>
 export type Restriction = 'lactose' | 'gluten' | 'vegetariano' | 'vegano'
 export interface DietAnamnesis { meals?: number; restrictions?: Restriction[]; avoid?: string; eatOut?: 'casa' | 'fora' | 'misto'; notes?: string }
 export interface WaterSettings { enabled: boolean; goalMl: number; cupMl: number }
+export interface Supplement { id: string; name: string; dose?: string; when?: string }
+/** taken = ids marcados; total = tamanho da lista naquele dia (editar a lista depois não reescreve o passado) */
+export interface SupplementDay { taken: string[]; total: number }
+export type SupplementLog = Record<string, SupplementDay>
