@@ -36,6 +36,7 @@ const CONFIRM = {
 
 export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const [log] = usePersisted('workoutLog')
+  const [extraLog] = usePersisted('extraLog')
   const [measures, setMeasures] = usePersisted('measurements')
   const { sets, removeSet } = usePhotoSets()
   const [diet, setDiet] = usePersisted('dietLog')
@@ -54,8 +55,8 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const title = month.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
   const go = (n: number) => { setMonth(new Date(y, m + n, 1)); setDay(undefined) }
 
-  const records = (k: string) => dayRecords({ workoutLog: log, dietLog: diet, waterLog: water, supplementLog: supLog, measurements: measures, photoSets: sets }, k)
-  const { session: done, rest, diet: meals, water: drank, supplements: sups, measurement: measure, photos, others } = day ? records(day) : {}
+  const records = (k: string) => dayRecords({ workoutLog: log, extraLog, dietLog: diet, waterLog: water, supplementLog: supLog, measurements: measures, photoSets: sets }, k)
+  const { session: done, extra, rest, diet: meals, water: drank, supplements: sups, measurement: measure, photos, others } = day ? records(day) : {}
 
   const remove = () => {
     if (!day) return
@@ -81,7 +82,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
         {Array.from({ length: month.getDay() }, (_, i) => <span key={`x${i}`} />)}
         {keys.map((k, i) => {
           const r = records(k)
-          const trained = !!r.session
+          const trained = !!(r.session || r.extra)
           const dot = r.others
           return (
             <Toggle
@@ -107,9 +108,9 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
       {day && (
         <>
           <div className="label-caps mx-0.5 pt-1">
-            {done ? `${formatDayMonth(day)} · Treino ${done.workoutLabel}` : formatDayMonth(day)}
+            {done || extra ? `${formatDayMonth(day)} · ${[done && `Treino ${done.workoutLabel}`, extra && (done ? 'Extra' : 'Treino Extra')].filter(Boolean).join(' + ')}` : formatDayMonth(day)}
           </div>
-          {!done && !others ? (
+          {!done && !extra && !others ? (
             <p className="px-0.5 text-sm text-text-2">Nada registrado neste dia.</p>
           ) : (
             <Card size="flush">
@@ -117,6 +118,12 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c2)"><Dumbbell size={16} aria-hidden="true" /></IconDot>
                   <WorkoutDayLine session={done} now={now} />
+                </div>
+              )}
+              {extra && (
+                <div className={ROW}>
+                  <IconDot size={32} color="var(--c2)"><Dumbbell size={16} aria-hidden="true" /></IconDot>
+                  <WorkoutDayLine session={extra} now={now} />
                 </div>
               )}
               {rest && (

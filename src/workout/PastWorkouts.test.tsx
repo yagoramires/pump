@@ -36,3 +36,13 @@ test('vazio', async () => {
   await renderLoaded(<PastWorkouts onClose={() => {}} />)
   expect(screen.getByText('Nenhum treino concluído ainda')).toBeInTheDocument()
 })
+test('ficha e extra no mesmo dia aparecem em duas linhas e o extra abre o próprio resumo', async () => {
+  await save('workoutLog', { '2026-11-14': sess('2026-11-14', 'Peito') })
+  await save('extraLog', { '2026-11-14': sess('2026-11-14', 'Treino extra', { workoutId: 'extra', workoutLabel: 'Extra' }) })
+  const user = userEvent.setup()
+  await renderLoaded(<PastWorkouts onClose={() => {}} />)
+  expect(screen.getByRole('button', { name: /TREINO A/ })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: /TREINO Extra/ }))
+  expect(screen.getByRole('heading', { name: 'Treino extra' })).toBeInTheDocument()
+  expect(screen.getByText('Treino concluído')).toBeInTheDocument()
+})

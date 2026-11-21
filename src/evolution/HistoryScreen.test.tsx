@@ -129,3 +129,28 @@ test('só suplementos marca o dia com registro', async () => {
   await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
   expect(await screen.findByRole('button', { name: '10' })).toHaveAccessibleDescription('com registro')
 })
+const sess = (workoutId: string, workoutLabel: string, workoutName: string) => ({
+  date: '2026-11-16', workoutId, workoutLabel, workoutName, startedAt: '2026-11-16T18:00:00.000Z', completedAt: '2026-11-16T18:52:00.000Z',
+  exercises: [{ ...pe({ exerciseId: 'supino', name: 'Supino', reps: '10', weightKg: 40, restSec: 60 }), sets: [{ reps: '10', weightKg: 40 }] }],
+})
+test('ficha e extra no mesmo dia: dia treinado, duas linhas e cabeçalho com os dois', async () => {
+  await save('workoutLog', { '2026-11-16': sess('a', 'A', 'Peito') })
+  await save('extraLog', { '2026-11-16': sess('extra', 'Extra', 'Treino extra') })
+  const user = userEvent.setup()
+  await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
+  const day = await screen.findByRole('button', { name: '16' })
+  expect(day).toHaveAccessibleDescription(/treino/)
+  await user.click(day)
+  expect(screen.getByText(/Treino A \+ Extra/)).toBeInTheDocument()
+  expect(screen.getByText('Peito')).toBeInTheDocument()
+  expect(screen.getByText('Treino extra')).toBeInTheDocument()
+})
+test('dia só com extra fica marcado como treinado', async () => {
+  await save('extraLog', { '2026-11-16': sess('extra', 'Extra', 'Treino extra') })
+  const user = userEvent.setup()
+  await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
+  const day = await screen.findByRole('button', { name: '16' })
+  expect(day).toHaveAccessibleDescription(/treino/)
+  await user.click(day)
+  expect(screen.getByText(/Treino Extra/)).toBeInTheDocument()
+})
