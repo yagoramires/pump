@@ -64,6 +64,7 @@ export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | Cust
     if (!name) return
     const e = newCustomExercise(name, [draft.muscle], draft.note.trim())
     setCustom((prev) => [...prev, e])
+    setCreating(false)
     onPick(e)
   }
 

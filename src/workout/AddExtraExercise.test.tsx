@@ -20,3 +20,15 @@ test('escolhe o exercício, ajusta as séries (3 → 4) e adiciona', async () =>
   await user.click(screen.getByRole('button', { name: 'Adicionar' }))
   expect(onAdd).toHaveBeenCalledWith(remada, 4)
 })
+
+test('criar exercício próprio fecha o drawer de criação e abre o das séries', async () => {
+  vi.mocked(fetchExercises).mockResolvedValue([])
+  await seedStore({})
+  const user = userEvent.setup()
+  await renderLoaded(<AddExtraExercise onAdd={vi.fn()} onClose={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: /Criar exercício próprio/ }))
+  await user.type(await screen.findByRole('textbox', { name: 'Nome do exercício' }), 'Remada do Yago')
+  await user.click(screen.getByRole('button', { name: 'Criar e adicionar' }))
+  expect(await screen.findByRole('button', { name: 'Adicionar' })).toBeInTheDocument()
+  expect(screen.queryByRole('textbox', { name: 'Nome do exercício' })).not.toBeInTheDocument()
+})

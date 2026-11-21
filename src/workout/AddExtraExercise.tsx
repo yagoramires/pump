@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { CustomExercise, Exercise } from './types'
 import { CatalogPicker } from './CatalogPicker'
 import { SETS } from './limits'
+import { plural } from '@/lib/number'
 import { Stepper } from '@/components/Stepper'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
@@ -19,7 +20,7 @@ export function AddExtraExercise({ onAdd, onClose }: { onAdd: (e: Exercise | Cus
             <DrawerTitle className="text-title font-semibold text-strong">{picked?.name}</DrawerTitle>
             <DrawerDescription className="sr-only">Escolha quantas séries fazer</DrawerDescription>
             <div className="flex items-center justify-center gap-3">
-              <Stepper label="Séries" text={`${sets} séries`} value={sets} step={1} min={SETS[0]} max={SETS[1]} onChange={setSets} />
+              <Stepper label="Séries" text={plural(sets, 'série', 'séries')} value={sets} step={1} min={SETS[0]} max={SETS[1]} onChange={setSets} />
             </div>
             <Button onClick={() => picked && onAdd(picked, sets)}>Adicionar</Button>
           </div>
