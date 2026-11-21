@@ -44,6 +44,8 @@ export interface WorkoutSession {
   completedAt?: string
   /** hora da última série resolvida (feita ou pulada); a duração termina aqui */
   endedAt?: string
+  /** esforço percebido do treino, 1 a 10 */
+  effort?: number
   /** hora do fim original enquanto as séries são editadas depois de concluir */
   editedFrom?: string
   /** descanso marcado: sem exercícios e sem completedAt */
