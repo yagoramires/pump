@@ -1,23 +1,22 @@
 import { expect, test } from 'vitest'
-import { addWater, cupsShown, turnWaterOn, waterMet } from './water'
+import { setWater, turnWaterOn, waterMax, waterMet } from './water'
 
-const s = { enabled: true, goalMl: 2500, cupMl: 250 }
+const s = { enabled: true, goalMl: 2500 }
 
 test('turnWaterOn na primeira vez: 35 ml × peso arredondado pra 250; sem peso, 2 L', () => {
-  expect(turnWaterOn(undefined, 80)).toEqual({ enabled: true, goalMl: 2750, cupMl: 250 })
+  expect(turnWaterOn(undefined, 80)).toEqual({ enabled: true, goalMl: 2750 })
   expect(turnWaterOn(undefined, 0).goalMl).toBe(2000)
 })
 
-test('cupsShown: com todos cheios aparece um copo a mais', () => {
-  expect(cupsShown(2500, s)).toEqual({ full: 10, total: 11 })
-  expect(cupsShown(500, s)).toEqual({ full: 2, total: 10 })
+test('setWater grava o total e nunca negativo', () => {
+  expect(setWater({}, '2026-11-21', s, 1300)).toEqual({ '2026-11-21': { ml: 1300, goalMl: 2500 } })
+  expect(setWater({}, '2026-11-21', s, -100)['2026-11-21'].ml).toBe(0)
 })
 
-test('addWater grava a meta do dia e tirar não passa de 0', () => {
-  const log = addWater({}, '2026-11-18', s, 1)
-  expect(log['2026-11-18']).toEqual({ ml: 250, goalMl: 2500 })
-  expect(addWater(log, '2026-11-18', s, -1)['2026-11-18'].ml).toBe(0)
-  expect(addWater({}, '2026-11-18', s, -1)['2026-11-18'].ml).toBe(0)
+test('waterMax: meta até bater; depois ml + 500', () => {
+  expect(waterMax(1200, 2500)).toBe(2500)
+  expect(waterMax(2500, 2500)).toBe(3000)
+  expect(waterMax(2700, 2500)).toBe(3200)
 })
 
 test('waterMet: ml ≥ goalMl > 0', () => {
@@ -28,5 +27,5 @@ test('waterMet: ml ≥ goalMl > 0', () => {
 })
 
 test('turnWaterOn: religa o que estava salvo sem recalcular pelo peso', () => {
-  expect(turnWaterOn({ enabled: false, goalMl: 3000, cupMl: 300 }, 80)).toEqual({ enabled: true, goalMl: 3000, cupMl: 300 })
+  expect(turnWaterOn({ enabled: false, goalMl: 3000 }, 80)).toEqual({ enabled: true, goalMl: 3000 })
 })

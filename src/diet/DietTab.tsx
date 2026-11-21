@@ -150,8 +150,8 @@ export function DietTab() {
               {sheet === 'water' && waterSettings ? (
                 <>
                   <DrawerTitle className="sr-only">Água</DrawerTitle>
-                  <DrawerDescription className="sr-only">Copos de água de hoje</DrawerDescription>
-                  <WaterCard ml={water.ml} settings={waterSettings} onAdd={() => water.act(1)} onRemove={() => water.act(-1)} />
+                  <DrawerDescription className="sr-only">Barra de água de hoje</DrawerDescription>
+                  <WaterCard ml={water.ml} settings={waterSettings} onChange={water.set} />
                 </>
               ) : sheet === 'menus' ? (
                 <>

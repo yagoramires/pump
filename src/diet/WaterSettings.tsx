@@ -31,12 +31,9 @@ export function WaterSettings() {
         <Switch id="water-switch" checked={!!on} onCheckedChange={() => (on ? save({ ...on, enabled: false }) : turnOn())} />
       </Card>
       {on && (
-        <div className="grid grid-cols-2 gap-3">
-          <WaterField on={on} k="goalMl" label="Meta (ml)" save={save} />
-          <WaterField on={on} k="cupMl" label="Copo (ml)" save={save} />
-        </div>
+        <WaterField on={on} k="goalMl" label="Meta (ml)" save={save} />
       )}
-      <p className="text-meta text-text-2">{`Na primeira vez, a meta é ${ML_PER_KG} ml por kg do seu peso. Os copos aparecem na aba Dieta.`}</p>
+      <p className="text-meta text-text-2">{`Na primeira vez, a meta é ${ML_PER_KG} ml por kg do seu peso. A barra aparece na aba Dieta.`}</p>
     </div>
   )
 }

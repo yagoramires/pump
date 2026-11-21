@@ -1,29 +1,27 @@
-import { Droplet } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import type { WaterSettings } from './types'
 import { liters } from './display'
-import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
-import { cupsShown } from './water'
+import { Slider } from '@/components/ui/slider'
+import { waterMax } from './water'
 
-const CUP = 'border disabled:opacity-100'
-
-export function WaterCard({ ml, settings, onAdd, onRemove }: { ml: number; settings: WaterSettings; onAdd: () => void; onRemove: () => void }) {
-  const { full, total } = cupsShown(ml, settings)
+export function WaterCard({ ml, settings, onChange }: { ml: number; settings: WaterSettings; onChange: (ml: number) => void }) {
+  const [live, setLive] = useState(ml)
+  useEffect(() => setLive(ml), [ml])
   return (
     <Card className="gap-3">
-      <div className="text-body font-semibold text-strong">{`Água · ${liters(ml)} de ${liters(settings.goalMl)} L`}</div>
-      <div className="flex flex-wrap gap-1.5">
-        {Array.from({ length: total }, (_, i) =>
-          i < full - 1 ? (
-            <Button key={i} asChild variant="outline" size="icon" className={cn(CUP, 'border-c2 bg-c2/20 text-c2')}><span><Droplet aria-hidden="true" /></span></Button>
-          ) : i === full - 1 ? (
-            <Button key={i} variant="outline" size="icon" aria-label="Tirar copo" onClick={onRemove} className={cn(CUP, 'border-c2 bg-c2/20 text-c2 hover:bg-c2/30 hover:text-c2')}><Droplet aria-hidden="true" /></Button>
-          ) : (
-            <Button key={i} variant="outline" size="icon" aria-label="Adicionar copo" onClick={onAdd} className={cn(CUP, 'text-faint')}><Droplet aria-hidden="true" /></Button>
-          ),
-        )}
-      </div>
+      <div className="text-body font-semibold text-strong">{`Água · ${liters(live)} de ${liters(settings.goalMl)} L`}</div>
+      {/* o máximo usa o ml gravado, não o ao vivo, pra não mudar no meio do arraste */}
+      <Slider
+        min={0}
+        step={100}
+        max={waterMax(ml, settings.goalMl)}
+        value={[live]}
+        onValueChange={([v]) => setLive(v)}
+        onValueCommit={([v]) => onChange(v)}
+        aria-label="Água de hoje"
+        aria-valuetext={`${liters(live)} L`}
+      />
     </Card>
   )
 }
