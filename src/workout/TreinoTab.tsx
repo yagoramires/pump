@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowLeftRight, Check, ChevronRight, Dumbbell, History, Moon, Pencil, Plus, Undo2 } from 'lucide-react'
+import { ArrowLeftRight, Check, ChevronRight, Dumbbell, History, Moon, Pencil, Plus, Trash2, Undo2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { SetDone, WorkoutLog, WorkoutSession } from './types'
 import { usePersisted } from '@/storage/db'
@@ -223,11 +223,15 @@ export function TreinoTab() {
     patch((s) => completeSession(s, new Date()))
     if (extraOpen) setOpenIdx('auto')
     toast(extraOpen ? 'Treino extra concluído' : 'Treino concluído', {
-      action: { label: 'Desfazer', onClick: () => patch(reopenSession) },
+      action: { label: 'Desfazer', onClick: () => { patch(reopenSession); setOpenIdx('auto') } },
     })
   }
   const editExtra = () => {
     setExtraLog((prev) => (prev[today] ? { ...prev, [today]: editSession(prev[today]) } : prev))
+    setOpenIdx('auto')
+  }
+  const removeAt = (i: number) => {
+    patch((s) => removeExercise(s, i))
     setOpenIdx('auto')
   }
   const discardExtra = () => {
@@ -240,7 +244,7 @@ export function TreinoTab() {
       <TabHeader eyebrow={extraOpen ? `Treino extra · ${formatDayLabel(today)}` : workoutDayLabel(today, view.workoutLabel)} title={view.workoutName} actions={actions} />
       {unresolved}
       {extra?.completedAt && (
-        <p className="text-meta text-text-2">Treino extra concluído · <Button variant="link" size="sm" className="h-auto p-0 text-meta" onClick={editExtra}>Editar séries</Button></p>
+        <p className="text-meta text-text-2">Treino extra concluído · <Button variant="link" size="sm" className="h-auto p-0 text-meta" aria-label="Editar séries do treino extra" onClick={editExtra}>Editar séries</Button></p>
       )}
       {!extraOpen && !session?.completedAt && plan.workouts.length > 1 && (
         <Button variant="link" className="min-h-11 self-start" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>
@@ -283,6 +287,7 @@ export function TreinoTab() {
                     <span className="block text-meta text-text-2">{e.reps}</span>
                   </span>
                   <Checkbox size="check" className="mr-1.5" checked={!!e.sets[0]} aria-label={`${e.name} feito`} onCheckedChange={() => toggleCardio(i)} />
+                  {extraOpen && <Button variant="ghost" size="icon" className="text-negative hover:text-negative" aria-label={`Remover ${e.name}`} onClick={() => removeAt(i)}><Trash2 aria-hidden="true" /></Button>}
                 </Card>
               )
             }
@@ -290,7 +295,7 @@ export function TreinoTab() {
             return (
               <ExerciseCard key={`${view.workoutId}-${today}-${i}`} ex={e} prev={prev} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
                 <SetTable ex={e} prev={prev} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} />
-                {extraOpen && <Button variant="link" className="text-negative hover:text-negative" onClick={() => { patch((s) => removeExercise(s, i)); setOpenIdx('auto') }}>Remover exercício</Button>}
+                {extraOpen && <Button variant="link" className="text-negative hover:text-negative" onClick={() => removeAt(i)}>Remover exercício</Button>}
               </ExerciseCard>
             )
           }}
