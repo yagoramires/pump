@@ -234,6 +234,7 @@ export function TreinoTab() {
       action: { label: 'Desfazer', onClick: () => { patch(reopenSession); setOpenIdx('auto') } },
     })
   }
+  const up = upSoFar(training, view)
   const editExtra = () => {
     setExtraLog((prev) => (prev[today] ? { ...prev, [today]: editSession(prev[today]) } : prev))
     setOpenIdx('auto')
@@ -271,7 +272,7 @@ export function TreinoTab() {
             </div>
           </div>
           <div>
-            {upSoFar(training, view) > 0 && <div className="text-lg font-semibold text-strong tabular-nums">{`↑ ${upSoFar(training, view)} subindo até agora`}</div>}
+            {up > 0 && <div className="text-lg font-semibold text-strong tabular-nums">{`↑ ${up} subindo até agora`}</div>}
             <div className="text-meta text-text-2">{minutes === null ? plural(view.exercises.length, 'exercício', 'exercícios') : `${minutes} min · ${plural(view.exercises.length, 'exercício', 'exercícios')}`}</div>
           </div>
         </Card>
@@ -283,9 +284,11 @@ export function TreinoTab() {
           exercises={view.exercises}
           className={() => 'contents'}
           row={(e, i, cardio) => {
+            const occurrence = view.exercises.slice(0, i).filter((x) => x.exerciseId === e.exerciseId).length
+            const key = `${view.workoutId}-${today}-${e.exerciseId}-${occurrence}`
             if (cardio) {
               return (
-                <Card size="sm" key={i} className="flex-row items-center gap-1.5">
+                <Card size="sm" key={key} className="flex-row items-center gap-1.5">
                   <Button variant="ghost" size="icon" aria-label={`Ver ${e.name}`} onClick={() => setPreview(i)}>
                     <ExerciseThumb muscles={e.muscles} image={e.images[0]} cardio />
                   </Button>
@@ -298,9 +301,9 @@ export function TreinoTab() {
                 </Card>
               )
             }
-            const prev = previousSets(training, today, e.exerciseId, view.exercises.slice(0, i).filter((x) => x.exerciseId === e.exerciseId).length)
+            const prev = previousSets(training, today, e.exerciseId, occurrence)
             return (
-              <ExerciseCard key={`${view.workoutId}-${today}-${i}`} ex={e} prev={prev} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
+              <ExerciseCard key={key} ex={e} prev={prev} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
                 <SetTable ex={e} prev={prev} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} onSkip={(j) => skip(i, j)} />
                 {extraOpen && <Button variant="link" className="text-negative hover:text-negative" onClick={() => removeAt(i)}>Remover exercício</Button>}
               </ExerciseCard>
@@ -310,7 +313,7 @@ export function TreinoTab() {
         {extraOpen && (
           <>
             <Button variant="outline" className="w-full" onClick={() => setAdding(true)}><Plus aria-hidden="true" /> Adicionar exercício</Button>
-            <Button variant="link" className="self-start text-negative hover:text-negative" onClick={() => (hasMarkedSets(extra) ? setDiscarding(true) : discardExtra())}>Descartar treino extra</Button>
+            {!session?.editedFrom && <Button variant="link" className="self-start text-negative hover:text-negative" onClick={() => (hasMarkedSets(extra) ? setDiscarding(true) : discardExtra())}>Descartar treino extra</Button>}
           </>
         )}
         </>
@@ -346,7 +349,7 @@ export function TreinoTab() {
         {session?.completedAt ? (
           <Button variant="secondary" className="w-full font-bold" onClick={() => patch(editSession)}><Pencil aria-hidden="true" /> Editar séries</Button>
         ) : (
-          <Button className="w-full font-bold" disabled={!!session && stats.done === 0} onClick={session ? () => setConcluding(true) : start}>{session ? <><Check aria-hidden="true" /> Concluir treino</> : 'Iniciar treino'}</Button>
+          <Button className="w-full font-bold" disabled={!!session && stats.done === 0} onClick={!session ? start : session.editedFrom ? () => conclude(session.effort) : () => setConcluding(true)}>{session ? <><Check aria-hidden="true" /> Concluir treino</> : 'Iniciar treino'}</Button>
         )}
       </div>
       {switching === 'list' && <SwitchWorkout workouts={plan.workouts} shownId={view.workoutId} nextId={next?.id} onPick={pick} onClose={() => setSwitching(undefined)} />}

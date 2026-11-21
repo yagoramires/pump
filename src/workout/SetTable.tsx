@@ -83,7 +83,7 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
   })
 
   return (
-    <table className="w-full border-collapse tabular-nums">
+    <table className="w-full touch-pan-y border-collapse tabular-nums">
       <thead>
         <tr><th className={TH}>Série</th><th className={TH}>Anterior</th><th className={TH}>kg</th><th className={TH}>Reps</th><th className={TH}><span className="sr-only">Feita</span></th></tr>
       </thead>
@@ -95,7 +95,7 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
           return (
             <tr
               key={i}
-              className={cn('touch-pan-y border-t border-line text-center', s && 'bg-accent-bg', skipped && 'line-through opacity-50')}
+              className={cn('border-t border-line text-center', s && 'bg-accent-bg', skipped && 'line-through opacity-50')}
               style={drag?.i === i && drag.on ? { transform: `translateX(${drag.dx}px)` } : undefined}
               {...rowDrag(i)}
             >
