@@ -1,5 +1,6 @@
 import { exerciseHistory, exerciseVolume, loadPoints, previousSets, sessionRecords, sessionStats, sessionVolume, suggestedKg } from './stats'
 import { startSession } from './session'
+import { trainingLog } from './extra'
 import { pe, workoutOf } from '../../test/helpers'
 import type { SetDone, WorkoutLog, WorkoutSession } from './types'
 
@@ -42,6 +43,17 @@ test('previousSets ignora sessão anterior sem série marcada', () => {
   const mk = (date: string, sets: (SetDone | null)[]) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [{ ...pe({ exerciseId: 'Supino' }), sets }] })
   const log = { '2026-11-12': mk('2026-11-12', [{ reps: '10', weightKg: 40 }]), '2026-11-14': mk('2026-11-14', [null, null]) }
   expect(previousSets(log, '2026-11-16', 'Supino')).toEqual([{ reps: '10', weightKg: 40 }])
+})
+test('previousSets: no mesmo dia vale o treino mais tarde, não a ordem das chaves', () => {
+  const at = (h: number) => new Date(2026, 10, 15, h, 0).toISOString()
+  const mk = (workoutId: string, kg: number, h: number): WorkoutSession => ({
+    date: '2026-11-15', workoutId, workoutLabel: 'A', workoutName: 'A', startedAt: at(h), completedAt: at(h + 1),
+    exercises: [{ ...pe({ exerciseId: 'Supino' }), sets: [{ reps: '10', weightKg: kg }] }],
+  })
+  const log = trainingLog({ '2026-11-15': mk('a', 80, 19) }, { '2026-11-15': mk('extra', 60, 7) })
+  expect(previousSets(log, '2026-11-16', 'Supino')).toEqual([{ reps: '10', weightKg: 80 }])
+  // hoje não conta como anterior, nem o extra de hoje
+  expect(previousSets(trainingLog({}, { '2026-11-16': { ...mk('extra', 60, 7), date: '2026-11-16' } }), '2026-11-16', 'Supino')).toEqual([])
 })
 
 test('exerciseVolume soma carga × reps das séries marcadas', () => {

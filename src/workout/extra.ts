@@ -16,7 +16,7 @@ export function addExtraExercise(s: WorkoutSession, e: Exercise | CustomExercise
 export const removeExercise = (s: WorkoutSession, idx: number): WorkoutSession =>
   clearRest({ ...s, exercises: s.exercises.filter((_, i) => i !== idx) })
 
-/** o extra fica em `${date}~extra`: não colide com a ficha do dia e ordena depois dela */
+/** o extra fica em `${date}~extra` pra não colidir com a ficha do dia; as chaves não são datas: quem lê usa `session.date` */
 export const trainingLog = (workoutLog: WorkoutLog, extraLog: WorkoutLog): WorkoutLog => ({
   ...workoutLog,
   ...Object.fromEntries(Object.entries(extraLog).map(([date, s]) => [`${date}~extra`, s])),

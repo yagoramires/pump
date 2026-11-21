@@ -50,11 +50,21 @@ export const sessionStats = (s: WorkoutSession, now?: Date) => {
   }
 }
 
+const timeOf = (s: WorkoutSession) => s.completedAt ?? s.endedAt ?? s.startedAt ?? ''
+// o log nunca é mutado (cada mudança gera outro objeto): a ordem vale enquanto o objeto viver
+const newestCache = new WeakMap<WorkoutLog, WorkoutSession[]>()
+/** mais recente primeiro, por data e depois hora; não usa as chaves, que no log mesclado não são datas */
+const newestFirst = (log: WorkoutLog) => {
+  let list = newestCache.get(log)
+  if (!list) newestCache.set(log, (list = Object.values(log).sort((a, b) => b.date.localeCompare(a.date) || timeOf(b).localeCompare(timeOf(a)))))
+  return list
+}
+
 /** nth: qual aparição do exercício no treino de hoje (o 2º supino compara com o 2º supino); sem par, usa a 1ª */
 export const previousSets = (log: WorkoutLog, today: string, exerciseId: string, nth = 0): (SetDone | null)[] => {
-  const dates = Object.keys(log).filter((d) => d < today).sort().reverse()
-  for (const d of dates) {
-    const same = log[d].exercises.filter((e) => e.exerciseId === exerciseId)
+  for (const s of newestFirst(log)) {
+    if (s.date >= today) continue
+    const same = s.exercises.filter((e) => e.exerciseId === exerciseId)
     const ex = same[nth] ?? same[0]
     if (ex && hasMarkedSet(ex)) return ex.sets
   }
