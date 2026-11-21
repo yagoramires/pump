@@ -71,6 +71,8 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
     },
     onPointerMove: (e: React.PointerEvent<HTMLTableRowElement>) => {
       if (drag?.i !== i) return
+      // nenhum botão apertado: o pointerup se perdeu fora da linha; sem isso o hover reviveria o arraste e pularia a série
+      if (e.buttons === 0) return setDrag(undefined)
       const dx = e.clientX - drag.x
       const on = drag.on || (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(e.clientY - drag.y))
       if (on && !drag.on) e.currentTarget.setPointerCapture(e.pointerId)
@@ -81,6 +83,10 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
       setDrag(undefined)
     },
     onPointerCancel: () => setDrag(undefined),
+    // saiu da linha antes de virar arraste (sem captura): o gesto não é dela
+    onPointerLeave: (e: React.PointerEvent<HTMLTableRowElement>) => {
+      if (!e.currentTarget.hasPointerCapture(e.pointerId)) setDrag(undefined)
+    },
   })
 
   return (

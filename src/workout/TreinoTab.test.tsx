@@ -216,7 +216,7 @@ test('arrastar a linha pro lado pula a série; arrastar de novo desfaz; arrastar
   row.setPointerCapture = vi.fn()
   const swipe = (to: number, from: Element = row) => {
     fireEvent.pointerDown(from, { clientX: 200, clientY: 10, pointerId: 1 })
-    fireEvent.pointerMove(from, { clientX: to, clientY: 12, pointerId: 1 })
+    fireEvent.pointerMove(from, { clientX: to, clientY: 12, pointerId: 1, buttons: 1 })
     fireEvent.pointerUp(from, { clientX: to, clientY: 12, pointerId: 1 })
   }
   swipe(150) // menos de 1/3 da largura: não pula
@@ -228,6 +228,22 @@ test('arrastar a linha pro lado pula a série; arrastar de novo desfaz; arrastar
   swipe(50)
   expect(await screen.findByRole('button', { name: 'Pular série 1 de Supino reto' })).toBeInTheDocument()
   expect(kg).toHaveValue('40') // o 55 digitado antes de pular não volta
+})
+test('arraste que perdeu o pointerup não volta no hover nem pula a série', async () => {
+  await renderLoaded(<TreinoTab />)
+  const row = (await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' })).closest('tr')!
+  Object.defineProperty(row, 'offsetWidth', { value: 300 })
+  // botão solto fora da linha: o move seguinte chega sem botão apertado
+  fireEvent.pointerDown(row, { clientX: 200, clientY: 10, pointerId: 1 })
+  fireEvent.pointerMove(row, { clientX: 50, clientY: 12, pointerId: 1, buttons: 0 })
+  fireEvent.pointerUp(row, { clientX: 50, clientY: 12, pointerId: 1 })
+  // saiu da linha sem captura e voltou com o botão apertado: não continua o arraste antigo
+  fireEvent.pointerDown(row, { clientX: 200, clientY: 10, pointerId: 1 })
+  fireEvent.pointerLeave(row, { pointerId: 1 })
+  fireEvent.pointerMove(row, { clientX: 50, clientY: 12, pointerId: 1, buttons: 1 })
+  fireEvent.pointerUp(row, { clientX: 50, clientY: 12, pointerId: 1 })
+  expect(screen.getByRole('button', { name: 'Pular série 1 de Supino reto' })).toBeInTheDocument()
+  expect(await stored('workoutLog')).toBeUndefined()
 })
 test('dois toques rápidos na mesma série desmarcam e o segundo não reinicia o descanso', async () => {
   await renderLoaded(<TreinoTab />)
