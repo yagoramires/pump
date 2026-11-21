@@ -22,7 +22,7 @@ import { nextWorkout, unfinishedSession } from './schedule'
 import {
   activeRest, changePlanRest, changeRestDuration, clearRest, completeSession, completeUnfinishedSession, editSession, extendRest,
   firstIncompleteExercise, hasMarkedSets, holdsTrainingDay, isExerciseComplete, reopenSession, restExerciseIndex,
-  setDone, startSession, toggleRestPause, toggleSetWithRest,
+  setDone, startSession, toggleRestPause, toggleSetWithRest, toggleSkip,
 } from './session'
 import { previousSets, sessionStats } from './stats'
 import { isRest, restRecord, sessionOf } from './rest'
@@ -196,6 +196,10 @@ export function TreinoTab() {
     setRestTotal(exercise.restSec)
     if (isExerciseComplete(exercise)) setOpenIdx('auto')
   }
+  const skip = (exIdx: number, setIdx: number) => {
+    const saved = setTarget((prev) => ({ ...prev, [today]: toggleSkip(current(prev), exIdx, setIdx, Date.now()) }))
+    if (isExerciseComplete(saved[today].exercises[exIdx])) setOpenIdx('auto')
+  }
   const start = () => setLog((prev) => ({ ...prev, [today]: current(prev) }))
   const switchTo = (w: Workout) => {
     setChosenId(w.id)
@@ -294,7 +298,7 @@ export function TreinoTab() {
             const prev = previousSets(training, today, e.exerciseId, view.exercises.slice(0, i).filter((x) => x.exerciseId === e.exerciseId).length)
             return (
               <ExerciseCard key={`${view.workoutId}-${today}-${i}`} ex={e} prev={prev} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
-                <SetTable ex={e} prev={prev} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} />
+                <SetTable ex={e} prev={prev} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} onSkip={(j) => skip(i, j)} />
                 {extraOpen && <Button variant="link" className="text-negative hover:text-negative" onClick={() => removeAt(i)}>Remover exercício</Button>}
               </ExerciseCard>
             )

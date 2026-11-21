@@ -8,7 +8,8 @@ const MIDNIGHT_HOLD_MS = 6 * 60 * 60 * 1000
 export const markedSets = (e: SessionExercise) => e.sets.filter((set) => set !== null)
 export const hasMarkedSets = (s: WorkoutSession) => s.exercises.some(hasMarkedSet)
 export const hasMarkedSet = (e: SessionExercise) => e.sets.some(Boolean)
-export const isExerciseComplete = (e: SessionExercise) => !e.sets.includes(null)
+export const isSkipped = (e: SessionExercise, i: number) => !!e.skipped?.includes(i)
+export const isExerciseComplete = (e: SessionExercise) => e.sets.every((x, i) => x || isSkipped(e, i))
 export const firstIncompleteExercise = (s: WorkoutSession) => s.exercises.findIndex((e) => !isCardio(e) && !isExerciseComplete(e))
 export const isUnfinishedWorkout = (s: WorkoutSession) => !isRest(s) && !s.completedAt && hasMarkedSets(s)
 
@@ -39,10 +40,24 @@ export const startSession = (w: Workout, date: string, now = new Date()): Workou
   exercises: structuredClone(w.exercises).map((e) => ({ ...e, sets: Array<SetDone | null>(e.sets).fill(null) })),
 })
 
-export const setDone = (s: WorkoutSession, exIdx: number, setIdx: number, v: SetDone | null): WorkoutSession => ({
+const withExercise = (s: WorkoutSession, exIdx: number, f: (e: SessionExercise) => SessionExercise): WorkoutSession => ({
   ...s,
-  exercises: s.exercises.map((e, i) => (i === exIdx ? { ...e, sets: e.sets.map((d, j) => (j === setIdx ? v : d)) } : e)),
+  exercises: s.exercises.map((e, i) => (i === exIdx ? f(e) : e)),
 })
+const unskip = (e: SessionExercise, i: number) => (e.skipped ? { ...e, skipped: e.skipped.filter((j) => j !== i) } : e)
+
+/** marcar (v não nulo) uma série pulada tira o "pulada" */
+export const setDone = (s: WorkoutSession, exIdx: number, setIdx: number, v: SetDone | null): WorkoutSession =>
+  withExercise(s, exIdx, (e) => {
+    const next = { ...e, sets: e.sets.map((d, j) => (j === setIdx ? v : d)) }
+    return v ? unskip(next, setIdx) : next
+  })
+
+/** pular limpa os valores da série e o descanso; pular de novo volta a não marcada */
+export function toggleSkip(s: WorkoutSession, exIdx: number, setIdx: number, _now: number): WorkoutSession {
+  if (isSkipped(s.exercises[exIdx], setIdx)) return withExercise(s, exIdx, (e) => unskip(e, setIdx))
+  return clearRest(withExercise(setDone(s, exIdx, setIdx, null), exIdx, (e) => ({ ...e, skipped: [...(e.skipped ?? []), setIdx] })))
+}
 
 export const clearRest = (s: WorkoutSession): WorkoutSession => ({ ...s, restEndsAt: undefined, restPausedLeftMs: undefined, restExIdx: undefined })
 export const startRest = (s: WorkoutSession, exIdx: number, ms: number, now: number): WorkoutSession => ({ ...s, restEndsAt: now + ms, restPausedLeftMs: undefined, restExIdx: exIdx })

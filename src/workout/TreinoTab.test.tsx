@@ -1,4 +1,4 @@
-import { act, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import * as idb from 'idb-keyval'
 import { save } from '@/storage/db'
@@ -193,6 +193,34 @@ test('completar o último set do aberto abre o próximo incompleto', async () =>
   await user.click(screen.getByRole('checkbox', { name: 'Série 2 de Supino reto' }))
   expect(await screen.findByRole('checkbox', { name: 'Série 1 de Remada X' })).toBeInTheDocument()
   expect(screen.queryByRole('checkbox', { name: 'Série 1 de Supino reto' })).not.toBeInTheDocument()
+})
+test('pular série pelo teclado grava, risca a linha e com a outra marcada abre o próximo exercício', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<TreinoTab />)
+  act(() => screen.getByRole('button', { name: 'Pular série 2 de Supino reto' }).focus())
+  await user.keyboard('{Enter}')
+  await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16'].exercises[0].skipped).toEqual([1]))
+  expect(screen.getByRole('textbox', { name: 'Carga da série 2 de Supino reto' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Desfazer pular série 2 de Supino reto' })).toBeInTheDocument()
+  await user.click(screen.getByRole('checkbox', { name: 'Série 1 de Supino reto' }))
+  expect(await screen.findByRole('checkbox', { name: 'Série 1 de Remada X' })).toBeInTheDocument()
+})
+test('arrastar a linha pro lado pula a série; arrastar de novo desfaz', async () => {
+  await renderLoaded(<TreinoTab />)
+  const row = (await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' })).closest('tr')!
+  Object.defineProperty(row, 'offsetWidth', { value: 300 })
+  row.setPointerCapture = vi.fn()
+  const swipe = (to: number) => {
+    fireEvent.pointerDown(row, { clientX: 200, clientY: 10, pointerId: 1 })
+    fireEvent.pointerMove(row, { clientX: to, clientY: 12, pointerId: 1 })
+    fireEvent.pointerUp(row, { clientX: to, clientY: 12, pointerId: 1 })
+  }
+  swipe(150) // menos de 1/3 da largura: não pula
+  expect(screen.getByRole('button', { name: 'Pular série 1 de Supino reto' })).toBeInTheDocument()
+  swipe(50)
+  expect(await screen.findByRole('button', { name: 'Desfazer pular série 1 de Supino reto' })).toBeInTheDocument()
+  swipe(50)
+  expect(await screen.findByRole('button', { name: 'Pular série 1 de Supino reto' })).toBeInTheDocument()
 })
 test('dois toques rápidos na mesma série desmarcam e o segundo não reinicia o descanso', async () => {
   await renderLoaded(<TreinoTab />)

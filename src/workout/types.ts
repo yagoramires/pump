@@ -27,7 +27,8 @@ export interface WorkoutPlan {
 }
 export interface SetDone { reps: string; weightKg: number }
 /** sets.length = séries planejadas */
-export type SessionExercise = Omit<PlanExercise, 'sets'> & { sets: (SetDone | null)[] }
+/** skipped = índices das séries marcadas "não fiz" (ficam null em sets) */
+export type SessionExercise = Omit<PlanExercise, 'sets'> & { sets: (SetDone | null)[]; skipped?: number[] }
 export interface WorkoutSession {
   date: string
   workoutId: string
