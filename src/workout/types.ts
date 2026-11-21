@@ -50,6 +50,8 @@ export interface WorkoutSession {
   editedFrom?: string
   /** descanso marcado: sem exercícios e sem completedAt */
   rest?: boolean
+  /** extra aberto num dia de descanso: descartar o extra devolve o descanso */
+  fromRest?: boolean
 }
 /** chave = date */
 export type WorkoutLog = Record<string, WorkoutSession>

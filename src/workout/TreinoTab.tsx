@@ -107,7 +107,7 @@ export function TreinoTab() {
   // abaixo de 360 px o rótulo vira só leitor de tela: o eyebrow não pode ser espremido
   const pastLink = <Button variant="link" size="sm" className="text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /><span className="max-[359px]:sr-only">Treinos anteriores</span></Button>
   const startExtraToday = () => {
-    setExtraLog((prev) => (prev[today] ? prev : { ...prev, [today]: startExtra(today) }))
+    setExtraLog((prev) => (prev[today] ? prev : { ...prev, [today]: { ...startExtra(today), ...(rest && { fromRest: true }) } }))
     setLog((prev) => (isRest(prev[today]) ? omitKey(prev, today) : prev))
     setOpenIdx('auto')
   }
@@ -245,6 +245,7 @@ export function TreinoTab() {
   }
   const discardExtra = () => {
     setExtraLog((prev) => omitKey(prev, today))
+    if (extra?.fromRest) setLog((prev) => (prev[today] ? prev : { ...prev, [today]: restRecord(today) }))
     setOpenIdx('auto')
   }
 
