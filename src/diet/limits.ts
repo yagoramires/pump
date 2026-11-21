@@ -10,4 +10,4 @@ export const MAX_KCAL_PER_100G = 900
 export const MAX_MACRO_PER_100G = 100
 export const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/
 
-export const WATER_LIMITS = { goalMl: [250, 10000], cupMl: [50, 1000] } as const
+export const WATER_LIMITS = { goalMl: [250, 10000] } as const

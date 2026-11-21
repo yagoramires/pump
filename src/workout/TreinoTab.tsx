@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowLeftRight, Check, ChevronRight, Dumbbell, History, Moon, Pencil, Undo2 } from 'lucide-react'
+import { ArrowLeftRight, Check, ChevronRight, Dumbbell, History, Moon, Pencil, Plus, Trash2, Undo2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { SetDone, WorkoutLog, WorkoutSession } from './types'
 import { usePersisted } from '@/storage/db'
@@ -11,7 +11,7 @@ import { Card } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/EmptyState'
 import { TabHeader } from '@/components/TabHeader'
-import { formatKg, plural } from '@/lib/number'
+import { plural } from '@/lib/number'
 import { PlanEditor } from './PlanEditor'
 import { Overlay } from '@/components/Overlay'
 import { ExerciseCard } from './ExerciseCard'
@@ -21,8 +21,8 @@ import { RestCard, RestPicker } from './RestCard'
 import { nextWorkout, unfinishedSession } from './schedule'
 import {
   activeRest, changePlanRest, changeRestDuration, clearRest, completeSession, completeUnfinishedSession, editSession, extendRest,
-  firstIncompleteExercise, hasMarkedSets, holdsTrainingDay, isExerciseComplete, reopenSession, restExerciseIndex,
-  setDone, startSession, toggleRestPause, toggleSetWithRest,
+  firstIncompleteExercise, hasMarkedSets, holdsTrainingDay, isExerciseComplete, nthOccurrence, reopenSession, restExerciseIndex,
+  setDone, startSession, toggleRestPause, toggleSetWithRest, toggleSkip,
 } from './session'
 import { previousSets, sessionStats } from './stats'
 import { isRest, restRecord, sessionOf } from './rest'
@@ -38,6 +38,11 @@ import { PastWorkouts } from './PastWorkouts'
 import { DoneSummary } from './DoneSummary'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import type { Workout } from './types'
+import { addExtraExercise, removeExercise, startExtra, unfinishedExtra } from './extra'
+import { useTrainingLog } from './useTrainingLog'
+import { AddExtraExercise } from './AddExtraExercise'
+import { EffortSheet } from './EffortSheet'
+import { upSoFar } from './score'
 
 export function TreinoTab() {
   const clock = useToday()
@@ -45,10 +50,14 @@ export function TreinoTab() {
   const [seenAt, setSeenAt] = useState(clock.now)
   const { plan, replacePlan, setPlan } = useWorkoutPlan()
   const [log, setLog] = usePersisted('workoutLog')
+  const [extraLog, setExtraLog] = usePersisted('extraLog')
   const [chosenId, setChosenId] = useState<string>()
   const [editingPlan, setEditingPlan] = useState(false)
   const [switching, setSwitching] = useState<'list' | Workout>()
   const [pastOpen, setPastOpen] = useState(false)
+  const [adding, setAdding] = useState(false)
+  const [discarding, setDiscarding] = useState(false)
+  const [concluding, setConcluding] = useState(false)
   const [preview, setPreview] = useState<number>()
   const [openIdx, setOpenIdx] = useState<'auto' | number | null>('auto')
   const [restTotal, setRestTotal] = useState<number>()
@@ -61,26 +70,34 @@ export function TreinoTab() {
 
   if (seenAt !== clock.now) {
     setSeenAt(clock.now)
-    if (clock.today !== today && !holdsTrainingDay(log[today], clock.now)) {
+    if (clock.today !== today && !holdsTrainingDay(log[today], clock.now) && !holdsTrainingDay(extraLog[today], clock.now)) {
       setToday(clock.today)
       setChosenId(undefined)
       setOpenIdx('auto')
     }
   }
 
+  const extra = extraLog[today]
+  const extraOpen = !!extra && !extra.completedAt
+  // com o extra aberto, a tela da sessão lê e grava no extraLog; ações da ficha seguem no workoutLog
+  const target = extraOpen ? extraLog : log
+  const setTarget = extraOpen ? setExtraLog : setLog
   const rest = isRest(log[today])
-  const session = sessionOf(log[today])
+  const session = sessionOf(target[today])
   const next = nextWorkout(plan, log)
   const workout = plan.workouts.find((w) => w.id === chosenId) ?? next
   const unfinished = unfinishedSession(log, today)
+  // shortcut: extra vazio de dia anterior fica guardado sem uso; limpar se o extraLog crescer
+  const unfinishedEx = unfinishedExtra(extraLog, today)
+  const { training } = useTrainingLog()
 
   const patch = useCallback(
     (f: (s: WorkoutSession) => WorkoutSession) =>
-      setLog((prev) => {
+      setTarget((prev) => {
         const s = sessionOf(prev[today])
         return s ? { ...prev, [today]: f(s) } : prev
       }),
-    [setLog, today],
+    [setTarget, today],
   )
   const finishRest = useCallback(
     () => patch((s) => activeRest(s) ? clearRest(s) : s),
@@ -90,6 +107,12 @@ export function TreinoTab() {
 
   // abaixo de 360 px o rótulo vira só leitor de tela: o eyebrow não pode ser espremido
   const pastLink = <Button variant="link" size="sm" className="text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /><span className="max-[359px]:sr-only">Treinos anteriores</span></Button>
+  const startExtraToday = () => {
+    setExtraLog((prev) => (prev[today] ? prev : { ...prev, [today]: { ...startExtra(today), ...(rest && { fromRest: true }) } }))
+    setLog((prev) => (isRest(prev[today]) ? omitKey(prev, today) : prev))
+    setOpenIdx('auto')
+  }
+  const actions = <>{!extra && <Button variant="link" size="sm" className="text-accent" onClick={startExtraToday}><Plus aria-hidden="true" /><span className="max-[359px]:sr-only">Treino extra</span></Button>}{pastLink}</>
   if (pastOpen) return <Overlay><PastWorkouts onClose={() => setPastOpen(false)} /></Overlay>
   if (editingPlan) return <Overlay><PlanEditor initial={plan} onSave={(p) => { replacePlan(p); setEditingPlan(false) }} onCancel={() => setEditingPlan(false)} /></Overlay>
   if (plan.workouts.length === 0) {
@@ -107,28 +130,44 @@ export function TreinoTab() {
   const undoRest = () =>
     setLog((prev) => (isRest(prev[today]) ? omitKey(prev, today) : prev))
 
-  const resolveUnfinished = (pending: WorkoutSession, action: 'complete' | 'discard') => {
+  const resolveUnfinished = (pending: WorkoutSession, action: 'complete' | 'discard', set = setLog) => {
     const { date } = pending
-    setLog((prev) => {
+    set((prev) => {
       if (action === 'complete') return prev[date] ? { ...prev, [date]: completeUnfinishedSession(prev[date]) } : prev
       return omitKey(prev, date)
     })
     toast(action === 'complete' ? 'Treino concluído' : 'Treino descartado', {
-      action: { label: 'Desfazer', onClick: () => setLog((prev) => ({ ...prev, [date]: pending })) },
+      action: { label: 'Desfazer', onClick: () => set((prev) => ({ ...prev, [date]: pending })) },
     })
   }
-  const unresolved = unfinished && (
-    <UnfinishedCard
-      session={unfinished}
-      onConclude={() => resolveUnfinished(unfinished, 'complete')}
-      onDiscard={() => resolveUnfinished(unfinished, 'discard')}
-    />
+  const unresolved = (
+    <>
+      {unfinished && (
+        <UnfinishedCard
+          session={unfinished}
+          onConclude={() => resolveUnfinished(unfinished, 'complete')}
+          onDiscard={() => resolveUnfinished(unfinished, 'discard')}
+        />
+      )}
+      {unfinishedEx && (
+        <UnfinishedCard
+          session={unfinishedEx}
+          onConclude={() => resolveUnfinished(unfinishedEx, 'complete', setExtraLog)}
+          onDiscard={() => {
+            resolveUnfinished(unfinishedEx, 'discard', setExtraLog)
+            // extra aberto num dia de descanso: descartar devolve o descanso daquele dia
+            const { date, fromRest } = unfinishedEx
+            if (fromRest) setLog((prev) => (prev[date] ? prev : { ...prev, [date]: restRecord(date) }))
+          }}
+        />
+      )}
+    </>
   )
 
   if (rest && !chosenId) {
     return (
       <div className="flex flex-col gap-2.5">
-        <TabHeader eyebrow={formatDayLabel(today)} actions={pastLink} />
+        <TabHeader eyebrow={formatDayLabel(today)} actions={actions} />
         {unresolved}
         <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Descanso marcado">
           <p className="max-w-64 text-sm text-text-2">Hoje é dia de recuperar. Quer treinar mesmo assim?</p>
@@ -152,7 +191,7 @@ export function TreinoTab() {
   const restIdx = restExerciseIndex(view)
   const timer = activeRest(session)
   const open = openIdx === 'auto' ? firstIncompleteExercise(view) : openIdx
-  const current = (prev: WorkoutLog) => sessionOf(prev[today]) ?? startSession(workout!, today)
+  const current = (prev: WorkoutLog) => extraOpen ? prev[today] : sessionOf(prev[today]) ?? startSession(workout!, today)
   const markRest = () => {
     setLog((prev) => (prev[today] ? prev : { ...prev, [today]: restRecord(today) }))
     toast('Descanso marcado')
@@ -160,11 +199,15 @@ export function TreinoTab() {
 
   const check = (exIdx: number, setIdx: number, v: SetDone) => {
     unlockAudio()
-    const saved = setLog((prev) => ({ ...prev, [today]: toggleSetWithRest(current(prev), exIdx, setIdx, v, Date.now()) }))
+    const saved = setTarget((prev) => ({ ...prev, [today]: toggleSetWithRest(current(prev), exIdx, setIdx, v, Date.now()) }))
     const exercise = saved[today].exercises[exIdx]
     if (!exercise.sets[setIdx]) return
     setRestTotal(exercise.restSec)
     if (isExerciseComplete(exercise)) setOpenIdx('auto')
+  }
+  const skip = (exIdx: number, setIdx: number) => {
+    const saved = setTarget((prev) => ({ ...prev, [today]: toggleSkip(current(prev), exIdx, setIdx, Date.now()) }))
+    if (isExerciseComplete(saved[today].exercises[exIdx])) setOpenIdx('auto')
   }
   const start = () => setLog((prev) => ({ ...prev, [today]: current(prev) }))
   const switchTo = (w: Workout) => {
@@ -179,7 +222,7 @@ export function TreinoTab() {
     setSwitching(undefined)
   }
   const toggleCardio = (exIdx: number) =>
-    setLog((prev) => {
+    setTarget((prev) => {
       const s = current(prev)
       const e = s.exercises[exIdx]
       return { ...prev, [today]: toggleSetWithRest(s, exIdx, 0, { reps: e.reps, weightKg: 0 }, Date.now()) }
@@ -189,22 +232,42 @@ export function TreinoTab() {
       const cur = s.exercises[exIdx].sets[setIdx]
       return cur ? setDone(s, exIdx, setIdx, { ...cur, ...p }) : s
     })
-  const conclude = () => {
-    patch((s) => completeSession(s, new Date()))
-    toast('Treino concluído', {
-      action: { label: 'Desfazer', onClick: () => patch(reopenSession) },
+  // sem esforço grava effort undefined: desfazer e pular não herda o número escolhido antes
+  const conclude = (effort?: number) => {
+    patch((s) => ({ ...completeSession(s, new Date()), effort }))
+    if (extraOpen) setOpenIdx('auto')
+    toast(extraOpen ? 'Treino extra concluído' : 'Treino concluído', {
+      action: { label: 'Desfazer', onClick: () => { patch(reopenSession); setOpenIdx('auto') } },
     })
+  }
+  // só aparece no treino em curso; concluído, o DoneSummary já calcula as linhas da nota
+  const up = session?.completedAt ? 0 : upSoFar(training, view)
+  const editExtra = () => {
+    setExtraLog((prev) => (prev[today] ? { ...prev, [today]: editSession(prev[today]) } : prev))
+    setOpenIdx('auto')
+  }
+  const removeAt = (i: number) => {
+    patch((s) => removeExercise(s, i))
+    setOpenIdx('auto')
+  }
+  const discardExtra = () => {
+    setExtraLog((prev) => omitKey(prev, today))
+    if (extra?.fromRest) setLog((prev) => (prev[today] ? prev : { ...prev, [today]: restRecord(today) }))
+    setOpenIdx('auto')
   }
 
   return (
     <div className={cn('flex flex-col gap-2.5', timer ? 'pb-44' : 'pb-24')}>
-      <TabHeader eyebrow={workoutDayLabel(today, view.workoutLabel)} title={view.workoutName} actions={pastLink} />
+      <TabHeader eyebrow={extraOpen ? `Treino extra · ${formatDayLabel(today)}` : workoutDayLabel(today, view.workoutLabel)} title={view.workoutName} actions={actions} />
       {unresolved}
-      {!session?.completedAt && plan.workouts.length > 1 && (
+      {extra?.completedAt && (
+        <p className="text-meta text-text-2">Treino extra concluído · <Button variant="link" size="sm" className="h-auto p-0 text-meta" aria-label="Editar séries do treino extra" onClick={editExtra}>Editar séries</Button></p>
+      )}
+      {!extraOpen && !session?.completedAt && plan.workouts.length > 1 && (
         <Button variant="link" className="min-h-11 self-start" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>
       )}
 
-      {session?.completedAt ? <DoneSummary session={session} log={log} next={next} /> : (
+      {session?.completedAt ? <DoneSummary session={session} log={training} next={next} onEditTimes={(startedAt, endedAt) => patch((s) => ({ ...s, startedAt, endedAt }))} onEffort={(effort) => patch((s) => ({ ...s, effort }))} /> : (
         <>
         <Card className="flex-row items-center gap-3.5">
           <div
@@ -217,12 +280,11 @@ export function TreinoTab() {
             </div>
           </div>
           <div>
-            <div className="text-meta text-text-2">Volume de hoje</div>
-            <div className="text-lg font-semibold text-strong tabular-nums">{`${formatKg(stats.volumeKg)} kg`}</div>
+            {up > 0 && <div className="text-lg font-semibold text-strong tabular-nums">{`↑ ${up} subindo até agora`}</div>}
             <div className="text-meta text-text-2">{minutes === null ? plural(view.exercises.length, 'exercício', 'exercícios') : `${minutes} min · ${plural(view.exercises.length, 'exercício', 'exercícios')}`}</div>
           </div>
         </Card>
-        {!log[today] && workout && (
+        {!log[today] && !extra && workout && (
           <Button variant="outline" className="w-full" onClick={markRest}><Moon aria-hidden="true" /> Descansar hoje</Button>
         )}
 
@@ -230,9 +292,11 @@ export function TreinoTab() {
           exercises={view.exercises}
           className={() => 'contents'}
           row={(e, i, cardio) => {
+            const occurrence = nthOccurrence(view.exercises, i)
+            const key = `${view.workoutId}-${today}-${e.exerciseId}-${occurrence}`
             if (cardio) {
               return (
-                <Card size="sm" key={i} className="flex-row items-center gap-1.5">
+                <Card size="sm" key={key} className="flex-row items-center gap-1.5">
                   <Button variant="ghost" size="icon" aria-label={`Ver ${e.name}`} onClick={() => setPreview(i)}>
                     <ExerciseThumb muscles={e.muscles} image={e.images[0]} cardio />
                   </Button>
@@ -241,17 +305,25 @@ export function TreinoTab() {
                     <span className="block text-meta text-text-2">{e.reps}</span>
                   </span>
                   <Checkbox size="check" className="mr-1.5" checked={!!e.sets[0]} aria-label={`${e.name} feito`} onCheckedChange={() => toggleCardio(i)} />
+                  {extraOpen && <Button variant="ghost" size="icon" className="text-negative hover:text-negative" aria-label={`Remover ${e.name}`} onClick={() => removeAt(i)}><Trash2 aria-hidden="true" /></Button>}
                 </Card>
               )
             }
-            const prev = previousSets(log, today, e.exerciseId, view.exercises.slice(0, i).filter((x) => x.exerciseId === e.exerciseId).length)
+            const prev = previousSets(training, today, e.exerciseId, occurrence)
             return (
-              <ExerciseCard key={`${view.workoutId}-${today}-${i}`} ex={e} prev={prev} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
-                <SetTable ex={e} prev={prev} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} />
+              <ExerciseCard key={key} ex={e} prev={prev} open={open === i} onToggle={() => setOpenIdx(open === i ? null : i)} onPreview={() => setPreview(i)}>
+                <SetTable ex={e} prev={prev} onCheck={(j, v) => check(i, j, v)} onEdit={(j, p) => edit(i, j, p)} onSkip={(j) => skip(i, j)} />
+                {extraOpen && <Button variant="link" className="text-negative hover:text-negative" onClick={() => removeAt(i)}>Remover exercício</Button>}
               </ExerciseCard>
             )
           }}
         />
+        {extraOpen && (
+          <>
+            <Button variant="outline" className="w-full" onClick={() => setAdding(true)}><Plus aria-hidden="true" /> Adicionar exercício</Button>
+            {!session?.editedFrom && <Button variant="link" className="self-start text-negative hover:text-negative" onClick={() => (hasMarkedSets(extra) ? setDiscarding(true) : discardExtra())}>Descartar treino extra</Button>}
+          </>
+        )}
         </>
       )}
 
@@ -277,7 +349,7 @@ export function TreinoTab() {
         onPick={(sec) => {
           const idx = pickIdx ?? restIdx
           patch((s) => changeRestDuration(s, idx, sec, Date.now()))
-          setPlan((p) => changePlanRest(p, view, idx, sec))
+          if (!extraOpen) setPlan((p) => changePlanRest(p, view, idx, sec))
           setRestTotal(sec)
         }}
       />
@@ -285,11 +357,20 @@ export function TreinoTab() {
         {session?.completedAt ? (
           <Button variant="secondary" className="w-full font-bold" onClick={() => patch(editSession)}><Pencil aria-hidden="true" /> Editar séries</Button>
         ) : (
-          <Button className="w-full font-bold" disabled={!!session && stats.done === 0} onClick={session ? conclude : start}>{session ? <><Check aria-hidden="true" /> Concluir treino</> : 'Iniciar treino'}</Button>
+          <Button className="w-full font-bold" disabled={!!session && stats.done === 0} onClick={!session ? start : session.editedFrom ? () => conclude(session.effort) : () => setConcluding(true)}>{session ? <><Check aria-hidden="true" /> Concluir treino</> : 'Iniciar treino'}</Button>
         )}
       </div>
       {switching === 'list' && <SwitchWorkout workouts={plan.workouts} shownId={view.workoutId} nextId={next?.id} onPick={pick} onClose={() => setSwitching(undefined)} />}
       <ConfirmDialog open={typeof switching === 'object'} title="Trocar de treino?" text="As séries marcadas hoje serão descartadas." confirm="Trocar" destructive onCancel={() => setSwitching(undefined)} onConfirm={() => { if (typeof switching === 'object') switchTo(switching); setSwitching(undefined) }} />
+      {/* montado só aberto: no jsdom o Drawer fechado segue escondendo a tela da árvore de a11y */}
+      {concluding && <EffortSheet open value={session?.effort} onPick={conclude} onSkip={() => conclude()} onClose={() => setConcluding(false)} />}
+      <ConfirmDialog open={discarding} title="Descartar treino extra?" text="As séries marcadas serão perdidas." confirm="Descartar" destructive onCancel={() => setDiscarding(false)} onConfirm={() => { discardExtra(); setDiscarding(false) }} />
+      {adding && (
+        <AddExtraExercise
+          onAdd={(e, sets) => { patch((s) => addExtraExercise(s, e, sets)); setOpenIdx(view.exercises.length); setAdding(false) }}
+          onClose={() => setAdding(false)}
+        />
+      )}
       {preview !== undefined && <ExercisePreview exercise={view.exercises[preview]} onClose={closePreview} />}
     </div>
   )

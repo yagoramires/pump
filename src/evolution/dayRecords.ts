@@ -3,14 +3,17 @@ import { isRest } from '@/workout/rest'
 import { touched } from '@/diet/day'
 import { hasWater } from '@/diet/water'
 import type { SupplementLog } from '@/diet/types'
+import type { WorkoutLog } from '@/workout/types'
 
-export function dayRecords(d: Pick<EvolutionInput, 'workoutLog' | 'dietLog' | 'waterLog' | 'measurements' | 'photoSets'> & { supplementLog: SupplementLog }, date: string) {
+export function dayRecords(d: Pick<EvolutionInput, 'workoutLog' | 'dietLog' | 'waterLog' | 'measurements' | 'photoSets'> & { supplementLog: SupplementLog; extraLog: WorkoutLog }, date: string) {
   const s = d.workoutLog[date]
+  const x = d.extraLog[date]
   const diet = d.dietLog[date]
   const water = d.waterLog[date]
   const sups = d.supplementLog[date]
   const r = {
     session: s?.completedAt ? s : undefined,
+    extra: x?.completedAt ? x : undefined,
     rest: isRest(s),
     diet: diet && touched(diet) ? diet : undefined,
     water: hasWater(water) ? water : undefined,

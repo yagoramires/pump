@@ -1,6 +1,7 @@
 import {
-  activeRest, changePlanRest, changeRestDuration, completeSession, completeUnfinishedSession, editSession, extendRest, holdsTrainingDay,
-  reopenSession, restExerciseIndex, restRemainingSeconds, setDone, startSession, toggleRestPause, toggleSetWithRest,
+  activeRest, changePlanRest, changeRestDuration, completeSession, completeUnfinishedSession, editSession, extendRest, firstIncompleteExercise,
+  holdsTrainingDay, isExerciseComplete, nthOccurrence, reopenSession, restExerciseIndex, restRemainingSeconds, setDone, startRest, startSession, toggleRestPause,
+  toggleSetWithRest, toggleSkip,
 } from './session'
 import { workoutOf } from '../../test/helpers'
 
@@ -94,4 +95,41 @@ test('concluir treino esquecido fecha às 23:59 do dia dele, sem duração', () 
   const done = completeUnfinishedSession(s)
   expect(done.completedAt).toBe(new Date(2026, 10, 16, 23, 59).toISOString())
   expect(done.startedAt).toBeUndefined()
+})
+test('pular série marcada limpa os valores e o descanso; pular de novo volta a não marcada', () => {
+  const s = startRest(setDone(startSession(workoutOf([{ sets: 2 }]), '2026-11-16'), 0, 0, SET), 0, 60_000, 0)
+  const skipped = toggleSkip(s, 0, 0, 1_000)
+  expect(skipped.exercises[0].sets[0]).toBeNull()
+  expect(skipped.exercises[0].skipped).toEqual([0])
+  expect(activeRest(skipped)).toBeUndefined()
+  const back = toggleSkip(skipped, 0, 0, 2_000)
+  expect(back.exercises[0].sets[0]).toBeNull()
+  expect(back.exercises[0].skipped).toEqual([])
+})
+test('série feita + série pulada completa o exercício e o próximo incompleto passa a ser o seguinte', () => {
+  const s = toggleSkip(setDone(startSession(workoutOf([{ sets: 2 }, { sets: 1 }]), '2026-11-16'), 0, 0, SET), 0, 1, 0)
+  expect(isExerciseComplete(s.exercises[0])).toBe(true)
+  expect(firstIncompleteExercise(s)).toBe(1)
+})
+test('marcar uma série pulada tira o pulada', () => {
+  const s = toggleSkip(startSession(workoutOf([{ sets: 2 }]), '2026-11-16'), 0, 1, 0)
+  const marked = setDone(s, 0, 1, SET)
+  expect(marked.exercises[0].sets[1]).toEqual(SET)
+  expect(marked.exercises[0].skipped).toEqual([])
+})
+
+test('marcar/pular grava endedAt, exceto ao editar treino concluído; concluir sem concluir mantém startedAt', () => {
+  const s = startSession(workoutOf([{ sets: 2 }]), '2026-11-16', new Date(2026, 10, 16, 18, 0))
+  const t = new Date(2026, 10, 16, 18, 30).getTime()
+  expect(toggleSetWithRest(s, 0, 0, SET, t).endedAt).toBe(new Date(t).toISOString())
+  expect(toggleSkip(s, 0, 1, t).endedAt).toBe(new Date(t).toISOString())
+  const edited = editSession({ ...s, completedAt: '2026-11-16T21:00:00.000Z', endedAt: 'x' })
+  expect(toggleSetWithRest(edited, 0, 0, SET, t).endedAt).toBe('x')
+  const withEnd = { ...s, endedAt: new Date(t).toISOString() }
+  expect(completeUnfinishedSession(withEnd).startedAt).toBe(s.startedAt)
+})
+
+test('nthOccurrence conta só as aparições anteriores do mesmo exercício', () => {
+  const exs = [{ exerciseId: 'Supino' }, { exerciseId: 'Remada' }, { exerciseId: 'Supino' }, { exerciseId: 'Supino' }]
+  expect([0, 1, 2, 3].map((i) => nthOccurrence(exs, i))).toEqual([0, 0, 1, 2])
 })

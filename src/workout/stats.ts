@@ -1,4 +1,4 @@
-import { hasMarkedSet, markedSets } from './session'
+import { allResolved, hasMarkedSet, isSkipped, markedSets } from './session'
 import { isRest } from './rest'
 import { isCardio, isTimed, repsNumber } from './reps'
 import type { SessionExercise, SetDone, WorkoutLog, WorkoutSession } from './types'
@@ -39,22 +39,32 @@ export const loadPoints = (entries: Entry[]) => entries.flatMap(({ date, e }) =>
 export const sessionVolume = (s: WorkoutSession) => s.exercises.reduce((a, e) => a + exerciseVolume(e), 0)
 
 export const sessionStats = (s: WorkoutSession, now?: Date) => {
-  const sets = s.exercises.flatMap((e) => e.sets)
-  const end = s.completedAt ? Date.parse(s.completedAt) : (now ?? new Date()).getTime()
+  const sets = s.exercises.flatMap((e) => e.sets.filter((_, i) => !isSkipped(e, i)))
+  const endIso = s.completedAt ? (s.endedAt ?? s.completedAt) : allResolved(s) && s.endedAt
+  const end = endIso ? Date.parse(endIso) : (now ?? new Date()).getTime()
   const ms = s.startedAt ? end - Date.parse(s.startedAt) : NaN
   return {
     done: doneSets(s).length,
     total: sets.length,
-    volumeKg: sessionVolume(s),
     minutes: Number.isFinite(ms) ? Math.max(0, Math.floor(ms / 60000)) : null,
   }
 }
 
+const timeOf = (s: WorkoutSession) => s.completedAt ?? s.endedAt ?? s.startedAt ?? ''
+// o log nunca é mutado (cada mudança gera outro objeto): a ordem vale enquanto o objeto viver
+const newestCache = new WeakMap<WorkoutLog, WorkoutSession[]>()
+/** mais recente primeiro, por data e depois hora; não usa as chaves, que no log mesclado não são datas */
+const newestFirst = (log: WorkoutLog) => {
+  let list = newestCache.get(log)
+  if (!list) newestCache.set(log, (list = Object.values(log).sort((a, b) => b.date.localeCompare(a.date) || timeOf(b).localeCompare(timeOf(a)))))
+  return list
+}
+
 /** nth: qual aparição do exercício no treino de hoje (o 2º supino compara com o 2º supino); sem par, usa a 1ª */
 export const previousSets = (log: WorkoutLog, today: string, exerciseId: string, nth = 0): (SetDone | null)[] => {
-  const dates = Object.keys(log).filter((d) => d < today).sort().reverse()
-  for (const d of dates) {
-    const same = log[d].exercises.filter((e) => e.exerciseId === exerciseId)
+  for (const s of newestFirst(log)) {
+    if (s.date >= today) continue
+    const same = s.exercises.filter((e) => e.exerciseId === exerciseId)
     const ex = same[nth] ?? same[0]
     if (ex && hasMarkedSet(ex)) return ex.sets
   }
@@ -65,13 +75,6 @@ export const suggestedKg = (ex: { weightKg: number }, prev: (SetDone | null)[], 
   (set === undefined ? prev.find(Boolean) : prev[set])?.weightKg ?? ex.weightKg
 
 const completedBefore = (log: WorkoutLog, s: WorkoutSession) => completedSessions(log).filter((d) => d.date < s.date)
-
-/** variação % (inteira) do volume contra a última sessão concluída do mesmo treino; sem anterior ou anterior a 0 kg → undefined */
-export const volumeChange = (log: WorkoutLog, s: WorkoutSession): number | undefined => {
-  const prev = completedBefore(log, s).filter((d) => d.workoutId === s.workoutId).at(-1)
-  const before = prev ? sessionVolume(prev) : 0
-  return before > 0 ? Math.round(((sessionVolume(s) - before) / before) * 100) : undefined
-}
 
 /** exercícios cuja maior carga de hoje passa a maior de todas as sessões concluídas antes; primeira vez, cardio e por tempo não contam */
 export const sessionRecords = (log: WorkoutLog, s: WorkoutSession): { name: string; kg: number; prevKg: number }[] => {

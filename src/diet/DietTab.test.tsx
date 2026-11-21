@@ -150,7 +150,7 @@ test('refeição do horário atual destacada', async () => {
   expect(within(drawer).getByRole('button', { name: 'Dia livre' })).toBeInTheDocument()
 })
 
-test('pílula de água abre os copos; água desligada mostra o link', async () => {
+test('pílula de água abre a barra; água desligada mostra o link', async () => {
   await seedStore({
     dietPlan: plan,
     profile: { sex: 'M', heightCm: 180 },
@@ -162,7 +162,7 @@ test('pílula de água abre os copos; água desligada mostra o link', async () =
   await screen.findByRole('list', { name: 'Refeições' })
   expect(screen.queryByRole('button', { name: /^Água/ })).not.toBeInTheDocument()
   await user.click(await screen.findByRole('button', { name: 'Ligar contador de água' }))
-  await waitFor(async () => expect((await stored('settings'))?.water).toEqual({ enabled: true, goalMl: 2750, cupMl: 250 }))
+  await waitFor(async () => expect((await stored('settings'))?.water).toEqual({ enabled: true, goalMl: 2750 }))
   expect((await stored('settings'))?.onboardingDone).toBe(true)
   const pill = await screen.findByRole('button', { name: 'Água: 0 de 2,8 litros' })
   expect(pill).toHaveTextContent('0/2,8 L')
@@ -170,19 +170,22 @@ test('pílula de água abre os copos; água desligada mostra o link', async () =
   await user.click(pill)
   const drawer = await screen.findByRole('dialog')
   expect(within(drawer).getByText('Água · 0 de 2,8 L')).toBeInTheDocument()
-  expect(within(drawer).getAllByRole('button', { name: 'Adicionar copo' })).toHaveLength(11)
-  const addCup = async (shown: string) => {
-    await user.click(within(drawer).getAllByRole('button', { name: 'Adicionar copo' }).at(-1)!)
-    await within(drawer).findByText(shown)
-  }
-  await addCup('Água · 0,3 de 2,8 L')
-  await addCup('Água · 0,5 de 2,8 L')
-  await waitFor(async () => expect((await stored('waterLog'))?.[TODAY]).toEqual({ ml: 500, goalMl: 2750 }))
-  await user.click(within(drawer).getByRole('button', { name: 'Tirar copo' }))
-  await waitFor(async () => expect((await stored('waterLog'))?.[TODAY].ml).toBe(250))
+  const slider = within(drawer).getByRole('slider', { name: 'Água de hoje' })
+  slider.focus()
+  await user.keyboard('{ArrowRight}{ArrowRight}{ArrowRight}')
+  await waitFor(async () => expect((await stored('waterLog'))?.[TODAY]).toEqual({ ml: 300, goalMl: 2750 }))
+  expect(slider).toHaveAttribute('aria-valuetext', '0,3 L')
   await user.keyboard('{Escape}')
   expect(await screen.findByRole('button', { name: 'Água: 0,3 de 2,8 litros' })).toHaveTextContent('0,3/2,8 L')
   expect(await stored('dietLog')).toBeUndefined()
+})
+
+test('com a meta batida o máximo da barra passa de meta + 500', async () => {
+  await seedStore({ dietPlan: plan, settings: { ...DEFAULTS.settings, water: { enabled: true, goalMl: 2000 } }, waterLog: { [TODAY]: { ml: 2000, goalMl: 2000 } } })
+  const user = userEvent.setup()
+  await renderLoaded(<DietTab />)
+  await user.click(await screen.findByRole('button', { name: /^Água/ }))
+  expect(within(await screen.findByRole('dialog')).getByRole('slider', { name: 'Água de hoje' })).toHaveAttribute('aria-valuemax', '2500')
 })
 
 test('menu ⋯: dia livre e trocar cardápio com confirmação', async () => {
@@ -353,16 +356,17 @@ test('editar e salvar o cardápio não grava o dia (B7)', async () => {
   expect(await stored('dietLog')).toBeUndefined()
 })
 
-test('copo de água depois da meia-noite vai pro dia novo e a aba anda junto', async () => {
+test('água depois da meia-noite vai pro dia novo e a aba anda junto', async () => {
   vi.setSystemTime(new Date(2026, 10, 18, 23, 59))
-  await seedStore({ dietPlan: plan, settings: { ...DEFAULTS.settings, water: { enabled: true, goalMl: 2000, cupMl: 250 } } })
+  await seedStore({ dietPlan: plan, settings: { ...DEFAULTS.settings, water: { enabled: true, goalMl: 2000 } } })
   const user = userEvent.setup()
   await renderLoaded(<DietTab />)
   await user.click(await screen.findByRole('button', { name: /^Água/ }))
   const drawer = await screen.findByRole('dialog')
   vi.setSystemTime(new Date(2026, 10, 19, 0, 1))
-  await user.click(within(drawer).getAllByRole('button', { name: 'Adicionar copo' })[0])
-  await waitFor(async () => expect((await stored('waterLog'))?.['2026-11-19']?.ml).toBe(250))
+  within(drawer).getByRole('slider', { name: 'Água de hoje' }).focus()
+  await user.keyboard('{ArrowRight}')
+  await waitFor(async () => expect((await stored('waterLog'))?.['2026-11-19']?.ml).toBe(100))
   expect((await stored('waterLog'))?.[TODAY]).toBeUndefined()
   expect(await screen.findByText('QUI, 19 NOV', { exact: false })).toBeInTheDocument()
 })

@@ -2,6 +2,7 @@ import { dietDay, evolutionInput, pe } from '../../test/helpers'
 import type { DietLog } from '@/diet/types'
 import { computeAchievements, type Achievement, type AchievementId } from './achievements'
 import { restRecord } from '@/workout/rest'
+import { trainingLog } from '@/workout/extra'
 
 const done = (date: string, sets: { id: string; kg: number }[] = []) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', completedAt: `${date}T19:00:00.000Z`, exercises: sets.map((s) => ({ ...pe({ exerciseId: s.id, name: s.id }), sets: [{ reps: '10', weightKg: s.kg }] })) })
 const plan = (n: number) => ({ workouts: Array.from({ length: n }, (_, i) => ({ id: `w${i}`, label: 'A', name: 'A', exercises: [] })) })
@@ -131,4 +132,14 @@ test('sem objetivo de peso, conquistas de peso somem da lista', () => {
   expect(ids).not.toContain('weight-small')
   expect(ids).not.toContain('weight-big')
   expect(ids).toContain('fat-1')
+})
+const extra = (date: string) => ({ ...done(date), workoutId: 'extra', workoutLabel: 'Extra', workoutName: 'Treino extra' })
+test('treino extra conta como dia treinado na sequência', () => {
+  const log = trainingLog({ '2026-11-16': done('2026-11-16'), '2026-11-18': done('2026-11-18') }, { '2026-11-17': extra('2026-11-17') })
+  expect(get(computeAchievements(goalInput(log, 3), '2026-11-19'), 'streak-3').earnedAt).toBe('2026-11-18')
+})
+test('extra no mesmo dia da ficha conta uma vez na sequência e duas nos totais', () => {
+  const days = Array.from({ length: 9 }, (_, i) => `2026-11-${String(i + 1).padStart(2, '0')}`)
+  const log = trainingLog(Object.fromEntries(days.map((d) => [d, done(d)])), { '2026-11-09': extra('2026-11-09') })
+  expect(get(computeAchievements(goalInput(log, 7), '2026-11-10'), 'workouts-10').earnedAt).toBe('2026-11-09')
 })

@@ -4,6 +4,18 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 3,
+    date: '2026-11-21',
+    novidades: [
+      'Água: barra de arrastar de 100 em 100 ml',
+      'Treino extra: registre um treino fora da ficha sem mudar a ordem dela',
+      'Nota do treino com o seu esforço no lugar do volume',
+      'A duração termina na última série e dá pra editar o horário',
+      'Arraste a série pro lado para marcar como não feita',
+    ],
+    correcoes: [],
+  },
+  {
     version: 2,
     date: '2026-11-20',
     novidades: [

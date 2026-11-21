@@ -33,7 +33,10 @@ test.each([
   ['plano corrompido', JSON.stringify({ app: 'pump', version: 1, data: { workoutPlan: { workouts: 'x' } } }), 'Backup corrompido'],
   ['medida sem data', JSON.stringify({ app: 'pump', version: 1, data: { measurements: [{ id: 'm', weightKg: 80 }] } }), 'Backup corrompido'],
   ['fotos sem data', JSON.stringify({ app: 'pump', version: 1, data: { photoSets: [{ id: 's' }] } }), 'Backup corrompido'],
+  ['extra corrompido', JSON.stringify({ app: 'pump', version: 1, data: { extraLog: { x: { exercises: 1 } } } }), 'Backup corrompido'],
+  ['treino sem data', JSON.stringify({ app: 'pump', version: 1, data: { workoutLog: { x: { exercises: [] } } } }), 'Backup corrompido'],
 ])('recusa %s', (_, txt, msg) => expect(() => parseBackup(txt)).toThrow(msg))
+test('aceita extraLog vazio', () => expect(parseBackup(JSON.stringify({ app: 'pump', version: 1, data: { extraLog: {} } })).data).toEqual({ extraLog: {} }))
 test('importar arquivo inválido não apaga nada', async () => {
   await save('profile', { sex: 'M', heightCm: 178 })
   await expect(importBackupFile(new File(['{lixo'], 'x.json'))).rejects.toThrow('Arquivo não é um backup válido')

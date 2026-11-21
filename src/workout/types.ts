@@ -27,7 +27,8 @@ export interface WorkoutPlan {
 }
 export interface SetDone { reps: string; weightKg: number }
 /** sets.length = séries planejadas */
-export type SessionExercise = Omit<PlanExercise, 'sets'> & { sets: (SetDone | null)[] }
+/** skipped = índices das séries marcadas "não fiz" (ficam null em sets) */
+export type SessionExercise = Omit<PlanExercise, 'sets'> & { sets: (SetDone | null)[]; skipped?: number[] }
 export interface WorkoutSession {
   date: string
   workoutId: string
@@ -41,10 +42,16 @@ export interface WorkoutSession {
   restPausedLeftMs?: number
   startedAt?: string
   completedAt?: string
+  /** hora da última série resolvida (feita ou pulada); a duração termina aqui */
+  endedAt?: string
+  /** esforço percebido do treino, 1 a 10 */
+  effort?: number
   /** hora do fim original enquanto as séries são editadas depois de concluir */
   editedFrom?: string
   /** descanso marcado: sem exercícios e sem completedAt */
   rest?: boolean
+  /** extra aberto num dia de descanso: descartar o extra devolve o descanso */
+  fromRest?: boolean
 }
 /** chave = date */
 export type WorkoutLog = Record<string, WorkoutSession>

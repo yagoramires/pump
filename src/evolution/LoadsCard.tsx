@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 import { ChevronRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card'
+import { Item } from '@/components/ui/item'
 import type { WorkoutLog } from '@/workout/types'
 import { MeasureValue } from './Delta'
 import { MODE_TEXT, loadsSummary, type LoadRow, type Measure, type Tally } from './loads'
@@ -44,13 +46,15 @@ export function LoadsCard({ log, today, period, onPeriod, onOpen }: { log: Worko
                 {g.label}
               </div>
               {g.rows.map((r) => (
-                <button key={r.exerciseId} type="button" onClick={() => onOpen(r.exerciseId)} className="flex w-full items-center gap-2 px-3.5 py-2 text-left text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
-                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="flex items-center justify-between gap-3"><span className="text-text-2">{r.name}</span><Value m={r.top} row={r} /></span>
-                  <span className="flex items-center justify-between gap-3 text-meta text-faint"><span>{MODE_TEXT[r.mode].total}</span><Value m={r.total} row={r} /></span>
-                  </span>
-                  <ChevronRight size={18} className="shrink-0 text-faint" aria-hidden="true" />
-                </button>
+                <Item key={r.exerciseId} asChild className="h-auto w-full flex-nowrap justify-start gap-2 rounded-none border-0 px-3.5 py-2 text-left text-sm font-normal whitespace-normal hover:bg-transparent has-[>svg]:px-3.5">
+                  <Button variant="ghost" onClick={() => onOpen(r.exerciseId)}>
+                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span className="flex items-center justify-between gap-3"><span className="text-text-2">{r.name}</span><Value m={r.top} row={r} /></span>
+                    <span className="flex items-center justify-between gap-3 text-meta text-faint"><span>{MODE_TEXT[r.mode].total}</span><Value m={r.total} row={r} /></span>
+                    </span>
+                    <ChevronRight className="size-4.5 shrink-0 text-faint" aria-hidden="true" />
+                  </Button>
+                </Item>
               ))}
             </div>
           ))}

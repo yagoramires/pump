@@ -1,17 +1,23 @@
-import { exerciseHistory, exerciseVolume, loadPoints, previousSets, sessionRecords, sessionStats, suggestedKg, volumeChange } from './stats'
+import { exerciseHistory, exerciseVolume, loadPoints, previousSets, sessionRecords, sessionStats, sessionVolume, suggestedKg } from './stats'
 import { startSession } from './session'
+import { trainingLog } from './extra'
 import { pe, workoutOf } from '../../test/helpers'
 import type { SetDone, WorkoutLog, WorkoutSession } from './types'
 
 test('volume usa o primeiro número das reps; sem número conta 0', () => {
   const s = startSession(workoutOf([{ sets: 3 }]), '2026-11-16')
   s.exercises[0].sets = [{ reps: '10', weightKg: 10 }, { reps: '10-12', weightKg: 10 }, { reps: 'falha', weightKg: 10 }]
-  expect(sessionStats(s, new Date()).volumeKg).toBe(200)
+  expect(sessionVolume(s)).toBe(200)
 })
-test('sessionStats: feitas, total, volume e tempo', () => {
+test('sessionStats: feitas, total e tempo', () => {
   const s = { ...startSession(workoutOf([{ sets: 3 }, { sets: 2 }]), '2026-11-16', new Date(2026, 10, 16, 18, 0)) }
   s.exercises[0].sets = [{ reps: '10', weightKg: 40 }, { reps: '8-10', weightKg: 42.5 }, null]
-  expect(sessionStats(s, new Date(2026, 10, 16, 18, 32))).toEqual({ done: 2, total: 5, volumeKg: 740, minutes: 32 })
+  expect(sessionStats(s, new Date(2026, 10, 16, 18, 32))).toEqual({ done: 2, total: 5, minutes: 32 })
+})
+test('sessionStats: série pulada sai do total', () => {
+  const s = startSession(workoutOf([{ sets: 2 }]), '2026-11-16')
+  s.exercises[0] = { ...s.exercises[0], sets: [{ reps: '10', weightKg: 40 }, null], skipped: [1] }
+  expect(sessionStats(s, new Date())).toMatchObject({ done: 1, total: 1 })
 })
 test('sessionStats sem startedAt (sessão antiga) não tem tempo', () => {
   const s = startSession(workoutOf([{ sets: 1 }]), '2026-11-16'); delete s.startedAt
@@ -37,6 +43,17 @@ test('previousSets ignora sessão anterior sem série marcada', () => {
   const mk = (date: string, sets: (SetDone | null)[]) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [{ ...pe({ exerciseId: 'Supino' }), sets }] })
   const log = { '2026-11-12': mk('2026-11-12', [{ reps: '10', weightKg: 40 }]), '2026-11-14': mk('2026-11-14', [null, null]) }
   expect(previousSets(log, '2026-11-16', 'Supino')).toEqual([{ reps: '10', weightKg: 40 }])
+})
+test('previousSets: no mesmo dia vale o treino mais tarde, não a ordem das chaves', () => {
+  const at = (h: number) => new Date(2026, 10, 15, h, 0).toISOString()
+  const mk = (workoutId: string, kg: number, h: number): WorkoutSession => ({
+    date: '2026-11-15', workoutId, workoutLabel: 'A', workoutName: 'A', startedAt: at(h), completedAt: at(h + 1),
+    exercises: [{ ...pe({ exerciseId: 'Supino' }), sets: [{ reps: '10', weightKg: kg }] }],
+  })
+  const log = trainingLog({ '2026-11-15': mk('a', 80, 19) }, { '2026-11-15': mk('extra', 60, 7) })
+  expect(previousSets(log, '2026-11-16', 'Supino')).toEqual([{ reps: '10', weightKg: 80 }])
+  // hoje não conta como anterior, nem o extra de hoje
+  expect(previousSets(trainingLog({}, { '2026-11-16': { ...mk('extra', 60, 7), date: '2026-11-16' } }), '2026-11-16', 'Supino')).toEqual([])
 })
 
 test('exerciseVolume soma carga × reps das séries marcadas', () => {
@@ -92,16 +109,6 @@ describe('resumo do treino concluído', () => {
   })
   const logOf = (...ss: WorkoutSession[]): WorkoutLog => Object.fromEntries(ss.map((s) => [s.date, s]))
 
-  test('volumeChange compara com o último do mesmo treino', () => {
-    const hoje = sx('2026-11-16', 'a', { Supino: [27, 27, 27, 27] })
-    const log = logOf(sx('2026-11-10', 'a', { Supino: [10] }), sx('2026-11-12', 'a', { Supino: [25, 25, 25, 25] }), sx('2026-11-14', 'b', { Supino: [100] }), hoje)
-    expect(volumeChange(log, hoje)).toBe(8)
-  })
-  test('volumeChange sem anterior ou com anterior a 0 kg → undefined', () => {
-    const hoje = sx('2026-11-16', 'a', { Supino: [27] })
-    expect(volumeChange(logOf(hoje), hoje)).toBeUndefined()
-    expect(volumeChange(logOf(sx('2026-11-12', 'a', { Barra: [0] }), hoje), hoje)).toBeUndefined()
-  })
   test('sessionRecords: passa a maior carga anterior; primeira vez e cardio não contam', () => {
     const hoje = esteira(sx('2026-11-16', 'a', { Supino: [80, 75], Remada: [50] }), 5)
     const log = logOf(sx('2026-11-10', 'a', { Supino: [70] }), esteira(sx('2026-11-12', 'b', { Supino: [75, 75] }), 3), hoje)
@@ -111,4 +118,14 @@ describe('resumo do treino concluído', () => {
     const hoje = sx('2026-11-16', 'a', { Supino: [80], Barra: [0] })
     expect(sessionRecords(logOf(sx('2026-11-12', 'a', { Supino: [80], Barra: [0] }), hoje), hoje)).toEqual([])
   })
+})
+
+test('duração termina na última série, não na conclusão', () => {
+  const s = startSession(workoutOf([{ sets: 1 }]), '2026-11-16', new Date(2026, 10, 16, 18, 0))
+  s.exercises[0].sets = [{ reps: '10', weightKg: 40 }]
+  const endedAt = new Date(2026, 10, 16, 18, 50).toISOString()
+  expect(sessionStats({ ...s, endedAt, completedAt: new Date(2026, 10, 16, 21, 0).toISOString() }).minutes).toBe(50)
+  expect(sessionStats({ ...s, endedAt }, new Date(2026, 10, 16, 19, 30)).minutes).toBe(50)
+  s.exercises[0].sets = [{ reps: '10', weightKg: 40 }, null]
+  expect(sessionStats({ ...s, endedAt }, new Date(2026, 10, 16, 19, 30)).minutes).toBe(90)
 })

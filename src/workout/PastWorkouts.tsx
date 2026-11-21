@@ -1,25 +1,29 @@
 import { useState } from 'react'
 import { ChevronRight, History } from 'lucide-react'
-import { usePersisted } from '@/storage/db'
 import { BackHeader } from '@/components/BackHeader'
 import { EmptyState } from '@/components/EmptyState'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Item } from '@/components/ui/item'
 import { completedSessions } from './stats'
 import { workoutDayLabel } from './display'
 import { WorkoutDayLine } from './WorkoutDayLine'
 import { DoneSummary } from './DoneSummary'
+import { useTrainingLog } from './useTrainingLog'
+
+const key = (s: { date: string; workoutId: string }) => `${s.date}~${s.workoutId}`
 
 export function PastWorkouts({ onClose }: { onClose: () => void }) {
-  const [log] = usePersisted('workoutLog')
-  const [openDate, setOpenDate] = useState<string>()
-  const sessions = completedSessions(log).reverse()
-  const open = sessions.find((s) => s.date === openDate)
+  const { training: merged } = useTrainingLog()
+  const [openKey, setOpenKey] = useState<string>()
+  const sessions = completedSessions(merged).reverse()
+  const open = sessions.find((s) => key(s) === openKey)
   if (open) {
     return (
       <div className="flex flex-col gap-3">
-        <BackHeader title={open.workoutName} onBack={() => setOpenDate(undefined)} />
+        <BackHeader title={open.workoutName} onBack={() => setOpenKey(undefined)} />
         <div className="label-caps -mt-2">{workoutDayLabel(open.date, open.workoutLabel)}</div>
-        <DoneSummary session={open} log={log} />
+        <DoneSummary session={open} log={merged} />
       </div>
     )
   }
@@ -31,13 +35,15 @@ export function PastWorkouts({ onClose }: { onClose: () => void }) {
       ) : (
         <Card size="flush" className="gap-0">
           {sessions.map((s) => (
-            <button key={s.date} type="button" onClick={() => setOpenDate(s.date)} className="flex min-h-14 items-center gap-3 border-t border-line px-3.5 py-2.5 text-left first:border-t-0 hover:bg-hover">
-              <span className="block min-w-0 flex-1">
-                <span className="label-caps block">{workoutDayLabel(s.date, s.workoutLabel)}</span>
-                <WorkoutDayLine session={s} />
-              </span>
-              <ChevronRight size={18} className="shrink-0 text-faint" aria-hidden="true" />
-            </button>
+            <Item key={key(s)} asChild className="h-auto min-h-14 w-full flex-nowrap justify-start gap-3 rounded-none border-0 border-t border-line px-3.5 py-2.5 text-left font-normal whitespace-normal first:border-t-0 has-[>svg]:px-3.5">
+              <Button variant="ghost" onClick={() => setOpenKey(key(s))}>
+                <span className="block min-w-0 flex-1">
+                  <span className="label-caps block">{workoutDayLabel(s.date, s.workoutLabel)}</span>
+                  <WorkoutDayLine session={s} log={merged} />
+                </span>
+                <ChevronRight className="size-4.5 shrink-0 text-faint" aria-hidden="true" />
+              </Button>
+            </Item>
           ))}
         </Card>
       )}

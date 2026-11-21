@@ -2,7 +2,7 @@ import type { WaterSettings } from './types'
 import { usePersisted } from '@/storage/db'
 import { useToday } from '@/lib/useToday'
 import { latestWeight } from '@/evolution/measurements'
-import { activeWater, addWater, turnWaterOn } from './water'
+import { activeWater, setWater, turnWaterOn } from './water'
 
 export function useWater() {
   const { today, tick } = useToday()
@@ -17,11 +17,11 @@ export function useWater() {
     setLog((l) => (l[today] ? { ...l, [today]: { ...l[today], goalMl: water.goalMl } } : l))
   }
   const turnOn = () => save(turnWaterOn(settings.water, latestWeight(measurements) ?? 0))
-  const act = (cups: 1 | -1) => {
+  const set = (ml: number) => {
     if (!on) return
     const date = tick()
-    setLog((l) => addWater(l, date, on, cups))
+    setLog((l) => setWater(l, date, on, ml))
   }
 
-  return { on, ml: log[today]?.ml ?? 0, save, turnOn, act }
+  return { on, ml: log[today]?.ml ?? 0, save, turnOn, set }
 }

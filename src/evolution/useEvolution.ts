@@ -1,10 +1,11 @@
 import { useMemo } from 'react'
 import type { EvolutionInput } from './types'
 import { usePersisted } from '@/storage/db'
+import { useTrainingLog } from '@/workout/useTrainingLog'
 
 /** mesma referência enquanto nenhuma chave muda: o PDF pronto vale por ela */
 export function useEvolution(): EvolutionInput {
-  const [workoutLog] = usePersisted('workoutLog')
+  const { training } = useTrainingLog()
   const [workoutPlan] = usePersisted('workoutPlan')
   const [measurements] = usePersisted('measurements')
   const [photoSets] = usePersisted('photoSets')
@@ -14,7 +15,7 @@ export function useEvolution(): EvolutionInput {
   const [dietPlan] = usePersisted('dietPlan')
   const [{ earnedAchievements }] = usePersisted('settings')
   return useMemo(
-    () => ({ workoutLog, workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan, earnedAchievements }),
-    [workoutLog, workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan, earnedAchievements],
+    () => ({ workoutLog: training, workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan, earnedAchievements }),
+    [training, workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan, earnedAchievements],
   )
 }
