@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { ChevronRight, History } from 'lucide-react'
 import { BackHeader } from '@/components/BackHeader'
 import { EmptyState } from '@/components/EmptyState'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Item } from '@/components/ui/item'
 import { completedSessions } from './stats'
 import { workoutDayLabel } from './display'
 import { WorkoutDayLine } from './WorkoutDayLine'
@@ -33,13 +35,15 @@ export function PastWorkouts({ onClose }: { onClose: () => void }) {
       ) : (
         <Card size="flush" className="gap-0">
           {sessions.map((s) => (
-            <button key={key(s)} type="button" onClick={() => setOpenKey(key(s))} className="flex min-h-14 items-center gap-3 border-t border-line px-3.5 py-2.5 text-left first:border-t-0 hover:bg-hover">
-              <span className="block min-w-0 flex-1">
-                <span className="label-caps block">{workoutDayLabel(s.date, s.workoutLabel)}</span>
-                <WorkoutDayLine session={s} log={merged} />
-              </span>
-              <ChevronRight size={18} className="shrink-0 text-faint" aria-hidden="true" />
-            </button>
+            <Item key={key(s)} asChild className="h-auto min-h-14 w-full flex-nowrap justify-start gap-3 rounded-none border-0 border-t border-line px-3.5 py-2.5 text-left font-normal whitespace-normal first:border-t-0 has-[>svg]:px-3.5">
+              <Button variant="ghost" onClick={() => setOpenKey(key(s))}>
+                <span className="block min-w-0 flex-1">
+                  <span className="label-caps block">{workoutDayLabel(s.date, s.workoutLabel)}</span>
+                  <WorkoutDayLine session={s} log={merged} />
+                </span>
+                <ChevronRight className="size-4.5 shrink-0 text-faint" aria-hidden="true" />
+              </Button>
+            </Item>
           ))}
         </Card>
       )}

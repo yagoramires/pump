@@ -10,6 +10,7 @@ import { isSkipped } from './session'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 
 type Draft = { kg?: string; reps?: string }
@@ -26,7 +27,9 @@ type Props = {
 type Drag = { i: number; x: number; y: number; dx: number; on: boolean }
 
 const parseKg = (v: string) => parseInRange(v, ...KG)
-const TH = 'label-caps px-2 pb-1.5'
+// desfaz os padrões do Table do shadcn que mudariam o visual da tabela de séries
+const TH = 'label-caps h-auto px-2 pb-1.5 text-center font-semibold whitespace-normal text-faint'
+const TD = 'px-0 py-1.5 whitespace-normal'
 
 export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
   const [drafts, setDrafts] = useState<Record<number, Draft>>({})
@@ -90,23 +93,25 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
   })
 
   return (
-    <table className="w-full touch-pan-y border-collapse tabular-nums">
-      <thead>
-        <tr><th className={TH}>Série</th><th className={TH}>Anterior</th><th className={TH}>kg</th><th className={TH}>Reps</th><th className={TH}><span className="sr-only">Feita</span></th></tr>
-      </thead>
-      <tbody>
+    <Table className="touch-pan-y border-collapse tabular-nums">
+      <TableHeader className="[&_tr]:border-b-0">
+        <TableRow className="border-b-0 hover:bg-transparent">
+          <TableHead className={TH}>Série</TableHead><TableHead className={TH}>Anterior</TableHead><TableHead className={TH}>kg</TableHead><TableHead className={TH}>Reps</TableHead><TableHead className={TH}><span className="sr-only">Feita</span></TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody className="[&_tr:last-child]:border-t">
         {ex.sets.map((s, i) => {
           const n = i + 1
           const p = prev[i]
           const skipped = isSkipped(ex, i)
           return (
-            <tr
+            <TableRow
               key={i}
-              className={cn('border-t border-line text-center', s && 'bg-accent-bg', skipped && 'line-through opacity-50')}
+              className={cn('border-t border-b-0 border-line text-center', s ? 'bg-accent-bg hover:bg-accent-bg' : 'hover:bg-transparent', skipped && 'line-through opacity-50')}
               style={drag?.i === i && drag.on ? { transform: `translateX(${drag.dx}px)` } : undefined}
               {...rowDrag(i)}
             >
-              <td className="py-1.5 text-sm text-text-2">
+              <TableCell className={cn(TD, 'text-sm text-text-2')}>
                 {n}
                 <Button
                   variant="ghost"
@@ -117,9 +122,9 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
                 >
                   {skipped ? <Undo2 size={14} aria-hidden="true" /> : <Ban size={14} aria-hidden="true" />}
                 </Button>
-              </td>
-              <td className="py-1.5 text-meta text-faint">{p ? `${formatKg(p.weightKg)}×${p.reps}` : '—'}</td>
-              <td className="py-1.5">
+              </TableCell>
+              <TableCell className={cn(TD, 'text-meta text-faint')}>{p ? `${formatKg(p.weightKg)}×${p.reps}` : '—'}</TableCell>
+              <TableCell className={TD}>
                 <Input
                   className={box(!!s)}
                   inputMode="decimal"
@@ -129,8 +134,8 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
                   onChange={(e) => setDraft(i, { kg: e.target.value })}
                   {...inputProps(i)}
                 />
-              </td>
-              <td className="py-1.5">
+              </TableCell>
+              <TableCell className={TD}>
                 <Input
                   className={box(!!s)}
                   aria-label={`Reps da série ${n} de ${ex.name}`}
@@ -139,14 +144,14 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
                   onChange={(e) => setDraft(i, { reps: e.target.value })}
                   {...inputProps(i)}
                 />
-              </td>
-              <td className="py-1.5 pr-3">
+              </TableCell>
+              <TableCell className={cn(TD, 'pr-3 [&:has([role=checkbox])]:pr-3 [&>[role=checkbox]]:translate-y-0')}>
                 <Checkbox size="check" className="mx-auto touch-manipulation" aria-label={`Série ${n} de ${ex.name}`} checked={s !== null} onCheckedChange={() => check(i)} />
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           )
         })}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   )
 }
