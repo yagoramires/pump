@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { Check, ChevronDown, Trophy } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { formatKg } from '@/lib/number'
-import { cn } from '@/lib/utils'
-import type { Workout, WorkoutLog, WorkoutSession } from './types'
-import { sessionRecords, sessionStats, volumeChange } from './stats'
+import { formatDec, formatKg } from '@/lib/number'
+import type { SetDone, Workout, WorkoutLog, WorkoutSession } from './types'
+import { sessionRecords, sessionStats } from './stats'
 import { SessionSets } from './SessionSets'
 import { DurationSheet } from './DurationSheet'
+import { EffortSheet } from './EffortSheet'
+import { effortLabel } from './display'
+import { sessionScore, type ExerciseScore } from './score'
 
 function Stat({ value, unit, label, onClick }: { value: string; unit?: string; label: string; onClick?: () => void }) {
   const card = (
@@ -19,10 +21,20 @@ function Stat({ value, unit, label, onClick }: { value: string; unit?: string; l
   return onClick ? <button type="button" onClick={onClick} className="flex flex-1 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-accent">{card}</button> : card
 }
 
-export function DoneSummary({ session, log, next, onEditTimes }: { session: WorkoutSession; log: WorkoutLog; next?: Workout; onEditTimes?: (startedAt: string, endedAt: string) => void }) {
+const setText = (s: SetDone) => (s.weightKg ? `${formatKg(s.weightKg)} × ${s.reps}` : s.reps)
+const ARROW = { up: '↑', same: '=', down: '↓' } as Partial<Record<ExerciseScore['trend'], string>>
+function rowText(r: ExerciseScore) {
+  if (r.done < r.planned || !r.best) return `${r.done} de ${r.planned} séries`
+  const before = r.prevBest && (r.trend === 'up' || r.trend === 'down') ? ` (antes ${setText(r.prevBest)})` : ''
+  return [ARROW[r.trend], `${setText(r.best)}${before}`].filter(Boolean).join(' ')
+}
+
+export function DoneSummary({ session, log, next, onEditTimes, onEffort }: { session: WorkoutSession; log: WorkoutLog; next?: Workout; onEditTimes?: (startedAt: string, endedAt: string) => void; onEffort?: (n: number) => void }) {
   const [editing, setEditing] = useState(false)
+  const [effortOpen, setEffortOpen] = useState(false)
   const stats = sessionStats(session)
-  const change = volumeChange(log, session)
+  const score = sessionScore(log, session)
+  const effortText = session.effort ? `Esforço ${session.effort} · ${effortLabel(session.effort)}` : 'Sem esforço registrado'
   const records = sessionRecords(log, session)
   return (
     <>
@@ -38,15 +50,22 @@ export function DoneSummary({ session, log, next, onEditTimes }: { session: Work
       <div className="flex gap-2">
         {stats.minutes !== null && <Stat value={String(stats.minutes)} unit="min" label="Duração" onClick={onEditTimes && (() => setEditing(true))} />}
         <Stat value={String(stats.done)} label={stats.done === 1 ? 'Série' : 'Séries'} />
-        <Stat value={formatKg(stats.volumeKg)} unit="kg" label="Volume" />
+        <Stat value={formatDec(score.score, 1)} label="Nota" />
       </div>
       {editing && onEditTimes && <DurationSheet session={session} onSave={(s, e) => { onEditTimes(s, e); setEditing(false) }} onClose={() => setEditing(false)} />}
-      {change !== undefined && (
-        <Card className="flex-row items-center gap-2.5 py-3 text-meta text-text-2">
-          <span className={cn('rounded-full border px-2.5 py-1 font-bold tabular-nums', change < 0 ? 'border-border-strong text-negative' : 'border-accent-line bg-accent-bg text-accent')}>
-            {`${change > 0 ? '+' : ''}${change}%`}
-          </span>
-          <span>{`de volume em relação ao último ${session.workoutLabel}`}</span>
+      {onEffort ? (
+        <button type="button" onClick={() => setEffortOpen(true)} className="self-center rounded-lg px-2 py-1 text-meta text-text-2 underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-accent">{effortText}</button>
+      ) : <p className="text-center text-meta text-text-2">{effortText}</p>}
+      {effortOpen && onEffort && <EffortSheet open value={session.effort} onPick={onEffort} onClose={() => setEffortOpen(false)} />}
+      {score.rows.length > 0 && (
+        <Card className="gap-0 py-0">
+          <div className="py-3 text-body font-semibold text-strong tabular-nums">{`↑ ${score.up} · = ${score.same} · ↓ ${score.down}`}</div>
+          {score.rows.map((r, i) => (
+            <div key={i} className="flex items-baseline gap-3 border-t border-line py-2.5 text-sm">
+              <span className="min-w-0 flex-1 text-strong">{r.name}</span>
+              <span className="shrink-0 text-text-2 tabular-nums">{rowText(r)}</span>
+            </div>
+          ))}
         </Card>
       )}
       {records.length > 0 && (

@@ -32,7 +32,7 @@ export function exerciseScore(log: WorkoutLog, date: string, e: SessionExercise,
     const bodyweight = best.weightKg === 0 && prevBest.weightKg === 0
     const a = strength(best, bodyweight)
     const b = strength(prevBest, bodyweight)
-    trend = b > 0 && Math.abs(a - b) / b < 0.01 ? 'same' : a > b ? 'up' : 'down'
+    trend = a === b || (b > 0 && Math.abs(a - b) / b < 0.01) ? 'same' : a > b ? 'up' : 'down'
   }
   return { ...base, prevBest, trend, points: POINTS[trend] * ratio }
 }

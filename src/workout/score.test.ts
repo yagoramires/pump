@@ -44,6 +44,9 @@ describe('exerciseScore', () => {
   it('primeira vez é new, 0.7', () => {
     expect(exerciseScore({}, '2026-01-02', ex(40, '10'), 0)).toMatchObject({ trend: 'new', points: 0.7 })
   })
+  it('força igual, mesmo zero, é same', () => {
+    expect(score(ex(0, 'máx'), logOf(sess('2026-01-01', [ex(0, 'máx')])))).toMatchObject({ trend: 'same' })
+  })
   it('queda vale 0.4', () => expect(score(ex(30, '10'))).toMatchObject({ trend: 'down', points: 0.4 }))
   it('metade pulada com a mesma carga vale 0.35', () => {
     const e = ex(40, '10', { skipped: [2] }, 4)

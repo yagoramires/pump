@@ -16,6 +16,7 @@ import { resetDay } from '@/diet/day'
 import { removeWaterDay } from '@/diet/water'
 import { removeSupplementDay } from '@/diet/supplements'
 import { WorkoutDayLine } from '@/workout/WorkoutDayLine'
+import { trainingLog } from '@/workout/extra'
 import { DietDayLine } from '@/diet/DietDayLine'
 import { FIELDS, formatValue, removeMeasurement } from './measurements'
 import { ANGLES } from './types'
@@ -55,6 +56,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const title = month.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
   const go = (n: number) => { setMonth(new Date(y, m + n, 1)); setDay(undefined) }
 
+  const training = trainingLog(log, extraLog)
   const records = (k: string) => dayRecords({ workoutLog: log, extraLog, dietLog: diet, waterLog: water, supplementLog: supLog, measurements: measures, photoSets: sets }, k)
   const { session: done, extra, rest, diet: meals, water: drank, supplements: sups, measurement: measure, photos, others } = day ? records(day) : {}
 
@@ -117,13 +119,13 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
               {done && (
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c2)"><Dumbbell size={16} aria-hidden="true" /></IconDot>
-                  <WorkoutDayLine session={done} now={now} />
+                  <WorkoutDayLine session={done} log={training} now={now} />
                 </div>
               )}
               {extra && (
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c2)"><Dumbbell size={16} aria-hidden="true" /></IconDot>
-                  <WorkoutDayLine session={extra} now={now} />
+                  <WorkoutDayLine session={extra} log={training} now={now} />
                 </div>
               )}
               {rest && (

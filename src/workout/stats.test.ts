@@ -1,4 +1,4 @@
-import { exerciseHistory, exerciseVolume, loadPoints, previousSets, sessionRecords, sessionStats, suggestedKg, volumeChange } from './stats'
+import { exerciseHistory, exerciseVolume, loadPoints, previousSets, sessionRecords, sessionStats, suggestedKg } from './stats'
 import { startSession } from './session'
 import { pe, workoutOf } from '../../test/helpers'
 import type { SetDone, WorkoutLog, WorkoutSession } from './types'
@@ -97,16 +97,6 @@ describe('resumo do treino concluído', () => {
   })
   const logOf = (...ss: WorkoutSession[]): WorkoutLog => Object.fromEntries(ss.map((s) => [s.date, s]))
 
-  test('volumeChange compara com o último do mesmo treino', () => {
-    const hoje = sx('2026-11-16', 'a', { Supino: [27, 27, 27, 27] })
-    const log = logOf(sx('2026-11-10', 'a', { Supino: [10] }), sx('2026-11-12', 'a', { Supino: [25, 25, 25, 25] }), sx('2026-11-14', 'b', { Supino: [100] }), hoje)
-    expect(volumeChange(log, hoje)).toBe(8)
-  })
-  test('volumeChange sem anterior ou com anterior a 0 kg → undefined', () => {
-    const hoje = sx('2026-11-16', 'a', { Supino: [27] })
-    expect(volumeChange(logOf(hoje), hoje)).toBeUndefined()
-    expect(volumeChange(logOf(sx('2026-11-12', 'a', { Barra: [0] }), hoje), hoje)).toBeUndefined()
-  })
   test('sessionRecords: passa a maior carga anterior; primeira vez e cardio não contam', () => {
     const hoje = esteira(sx('2026-11-16', 'a', { Supino: [80, 75], Remada: [50] }), 5)
     const log = logOf(sx('2026-11-10', 'a', { Supino: [70] }), esteira(sx('2026-11-12', 'b', { Supino: [75, 75] }), 3), hoje)

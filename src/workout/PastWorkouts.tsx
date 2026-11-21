@@ -39,7 +39,7 @@ export function PastWorkouts({ onClose }: { onClose: () => void }) {
             <button key={key(s)} type="button" onClick={() => setOpenKey(key(s))} className="flex min-h-14 items-center gap-3 border-t border-line px-3.5 py-2.5 text-left first:border-t-0 hover:bg-hover">
               <span className="block min-w-0 flex-1">
                 <span className="label-caps block">{workoutDayLabel(s.date, s.workoutLabel)}</span>
-                <WorkoutDayLine session={s} />
+                <WorkoutDayLine session={s} log={merged} />
               </span>
               <ChevronRight size={18} className="shrink-0 text-faint" aria-hidden="true" />
             </button>

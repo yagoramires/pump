@@ -38,7 +38,7 @@ test('detalhe do dia mostra o treino concluído', async () => {
   expect(day).toHaveAccessibleDescription(/treino/)
   await user.click(day)
   expect(screen.getByText('Peito e tríceps')).toBeInTheDocument()
-  expect(screen.getByText('2 séries · 800 kg · 52 min')).toBeInTheDocument()
+  expect(screen.getByText('2 séries · nota 4,7 · 52 min')).toBeInTheDocument()
 })
 test('uma série concluída fica no singular', async () => {
   await save('workoutLog', {
@@ -51,7 +51,7 @@ test('uma série concluída fica no singular', async () => {
   const user = userEvent.setup()
   await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: '16' }))
-  expect(screen.getByText('1 série · 400 kg · 52 min')).toBeInTheDocument()
+  expect(screen.getByText('1 série · nota 3,5 · 52 min')).toBeInTheDocument()
 })
 test('apagar medidas do dia remove o registro', async () => {
   await save('measurements', [{ id: 'm', date: '2026-11-17', weightKg: 78.4, waistCm: 81 }, { id: 'n', date: '2026-11-10', weightKg: 79 }])

@@ -11,7 +11,7 @@ import { Card } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/EmptyState'
 import { TabHeader } from '@/components/TabHeader'
-import { formatKg, plural } from '@/lib/number'
+import { plural } from '@/lib/number'
 import { PlanEditor } from './PlanEditor'
 import { Overlay } from '@/components/Overlay'
 import { ExerciseCard } from './ExerciseCard'
@@ -40,6 +40,8 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 import type { Workout } from './types'
 import { addExtraExercise, removeExercise, startExtra, trainingLog, unfinishedExtra } from './extra'
 import { AddExtraExercise } from './AddExtraExercise'
+import { EffortSheet } from './EffortSheet'
+import { upSoFar } from './score'
 
 export function TreinoTab() {
   const clock = useToday()
@@ -54,6 +56,7 @@ export function TreinoTab() {
   const [pastOpen, setPastOpen] = useState(false)
   const [adding, setAdding] = useState(false)
   const [discarding, setDiscarding] = useState(false)
+  const [concluding, setConcluding] = useState(false)
   const [preview, setPreview] = useState<number>()
   const [openIdx, setOpenIdx] = useState<'auto' | number | null>('auto')
   const [restTotal, setRestTotal] = useState<number>()
@@ -223,8 +226,9 @@ export function TreinoTab() {
       const cur = s.exercises[exIdx].sets[setIdx]
       return cur ? setDone(s, exIdx, setIdx, { ...cur, ...p }) : s
     })
-  const conclude = () => {
-    patch((s) => completeSession(s, new Date()))
+  // sem esforço grava effort undefined: desfazer e pular não herda o número escolhido antes
+  const conclude = (effort?: number) => {
+    patch((s) => ({ ...completeSession(s, new Date()), effort }))
     if (extraOpen) setOpenIdx('auto')
     toast(extraOpen ? 'Treino extra concluído' : 'Treino concluído', {
       action: { label: 'Desfazer', onClick: () => { patch(reopenSession); setOpenIdx('auto') } },
@@ -254,7 +258,7 @@ export function TreinoTab() {
         <Button variant="link" className="min-h-11 self-start" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>
       )}
 
-      {session?.completedAt ? <DoneSummary session={session} log={training} next={next} onEditTimes={(startedAt, endedAt) => patch((s) => ({ ...s, startedAt, endedAt }))} /> : (
+      {session?.completedAt ? <DoneSummary session={session} log={training} next={next} onEditTimes={(startedAt, endedAt) => patch((s) => ({ ...s, startedAt, endedAt }))} onEffort={(effort) => patch((s) => ({ ...s, effort }))} /> : (
         <>
         <Card className="flex-row items-center gap-3.5">
           <div
@@ -267,8 +271,7 @@ export function TreinoTab() {
             </div>
           </div>
           <div>
-            <div className="text-meta text-text-2">Volume de hoje</div>
-            <div className="text-lg font-semibold text-strong tabular-nums">{`${formatKg(stats.volumeKg)} kg`}</div>
+            <div className="text-lg font-semibold text-strong tabular-nums">{`↑ ${upSoFar(training, view)} subindo até agora`}</div>
             <div className="text-meta text-text-2">{minutes === null ? plural(view.exercises.length, 'exercício', 'exercícios') : `${minutes} min · ${plural(view.exercises.length, 'exercício', 'exercícios')}`}</div>
           </div>
         </Card>
@@ -343,11 +346,13 @@ export function TreinoTab() {
         {session?.completedAt ? (
           <Button variant="secondary" className="w-full font-bold" onClick={() => patch(editSession)}><Pencil aria-hidden="true" /> Editar séries</Button>
         ) : (
-          <Button className="w-full font-bold" disabled={!!session && stats.done === 0} onClick={session ? conclude : start}>{session ? <><Check aria-hidden="true" /> Concluir treino</> : 'Iniciar treino'}</Button>
+          <Button className="w-full font-bold" disabled={!!session && stats.done === 0} onClick={session ? () => setConcluding(true) : start}>{session ? <><Check aria-hidden="true" /> Concluir treino</> : 'Iniciar treino'}</Button>
         )}
       </div>
       {switching === 'list' && <SwitchWorkout workouts={plan.workouts} shownId={view.workoutId} nextId={next?.id} onPick={pick} onClose={() => setSwitching(undefined)} />}
       <ConfirmDialog open={typeof switching === 'object'} title="Trocar de treino?" text="As séries marcadas hoje serão descartadas." confirm="Trocar" destructive onCancel={() => setSwitching(undefined)} onConfirm={() => { if (typeof switching === 'object') switchTo(switching); setSwitching(undefined) }} />
+      {/* montado só aberto: no jsdom o Drawer fechado segue escondendo a tela da árvore de a11y */}
+      {concluding && <EffortSheet open value={session?.effort} onPick={conclude} onSkip={() => conclude()} onClose={() => setConcluding(false)} />}
       <ConfirmDialog open={discarding} title="Descartar treino extra?" text="As séries marcadas serão perdidas." confirm="Descartar" destructive onCancel={() => setDiscarding(false)} onConfirm={() => { discardExtra(); setDiscarding(false) }} />
       {adding && (
         <AddExtraExercise
