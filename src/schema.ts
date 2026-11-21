@@ -10,7 +10,7 @@ export type Tab = 'treino' | 'evolucao' | 'dieta'
 /** datas = todayKey */
 interface CoreSettings { lastTab: Tab; onboardingDone: boolean; firstUseAt?: string; lastBackupAt?: string; installDismissed?: boolean; seenChangelog?: number }
 export type Settings = CoreSettings & { seenAchievements?: string[]; earnedAchievements?: Record<string, string>; shoppingChecked?: string[]; water?: WaterSettings; supplements?: Supplement[]; checkInDay?: number; anamnesisAt?: string }
-export interface UserData { profile: Profile; workoutPlan: WorkoutPlan; workoutLog: WorkoutLog; customExercises: CustomExercise[]; settings: Settings; measurements: Measurement[]; photoSets: PhotoSet[]; dietPlan: DietPlan; dietLog: DietLog; waterLog: WaterLog; supplementLog: SupplementLog; foods: DietItem[] }
+export interface UserData { profile: Profile; workoutPlan: WorkoutPlan; workoutLog: WorkoutLog; extraLog: WorkoutLog; customExercises: CustomExercise[]; settings: Settings; measurements: Measurement[]; photoSets: PhotoSet[]; dietPlan: DietPlan; dietLog: DietLog; waterLog: WaterLog; supplementLog: SupplementLog; foods: DietItem[] }
 
 const deepFreeze = <T,>(o: T): T => {
   Object.values(o as object).forEach((v) => typeof v === 'object' && v !== null && deepFreeze(v))
@@ -22,6 +22,7 @@ export const DEFAULTS = deepFreeze({
   profile: { sex: 'M', heightCm: 0 },
   workoutPlan: { workouts: [] },
   workoutLog: {},
+  extraLog: {},
   customExercises: [],
   settings: { lastTab: 'treino', onboardingDone: false },
   measurements: [],
@@ -39,11 +40,14 @@ export const isUserKey = (k: string): k is keyof UserData => (USER_KEYS as reado
 // byDate ordena por date no boot: item sem date travaria o app inteiro depois de restaurar
 const datedList = (v: unknown) => Array.isArray(v) && v.every((d) => isObj(d) && typeof d.date === 'string')
 
+const validWorkoutLog = (v: unknown) => isObj(v) && Object.values(v).every((d) => isObj(d) && Array.isArray(d.exercises))
+
 /** formato mínimo que um backup precisa ter em cada chave */
 export const VALID: Record<keyof UserData, (v: unknown) => boolean> = {
   profile: isObj,
   workoutPlan: (v) => isObj(v) && Array.isArray(v.workouts),
-  workoutLog: (v) => isObj(v) && Object.values(v).every((d) => isObj(d) && Array.isArray(d.exercises)),
+  workoutLog: validWorkoutLog,
+  extraLog: validWorkoutLog,
   customExercises: Array.isArray,
   // supplements vira .map na aba Dieta: formato errado travaria o app a cada abertura
   settings: (v) => isObj(v) && (v.supplements === undefined || (Array.isArray(v.supplements) && v.supplements.every((x) => isObj(x) && typeof x.id === 'string' && typeof x.name === 'string'))),
