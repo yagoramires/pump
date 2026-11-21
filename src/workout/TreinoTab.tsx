@@ -153,7 +153,12 @@ export function TreinoTab() {
         <UnfinishedCard
           session={unfinishedEx}
           onConclude={() => resolveUnfinished(unfinishedEx, 'complete', setExtraLog)}
-          onDiscard={() => resolveUnfinished(unfinishedEx, 'discard', setExtraLog)}
+          onDiscard={() => {
+            resolveUnfinished(unfinishedEx, 'discard', setExtraLog)
+            // extra aberto num dia de descanso: descartar devolve o descanso daquele dia
+            const { date, fromRest } = unfinishedEx
+            if (fromRest) setLog((prev) => (prev[date] ? prev : { ...prev, [date]: restRecord(date) }))
+          }}
         />
       )}
     </>

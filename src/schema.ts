@@ -40,7 +40,8 @@ export const isUserKey = (k: string): k is keyof UserData => (USER_KEYS as reado
 // byDate ordena por date no boot: item sem date travaria o app inteiro depois de restaurar
 const datedList = (v: unknown) => Array.isArray(v) && v.every((d) => isObj(d) && typeof d.date === 'string')
 
-const validWorkoutLog = (v: unknown) => isObj(v) && Object.values(v).every((d) => isObj(d) && Array.isArray(d.exercises))
+// sem date o anterior/a nota ordenam por date e travariam a aba Treino depois de restaurar
+const validWorkoutLog = (v: unknown) => isObj(v) && Object.values(v).every((d) => isObj(d) && typeof d.date === 'string' && Array.isArray(d.exercises))
 
 /** formato mínimo que um backup precisa ter em cada chave */
 export const VALID: Record<keyof UserData, (v: unknown) => boolean> = {

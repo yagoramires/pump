@@ -812,3 +812,12 @@ test('toca na duração do treino concluído e edita início e fim', async () =>
   })
   expect(await screen.findByText('45')).toBeInTheDocument()
 })
+test('descartar extra esquecido aberto num dia de descanso devolve o descanso daquele dia', async () => {
+  const extra = { ...logOntem()['2026-11-15'], workoutId: 'extra', workoutLabel: 'Extra', workoutName: 'Treino extra', fromRest: true }
+  await save('extraLog', { '2026-11-15': extra })
+  const user = userEvent.setup()
+  await renderLoaded(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: 'Descartar' }))
+  await waitFor(async () => expect((await stored('extraLog'))?.['2026-11-15']).toBeUndefined())
+  await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-15']?.rest).toBe(true))
+})
