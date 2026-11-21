@@ -183,7 +183,8 @@ test('exercício com 6 séries e nome longo mostra 6 linhas', async () => {
 test('resumo: 1/2 séries sem volume; sessão antiga sem startedAt não mostra minutos', async () => {
   await save('workoutLog', { '2026-11-16': { date: '2026-11-16', workoutId: 'a', workoutLabel: 'A', workoutName: 'Peito e tríceps', exercises: [{ ...plano.workouts[0].exercises[0], sets: [{ reps: '10', weightKg: 40 }, null] }] } })
   await renderLoaded(<TreinoTab />)
-  expect(await screen.findByText('↑ 0 subindo até agora')).toBeInTheDocument()
+  expect(await screen.findByText('Peito e tríceps')).toBeInTheDocument()
+  expect(screen.queryByText(/subindo até agora/)).not.toBeInTheDocument()
   expect(screen.queryByText('Volume de hoje')).not.toBeInTheDocument()
   expect(screen.getAllByText('1/2')).toHaveLength(2) // anel do resumo + card do exercício
   expect(screen.queryByText(/min/)).not.toBeInTheDocument()

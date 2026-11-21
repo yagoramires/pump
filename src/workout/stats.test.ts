@@ -1,4 +1,4 @@
-import { exerciseHistory, exerciseVolume, loadPoints, previousSets, sessionRecords, sessionStats, suggestedKg } from './stats'
+import { exerciseHistory, exerciseVolume, loadPoints, previousSets, sessionRecords, sessionStats, sessionVolume, suggestedKg } from './stats'
 import { startSession } from './session'
 import { pe, workoutOf } from '../../test/helpers'
 import type { SetDone, WorkoutLog, WorkoutSession } from './types'
@@ -6,12 +6,12 @@ import type { SetDone, WorkoutLog, WorkoutSession } from './types'
 test('volume usa o primeiro número das reps; sem número conta 0', () => {
   const s = startSession(workoutOf([{ sets: 3 }]), '2026-11-16')
   s.exercises[0].sets = [{ reps: '10', weightKg: 10 }, { reps: '10-12', weightKg: 10 }, { reps: 'falha', weightKg: 10 }]
-  expect(sessionStats(s, new Date()).volumeKg).toBe(200)
+  expect(sessionVolume(s)).toBe(200)
 })
-test('sessionStats: feitas, total, volume e tempo', () => {
+test('sessionStats: feitas, total e tempo', () => {
   const s = { ...startSession(workoutOf([{ sets: 3 }, { sets: 2 }]), '2026-11-16', new Date(2026, 10, 16, 18, 0)) }
   s.exercises[0].sets = [{ reps: '10', weightKg: 40 }, { reps: '8-10', weightKg: 42.5 }, null]
-  expect(sessionStats(s, new Date(2026, 10, 16, 18, 32))).toEqual({ done: 2, total: 5, volumeKg: 740, minutes: 32 })
+  expect(sessionStats(s, new Date(2026, 10, 16, 18, 32))).toEqual({ done: 2, total: 5, minutes: 32 })
 })
 test('sessionStats: série pulada sai do total', () => {
   const s = startSession(workoutOf([{ sets: 2 }]), '2026-11-16')

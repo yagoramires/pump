@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, ChevronDown, Trophy } from 'lucide-react'
+import { Check, ChevronDown, Pencil, Trophy } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { formatDec, formatKg } from '@/lib/number'
@@ -54,7 +54,7 @@ export function DoneSummary({ session, log, next, onEditTimes, onEffort }: { ses
       </div>
       {editing && onEditTimes && <DurationSheet session={session} onSave={(s, e) => { onEditTimes(s, e); setEditing(false) }} onClose={() => setEditing(false)} />}
       {onEffort ? (
-        <button type="button" onClick={() => setEffortOpen(true)} className="self-center rounded-lg px-2 py-1 text-meta text-text-2 underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-accent">{effortText}</button>
+        <button type="button" aria-haspopup="dialog" onClick={() => setEffortOpen(true)} className="inline-flex items-center gap-1.5 self-center rounded-lg px-2 py-1 text-meta text-text-2 underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-accent">{effortText}<Pencil size={14} aria-hidden="true" /></button>
       ) : <p className="text-center text-meta text-text-2">{effortText}</p>}
       {effortOpen && onEffort && <EffortSheet open value={session.effort} onPick={onEffort} onClose={() => setEffortOpen(false)} />}
       {score.rows.length > 0 && (

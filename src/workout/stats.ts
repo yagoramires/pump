@@ -46,7 +46,6 @@ export const sessionStats = (s: WorkoutSession, now?: Date) => {
   return {
     done: doneSets(s).length,
     total: sets.length,
-    volumeKg: sessionVolume(s),
     minutes: Number.isFinite(ms) ? Math.max(0, Math.floor(ms / 60000)) : null,
   }
 }

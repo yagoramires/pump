@@ -271,7 +271,7 @@ export function TreinoTab() {
             </div>
           </div>
           <div>
-            <div className="text-lg font-semibold text-strong tabular-nums">{`↑ ${upSoFar(training, view)} subindo até agora`}</div>
+            {upSoFar(training, view) > 0 && <div className="text-lg font-semibold text-strong tabular-nums">{`↑ ${upSoFar(training, view)} subindo até agora`}</div>}
             <div className="text-meta text-text-2">{minutes === null ? plural(view.exercises.length, 'exercício', 'exercícios') : `${minutes} min · ${plural(view.exercises.length, 'exercício', 'exercícios')}`}</div>
           </div>
         </Card>
