@@ -40,7 +40,8 @@ export const sessionVolume = (s: WorkoutSession) => s.exercises.reduce((a, e) =>
 
 export const sessionStats = (s: WorkoutSession, now?: Date) => {
   const sets = s.exercises.flatMap((e) => e.sets.filter((_, i) => !isSkipped(e, i)))
-  const end = Date.parse(s.completedAt ? (s.endedAt ?? s.completedAt) : allResolved(s) && s.endedAt ? s.endedAt : (now ?? new Date()).toISOString())
+  const endIso = s.completedAt ? (s.endedAt ?? s.completedAt) : allResolved(s) && s.endedAt
+  const end = endIso ? Date.parse(endIso) : (now ?? new Date()).getTime()
   const ms = s.startedAt ? end - Date.parse(s.startedAt) : NaN
   return {
     done: doneSets(s).length,

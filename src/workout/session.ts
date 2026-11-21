@@ -124,7 +124,7 @@ export const editSession = (s: WorkoutSession): WorkoutSession => ({ ...reopenSe
 export function completeUnfinishedSession(s: WorkoutSession) {
   const end = parseDayKey(s.date)
   end.setHours(23, 59)
-  // A hora usada para ordenar a sessão antiga não serve para calcular sua duração.
+  // Com endedAt a duração já é conhecida e startedAt fica; sem ele, startedAt (usado só para ordenar a sessão antiga) é removido para não inflar a duração.
   if (s.endedAt) return completeSession(s, end)
   const { startedAt: _startedAt, ...session } = s
   return completeSession(session, end)

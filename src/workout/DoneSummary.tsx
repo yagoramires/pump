@@ -10,12 +10,13 @@ import { SessionSets } from './SessionSets'
 import { DurationSheet } from './DurationSheet'
 
 function Stat({ value, unit, label, onClick }: { value: string; unit?: string; label: string; onClick?: () => void }) {
-  return (
-    <Card className="flex-1 items-center gap-0.5 px-2.5 py-3 text-center" {...(onClick && { role: 'button', tabIndex: 0, onClick, onKeyDown: (e: React.KeyboardEvent) => (e.key === 'Enter' || e.key === ' ') && onClick() })}>
+  const card = (
+    <Card className="flex-1 items-center gap-0.5 px-2.5 py-3 text-center">
       <div className="text-title font-bold text-strong tabular-nums">{value}{unit && <small className="ml-0.5 text-caption font-medium text-text-2">{unit}</small>}</div>
       <div className="label-caps">{label}</div>
     </Card>
   )
+  return onClick ? <button type="button" onClick={onClick} className="flex flex-1 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-accent">{card}</button> : card
 }
 
 export function DoneSummary({ session, log, next, onEditTimes }: { session: WorkoutSession; log: WorkoutLog; next?: Workout; onEditTimes?: (startedAt: string, endedAt: string) => void }) {
