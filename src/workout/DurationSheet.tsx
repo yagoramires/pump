@@ -18,6 +18,8 @@ export function DurationSheet({ session, onSave, onClose }: { session: WorkoutSe
   const [start, setStart] = useState(initial(session.startedAt))
   const [end, setEnd] = useState(initial(session.endedAt ?? session.completedAt))
   const [s, e] = [at(session.date, start), at(session.date, end)]
+  // fim antes (ou na hora) do início: o treino passou da meia-noite, então o fim é no dia seguinte e fica abaixo de 24 h
+  if (e <= s) e.setDate(e.getDate() + 1)
   return (
     <Drawer open onOpenChange={(o) => !o && onClose()}>
       <DrawerContent>
@@ -28,7 +30,7 @@ export function DurationSheet({ session, onSave, onClose }: { session: WorkoutSe
             <TimePicker aria-label="Início" value={start} onChange={(v) => v && setStart(v)} />
             <TimePicker aria-label="Fim" value={end} onChange={(v) => v && setEnd(v)} />
           </div>
-          <Button disabled={e <= s} onClick={() => onSave(s.toISOString(), e.toISOString())}>Salvar</Button>
+          <Button disabled={start === end} onClick={() => onSave(s.toISOString(), e.toISOString())}>Salvar</Button>
         </div>
       </DrawerContent>
     </Drawer>
