@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Check, ChevronDown, Trophy } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
@@ -6,17 +7,19 @@ import { cn } from '@/lib/utils'
 import type { Workout, WorkoutLog, WorkoutSession } from './types'
 import { sessionRecords, sessionStats, volumeChange } from './stats'
 import { SessionSets } from './SessionSets'
+import { DurationSheet } from './DurationSheet'
 
-function Stat({ value, unit, label }: { value: string; unit?: string; label: string }) {
+function Stat({ value, unit, label, onClick }: { value: string; unit?: string; label: string; onClick?: () => void }) {
   return (
-    <Card className="flex-1 items-center gap-0.5 px-2.5 py-3 text-center">
+    <Card className="flex-1 items-center gap-0.5 px-2.5 py-3 text-center" {...(onClick && { role: 'button', tabIndex: 0, onClick, onKeyDown: (e: React.KeyboardEvent) => (e.key === 'Enter' || e.key === ' ') && onClick() })}>
       <div className="text-title font-bold text-strong tabular-nums">{value}{unit && <small className="ml-0.5 text-caption font-medium text-text-2">{unit}</small>}</div>
       <div className="label-caps">{label}</div>
     </Card>
   )
 }
 
-export function DoneSummary({ session, log, next }: { session: WorkoutSession; log: WorkoutLog; next?: Workout }) {
+export function DoneSummary({ session, log, next, onEditTimes }: { session: WorkoutSession; log: WorkoutLog; next?: Workout; onEditTimes?: (startedAt: string, endedAt: string) => void }) {
+  const [editing, setEditing] = useState(false)
   const stats = sessionStats(session)
   const change = volumeChange(log, session)
   const records = sessionRecords(log, session)
@@ -32,10 +35,11 @@ export function DoneSummary({ session, log, next }: { session: WorkoutSession; l
         <div className="mt-2 text-display font-bold text-strong">Treino concluído</div>
       </Card>
       <div className="flex gap-2">
-        {stats.minutes !== null && <Stat value={String(stats.minutes)} unit="min" label="Duração" />}
+        {stats.minutes !== null && <Stat value={String(stats.minutes)} unit="min" label="Duração" onClick={onEditTimes && (() => setEditing(true))} />}
         <Stat value={String(stats.done)} label={stats.done === 1 ? 'Série' : 'Séries'} />
         <Stat value={formatKg(stats.volumeKg)} unit="kg" label="Volume" />
       </div>
+      {editing && onEditTimes && <DurationSheet session={session} onSave={(s, e) => { onEditTimes(s, e); setEditing(false) }} onClose={() => setEditing(false)} />}
       {change !== undefined && (
         <Card className="flex-row items-center gap-2.5 py-3 text-meta text-text-2">
           <span className={cn('rounded-full border px-2.5 py-1 font-bold tabular-nums', change < 0 ? 'border-border-strong text-negative' : 'border-accent-line bg-accent-bg text-accent')}>

@@ -117,3 +117,14 @@ test('marcar uma série pulada tira o pulada', () => {
   expect(marked.exercises[0].sets[1]).toEqual(SET)
   expect(marked.exercises[0].skipped).toEqual([])
 })
+
+test('marcar/pular grava endedAt, exceto ao editar treino concluído; concluir sem concluir mantém startedAt', () => {
+  const s = startSession(workoutOf([{ sets: 2 }]), '2026-11-16', new Date(2026, 10, 16, 18, 0))
+  const t = new Date(2026, 10, 16, 18, 30).getTime()
+  expect(toggleSetWithRest(s, 0, 0, SET, t).endedAt).toBe(new Date(t).toISOString())
+  expect(toggleSkip(s, 0, 1, t).endedAt).toBe(new Date(t).toISOString())
+  const edited = editSession({ ...s, completedAt: '2026-11-16T21:00:00.000Z', endedAt: 'x' })
+  expect(toggleSetWithRest(edited, 0, 0, SET, t).endedAt).toBe('x')
+  const withEnd = { ...s, endedAt: new Date(t).toISOString() }
+  expect(completeUnfinishedSession(withEnd).startedAt).toBe(s.startedAt)
+})

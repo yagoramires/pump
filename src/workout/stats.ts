@@ -1,4 +1,4 @@
-import { hasMarkedSet, isSkipped, markedSets } from './session'
+import { allResolved, hasMarkedSet, isSkipped, markedSets } from './session'
 import { isRest } from './rest'
 import { isCardio, isTimed, repsNumber } from './reps'
 import type { SessionExercise, SetDone, WorkoutLog, WorkoutSession } from './types'
@@ -40,7 +40,7 @@ export const sessionVolume = (s: WorkoutSession) => s.exercises.reduce((a, e) =>
 
 export const sessionStats = (s: WorkoutSession, now?: Date) => {
   const sets = s.exercises.flatMap((e) => e.sets.filter((_, i) => !isSkipped(e, i)))
-  const end = s.completedAt ? Date.parse(s.completedAt) : (now ?? new Date()).getTime()
+  const end = Date.parse(s.completedAt ? (s.endedAt ?? s.completedAt) : allResolved(s) && s.endedAt ? s.endedAt : (now ?? new Date()).toISOString())
   const ms = s.startedAt ? end - Date.parse(s.startedAt) : NaN
   return {
     done: doneSets(s).length,

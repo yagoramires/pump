@@ -254,7 +254,7 @@ export function TreinoTab() {
         <Button variant="link" className="min-h-11 self-start" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>
       )}
 
-      {session?.completedAt ? <DoneSummary session={session} log={training} next={next} /> : (
+      {session?.completedAt ? <DoneSummary session={session} log={training} next={next} onEditTimes={(startedAt, endedAt) => patch((s) => ({ ...s, startedAt, endedAt }))} /> : (
         <>
         <Card className="flex-row items-center gap-3.5">
           <div

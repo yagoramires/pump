@@ -42,6 +42,8 @@ export interface WorkoutSession {
   restPausedLeftMs?: number
   startedAt?: string
   completedAt?: string
+  /** hora da última série resolvida (feita ou pulada); a duração termina aqui */
+  endedAt?: string
   /** hora do fim original enquanto as séries são editadas depois de concluir */
   editedFrom?: string
   /** descanso marcado: sem exercícios e sem completedAt */

@@ -711,3 +711,21 @@ describe('treino extra', () => {
     expect(screen.queryByRole('checkbox', { name: 'Esteira feito' })).not.toBeInTheDocument()
   })
 })
+
+test('toca na duração do treino concluído e edita início e fim', async () => {
+  await save('workoutLog', { '2026-11-16': { ...logOntem('2026-11-16T21:00:00.000Z')['2026-11-15'], date: '2026-11-16', startedAt: new Date(2026, 10, 16, 17, 0).toISOString() } })
+  const user = userEvent.setup()
+  await renderLoaded(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: /Duração/ }))
+  for (const [nome, h, m] of [['Início', '18', '00'], ['Fim', '18', '45']]) {
+    await user.click(screen.getByRole('button', { name: new RegExp(`^${nome}`) }))
+    await user.click(screen.getByRole('radio', { name: `${h} h` }))
+    await user.click(screen.getByRole('radio', { name: `${m} min` }))
+  }
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  await waitFor(async () => {
+    const s = (await stored('workoutLog'))?.['2026-11-16']
+    expect([s?.startedAt, s?.endedAt]).toEqual([new Date(2026, 10, 16, 18, 0).toISOString(), new Date(2026, 10, 16, 18, 45).toISOString()])
+  })
+  expect(await screen.findByText('45')).toBeInTheDocument()
+})

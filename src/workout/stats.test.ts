@@ -117,3 +117,13 @@ describe('resumo do treino concluído', () => {
     expect(sessionRecords(logOf(sx('2026-11-12', 'a', { Supino: [80], Barra: [0] }), hoje), hoje)).toEqual([])
   })
 })
+
+test('duração termina na última série, não na conclusão', () => {
+  const s = startSession(workoutOf([{ sets: 1 }]), '2026-11-16', new Date(2026, 10, 16, 18, 0))
+  s.exercises[0].sets = [{ reps: '10', weightKg: 40 }]
+  const endedAt = new Date(2026, 10, 16, 18, 50).toISOString()
+  expect(sessionStats({ ...s, endedAt, completedAt: new Date(2026, 10, 16, 21, 0).toISOString() }).minutes).toBe(50)
+  expect(sessionStats({ ...s, endedAt }, new Date(2026, 10, 16, 19, 30)).minutes).toBe(50)
+  s.exercises[0].sets = [{ reps: '10', weightKg: 40 }, null]
+  expect(sessionStats({ ...s, endedAt }, new Date(2026, 10, 16, 19, 30)).minutes).toBe(90)
+})
