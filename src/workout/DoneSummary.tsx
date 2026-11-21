@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Check, ChevronDown, Pencil, Trophy } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { formatDec, formatKg } from '@/lib/number'
@@ -18,7 +19,7 @@ function Stat({ value, unit, label, onClick }: { value: string; unit?: string; l
       <div className="label-caps">{label}</div>
     </Card>
   )
-  return onClick ? <button type="button" onClick={onClick} className="flex flex-1 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-accent">{card}</button> : card
+  return onClick ? <Button variant="ghost" onClick={onClick} className="h-auto flex-1 p-0 whitespace-normal hover:bg-transparent">{card}</Button> : card
 }
 
 const setText = (s: SetDone) => (s.weightKg ? `${formatKg(s.weightKg)} × ${s.reps}` : s.reps)
@@ -54,7 +55,7 @@ export function DoneSummary({ session, log, next, onEditTimes, onEffort }: { ses
       </div>
       {editing && onEditTimes && <DurationSheet session={session} onSave={(s, e) => { onEditTimes(s, e); setEditing(false) }} onClose={() => setEditing(false)} />}
       {onEffort ? (
-        <button type="button" aria-haspopup="dialog" onClick={() => setEffortOpen(true)} className="inline-flex items-center gap-1.5 self-center rounded-lg px-2 py-1 text-meta text-text-2 underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-accent">{effortText}<Pencil size={14} aria-hidden="true" /></button>
+        <Button variant="link" size="sm" aria-haspopup="dialog" onClick={() => setEffortOpen(true)} className="self-center text-meta font-normal text-text-2">{effortText}<Pencil size={14} aria-hidden="true" /></Button>
       ) : <p className="text-center text-meta text-text-2">{effortText}</p>}
       {effortOpen && onEffort && <EffortSheet open value={session.effort} onPick={onEffort} onClose={() => setEffortOpen(false)} />}
       {score.rows.length > 0 && (

@@ -7,6 +7,7 @@ import { repsPerSet } from './reps'
 import { suggestedKg } from './stats'
 import { useFieldProps } from './useFieldProps'
 import { isSkipped } from './session'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
@@ -101,14 +102,15 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
             >
               <td className="py-1.5 text-sm text-text-2">
                 {n}
-                <button
-                  type="button"
-                  className="sr-only rounded-md focus:not-sr-only focus:ml-1 focus:inline-flex focus:p-1 focus:align-middle"
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  className="sr-only focus:not-sr-only focus:ml-1 focus:align-middle"
                   aria-label={`${skipped ? 'Desfazer pular' : 'Pular'} série ${n} de ${ex.name}`}
                   onClick={() => skip(i)}
                 >
                   {skipped ? <Undo2 size={14} aria-hidden="true" /> : <Ban size={14} aria-hidden="true" />}
-                </button>
+                </Button>
               </td>
               <td className="py-1.5 text-meta text-faint">{p ? `${formatKg(p.weightKg)}×${p.reps}` : '—'}</td>
               <td className="py-1.5">
