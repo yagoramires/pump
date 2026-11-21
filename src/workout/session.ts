@@ -12,6 +12,9 @@ export const isSkipped = (e: SessionExercise, i: number) => !!e.skipped?.include
 export const isExerciseComplete = (e: SessionExercise) => e.sets.every((x, i) => x || isSkipped(e, i))
 export const allResolved = (s: WorkoutSession) => s.exercises.every(isExerciseComplete)
 export const firstIncompleteExercise = (s: WorkoutSession) => s.exercises.findIndex((e) => !isCardio(e) && !isExerciseComplete(e))
+/** quantas vezes o exercício da posição i já apareceu antes dele (o 2º supino é a ocorrência 1) */
+export const nthOccurrence = (exercises: { exerciseId: string }[], i: number): number =>
+  exercises.slice(0, i).filter((e) => e.exerciseId === exercises[i]?.exerciseId).length
 export const isUnfinishedWorkout = (s: WorkoutSession) => !isRest(s) && !s.completedAt && hasMarkedSets(s)
 
 export const holdsTrainingDay = (s: WorkoutSession | undefined, now: Date) =>
@@ -99,7 +102,7 @@ export function changeRestDuration(s: WorkoutSession, exIdx: number, restSec: nu
  * ocorrência entre os de mesmo id (o 2º supino da sessão é o 2º do treino), não pela posição */
 export function changePlanRest(plan: WorkoutPlan, s: WorkoutSession, exIdx: number, restSec: number): WorkoutPlan {
   const id = s.exercises[exIdx]?.exerciseId
-  const nth = s.exercises.slice(0, exIdx).filter((e) => e.exerciseId === id).length
+  const nth = nthOccurrence(s.exercises, exIdx)
   return {
     ...plan,
     workouts: plan.workouts.map((w) => {

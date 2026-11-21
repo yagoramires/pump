@@ -1,5 +1,5 @@
 import { isCardio, isTimed, repsNumber } from './reps'
-import { isSkipped } from './session'
+import { markedSets, nthOccurrence } from './session'
 import { previousSets } from './stats'
 import type { SessionExercise, SetDone, WorkoutLog, WorkoutSession } from './types'
 
@@ -20,7 +20,7 @@ const POINTS: Record<Trend, number> = { up: 1, same: 0.7, new: 0.7, timed: 0.7, 
 
 export function exerciseScore(log: WorkoutLog, date: string, e: SessionExercise, nth: number): ExerciseScore {
   const planned = e.sets.length
-  const done = e.sets.filter((s, i) => s && !isSkipped(e, i)).length
+  const done = markedSets(e).length
   const best = bestSet(e.sets)
   const base = { name: e.name, done, planned, best }
   const ratio = planned ? done / planned : 0
@@ -37,8 +37,8 @@ export function exerciseScore(log: WorkoutLog, date: string, e: SessionExercise,
   return { ...base, prevBest, trend, points: POINTS[trend] * ratio }
 }
 
-const rowsOf = (log: WorkoutLog, s: WorkoutSession) =>
-  s.exercises.map((e, i) => exerciseScore(log, s.date, e, s.exercises.slice(0, i).filter((x) => x.exerciseId === e.exerciseId).length))
+// sessionScore e upSoFar partem das mesmas linhas
+const rowsOf = (log: WorkoutLog, s: WorkoutSession) => s.exercises.map((e, i) => exerciseScore(log, s.date, e, nthOccurrence(s.exercises, i)))
 
 export function sessionScore(log: WorkoutLog, s: WorkoutSession) {
   const rows = rowsOf(log, s)

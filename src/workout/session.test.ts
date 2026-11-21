@@ -1,6 +1,6 @@
 import {
   activeRest, changePlanRest, changeRestDuration, completeSession, completeUnfinishedSession, editSession, extendRest, firstIncompleteExercise,
-  holdsTrainingDay, isExerciseComplete, reopenSession, restExerciseIndex, restRemainingSeconds, setDone, startRest, startSession, toggleRestPause,
+  holdsTrainingDay, isExerciseComplete, nthOccurrence, reopenSession, restExerciseIndex, restRemainingSeconds, setDone, startRest, startSession, toggleRestPause,
   toggleSetWithRest, toggleSkip,
 } from './session'
 import { workoutOf } from '../../test/helpers'
@@ -127,4 +127,9 @@ test('marcar/pular grava endedAt, exceto ao editar treino concluído; concluir s
   expect(toggleSetWithRest(edited, 0, 0, SET, t).endedAt).toBe('x')
   const withEnd = { ...s, endedAt: new Date(t).toISOString() }
   expect(completeUnfinishedSession(withEnd).startedAt).toBe(s.startedAt)
+})
+
+test('nthOccurrence conta só as aparições anteriores do mesmo exercício', () => {
+  const exs = [{ exerciseId: 'Supino' }, { exerciseId: 'Remada' }, { exerciseId: 'Supino' }, { exerciseId: 'Supino' }]
+  expect([0, 1, 2, 3].map((i) => nthOccurrence(exs, i))).toEqual([0, 0, 1, 2])
 })

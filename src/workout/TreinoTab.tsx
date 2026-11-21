@@ -21,7 +21,7 @@ import { RestCard, RestPicker } from './RestCard'
 import { nextWorkout, unfinishedSession } from './schedule'
 import {
   activeRest, changePlanRest, changeRestDuration, clearRest, completeSession, completeUnfinishedSession, editSession, extendRest,
-  firstIncompleteExercise, hasMarkedSets, holdsTrainingDay, isExerciseComplete, reopenSession, restExerciseIndex,
+  firstIncompleteExercise, hasMarkedSets, holdsTrainingDay, isExerciseComplete, nthOccurrence, reopenSession, restExerciseIndex,
   setDone, startSession, toggleRestPause, toggleSetWithRest, toggleSkip,
 } from './session'
 import { previousSets, sessionStats } from './stats'
@@ -38,7 +38,8 @@ import { PastWorkouts } from './PastWorkouts'
 import { DoneSummary } from './DoneSummary'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import type { Workout } from './types'
-import { addExtraExercise, removeExercise, startExtra, trainingLog, unfinishedExtra } from './extra'
+import { addExtraExercise, removeExercise, startExtra, unfinishedExtra } from './extra'
+import { useTrainingLog } from './useTrainingLog'
 import { AddExtraExercise } from './AddExtraExercise'
 import { EffortSheet } from './EffortSheet'
 import { upSoFar } from './score'
@@ -88,7 +89,7 @@ export function TreinoTab() {
   const unfinished = unfinishedSession(log, today)
   // shortcut: extra vazio de dia anterior fica guardado sem uso; limpar se o extraLog crescer
   const unfinishedEx = unfinishedExtra(extraLog, today)
-  const training = trainingLog(log, extraLog)
+  const { training } = useTrainingLog()
 
   const patch = useCallback(
     (f: (s: WorkoutSession) => WorkoutSession) =>
@@ -234,7 +235,8 @@ export function TreinoTab() {
       action: { label: 'Desfazer', onClick: () => { patch(reopenSession); setOpenIdx('auto') } },
     })
   }
-  const up = upSoFar(training, view)
+  // só aparece no treino em curso; concluído, o DoneSummary já calcula as linhas da nota
+  const up = session?.completedAt ? 0 : upSoFar(training, view)
   const editExtra = () => {
     setExtraLog((prev) => (prev[today] ? { ...prev, [today]: editSession(prev[today]) } : prev))
     setOpenIdx('auto')
@@ -285,7 +287,7 @@ export function TreinoTab() {
           exercises={view.exercises}
           className={() => 'contents'}
           row={(e, i, cardio) => {
-            const occurrence = view.exercises.slice(0, i).filter((x) => x.exerciseId === e.exerciseId).length
+            const occurrence = nthOccurrence(view.exercises, i)
             const key = `${view.workoutId}-${today}-${e.exerciseId}-${occurrence}`
             if (cardio) {
               return (

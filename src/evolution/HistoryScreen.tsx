@@ -16,7 +16,7 @@ import { resetDay } from '@/diet/day'
 import { removeWaterDay } from '@/diet/water'
 import { removeSupplementDay } from '@/diet/supplements'
 import { WorkoutDayLine } from '@/workout/WorkoutDayLine'
-import { trainingLog } from '@/workout/extra'
+import { useTrainingLog } from '@/workout/useTrainingLog'
 import { DietDayLine } from '@/diet/DietDayLine'
 import { FIELDS, formatValue, removeMeasurement } from './measurements'
 import { ANGLES } from './types'
@@ -36,8 +36,7 @@ const CONFIRM = {
 }
 
 export function HistoryScreen({ onClose }: { onClose: () => void }) {
-  const [log] = usePersisted('workoutLog')
-  const [extraLog] = usePersisted('extraLog')
+  const { workoutLog: log, extraLog, training } = useTrainingLog()
   const [measures, setMeasures] = usePersisted('measurements')
   const { sets, removeSet } = usePhotoSets()
   const [diet, setDiet] = usePersisted('dietLog')
@@ -56,7 +55,6 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const title = month.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
   const go = (n: number) => { setMonth(new Date(y, m + n, 1)); setDay(undefined) }
 
-  const training = trainingLog(log, extraLog)
   const records = (k: string) => dayRecords({ workoutLog: log, extraLog, dietLog: diet, waterLog: water, supplementLog: supLog, measurements: measures, photoSets: sets }, k)
   const { session: done, extra, rest, diet: meals, water: drank, supplements: sups, measurement: measure, photos, others } = day ? records(day) : {}
 

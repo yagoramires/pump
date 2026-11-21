@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { ChevronRight, History } from 'lucide-react'
-import { usePersisted } from '@/storage/db'
 import { BackHeader } from '@/components/BackHeader'
 import { EmptyState } from '@/components/EmptyState'
 import { Card } from '@/components/ui/card'
@@ -8,14 +7,12 @@ import { completedSessions } from './stats'
 import { workoutDayLabel } from './display'
 import { WorkoutDayLine } from './WorkoutDayLine'
 import { DoneSummary } from './DoneSummary'
-import { trainingLog } from './extra'
+import { useTrainingLog } from './useTrainingLog'
 
 const key = (s: { date: string; workoutId: string }) => `${s.date}~${s.workoutId}`
 
 export function PastWorkouts({ onClose }: { onClose: () => void }) {
-  const [workoutLog] = usePersisted('workoutLog')
-  const [extraLog] = usePersisted('extraLog')
-  const merged = trainingLog(workoutLog, extraLog)
+  const { training: merged } = useTrainingLog()
   const [openKey, setOpenKey] = useState<string>()
   const sessions = completedSessions(merged).reverse()
   const open = sessions.find((s) => key(s) === openKey)
