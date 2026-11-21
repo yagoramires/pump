@@ -205,22 +205,26 @@ test('pular série pelo teclado grava, risca a linha e com a outra marcada abre 
   await user.click(screen.getByRole('checkbox', { name: 'Série 1 de Supino reto' }))
   expect(await screen.findByRole('checkbox', { name: 'Série 1 de Remada X' })).toBeInTheDocument()
 })
-test('arrastar a linha pro lado pula a série; arrastar de novo desfaz', async () => {
+test('arrastar a linha pro lado pula a série; arrastar de novo desfaz; arrastar a partir do campo não pula', async () => {
   await renderLoaded(<TreinoTab />)
   const row = (await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' })).closest('tr')!
+  const kg = screen.getByRole('textbox', { name: 'Carga da série 1 de Supino reto' })
   Object.defineProperty(row, 'offsetWidth', { value: 300 })
   row.setPointerCapture = vi.fn()
-  const swipe = (to: number) => {
-    fireEvent.pointerDown(row, { clientX: 200, clientY: 10, pointerId: 1 })
-    fireEvent.pointerMove(row, { clientX: to, clientY: 12, pointerId: 1 })
-    fireEvent.pointerUp(row, { clientX: to, clientY: 12, pointerId: 1 })
+  const swipe = (to: number, from: Element = row) => {
+    fireEvent.pointerDown(from, { clientX: 200, clientY: 10, pointerId: 1 })
+    fireEvent.pointerMove(from, { clientX: to, clientY: 12, pointerId: 1 })
+    fireEvent.pointerUp(from, { clientX: to, clientY: 12, pointerId: 1 })
   }
   swipe(150) // menos de 1/3 da largura: não pula
+  swipe(50, kg) // seleção/cursor no campo
   expect(screen.getByRole('button', { name: 'Pular série 1 de Supino reto' })).toBeInTheDocument()
+  fireEvent.change(kg, { target: { value: '55' } })
   swipe(50)
   expect(await screen.findByRole('button', { name: 'Desfazer pular série 1 de Supino reto' })).toBeInTheDocument()
   swipe(50)
   expect(await screen.findByRole('button', { name: 'Pular série 1 de Supino reto' })).toBeInTheDocument()
+  expect(kg).toHaveValue('40') // o 55 digitado antes de pular não volta
 })
 test('dois toques rápidos na mesma série desmarcam e o segundo não reinicia o descanso', async () => {
   await renderLoaded(<TreinoTab />)

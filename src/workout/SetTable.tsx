@@ -50,6 +50,11 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
     if (Object.keys(p).length) onEdit(i, p)
     clearDraft(i)
   }
+  // o rascunho digitado não volta ao desfazer o pulo
+  const skip = (i: number) => {
+    clearDraft(i)
+    onSkip(i)
+  }
   const box = (done: boolean) => cn('mx-auto w-16 rounded-lg px-1 text-center font-semibold tabular-nums', done ? 'bg-transparent text-accent' : 'bg-surface')
   const inputProps = (i: number) => ({
     ...field,
@@ -59,7 +64,10 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
 
   // arrastar a linha pro lado (tipo apagar conversa no WhatsApp); só vira arraste quando o gesto é mais horizontal que vertical
   const rowDrag = (i: number) => ({
-    onPointerDown: (e: React.PointerEvent) => setDrag({ i, x: e.clientX, y: e.clientY, dx: 0, on: false }),
+    // arrastar nos campos/checkbox é mexer neles (cursor, seleção), não pular a série
+    onPointerDown: (e: React.PointerEvent) => {
+      if (!(e.target as Element).closest('input, button, [role=checkbox]')) setDrag({ i, x: e.clientX, y: e.clientY, dx: 0, on: false })
+    },
     onPointerMove: (e: React.PointerEvent<HTMLTableRowElement>) => {
       if (drag?.i !== i) return
       const dx = e.clientX - drag.x
@@ -68,7 +76,7 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
       setDrag({ ...drag, dx, on })
     },
     onPointerUp: (e: React.PointerEvent<HTMLTableRowElement>) => {
-      if (drag?.i === i && drag.on && Math.abs(drag.dx) > e.currentTarget.offsetWidth / 3) onSkip(i)
+      if (drag?.i === i && drag.on && Math.abs(drag.dx) > e.currentTarget.offsetWidth / 3) skip(i)
       setDrag(undefined)
     },
     onPointerCancel: () => setDrag(undefined),
@@ -97,7 +105,7 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
                   type="button"
                   className="sr-only rounded-md focus:not-sr-only focus:ml-1 focus:inline-flex focus:p-1 focus:align-middle"
                   aria-label={`${skipped ? 'Desfazer pular' : 'Pular'} série ${n} de ${ex.name}`}
-                  onClick={() => onSkip(i)}
+                  onClick={() => skip(i)}
                 >
                   {skipped ? <Undo2 size={14} aria-hidden="true" /> : <Ban size={14} aria-hidden="true" />}
                 </button>

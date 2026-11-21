@@ -13,6 +13,11 @@ test('sessionStats: feitas, total, volume e tempo', () => {
   s.exercises[0].sets = [{ reps: '10', weightKg: 40 }, { reps: '8-10', weightKg: 42.5 }, null]
   expect(sessionStats(s, new Date(2026, 10, 16, 18, 32))).toEqual({ done: 2, total: 5, volumeKg: 740, minutes: 32 })
 })
+test('sessionStats: série pulada sai do total', () => {
+  const s = startSession(workoutOf([{ sets: 2 }]), '2026-11-16')
+  s.exercises[0] = { ...s.exercises[0], sets: [{ reps: '10', weightKg: 40 }, null], skipped: [1] }
+  expect(sessionStats(s, new Date())).toMatchObject({ done: 1, total: 1 })
+})
 test('sessionStats sem startedAt (sessão antiga) não tem tempo', () => {
   const s = startSession(workoutOf([{ sets: 1 }]), '2026-11-16'); delete s.startedAt
   expect(sessionStats(s, new Date()).minutes).toBeNull()
