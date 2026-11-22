@@ -74,7 +74,7 @@ export function EvolutionTab() {
   if (view === 'compare') return <PhotoCompare onClose={() => setView(undefined)} />
   if (view === 'achievements') return <AchievementsScreen onClose={() => setView(undefined)} />
   if (view === 'history') return <HistoryScreen onClose={() => setView(undefined)} />
-  if (exerciseId) return <ExerciseLoadScreen log={input.workoutLog} exerciseId={exerciseId} period={loadPeriod} today={today} onClose={() => setExerciseId(undefined)} />
+  if (exerciseId) return <ExerciseLoadScreen sessions={input.sessions} exerciseId={exerciseId} period={loadPeriod} today={today} onClose={() => setExerciseId(undefined)} />
 
   const drawers = (
     <>
@@ -169,7 +169,7 @@ export function EvolutionTab() {
         <div className="px-3.5 pb-3"><LineChart points={points} label="Gráfico de peso" empty={weights.length >= 2 ? 'Poucos registros nesse período' : 'Registre mais um peso pra ver o gráfico'} /></div>
       </Card>
 
-      <LoadsCard log={input.workoutLog} today={today} period={loadPeriod} onPeriod={setLoadPeriod} onOpen={setExerciseId} />
+      <LoadsCard sessions={input.sessions} today={today} period={loadPeriod} onPeriod={setLoadPeriod} onOpen={setExerciseId} />
 
       {rows.length > 0 && (
         <Card size="flush">

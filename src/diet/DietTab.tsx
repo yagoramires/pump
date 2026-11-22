@@ -151,7 +151,7 @@ export function DietTab() {
                 <>
                   <DrawerTitle className="sr-only">Água</DrawerTitle>
                   <DrawerDescription className="sr-only">Barra de água de hoje</DrawerDescription>
-                  <WaterCard ml={water.ml} settings={waterSettings} onChange={water.set} />
+                  <WaterCard ml={water.ml} goalMl={waterSettings.goalMl} onChange={water.set} />
                 </>
               ) : sheet === 'menus' ? (
                 <>

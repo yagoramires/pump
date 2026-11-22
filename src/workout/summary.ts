@@ -5,7 +5,7 @@ import { completedSessions, exerciseHistory } from './stats'
 import { hasMarkedSet, markedSets } from './session'
 import { isCardio, isTimed, repsNumber } from './reps'
 import { trainedDays, weekTrainedDays } from './week'
-import type { SessionExercise, SetDone, WorkoutLog, WorkoutSession } from './types'
+import type { SessionExercise, SetDone, WorkoutSession } from './types'
 
 export function formatDuration(min: number): string {
   if (min < 1) return '<1 min'
@@ -33,7 +33,7 @@ export function volumeCoverage(s: WorkoutSession) {
 
 /** mesma data: quem concluiu antes vem antes */
 const isBefore = (a: WorkoutSession, b: WorkoutSession) => a.date < b.date || (a.date === b.date && (a.completedAt ?? '') < (b.completedAt ?? ''))
-export const sessionsBefore = (log: WorkoutLog, s: WorkoutSession) => completedSessions(log).filter((x) => isBefore(x, s))
+export const sessionsBefore = (sessions: WorkoutSession[], s: WorkoutSession) => completedSessions(sessions).filter((x) => isBefore(x, s))
 
 type Lift = { kg: number; reps: number }
 const lifts = (sets: (SetDone | null)[]): Lift[] => sets.flatMap((d) => (d && d.weightKg > 0 ? [{ kg: d.weightKg, reps: repsNumber(d.reps) }] : []))
@@ -60,8 +60,8 @@ function beats(today: Lift[], prev: Lift[], loadNeedsReps: boolean): Mark | unde
 export type ExerciseMark = { name: string; record?: Mark; improved?: Mark & { date: string } }
 
 /** recorde (contra todo o histórico anterior) ou melhora (contra a última vez) de cada exercício, na ordem do treino; aparições do dia juntas */
-export function exerciseMarks(log: WorkoutLog, s: WorkoutSession): Map<string, ExerciseMark> {
-  const history = exerciseHistory(sessionsBefore(log, s))
+export function exerciseMarks(sessions: WorkoutSession[], s: WorkoutSession): Map<string, ExerciseMark> {
+  const history = exerciseHistory(sessionsBefore(sessions, s))
   const out = new Map<string, ExerciseMark>()
   for (const e of s.exercises) {
     if (out.has(e.exerciseId) || isCardio(e) || isTimed(e.reps)) continue
@@ -82,17 +82,17 @@ export type Highlight =
   | { kind: 'improved'; name: string; mark: Mark & { date: string } }
   | { kind: 'neutral' }
 
-export const weekDays = (log: WorkoutLog, s: WorkoutSession) => weekTrainedDays(trainedDays(log), s.date)
+export const weekDays = (sessions: WorkoutSession[], s: WorkoutSession) => weekTrainedDays(trainedDays(sessions), s.date)
 
 /** um destaque só: primeiro treino > recorde > meta da semana batida por esta sessão > melhora > neutro */
-export function sessionHighlight(log: WorkoutLog, s: WorkoutSession, goal: number): Highlight {
-  const before = sessionsBefore(log, s)
+export function sessionHighlight(sessions: WorkoutSession[], s: WorkoutSession, goal: number): Highlight {
+  const before = sessionsBefore(sessions, s)
   if (before.length === 0) return { kind: 'first' }
-  const marks = [...exerciseMarks(log, s).values()]
+  const marks = [...exerciseMarks(sessions, s).values()]
   const rec = marks.find((m) => m.record)
   if (rec?.record) return { kind: 'record', name: rec.name, mark: rec.record }
   const firstOfDay = !before.some((x) => x.date === s.date)
-  if (firstOfDay && weekTrainedDays(trainedDays(log), s.date, s.date) === goal) return { kind: 'goal', goal }
+  if (firstOfDay && weekTrainedDays(trainedDays(sessions), s.date, s.date) === goal) return { kind: 'goal', goal }
   const imp = marks.find((m) => m.improved)
   if (imp?.improved) return { kind: 'improved', name: imp.name, mark: imp.improved }
   return { kind: 'neutral' }

@@ -1,13 +1,13 @@
 import { pe } from '../../test/helpers'
 import { exerciseCount, exerciseMarks, feelingOf, formatDuration, highlightText, muscleLevels, plannedSets, sessionHighlight, volumeCoverage, weekDays } from './summary'
-import type { WorkoutLog, WorkoutSession } from './types'
+import type { WorkoutSession } from './types'
 
 /** sets: [kg, reps] */
 const sx = (date: string, exs: Record<string, [number, number][]>, at = '10:00'): WorkoutSession => ({
   date, workoutId: 'a', workoutLabel: 'A', workoutName: 'Treino A', completedAt: `${date}T${at}:00`,
   exercises: Object.entries(exs).map(([id, sets]) => ({ ...pe({ exerciseId: id, name: id }), sets: sets.map(([weightKg, reps]) => ({ weightKg, reps: String(reps) })) })),
 })
-const logOf = (...ss: WorkoutSession[]): WorkoutLog => Object.fromEntries(ss.map((s, i) => [`${s.date}#${i}`, s]))
+const logOf = (...ss: WorkoutSession[]): WorkoutSession[] => ss
 
 test('formatDuration', () => {
   expect([0, 52, 60, 104].map(formatDuration)).toEqual(['<1 min', '52 min', '1 h 00', '1 h 44'])

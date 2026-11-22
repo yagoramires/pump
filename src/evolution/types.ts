@@ -1,6 +1,6 @@
 import type { DietLog, DietPlan, WaterLog } from '@/diet/types'
 import type { Profile } from '@/profile/types'
-import type { WorkoutLog, WorkoutPlan } from '@/workout/types'
+import type { WorkoutPlan, WorkoutSession } from '@/workout/types'
 
 export type Angle = 'frente' | 'lado' | 'costas'
 export const ANGLES = ['frente', 'lado', 'costas'] as const satisfies readonly Angle[]
@@ -11,7 +11,8 @@ export interface Measurement extends MeasureFields { id: string; date: string }
 export interface PhotoSet { id: string; date: string; frente?: string; lado?: string; costas?: string }
 
 export interface EvolutionInput {
-  workoutLog: WorkoutLog
+  /** ficha e extras concluídos ou não; filtre com completedSessions */
+  sessions: WorkoutSession[]
   workoutPlan: WorkoutPlan
   measurements: Measurement[]
   photoSets: PhotoSet[]

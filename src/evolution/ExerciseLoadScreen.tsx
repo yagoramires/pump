@@ -3,7 +3,7 @@ import { BackHeader } from '@/components/BackHeader'
 import { Overlay } from '@/components/Overlay'
 import { formatDayMonth } from '@/lib/date'
 import { formatKg } from '@/lib/number'
-import type { WorkoutLog } from '@/workout/types'
+import type { WorkoutSession } from '@/workout/types'
 import { MeasureValue } from './Delta'
 import { LineChart } from './LineChart'
 import { MODE_TEXT, exerciseLoads, type Measure } from './loads'
@@ -18,8 +18,8 @@ function Stat({ label, m, unit }: { label: string; m: Measure; unit: string }) {
   )
 }
 
-export function ExerciseLoadScreen({ log, exerciseId, period, today, onClose }: { log: WorkoutLog; exerciseId: string; period: Period; today: string; onClose: () => void }) {
-  const data = useMemo(() => exerciseLoads(log, exerciseId, period, today), [log, exerciseId, period, today])
+export function ExerciseLoadScreen({ sessions, exerciseId, period, today, onClose }: { sessions: WorkoutSession[]; exerciseId: string; period: Period; today: string; onClose: () => void }) {
+  const data = useMemo(() => exerciseLoads(sessions, exerciseId, period, today), [sessions, exerciseId, period, today])
   useEffect(() => { if (!data) onClose() }, [data, onClose])
   if (!data) return null
   const reps = data.mode === 'reps'

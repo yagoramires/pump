@@ -1,16 +1,16 @@
 import { exerciseLoads, loadsSummary } from './loads'
 import { pe } from '../../test/helpers'
-import type { SessionExercise, SetDone, WorkoutLog, WorkoutSession } from '../workout/types'
+import type { SessionExercise, SetDone, WorkoutSession } from '../workout/types'
 
 const today = '2026-11-19'
 const sess = (date: string, exs: Partial<SessionExercise>[], done = true): WorkoutSession => ({
   date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', ...(done && { completedAt: `${date}T20:00:00.000Z` }),
   exercises: exs.map((e) => ({ ...pe(), sets: [], ...e }) as SessionExercise),
 })
-const logOf = (...ss: WorkoutSession[]): WorkoutLog => Object.fromEntries(ss.map((s) => [s.date, s]))
+const logOf = (...ss: WorkoutSession[]): WorkoutSession[] => ss
 const set = (weightKg: number, reps = '10'): SetDone => ({ weightKg, reps })
 const supino = (sets: (SetDone | null)[], over: Partial<SessionExercise> = {}) => ({ exerciseId: 'Supino', name: 'Supino', muscles: ['peito'], sets, ...over })
-const rows = (log: WorkoutLog, p: '30' | '90' | 'all' = 'all') => loadsSummary(log, p, today).groups.flatMap((g) => g.rows)
+const rows = (log: WorkoutSession[], p: '30' | '90' | 'all' = 'all') => loadsSummary(log, p, today).groups.flatMap((g) => g.rows)
 
 test('carga máx e volume comparam o primeiro e o último treino do período', () => {
   const log = logOf(sess('2026-11-01', [supino([set(50), set(55)])]), sess('2026-11-15', [supino([set(60, '8'), set(60, '8')])]))

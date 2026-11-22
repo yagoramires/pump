@@ -28,8 +28,7 @@ export interface WorkoutPlan {
   start?: { label: string; since: string }
 }
 export interface SetDone { reps: string; weightKg: number }
-/** sets.length = séries planejadas */
-/** skipped = índices das séries marcadas "não fiz" (ficam null em sets) */
+/** sets.length = séries planejadas; skipped = índices das séries marcadas "não fiz" (ficam null em sets) */
 export type SessionExercise = Omit<PlanExercise, 'sets'> & { sets: (SetDone | null)[]; skipped?: number[] }
 export interface WorkoutSession {
   date: string
@@ -52,8 +51,6 @@ export interface WorkoutSession {
   editedFrom?: string
   /** descanso marcado: sem exercícios e sem completedAt */
   rest?: boolean
-  /** extra aberto num dia de descanso: descartar o extra devolve o descanso */
-  fromRest?: boolean
 }
 /** chave = date */
 export type WorkoutLog = Record<string, WorkoutSession>

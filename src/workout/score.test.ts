@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { bestSet, exerciseScore, sessionScore, upSoFar } from './score'
-import { trainingLog } from './extra'
-import type { SessionExercise, SetDone, WorkoutLog, WorkoutSession } from './types'
+import type { SessionExercise, SetDone, WorkoutSession } from './types'
 import { pe } from '../../test/helpers'
 
 const ex = (kg: number, reps: string, over: Partial<SessionExercise> = {}, n = 3): SessionExercise =>
   ({ ...pe({ reps }), sets: Array(n).fill({ weightKg: kg, reps } as SetDone), ...over })
 const sess = (date: string, exercises: SessionExercise[], effort?: number): WorkoutSession =>
   ({ date, workoutId: 'w', workoutLabel: 'A', workoutName: 'A', exercises, effort })
-const logOf = (...ss: WorkoutSession[]): WorkoutLog => Object.fromEntries(ss.map((s) => [s.date, s]))
+const logOf = (...ss: WorkoutSession[]): WorkoutSession[] => ss
 
 describe('bestSet', () => {
   it('escolhe pelo 1RM estimado', () => {
@@ -24,17 +23,15 @@ describe('sessionScore', () => {
   it('igual, com esforço 7, dá 7', () => {
     expect(sessionScore(logOf(prev), sess('2026-01-02', [ex(40, '10')], 7)).score).toBe(7)
   })
-  it('tudo subiu com esforço 9 dá 9,7; sem esforço 10', () => {
+  it('tudo subiu com esforço 9 dá 9,7; sem resposta conta como leve e dá 7,9', () => {
     expect(sessionScore(logOf(prev), sess('2026-01-02', [ex(50, '10')], 9)).score).toBe(9.7)
-    expect(sessionScore(logOf(prev), sess('2026-01-02', [ex(50, '10')])).score).toBe(10)
+    expect(sessionScore(logOf(prev), sess('2026-01-02', [ex(50, '10')])).score).toBe(7.9)
   })
-  it('sem exercícios dá 0', () => {
-    expect(sessionScore({}, sess('2026-01-02', [])).score).toBe(0)
+  it('sem exercícios fica só o esforço', () => {
+    expect(sessionScore([], sess('2026-01-02', [], 6)).score).toBe(1.8)
   })
-  it('conta quantos subiram', () => {
-    const s = sess('2026-01-02', [ex(50, '10')])
-    expect(sessionScore(logOf(prev), s)).toMatchObject({ up: 1, same: 0, down: 0 })
-    expect(upSoFar(logOf(prev), s)).toBe(1)
+  it('upSoFar conta quantos subiram', () => {
+    expect(upSoFar(logOf(prev), sess('2026-01-02', [ex(50, '10')]))).toBe(1)
   })
 })
 
@@ -42,7 +39,7 @@ describe('exerciseScore', () => {
   const prev = sess('2026-01-01', [ex(40, '10')])
   const score = (e: SessionExercise, log = logOf(prev)) => exerciseScore(log, '2026-01-02', e, 0)
   it('primeira vez é new, 0.7', () => {
-    expect(exerciseScore({}, '2026-01-02', ex(40, '10'), 0)).toMatchObject({ trend: 'new', points: 0.7 })
+    expect(exerciseScore([], '2026-01-02', ex(40, '10'), 0)).toMatchObject({ trend: 'new', points: 0.7 })
   })
   it('força igual, mesmo zero, é same', () => {
     expect(score(ex(0, 'máx'), logOf(sess('2026-01-01', [ex(0, 'máx')])))).toMatchObject({ trend: 'same' })
@@ -60,9 +57,5 @@ describe('exerciseScore', () => {
   })
   it('cardio feito é timed, 0.7', () => {
     expect(score(ex(0, '20 min', {}, 1))).toMatchObject({ trend: 'timed', points: 0.7 })
-  })
-  it('compara com extra do dia anterior via trainingLog', () => {
-    const log = trainingLog({}, { '2026-01-01': prev })
-    expect(score(ex(50, '10'), log).trend).toBe('up')
   })
 })

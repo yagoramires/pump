@@ -56,7 +56,7 @@ test('o relatório continua com só treino ou só dieta', () => {
   expect(training.diet).toBeNull()
   expect(training.achievements.some((achievement) => achievement.diet)).toBe(false)
 
-  const diet = buildReport({ ...RICH, workoutLog: {}, measurements: [], photoSets: [] }, TODAY)
+  const diet = buildReport({ ...RICH, sessions: [], measurements: [], photoSets: [] }, TODAY)
   expect(diet.period.start).toBe('2026-11-20')
   expect(diet.body).toBeNull()
   expect(diet.training.workouts).toBe(0)

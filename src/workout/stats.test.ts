@@ -1,6 +1,6 @@
 import { exerciseHistory, exerciseVolume, loadPoints, previousSets, sessionStats, sessionVolume, suggestedKg } from './stats'
 import { startSession } from './session'
-import { trainingLog } from './extra'
+import { trainingSessions } from './extra'
 import { pe, workoutOf } from '../../test/helpers'
 import type { SetDone, WorkoutSession } from './types'
 
@@ -30,8 +30,8 @@ test('sessionStats congela o tempo em completedAt', () => {
 test('previousSets pega a sessão anterior mais recente com o exercício', () => {
   const mk = (date: string, sets: (SetDone | null)[]) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [{ ...pe({ exerciseId: 'Supino' }), sets }] })
   const log = { '2026-11-09': mk('2026-11-09', [{ reps: '8', weightKg: 35 }]), '2026-11-12': mk('2026-11-12', [{ reps: '10', weightKg: 40 }, null]), '2026-11-16': mk('2026-11-16', [{ reps: '12', weightKg: 45 }]) }
-  expect(previousSets(log, '2026-11-16', 'Supino')).toEqual([{ reps: '10', weightKg: 40 }, null])
-  expect(previousSets(log, '2026-11-16', 'Outro')).toEqual([])
+  expect(previousSets(Object.values(log), '2026-11-16', 'Supino')).toEqual([{ reps: '10', weightKg: 40 }, null])
+  expect(previousSets(Object.values(log), '2026-11-16', 'Outro')).toEqual([])
 })
 test('sessionStats: startedAt ilegível dá null e tempo negativo vira 0', () => {
   const s = { ...startSession(workoutOf([{ sets: 1 }]), '2026-11-16'), startedAt: 'lixo' }
@@ -42,7 +42,7 @@ test('sessionStats: startedAt ilegível dá null e tempo negativo vira 0', () =>
 test('previousSets ignora sessão anterior sem série marcada', () => {
   const mk = (date: string, sets: (SetDone | null)[]) => ({ date, workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [{ ...pe({ exerciseId: 'Supino' }), sets }] })
   const log = { '2026-11-12': mk('2026-11-12', [{ reps: '10', weightKg: 40 }]), '2026-11-14': mk('2026-11-14', [null, null]) }
-  expect(previousSets(log, '2026-11-16', 'Supino')).toEqual([{ reps: '10', weightKg: 40 }])
+  expect(previousSets(Object.values(log), '2026-11-16', 'Supino')).toEqual([{ reps: '10', weightKg: 40 }])
 })
 test('previousSets: no mesmo dia vale o treino mais tarde, não a ordem das chaves', () => {
   const at = (h: number) => new Date(2026, 10, 15, h, 0).toISOString()
@@ -50,10 +50,10 @@ test('previousSets: no mesmo dia vale o treino mais tarde, não a ordem das chav
     date: '2026-11-15', workoutId, workoutLabel: 'A', workoutName: 'A', startedAt: at(h), completedAt: at(h + 1),
     exercises: [{ ...pe({ exerciseId: 'Supino' }), sets: [{ reps: '10', weightKg: kg }] }],
   })
-  const log = trainingLog({ '2026-11-15': mk('a', 80, 19) }, { '2026-11-15': mk('extra', 60, 7) })
+  const log = trainingSessions({ '2026-11-15': mk('a', 80, 19) }, { '2026-11-15': mk('extra', 60, 7) })
   expect(previousSets(log, '2026-11-16', 'Supino')).toEqual([{ reps: '10', weightKg: 80 }])
   // hoje não conta como anterior, nem o extra de hoje
-  expect(previousSets(trainingLog({}, { '2026-11-16': { ...mk('extra', 60, 7), date: '2026-11-16' } }), '2026-11-16', 'Supino')).toEqual([])
+  expect(previousSets(trainingSessions({}, { '2026-11-16': { ...mk('extra', 60, 7), date: '2026-11-16' } }), '2026-11-16', 'Supino')).toEqual([])
 })
 
 test('exerciseVolume soma carga × reps das séries marcadas', () => {
@@ -73,8 +73,8 @@ test('exercício repetido no treino: previousSets pega a mesma aparição e o hi
     return s
   }
   const log = { '2026-11-12': day('2026-11-12', 30, 80) }
-  expect(previousSets(log, '2026-11-16', 'Supino', 1)).toEqual([{ reps: '10', weightKg: 80 }])
-  expect(previousSets(log, '2026-11-16', 'Supino', 2)).toEqual([{ reps: '10', weightKg: 30 }])
+  expect(previousSets(Object.values(log), '2026-11-16', 'Supino', 1)).toEqual([{ reps: '10', weightKg: 80 }])
+  expect(previousSets(Object.values(log), '2026-11-16', 'Supino', 2)).toEqual([{ reps: '10', weightKg: 30 }])
   const h = exerciseHistory([day('2026-11-12', 60, 80), day('2026-11-14', 70)])
   expect(loadPoints(h.get('Supino')!)).toEqual([{ date: '2026-11-12', value: 80 }, { date: '2026-11-14', value: 70 }])
 })

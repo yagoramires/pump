@@ -21,7 +21,7 @@ test('lista em ordem decrescente; tocar abre o resumo e os detalhes ficam atrás
   expect(rows).toHaveLength(2)
   expect(rows[0]).toHaveTextContent('Recente')
   expect(rows[1]).toHaveTextContent('Antigo')
-  expect(rows[0]).toHaveTextContent('1 série · nota 1,8') // (Supino 1 de 2 igual = 0,35 + Rosca sem série = 0) / 2
+  expect(rows[0]).toHaveTextContent('1 série · nota 2,1') // desempenho (0,35 + 0) / 2 = 1,75; sem esforço conta leve: 0,7 × 1,75 + 0,3 × 3
   expect(rows[0]).not.toHaveTextContent('kg')
   await user.click(rows[0])
   expect(screen.getByRole('heading', { name: 'Recente' })).toBeInTheDocument()

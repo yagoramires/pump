@@ -6,6 +6,7 @@ import { dietDay, food, pe } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
 import { stored } from '../../test/store'
 import { HistoryScreen } from './HistoryScreen'
+import { restRecord } from '@/workout/rest'
 
 beforeEach(async () => {
   vi.useFakeTimers({ toFake: ['Date'] })
@@ -38,7 +39,7 @@ test('detalhe do dia mostra o treino concluído', async () => {
   expect(day).toHaveAccessibleDescription(/treino/)
   await user.click(day)
   expect(screen.getByText('Peito e tríceps')).toBeInTheDocument()
-  expect(screen.getByText('2 séries · nota 4,7 · 52 min')).toBeInTheDocument()
+  expect(screen.getByText('2 séries · nota 4,2 · 52 min')).toBeInTheDocument()
 })
 test('uma série concluída fica no singular', async () => {
   await save('workoutLog', {
@@ -51,7 +52,7 @@ test('uma série concluída fica no singular', async () => {
   const user = userEvent.setup()
   await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
   await user.click(await screen.findByRole('button', { name: '16' }))
-  expect(screen.getByText('1 série · nota 3,5 · 52 min')).toBeInTheDocument()
+  expect(screen.getByText('1 série · nota 3,4 · 52 min')).toBeInTheDocument()
 })
 test('apagar medidas do dia remove o registro', async () => {
   await save('measurements', [{ id: 'm', date: '2026-11-17', weightKg: 78.4, waistCm: 81 }, { id: 'n', date: '2026-11-10', weightKg: 79 }])
@@ -145,7 +146,8 @@ test('ficha e extra no mesmo dia: dia treinado, duas linhas e cabeçalho com os 
   expect(screen.getByText('Peito')).toBeInTheDocument()
   expect(screen.getByText('Treino extra')).toBeInTheDocument()
 })
-test('dia só com extra fica marcado como treinado', async () => {
+test('extra no dia de descanso: dia treinado e o descanso some', async () => {
+  await save('workoutLog', { '2026-11-16': restRecord('2026-11-16') })
   await save('extraLog', { '2026-11-16': sess('extra', 'Extra', 'Treino extra') })
   const user = userEvent.setup()
   await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
@@ -153,4 +155,5 @@ test('dia só com extra fica marcado como treinado', async () => {
   expect(day).toHaveAccessibleDescription(/treino/)
   await user.click(day)
   expect(screen.getByText(/Treino Extra/)).toBeInTheDocument()
+  expect(screen.queryByText('Descanso')).not.toBeInTheDocument()
 })

@@ -4,6 +4,20 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 7,
+    date: '2026-11-22',
+    novidades: [],
+    correcoes: [
+      'Treino extra num dia de descanso não apaga mais o descanso; descartar o extra e depois desfazer não deixa o dia com os dois',
+      'Dá pra descartar o treino extra enquanto edita as séries dele, mesmo depois de tirar todos os exercícios',
+      'Treino extra só abre quando o treino do dia não está em andamento',
+      'Pular uma série não cancela mais o descanso que está correndo',
+      'A duração de treinos antigos concluídos sem horário de início agora pode ser editada',
+      'Treinos anteriores abrem mais rápido com histórico grande',
+      'Pular a pergunta "Como foi hoje?" conta como Leve na nota: não responder não dá mais nota maior que responder',
+    ],
+  },
+  {
     version: 6,
     date: '2026-11-22',
     novidades: ['Antes de iniciar, o treino mostra um resumo: músculos, séries, a última vez e os exercícios com a carga sugerida'],

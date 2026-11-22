@@ -6,7 +6,7 @@ const session = (date: string, kg: number) => ({ date, workoutId: 'a', workoutLa
 
 test('buildReport: período, resumo, pares de fotos e corpo', () => {
   const r = buildReport(evolutionInput({
-    workoutLog: { '2026-11-16': session('2026-11-16', 40), '2026-12-01': session('2026-12-01', 50) },
+    sessions: Object.values({ '2026-11-16': session('2026-11-16', 40), '2026-12-01': session('2026-12-01', 50) }),
     workoutPlan: { workouts: [] },
     measurements: [{ id: '1', date: '2026-11-15', weightKg: 80, neckCm: 38, waistCm: 88 }, { id: '2', date: '2026-12-10', weightKg: 78.4, neckCm: 38, waistCm: 85 }],
     photoSets: [{ id: 'a', date: '2026-11-15', frente: 'p1', lado: 'p2' }, { id: 'b', date: '2026-12-10', frente: 'p3' }],
@@ -24,7 +24,7 @@ test('buildReport: período, resumo, pares de fotos e corpo', () => {
 
 test('buildReport sem altura: sem linha de gordura e sem fatDelta', () => {
   const r = buildReport(evolutionInput({
-    workoutLog: {},
+    sessions: [],
     workoutPlan: { workouts: [] },
     measurements: [{ id: '1', date: '2026-11-15', weightKg: 80, neckCm: 38, waistCm: 88 }, { id: '2', date: '2026-12-10', weightKg: 78.4, neckCm: 38, waistCm: 85 }],
     photoSets: [],
@@ -35,7 +35,7 @@ test('buildReport sem altura: sem linha de gordura e sem fatDelta', () => {
 })
 
 test('buildReport sem medidas: body null; sem fotos: photoPairs []', () => {
-  const r = buildReport(evolutionInput({ workoutLog: { '2026-11-16': session('2026-11-16', 40) } }), '2026-11-16')
+  const r = buildReport(evolutionInput({ sessions: Object.values({ '2026-11-16': session('2026-11-16', 40) }) }), '2026-11-16')
   expect(r.body).toBeNull()
   expect(r.photoPairs).toEqual([])
   expect(r.period).toEqual({ start: '2026-11-16', end: '2026-11-16', days: 1 })
@@ -45,7 +45,7 @@ test('buildReport sem medidas: body null; sem fotos: photoPairs []', () => {
 
 test('report.diet: média, dias no plano e período começando no 1º dia de dieta', () => {
   const r = buildReport(evolutionInput({
-    workoutLog: { '2026-12-02': { date: '2026-12-02', workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [], rest: true } },
+    sessions: Object.values({ '2026-12-02': { date: '2026-12-02', workoutId: 'a', workoutLabel: 'A', workoutName: 'A', exercises: [], rest: true } }),
     workoutPlan: { workouts: [] },
     measurements: [{ id: '1', date: '2026-12-05', weightKg: 80 }],
     photoSets: [],
@@ -71,7 +71,7 @@ test('report.diet.waterDays: 0 com registro de água no período, undefined sem 
 })
 
 test('as conquistas ganhas se dividem entre treino e dieta', () => {
-  const input = evolutionInput({ workoutLog: { '2026-11-16': session('2026-11-16', 40) }, dietLog: { '2026-11-17': dietDay([true]) } })
+  const input = evolutionInput({ sessions: Object.values({ '2026-11-16': session('2026-11-16', 40) }), dietLog: { '2026-11-17': dietDay([true]) } })
   const r = buildReport(input, '2026-11-20')
   expect(r.training.achievements).toEqual([{ title: 'Primeiro treino', earnedAt: '2026-11-16' }])
   expect(r.diet?.achievements).toEqual([{ title: 'Dia no plano', earnedAt: '2026-11-17' }])

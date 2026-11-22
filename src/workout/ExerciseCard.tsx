@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ExerciseThumb } from './ExerciseGroups'
 import { exerciseSummary, restSecondsLabel } from './display'
-import { isExerciseComplete, markedSets } from './session'
+import { isExerciseComplete, markedSets, setsToDo } from './session'
 import { suggestedKg } from './stats'
 import { cn } from '@/lib/utils'
 
@@ -32,7 +32,7 @@ export function ExerciseCard({ ex, open, onToggle, onPreview, prev, children }: 
                 <span className="block text-meta text-text-2 first-letter:uppercase">{sub}</span>
               </span>
               <span className={cn('flex shrink-0 items-center gap-1.5 text-meta font-normal tabular-nums', complete ? 'text-accent' : 'text-faint')}>
-                {done}/{ex.sets.length - (ex.skipped?.length ?? 0)}
+                {done}/{setsToDo(ex)}
                 {complete ? <Check size={14} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" className={cn('transition-transform', open && 'rotate-180')} />}
               </span>
             </Button>

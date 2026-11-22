@@ -62,7 +62,7 @@ for (const k of eachDay('2026-11-28', '2026-12-19')) waterLog[k] = { ml: k === '
 
 const profile: Profile = { sex: 'M', heightCm: 178, dietGoal: 'perder' }
 
-export const RICH = { workoutLog, workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan }
+export const RICH = { sessions: Object.values(workoutLog), workoutPlan, measurements, photoSets, profile, dietLog, waterLog, dietPlan }
 const RICH_TODAY = '2026-12-20'
 export const RICH_TODAYS = ['2026-10-20', '2026-11-30', RICH_TODAY, addDays(RICH_TODAY, 40)]
 

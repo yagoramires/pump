@@ -5,16 +5,18 @@ import { hasWater } from '@/diet/water'
 import type { SupplementLog } from '@/diet/types'
 import type { WorkoutLog } from '@/workout/types'
 
-export function dayRecords(d: Pick<EvolutionInput, 'workoutLog' | 'dietLog' | 'waterLog' | 'measurements' | 'photoSets'> & { supplementLog: SupplementLog; extraLog: WorkoutLog }, date: string) {
+export function dayRecords(d: Pick<EvolutionInput, 'dietLog' | 'waterLog' | 'measurements' | 'photoSets'> & { workoutLog: WorkoutLog; extraLog: WorkoutLog; supplementLog: SupplementLog }, date: string) {
   const s = d.workoutLog[date]
   const x = d.extraLog[date]
   const diet = d.dietLog[date]
   const water = d.waterLog[date]
   const sups = d.supplementLog[date]
+  const extra = x?.completedAt ? x : undefined
   const r = {
     session: s?.completedAt ? s : undefined,
-    extra: x?.completedAt ? x : undefined,
-    rest: isRest(s),
+    extra,
+    // treinou mesmo no dia de descanso: o dia vale como treino
+    rest: isRest(s) && !extra,
     diet: diet && touched(diet) ? diet : undefined,
     water: hasWater(water) ? water : undefined,
     supplements: sups?.taken.length ? sups : undefined,
