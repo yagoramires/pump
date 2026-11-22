@@ -9,6 +9,8 @@ export interface PlanExercise {
   exerciseId: string
   name: string
   muscles: string[]
+  /** músculos principais, copiados do catálogo; ausente em planos antigos e nos personalizados */
+  primary?: string[]
   images: string[]
   instructions: string[]
   sets: number

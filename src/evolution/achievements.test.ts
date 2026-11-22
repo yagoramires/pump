@@ -78,9 +78,9 @@ test('primeira foto e gordura −1 ponto', () => {
   expect(get(a, 'fat-1').earnedAt).toBe('2026-11-20')
 })
 test('progresso da sequência parte da sequência atual, não da melhor', () => {
-  const days = ['2026-11-16', '2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20', '2026-11-22'] // 5 na semana (meta 7) zeram no sáb 21; dom 22 recomeça
+  const days = ['2026-11-09', '2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-16'] // 5 na semana seg–dom (meta 7) zeram no dom 15; seg 16 recomeça
   const log = { ...first, ...Object.fromEntries(days.map((k) => [k, done(k)])) }
-  expect(get(computeAchievements(goalInput(log, 7), '2026-11-22'), 'streak-7').progress).toBe('falta 6')
+  expect(get(computeAchievements(goalInput(log, 7), '2026-11-16'), 'streak-7').progress).toBe('falta 6')
 })
 
 const base = evolutionInput({ workoutPlan: plan(0) })

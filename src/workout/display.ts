@@ -18,4 +18,3 @@ export function restClock(sec: number, padMinutes = false) {
   return `${padMinutes ? p2(minutes) : minutes}:${p2(sec % 60)}`
 }
 
-export const effortLabel = (n: number): string => (n <= 3 ? 'leve' : n <= 6 ? 'moderado' : n <= 8 ? 'pesado' : 'no limite')

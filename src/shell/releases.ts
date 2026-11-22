@@ -4,6 +4,19 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 4,
+    date: '2026-11-22',
+    novidades: [
+      'Resumo do treino novo: um destaque do que você fez (recorde, melhora, meta da semana), os músculos trabalhados num mapa do corpo e os detalhes recolhidos',
+      'Toque na nota para ver como ela é calculada',
+      'Esforço agora é Leve, Na medida ou Puxado',
+      'A duração do treino se ajusta em minutos',
+      'Compartilhe o treino como imagem: um cartão com o placar do treino ou uma versão sem fundo pra colar sobre uma foto no Stories',
+      'Treino extra concluído tem resumo próprio e conta na semana',
+    ],
+    correcoes: ['A semana das sequências de treino vai de segunda a domingo'],
+  },
+  {
     version: 3,
     date: '2026-11-21',
     novidades: [

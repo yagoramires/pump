@@ -32,6 +32,13 @@ export function weekStart(key: string): string {
   return todayKey(d)
 }
 
+/** semana de treino: segunda a domingo (a de `weekStart` começa no domingo) */
+export function mondayWeekStart(key: string): string {
+  const d = parseDayKey(key)
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7))
+  return todayKey(d)
+}
+
 export function countInWeekBefore<T>(log: Record<string, T>, date: string, count: (v: T) => number): number {
   let n = 0
   for (const k of eachDay(weekStart(date), date)) if (k in log) n += count(log[k])

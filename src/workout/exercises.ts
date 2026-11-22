@@ -10,5 +10,5 @@ export function toPlanExercise(e: Exercise | CustomExercise): PlanExercise {
   const base = { exerciseId: e.id, name: e.name, muscles: e.muscles, ...PLAN_DEFAULTS }
   return isCustom(e)
     ? { ...base, custom: true, images: [], instructions: [], note: e.note }
-    : { ...base, images: e.images, instructions: e.instructions }
+    : { ...base, images: e.images, instructions: e.instructions, ...(e.primary && { primary: e.primary }) }
 }
