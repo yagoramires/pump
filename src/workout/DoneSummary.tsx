@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Check, ChevronDown, ChevronRight, Share2, Sparkles, Target, TrendingUp, Trophy } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -7,16 +7,15 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Progress } from '@/components/ui/progress'
 import { Chips } from '@/components/Chips'
 import { useOpenSettings } from '@/components/openSettings'
-import { fetchExercises } from '@/catalog/catalog'
-import { useCatalog } from '@/catalog/useCatalog'
-import type { Exercise } from '@/catalog/types'
 import { addDays, formatDayMonth, mondayWeekStart } from '@/lib/date'
 import { formatDec, formatKg, plural } from '@/lib/number'
 import { useToday } from '@/lib/useToday'
 import { usePersisted } from '@/storage/db'
 import type { SessionExercise, SetDone, Workout, WorkoutLog, WorkoutSession } from './types'
 import { sessionStats } from './stats'
-import { markedSets } from './session'
+import { hasMarkedSet, markedSets } from './session'
+import { useMuscleLevels } from './useMuscleLevels'
+import { BodyMapCard } from './LazyBodyMap'
 import { isCardio } from './reps'
 import { DurationSheet } from './DurationSheet'
 import { ScoreSheet } from './ScoreSheet'
@@ -25,7 +24,7 @@ import { sessionScore, type ExerciseScore } from './score'
 import { weeklyGoal } from './week'
 import type { CardInput } from './shareCard'
 import {
-  exerciseCount, exerciseMarks, FEELING_LABEL, FEELINGS, feelingOf, formatDuration, highlightText, muscleLevels, plannedSets,
+  exerciseCount, exerciseMarks, FEELING_LABEL, FEELINGS, feelingOf, formatDuration, highlightText, plannedSets,
   primaryMuscles, sessionHighlight, volumeCoverage, weekDays, type Highlight,
 } from './summary'
 
@@ -84,11 +83,6 @@ function ExerciseRow({ e, r, record }: { e: SessionExercise; r: ExerciseScore; r
   )
 }
 
-// o desenho do corpo pesa ~60 KB: só carrega quando o resumo aparece
-const BodyMap = lazy(() => import('./BodyMap').then((m) => ({ default: m.BodyMap })))
-
-const noCatalog = () => Promise.resolve<Exercise[]>([])
-
 /** sem `onEffort`/`onEditTimes` (Treinos anteriores) a tela é só leitura */
 export function DoneSummary({ session, log, next, onEditTimes, onEffort }: { session: WorkoutSession; log: WorkoutLog; next?: Workout; onEditTimes?: (startedAt: string, endedAt: string) => void; onEffort?: (n?: number) => void }) {
   const [sheet, setSheet] = useState<'duration' | 'score' | CardInput>()
@@ -96,10 +90,8 @@ export function DoneSummary({ session, log, next, onEditTimes, onEffort }: { ses
   const [plan] = usePersisted('workoutPlan')
   const { today } = useToday()
   const openSettings = useOpenSettings()
-  // plano antigo sem `primary`: busca os principais no catálogo
-  const needsCatalog = session.exercises.some((e) => !e.custom && !e.primary)
-  const { list: catalog } = useCatalog(needsCatalog ? fetchExercises : noCatalog)
-  const levels = useMemo(() => muscleLevels(session.exercises, new Map(catalog.map((x) => [x.id, x.primary ?? []]))), [session.exercises, catalog])
+  const done = useMemo(() => session.exercises.filter(hasMarkedSet), [session.exercises])
+  const levels = useMuscleLevels(done)
 
   const stats = sessionStats(session)
   const score = sessionScore(log, session)
@@ -152,7 +144,7 @@ export function DoneSummary({ session, log, next, onEditTimes, onEffort }: { ses
         <Progress value={Math.min(100, (days / goal) * 100)} aria-label="Treinos na semana" className="h-1.5 bg-line" />
       </Card>
 
-      {levels.size > 0 && <Card className="min-h-80 py-4"><Suspense><BodyMap levels={levels} /></Suspense></Card>}
+      <BodyMapCard levels={levels} />
 
       {onEffort ? (
         <Chips label="Como foi hoje?" options={FEELING_LABEL} value={feeling} onChange={(f) => onEffort(f && FEELINGS[f])} />

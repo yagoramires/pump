@@ -4,6 +4,12 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 6,
+    date: '2026-11-22',
+    novidades: ['Antes de iniciar, o treino mostra um resumo: músculos, séries, a última vez e os exercícios com a carga sugerida'],
+    correcoes: [],
+  },
+  {
     version: 5,
     date: '2026-11-22',
     novidades: ['Configurações ganham a seção Medidas, pra registrar peso e medidas de hoje'],
