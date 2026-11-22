@@ -7,7 +7,6 @@ export type Trend = 'up' | 'same' | 'down' | 'new' | 'timed'
 export interface ExerciseScore { name: string; trend: Trend; points: number; done: number; planned: number; best?: SetDone; prevBest?: SetDone }
 
 const oneRm = (s: SetDone) => s.weightKg * (1 + repsNumber(s.reps) / 30)
-// sem carga (peso do corpo) a força é só o número de repetições
 const strength = (s: SetDone, bodyweight: boolean) => (bodyweight ? repsNumber(s.reps) : oneRm(s))
 
 export function bestSet(sets: (SetDone | null)[]): SetDone | undefined {
@@ -16,7 +15,7 @@ export function bestSet(sets: (SetDone | null)[]): SetDone | undefined {
   return done.reduce<SetDone | undefined>((b, s) => (!b || strength(s, bodyweight) > strength(b, bodyweight) ? s : b), undefined)
 }
 
-const POINTS: Record<Trend, number> = { up: 1, same: 0.7, new: 0.7, timed: 0.7, down: 0.4 }
+export const POINTS: Record<Trend, number> = { up: 1, same: 0.7, new: 0.7, timed: 0.7, down: 0.4 }
 
 export function exerciseScore(log: WorkoutLog, date: string, e: SessionExercise, nth: number): ExerciseScore {
   const planned = e.sets.length
@@ -37,16 +36,16 @@ export function exerciseScore(log: WorkoutLog, date: string, e: SessionExercise,
   return { ...base, prevBest, trend, points: POINTS[trend] * ratio }
 }
 
-// sessionScore e upSoFar partem das mesmas linhas
 const rowsOf = (log: WorkoutLog, s: WorkoutSession) => s.exercises.map((e, i) => exerciseScore(log, s.date, e, nthOccurrence(s.exercises, i)))
+
+export const PERF_WEIGHT = 0.7
 
 export function sessionScore(log: WorkoutLog, s: WorkoutSession) {
   const rows = rowsOf(log, s)
   const perf = rows.length ? (10 * rows.reduce((a, r) => a + r.points, 0)) / rows.length : 0
   const effort = s.effort
-  const score = effort ? 0.7 * perf + 0.3 * effort : perf
-  const count = (t: Trend) => rows.filter((r) => r.trend === t).length
-  return { score: Math.round(score * 10) / 10, perf, effort, up: count('up'), same: count('same'), down: count('down'), rows }
+  const score = effort ? PERF_WEIGHT * perf + (1 - PERF_WEIGHT) * effort : perf
+  return { score: Math.round(score * 10) / 10, perf, effort, rows }
 }
 
 export const upSoFar = (log: WorkoutLog, s: WorkoutSession): number => rowsOf(log, s).filter((r) => r.done > 0 && r.trend === 'up').length

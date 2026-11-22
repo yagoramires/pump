@@ -7,9 +7,9 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/compone
 const MIN: [number, number] = [1, 600]
 
 /** Edita a duração em minutos: o início fica, o fim vira início + minutos */
-export function DurationSheet({ startedAt, minutes, onSave, onClose }: { startedAt: string; minutes: number; onSave: (startedAt: string, endedAt: string) => void; onClose: () => void }) {
+export function DurationSheet({ startedAt, minutes, onSave, onClose }: { startedAt: string; minutes: number; onSave: (endedAt: string) => void; onClose: () => void }) {
   const [min, setMin] = useState(Math.max(MIN[0], minutes))
-  const save = () => onSave(startedAt, new Date(Date.parse(startedAt) + min * 60000).toISOString())
+  const save = () => onSave(new Date(Date.parse(startedAt) + min * 60000).toISOString())
   return (
     <Drawer open onOpenChange={(o) => !o && onClose()}>
       <DrawerContent>

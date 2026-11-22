@@ -11,10 +11,12 @@ export function dayRecords(d: Pick<EvolutionInput, 'workoutLog' | 'dietLog' | 'w
   const diet = d.dietLog[date]
   const water = d.waterLog[date]
   const sups = d.supplementLog[date]
+  const extra = x?.completedAt ? x : undefined
   const r = {
     session: s?.completedAt ? s : undefined,
-    extra: x?.completedAt ? x : undefined,
-    rest: isRest(s),
+    extra,
+    // treinou mesmo no dia de descanso: o dia vale como treino
+    rest: isRest(s) && !extra,
     diet: diet && touched(diet) ? diet : undefined,
     water: hasWater(water) ? water : undefined,
     supplements: sups?.taken.length ? sups : undefined,

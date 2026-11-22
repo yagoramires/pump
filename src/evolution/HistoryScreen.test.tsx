@@ -6,6 +6,7 @@ import { dietDay, food, pe } from '../../test/helpers'
 import { renderLoaded } from '../../test/render'
 import { stored } from '../../test/store'
 import { HistoryScreen } from './HistoryScreen'
+import { restRecord } from '@/workout/rest'
 
 beforeEach(async () => {
   vi.useFakeTimers({ toFake: ['Date'] })
@@ -145,7 +146,8 @@ test('ficha e extra no mesmo dia: dia treinado, duas linhas e cabeçalho com os 
   expect(screen.getByText('Peito')).toBeInTheDocument()
   expect(screen.getByText('Treino extra')).toBeInTheDocument()
 })
-test('dia só com extra fica marcado como treinado', async () => {
+test('extra no dia de descanso: dia treinado e o descanso some', async () => {
+  await save('workoutLog', { '2026-11-16': restRecord('2026-11-16') })
   await save('extraLog', { '2026-11-16': sess('extra', 'Extra', 'Treino extra') })
   const user = userEvent.setup()
   await renderLoaded(<HistoryScreen onClose={vi.fn()} />)
@@ -153,4 +155,5 @@ test('dia só com extra fica marcado como treinado', async () => {
   expect(day).toHaveAccessibleDescription(/treino/)
   await user.click(day)
   expect(screen.getByText(/Treino Extra/)).toBeInTheDocument()
+  expect(screen.queryByText('Descanso')).not.toBeInTheDocument()
 })

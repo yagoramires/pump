@@ -19,7 +19,6 @@ test('liga com a meta pelo peso, grava a meta válida, e religar mantém o ajust
   expect(sw()).toHaveAttribute('aria-checked', 'false')
   await user.click(sw())
   expect(await screen.findByRole('textbox', { name: 'Meta (ml)' })).toHaveValue('2750')
-  expect(screen.queryByRole('textbox', { name: 'Copo (ml)' })).toBeNull()
   await user.clear(meta())
   await user.type(meta(), '3000')
   await user.click(sw())

@@ -3,10 +3,10 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/compone
 import { SheetBody } from '@/components/SheetRow'
 import { FEELINGS, FEELING_LABEL, feelingOf, type Feeling } from './summary'
 
-export function EffortSheet({ open, value, onPick, onSkip, onClose }: { open: boolean; value?: number; onPick: (n: number) => void; onSkip?: () => void; onClose: () => void }) {
+export function EffortSheet({ value, onPick, onSkip, onClose }: { value?: number; onPick: (n: number) => void; onSkip: () => void; onClose: () => void }) {
   const current = feelingOf(value)
   return (
-    <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
+    <Drawer open onOpenChange={(o) => !o && onClose()}>
       <DrawerContent>
         <SheetBody>
           <DrawerTitle className="pb-1 text-title font-semibold text-strong">Como foi hoje?</DrawerTitle>
@@ -16,7 +16,7 @@ export function EffortSheet({ open, value, onPick, onSkip, onClose }: { open: bo
               <Button key={f} variant={f === current ? 'default' : 'outline'} aria-pressed={f === current} className="h-12" onClick={() => { onPick(FEELINGS[f]); onClose() }}>{FEELING_LABEL[f]}</Button>
             ))}
           </div>
-          {onSkip && <Button variant="ghost" className="mt-3" onClick={() => { onSkip(); onClose() }}>Pular</Button>}
+          <Button variant="ghost" className="mt-3" onClick={() => { onSkip(); onClose() }}>Pular</Button>
         </SheetBody>
       </DrawerContent>
     </Drawer>

@@ -83,8 +83,8 @@ function ExerciseRow({ e, r, record }: { e: SessionExercise; r: ExerciseScore; r
   )
 }
 
-/** sem `onEffort`/`onEditTimes` (Treinos anteriores) a tela é só leitura */
-export function DoneSummary({ session, log, next, onEditTimes, onEffort }: { session: WorkoutSession; log: WorkoutLog; next?: Workout; onEditTimes?: (startedAt: string, endedAt: string) => void; onEffort?: (n?: number) => void }) {
+/** sem `onChange` (Treinos anteriores) a tela é só leitura */
+export function DoneSummary({ session, log, next, onChange }: { session: WorkoutSession; log: WorkoutLog; next?: Workout; onChange?: (p: Pick<WorkoutSession, 'endedAt' | 'effort'>) => void }) {
   const [sheet, setSheet] = useState<'duration' | 'score' | CardInput>()
   const [profile] = usePersisted('profile')
   const [plan] = usePersisted('workoutPlan')
@@ -125,7 +125,7 @@ export function DoneSummary({ session, log, next, onEditTimes, onEffort }: { ses
         {muscles.length > 0 && <div className="text-meta text-text-2">{muscles.join(' · ')}</div>}
       </Card>
       <div className="flex gap-2">
-        <Stat value={duration} label="Duração" onClick={onEditTimes && stats.minutes !== null ? () => setSheet('duration') : undefined} />
+        <Stat value={duration} label="Duração" onClick={onChange && stats.minutes !== null ? () => setSheet('duration') : undefined} />
         <Stat value={String(count)} label={count === 1 ? 'Exercício' : 'Exercícios'} />
         <Stat value={String(stats.done)} label={stats.done === 1 ? 'Série' : 'Séries'} />
       </div>
@@ -138,7 +138,7 @@ export function DoneSummary({ session, log, next, onEditTimes, onEffort }: { ses
       <Card className="gap-2 py-3.5">
         <div className="flex items-center gap-2">
           <span className="label-caps flex-1">{mondayWeekStart(today) === week ? 'Semana' : `Semana · ${formatDayMonth(week)} a ${formatDayMonth(addDays(week, 6))}`}</span>
-          {onEffort && openSettings && <Button variant="link" size="sm" className="h-auto p-0 text-accent" onClick={openSettings}>Ajustar meta</Button>}
+          {onChange && openSettings && <Button variant="link" size="sm" className="h-auto p-0 text-accent" onClick={openSettings}>Ajustar meta</Button>}
         </div>
         <div className="text-body font-semibold text-strong tabular-nums">{days >= goal ? `Meta da semana batida · ${days} de ${goal}` : `${days} de ${goal} treinos na semana`}</div>
         <Progress value={Math.min(100, (days / goal) * 100)} aria-label="Treinos na semana" className="h-1.5 bg-line" />
@@ -146,8 +146,8 @@ export function DoneSummary({ session, log, next, onEditTimes, onEffort }: { ses
 
       <BodyMapCard levels={levels} />
 
-      {onEffort ? (
-        <Chips label="Como foi hoje?" options={FEELING_LABEL} value={feeling} onChange={(f) => onEffort(f && FEELINGS[f])} />
+      {onChange ? (
+        <Chips label="Como foi hoje?" options={FEELING_LABEL} value={feeling} onChange={(f) => onChange({ effort: f && FEELINGS[f] })} />
       ) : <p className="text-center text-meta text-text-2">{feeling ? `Esforço: ${FEELING_LABEL[feeling].toLowerCase()}` : 'Sem esforço registrado'}</p>}
 
       <Collapsible asChild>
@@ -190,7 +190,7 @@ export function DoneSummary({ session, log, next, onEditTimes, onEffort }: { ses
         </Card>
       )}
 
-      {sheet === 'duration' && onEditTimes && session.startedAt && stats.minutes !== null && <DurationSheet startedAt={session.startedAt} minutes={stats.minutes} onSave={(s, e) => { onEditTimes(s, e); setSheet(undefined) }} onClose={() => setSheet(undefined)} />}
+      {sheet === 'duration' && onChange && session.startedAt && stats.minutes !== null && <DurationSheet startedAt={session.startedAt} minutes={stats.minutes} onSave={(endedAt) => { onChange({ endedAt }); setSheet(undefined) }} onClose={() => setSheet(undefined)} />}
       {sheet === 'score' && <ScoreSheet score={score} onClose={() => setSheet(undefined)} />}
       {typeof sheet === 'object' && <ShareSheet input={sheet} onClose={() => setSheet(undefined)} />}
     </>

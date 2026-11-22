@@ -9,6 +9,8 @@ export const markedSets = (e: SessionExercise) => e.sets.filter((set) => set !==
 export const hasMarkedSets = (s: WorkoutSession) => s.exercises.some(hasMarkedSet)
 export const hasMarkedSet = (e: SessionExercise) => e.sets.some(Boolean)
 export const isSkipped = (e: SessionExercise, i: number) => !!e.skipped?.includes(i)
+/** séries que ainda contam no treino em curso: a pulada sai do total */
+export const setsToDo = (e: SessionExercise) => e.sets.length - (e.skipped?.length ?? 0)
 export const isExerciseComplete = (e: SessionExercise) => e.sets.every((x, i) => x || isSkipped(e, i))
 export const allResolved = (s: WorkoutSession) => s.exercises.every(isExerciseComplete)
 export const firstIncompleteExercise = (s: WorkoutSession) => s.exercises.findIndex((e) => !isCardio(e) && !isExerciseComplete(e))
@@ -101,6 +103,7 @@ export function changeRestDuration(s: WorkoutSession, exIdx: number, restSec: nu
 /** leva o descanso novo pro plano. O plano pode ter sido editado no meio do treino: acha o exercício pela
  * ocorrência entre os de mesmo id (o 2º supino da sessão é o 2º do treino), não pela posição */
 export function changePlanRest(plan: WorkoutPlan, s: WorkoutSession, exIdx: number, restSec: number): WorkoutPlan {
+  if (!plan.workouts.some((w) => w.id === s.workoutId)) return plan
   const id = s.exercises[exIdx]?.exerciseId
   const nth = nthOccurrence(s.exercises, exIdx)
   return {

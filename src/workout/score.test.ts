@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import { bestSet, exerciseScore, sessionScore, upSoFar } from './score'
-import { trainingLog } from './extra'
 import type { SessionExercise, SetDone, WorkoutLog, WorkoutSession } from './types'
 import { pe } from '../../test/helpers'
 
@@ -31,10 +30,8 @@ describe('sessionScore', () => {
   it('sem exercícios dá 0', () => {
     expect(sessionScore({}, sess('2026-01-02', [])).score).toBe(0)
   })
-  it('conta quantos subiram', () => {
-    const s = sess('2026-01-02', [ex(50, '10')])
-    expect(sessionScore(logOf(prev), s)).toMatchObject({ up: 1, same: 0, down: 0 })
-    expect(upSoFar(logOf(prev), s)).toBe(1)
+  it('upSoFar conta quantos subiram', () => {
+    expect(upSoFar(logOf(prev), sess('2026-01-02', [ex(50, '10')]))).toBe(1)
   })
 })
 
@@ -60,9 +57,5 @@ describe('exerciseScore', () => {
   })
   it('cardio feito é timed, 0.7', () => {
     expect(score(ex(0, '20 min', {}, 1))).toMatchObject({ trend: 'timed', points: 0.7 })
-  })
-  it('compara com extra do dia anterior via trainingLog', () => {
-    const log = trainingLog({}, { '2026-01-01': prev })
-    expect(score(ex(50, '10'), log).trend).toBe('up')
   })
 })

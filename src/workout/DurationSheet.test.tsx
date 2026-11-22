@@ -9,7 +9,7 @@ test('ajustar os minutos mantém o início e move o fim, mesmo passando da meia-
   render(<DurationSheet startedAt={inicio} minutes={65} onSave={onSave} onClose={() => {}} />)
   await userEvent.click(screen.getByRole('button', { name: 'Aumentar duração' }))
   await userEvent.click(screen.getByRole('button', { name: 'Salvar' }))
-  expect(onSave).toHaveBeenCalledWith(inicio, new Date(2026, 10, 17, 0, 40).toISOString())
+  expect(onSave).toHaveBeenCalledWith(new Date(2026, 10, 17, 0, 40).toISOString())
 })
 
 test('digitar os minutos salva essa duração', async () => {
@@ -19,5 +19,5 @@ test('digitar os minutos salva essa duração', async () => {
   await userEvent.clear(campo)
   await userEvent.type(campo, '90')
   await userEvent.click(screen.getByRole('button', { name: 'Salvar' }))
-  expect(onSave).toHaveBeenCalledWith(inicio, new Date(2026, 10, 17, 1, 0).toISOString())
+  expect(onSave).toHaveBeenCalledWith(new Date(2026, 10, 17, 1, 0).toISOString())
 })

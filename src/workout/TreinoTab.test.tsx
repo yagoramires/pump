@@ -194,7 +194,6 @@ test('resumo: 1/2 séries sem volume; sessão antiga sem startedAt não mostra m
   await renderLoaded(<TreinoTab />)
   expect(await screen.findByText('Peito e tríceps')).toBeInTheDocument()
   expect(screen.queryByText(/subindo até agora/)).not.toBeInTheDocument()
-  expect(screen.queryByText('Volume de hoje')).not.toBeInTheDocument()
   expect(screen.getAllByText('1/2')).toHaveLength(2) // anel do resumo + card do exercício
   expect(screen.queryByText(/min/)).not.toBeInTheDocument()
 })
@@ -700,7 +699,6 @@ describe('resumo do treino concluído', () => {
     await save('workoutLog', { ...logOntem('2026-11-15T20:00:00.000Z'), '2026-11-16': hoje() })
     await renderLoaded(<TreinoTab />)
     expect(await screen.findByText('↑ 1 subindo até agora')).toBeInTheDocument()
-    expect(screen.queryByText('Volume de hoje')).not.toBeInTheDocument()
   })
 })
 
@@ -759,41 +757,33 @@ describe('treino extra', () => {
     expect(screen.getByText(/Treino extra concluído/)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Treino extra' })).not.toBeInTheDocument()
   })
-  test('no dia de descanso, Treino extra apaga o descanso e abre o extra', async () => {
+  test('no dia de descanso o extra abre sem apagar o descanso, e descartar volta pra tela de descanso', async () => {
     await save('workoutLog', { '2026-11-16': restRecord('2026-11-16') })
     const user = userEvent.setup()
     await renderLoaded(<TreinoTab />)
     await user.click(await screen.findByRole('button', { name: 'Treino extra' }))
     expect(await screen.findByRole('heading', { name: 'Treino extra' })).toBeInTheDocument()
-    await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16']).toBeUndefined())
-    expect((await stored('extraLog'))?.['2026-11-16'].workoutId).toBe('extra')
-  })
-  test('extra aberto no descanso: descartar devolve o descanso, direto ou pela confirmação', async () => {
-    await save('workoutLog', { '2026-11-16': restRecord('2026-11-16') })
-    const user = userEvent.setup()
-    await renderLoaded(<TreinoTab />)
-    await user.click(await screen.findByRole('button', { name: 'Treino extra' }))
-    await waitFor(async () => expect((await stored('extraLog'))?.['2026-11-16'].fromRest).toBe(true))
-    await user.click(await screen.findByRole('button', { name: 'Descartar treino extra' }))
-    await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16']).toEqual(restRecord('2026-11-16')))
-    expect((await stored('extraLog'))?.['2026-11-16']).toBeUndefined()
+    await waitFor(async () => expect((await stored('extraLog'))?.['2026-11-16']).toBeDefined())
+    expect((await stored('workoutLog'))?.['2026-11-16']).toEqual(restRecord('2026-11-16'))
+    await user.click(screen.getByRole('button', { name: 'Descartar treino extra' }))
     expect(await screen.findByText('Descanso marcado')).toBeInTheDocument()
-
-    await user.click(screen.getByRole('button', { name: 'Treino extra' }))
-    await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16']).toBeUndefined())
-    await act(() => save('extraLog', { '2026-11-16': { ...extraDe('2026-11-16', { marcada: true }), fromRest: true } }))
-    await user.click(await screen.findByRole('button', { name: 'Descartar treino extra' }))
-    await user.click(await screen.findByRole('button', { name: 'Descartar' }))
-    await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16']).toEqual(restRecord('2026-11-16')))
+    expect((await stored('extraLog'))?.['2026-11-16']).toBeUndefined()
   })
-  test('Editar séries do extra concluído reabre o extra', async () => {
+  test('extra concluído no dia de descanso aparece na tela de descanso', async () => {
+    await save('workoutLog', { '2026-11-16': restRecord('2026-11-16') })
+    await save('extraLog', { '2026-11-16': extraDe('2026-11-16', { marcada: true, completedAt: '2026-11-16T18:00:00.000Z' }) })
+    await renderLoaded(<TreinoTab />)
+    expect(await screen.findByText('Descanso marcado')).toBeInTheDocument()
+    expect(screen.getByText(/Treino extra concluído/)).toBeInTheDocument()
+  })
+  test('Editar séries do extra concluído reabre o extra e deixa descartar', async () => {
     await save('extraLog', { '2026-11-16': extraDe('2026-11-16', { marcada: true, completedAt: '2026-11-16T18:00:00.000Z' }) })
     const user = userEvent.setup()
     await renderLoaded(<TreinoTab />)
     await user.click(await screen.findByRole('button', { name: 'Editar séries do treino extra' }))
     expect(await screen.findByRole('heading', { name: 'Treino extra' })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Descartar treino extra' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Concluir treino' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Descartar treino extra' })).toBeInTheDocument()
     await waitFor(async () => expect((await stored('extraLog'))?.['2026-11-16'].completedAt).toBeUndefined())
   })
   test('extra de ontem sem concluir: Concluir grava no extraLog daquele dia', async () => {
@@ -864,12 +854,13 @@ test('toca na duração do treino concluído e edita os minutos', async () => {
   })
   expect(await screen.findByText('45 min')).toBeInTheDocument()
 })
-test('descartar extra esquecido aberto num dia de descanso devolve o descanso daquele dia', async () => {
-  const extra = { ...logOntem()['2026-11-15'], workoutId: 'extra', workoutLabel: 'Extra', workoutName: 'Treino extra', fromRest: true }
+test('descartar extra esquecido apaga só o extra daquele dia', async () => {
+  const extra = { ...logOntem()['2026-11-15'], workoutId: 'extra', workoutLabel: 'Extra', workoutName: 'Treino extra' }
+  await save('workoutLog', { '2026-11-15': restRecord('2026-11-15') })
   await save('extraLog', { '2026-11-15': extra })
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
   await user.click(await screen.findByRole('button', { name: 'Descartar' }))
   await waitFor(async () => expect((await stored('extraLog'))?.['2026-11-15']).toBeUndefined())
-  await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-15']?.rest).toBe(true))
+  expect((await stored('workoutLog'))?.['2026-11-15']).toEqual(restRecord('2026-11-15'))
 })

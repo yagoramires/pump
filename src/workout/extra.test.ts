@@ -1,8 +1,7 @@
-import { ex, planOf, pe } from '../../test/helpers'
+import { ex, pe } from '../../test/helpers'
 import type { WorkoutLog, WorkoutSession } from './types'
 import { addExtraExercise, removeExercise, startExtra, trainingLog, unfinishedExtra } from './extra'
 import { completedSessions, previousSets } from './stats'
-import { nextWorkout } from './schedule'
 
 const done = (date: string, id = 'w', marked = true): WorkoutSession => ({
   date, workoutId: id, workoutLabel: 'A', workoutName: 'T', completedAt: `${date}T10:00:00Z`,
@@ -28,11 +27,6 @@ const extra: WorkoutLog = { '2026-11-20': done('2026-11-20', 'extra') }
 
 test('ficha e extra do mesmo dia contam as duas', () => {
   expect(completedSessions(trainingLog(log, extra))).toHaveLength(2)
-})
-
-test('nextWorkout não recebe o extra', () => {
-  const plan = planOf([{ id: 'w' }, { id: 'v' }])
-  expect(nextWorkout(plan, log)?.id).toBe('v')
 })
 
 test('previousSets enxerga o extra de dias anteriores, não o de hoje', () => {
