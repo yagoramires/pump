@@ -49,6 +49,8 @@ export interface WorkoutSession {
   effort?: number
   /** hora do fim original enquanto as séries são editadas depois de concluir */
   editedFrom?: string
+  /** descanso de hoje que volta se a sessão iniciada depois dele for cancelada */
+  replacesRest?: boolean
   /** descanso marcado: sem exercícios e sem completedAt */
   rest?: boolean
 }

@@ -4,6 +4,15 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 8,
+    date: '2026-11-22',
+    novidades: [
+      'Cancele um treino em andamento pelo cabeçalho. Se já marcou séries, o Pump pede confirmação.',
+      'Use Somente cardio na tela de início para registrar uma sessão de cardio sem mudar a ordem da ficha.',
+    ],
+    correcoes: [],
+  },
+  {
     version: 7,
     date: '2026-11-22',
     novidades: [],

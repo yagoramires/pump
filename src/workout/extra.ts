@@ -1,12 +1,16 @@
 import { toPlanExercise } from './exercises'
-import { clearRest, isUnfinishedWorkout } from './session'
-import type { CustomExercise, Exercise, WorkoutLog, WorkoutSession } from './types'
+import { clearRest, isUnfinishedWorkout, startSession } from './session'
+import type { CustomExercise, Exercise, PlanExercise, WorkoutLog, WorkoutSession } from './types'
 
 export const EXTRA_ID = 'extra'
+export const CARDIO_ID = 'cardio'
 
 export const startExtra = (date: string, now = new Date()): WorkoutSession => ({
   date, startedAt: now.toISOString(), workoutId: EXTRA_ID, workoutLabel: 'Extra', workoutName: 'Treino extra', exercises: [],
 })
+
+export const startCardio = (date: string, exercises: PlanExercise[]) =>
+  startSession({ id: CARDIO_ID, label: 'Cardio', name: 'Somente cardio', exercises }, date)
 
 export function addExtraExercise(s: WorkoutSession, e: Exercise | CustomExercise, sets: number): WorkoutSession {
   const { sets: _planSets, ...ex } = toPlanExercise(e)
