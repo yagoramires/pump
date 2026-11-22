@@ -6,10 +6,8 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/compone
 
 const MIN: [number, number] = [1, 600]
 
-/** Edita a duração em minutos: o início fica, o fim vira início + minutos */
-export function DurationSheet({ startedAt, minutes, onSave, onClose }: { startedAt: string; minutes: number; onSave: (endedAt: string) => void; onClose: () => void }) {
+export function DurationSheet({ minutes, onSave, onClose }: { minutes: number; onSave: (minutes: number) => void; onClose: () => void }) {
   const [min, setMin] = useState(Math.max(MIN[0], minutes))
-  const save = () => onSave(new Date(Date.parse(startedAt) + min * 60000).toISOString())
   return (
     <Drawer open onOpenChange={(o) => !o && onClose()}>
       <DrawerContent>
@@ -21,7 +19,7 @@ export function DurationSheet({ startedAt, minutes, onSave, onClose }: { started
               <NumberField className="w-28 pr-10 text-center" aria-label="Duração em minutos" unit="min" inputMode="numeric" value={min} min={MIN[0]} max={MIN[1]} onChange={(n) => n != null && setMin(Math.round(n))} />
             </Stepper>
           </div>
-          <Button onClick={save}>Salvar</Button>
+          <Button onClick={() => onSave(min)}>Salvar</Button>
         </div>
       </DrawerContent>
     </Drawer>

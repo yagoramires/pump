@@ -737,16 +737,14 @@ describe('treino extra', () => {
     await user.click(screen.getByRole('button', { name: 'Voltar' }))
     expect(await screen.findByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
   })
-  test('descartar o extra não mexe na série já marcada da ficha', async () => {
+  test('com a ficha em andamento não abre treino extra; concluída, abre', async () => {
     const user = userEvent.setup()
     await renderStarted(<TreinoTab />)
+    expect(screen.queryByRole('button', { name: 'Treino extra' })).not.toBeInTheDocument()
     await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' }))
-    await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]).toBeTruthy())
-    await user.click(screen.getByRole('button', { name: 'Treino extra' }))
-    await user.click(await screen.findByRole('button', { name: 'Descartar treino extra' }))
-    await waitFor(async () => expect((await stored('extraLog'))?.['2026-11-16']).toBeUndefined())
-    expect((await stored('workoutLog'))?.['2026-11-16'].exercises[0].sets[0]).toEqual({ reps: '10', weightKg: 40 })
-    expect(await screen.findByRole('checkbox', { name: 'Série 1 de Supino reto' })).toBeChecked()
+    await user.click(screen.getByRole('button', { name: 'Concluir treino' }))
+    await user.click(await screen.findByRole('button', { name: 'Pular' }))
+    expect(await screen.findByRole('button', { name: 'Treino extra' })).toBeInTheDocument()
   })
   test('extra concluído não mexe na fila da ficha', async () => {
     await save('workoutPlan', plano2)
@@ -853,6 +851,23 @@ test('toca na duração do treino concluído e edita os minutos', async () => {
     expect([s?.startedAt, s?.endedAt]).toEqual([startedAt, new Date(2026, 10, 16, 17, 45).toISOString()])
   })
   expect(await screen.findByText('45 min')).toBeInTheDocument()
+})
+test('sessão antiga sem início: a duração vira editável e guarda o fim', async () => {
+  const completedAt = new Date(2026, 10, 16, 23, 59).toISOString()
+  const { startedAt: _s, ...antiga } = { ...logOntem()['2026-11-15'], date: '2026-11-16', completedAt }
+  await save('workoutLog', { '2026-11-16': antiga })
+  const user = userEvent.setup()
+  await renderLoaded(<TreinoTab />)
+  await user.click(await screen.findByRole('button', { name: /Duração/ }))
+  const campo = screen.getByRole('textbox', { name: 'Duração em minutos' })
+  await user.clear(campo)
+  await user.type(campo, '50')
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  await waitFor(async () => {
+    const s = (await stored('workoutLog'))?.['2026-11-16']
+    expect([s?.startedAt, s?.endedAt]).toEqual([new Date(2026, 10, 16, 23, 9).toISOString(), completedAt])
+  })
+  expect(await screen.findByText('50 min')).toBeInTheDocument()
 })
 test('descartar extra esquecido apaga só o extra daquele dia', async () => {
   const extra = { ...logOntem()['2026-11-15'], workoutId: 'extra', workoutLabel: 'Extra', workoutName: 'Treino extra' }

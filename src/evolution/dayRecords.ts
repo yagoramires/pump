@@ -5,7 +5,7 @@ import { hasWater } from '@/diet/water'
 import type { SupplementLog } from '@/diet/types'
 import type { WorkoutLog } from '@/workout/types'
 
-export function dayRecords(d: Pick<EvolutionInput, 'workoutLog' | 'dietLog' | 'waterLog' | 'measurements' | 'photoSets'> & { supplementLog: SupplementLog; extraLog: WorkoutLog }, date: string) {
+export function dayRecords(d: Pick<EvolutionInput, 'dietLog' | 'waterLog' | 'measurements' | 'photoSets'> & { workoutLog: WorkoutLog; extraLog: WorkoutLog; supplementLog: SupplementLog }, date: string) {
   const s = d.workoutLog[date]
   const x = d.extraLog[date]
   const diet = d.dietLog[date]

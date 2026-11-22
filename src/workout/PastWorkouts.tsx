@@ -23,7 +23,7 @@ export function PastWorkouts({ onClose }: { onClose: () => void }) {
       <div className="flex flex-col gap-3">
         <BackHeader title={open.workoutName} onBack={() => setOpenKey(undefined)} />
         <div className="label-caps -mt-2">{workoutDayLabel(open.date, open.workoutLabel)}</div>
-        <DoneSummary session={open} log={merged} />
+        <DoneSummary session={open} sessions={merged} />
       </div>
     )
   }
@@ -39,7 +39,7 @@ export function PastWorkouts({ onClose }: { onClose: () => void }) {
               <Button variant="ghost" onClick={() => setOpenKey(key(s))}>
                 <span className="block min-w-0 flex-1">
                   <span className="label-caps block">{workoutDayLabel(s.date, s.workoutLabel)}</span>
-                  <WorkoutDayLine session={s} log={merged} />
+                  <WorkoutDayLine session={s} sessions={merged} />
                 </span>
                 <ChevronRight className="size-4.5 shrink-0 text-faint" aria-hidden="true" />
               </Button>

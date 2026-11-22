@@ -2,7 +2,7 @@ import { GROUPS, muscleGroup } from '@/catalog/muscles'
 import { repsNumber } from '@/workout/reps'
 import { markedSets } from '@/workout/session'
 import { completedSessions, exerciseHistory, exerciseVolume, loadPoints, maxLoad } from '@/workout/stats'
-import type { SessionExercise, SetDone, WorkoutLog } from '@/workout/types'
+import type { SessionExercise, SetDone, WorkoutSession } from '@/workout/types'
 import type { Point } from './measurements'
 import { inPeriod, type Period } from './chart'
 
@@ -28,8 +28,8 @@ const measure = (points: Point[]): Measure => ({
 
 const repsOf = (e: SessionExercise) => markedSets(e).map((s) => repsNumber(s.reps))
 
-function calcAll(log: WorkoutLog, period: Period, today: string): ExerciseLoads[] {
-  const history = exerciseHistory(completedSessions(log).filter((s) => inPeriod(period, s.date, today)))
+function calcAll(sessions: WorkoutSession[], period: Period, today: string): ExerciseLoads[] {
+  const history = exerciseHistory(completedSessions(sessions).filter((s) => inPeriod(period, s.date, today)))
   return [...history].map(([exerciseId, entries]) => {
     const latest = entries[entries.length - 1].e
     const loads = loadPoints(entries)
@@ -55,8 +55,8 @@ const tally = (rows: LoadRow[], key: 'top' | 'total'): Tally => {
   return t
 }
 
-export function loadsSummary(log: WorkoutLog, period: Period, today: string) {
-  const all = calcAll(log, period, today)
+export function loadsSummary(sessions: WorkoutSession[], period: Period, today: string) {
+  const all = calcAll(sessions, period, today)
   const groups = GROUPS.map(({ token, label }) => ({
     token, label,
     rows: all.filter((c) => c.group.token === token)
@@ -68,5 +68,5 @@ export function loadsSummary(log: WorkoutLog, period: Period, today: string) {
   return { top: tally(rows, 'top'), total: tally(rows, 'total'), groups }
 }
 
-export const exerciseLoads = (log: WorkoutLog, exerciseId: string, period: Period, today: string): ExerciseLoads | undefined =>
-  calcAll(log, period, today).find((x) => x.exerciseId === exerciseId)
+export const exerciseLoads = (sessions: WorkoutSession[], exerciseId: string, period: Period, today: string): ExerciseLoads | undefined =>
+  calcAll(sessions, period, today).find((x) => x.exerciseId === exerciseId)

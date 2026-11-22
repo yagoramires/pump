@@ -1,7 +1,7 @@
 import { isCardio, isTimed, repsNumber } from './reps'
 import { markedSets, nthOccurrence } from './session'
 import { previousSets } from './stats'
-import type { SessionExercise, SetDone, WorkoutLog, WorkoutSession } from './types'
+import type { SessionExercise, SetDone, WorkoutSession } from './types'
 
 export type Trend = 'up' | 'same' | 'down' | 'new' | 'timed'
 export interface ExerciseScore { name: string; trend: Trend; points: number; done: number; planned: number; best?: SetDone; prevBest?: SetDone }
@@ -17,7 +17,7 @@ export function bestSet(sets: (SetDone | null)[]): SetDone | undefined {
 
 export const POINTS: Record<Trend, number> = { up: 1, same: 0.7, new: 0.7, timed: 0.7, down: 0.4 }
 
-export function exerciseScore(log: WorkoutLog, date: string, e: SessionExercise, nth: number): ExerciseScore {
+export function exerciseScore(sessions: WorkoutSession[], date: string, e: SessionExercise, nth: number): ExerciseScore {
   const planned = e.sets.length
   const done = markedSets(e).length
   const best = bestSet(e.sets)
@@ -25,7 +25,7 @@ export function exerciseScore(log: WorkoutLog, date: string, e: SessionExercise,
   const ratio = planned ? done / planned : 0
   if (isCardio(e) || isTimed(e.reps)) return { ...base, trend: 'timed', points: POINTS.timed * ratio }
 
-  const prevBest = bestSet(previousSets(log, date, e.exerciseId, nth))
+  const prevBest = bestSet(previousSets(sessions, date, e.exerciseId, nth))
   let trend: Trend = 'new'
   if (best && prevBest) {
     const bodyweight = best.weightKg === 0 && prevBest.weightKg === 0
@@ -36,16 +36,16 @@ export function exerciseScore(log: WorkoutLog, date: string, e: SessionExercise,
   return { ...base, prevBest, trend, points: POINTS[trend] * ratio }
 }
 
-const rowsOf = (log: WorkoutLog, s: WorkoutSession) => s.exercises.map((e, i) => exerciseScore(log, s.date, e, nthOccurrence(s.exercises, i)))
+const rowsOf = (sessions: WorkoutSession[], s: WorkoutSession) => s.exercises.map((e, i) => exerciseScore(sessions, s.date, e, nthOccurrence(s.exercises, i)))
 
 export const PERF_WEIGHT = 0.7
 
-export function sessionScore(log: WorkoutLog, s: WorkoutSession) {
-  const rows = rowsOf(log, s)
+export function sessionScore(sessions: WorkoutSession[], s: WorkoutSession) {
+  const rows = rowsOf(sessions, s)
   const perf = rows.length ? (10 * rows.reduce((a, r) => a + r.points, 0)) / rows.length : 0
   const effort = s.effort
   const score = effort ? PERF_WEIGHT * perf + (1 - PERF_WEIGHT) * effort : perf
   return { score: Math.round(score * 10) / 10, perf, effort, rows }
 }
 
-export const upSoFar = (log: WorkoutLog, s: WorkoutSession): number => rowsOf(log, s).filter((r) => r.done > 0 && r.trend === 'up').length
+export const upSoFar = (sessions: WorkoutSession[], s: WorkoutSession): number => rowsOf(sessions, s).filter((r) => r.done > 0 && r.trend === 'up').length

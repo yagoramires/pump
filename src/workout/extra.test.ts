@@ -1,6 +1,6 @@
 import { ex, pe } from '../../test/helpers'
 import type { WorkoutLog, WorkoutSession } from './types'
-import { addExtraExercise, removeExercise, startExtra, trainingLog, unfinishedExtra } from './extra'
+import { addExtraExercise, removeExercise, startExtra, trainingSessions, unfinishedExtra } from './extra'
 import { completedSessions, previousSets } from './stats'
 
 const done = (date: string, id = 'w', marked = true): WorkoutSession => ({
@@ -26,11 +26,11 @@ const log: WorkoutLog = { '2026-11-20': done('2026-11-20') }
 const extra: WorkoutLog = { '2026-11-20': done('2026-11-20', 'extra') }
 
 test('ficha e extra do mesmo dia contam as duas', () => {
-  expect(completedSessions(trainingLog(log, extra))).toHaveLength(2)
+  expect(completedSessions(trainingSessions(log, extra))).toHaveLength(2)
 })
 
 test('previousSets enxerga o extra de dias anteriores, não o de hoje', () => {
-  const only = trainingLog({}, extra)
+  const only = trainingSessions({}, extra)
   expect(previousSets(only, '2026-11-21', 'Supino')).toEqual([{ reps: '8', weightKg: 50 }])
   expect(previousSets(only, '2026-11-20', 'Supino')).toEqual([])
 })

@@ -117,14 +117,16 @@ export function TreinoTab() {
     setExtraLog((prev) => (prev[today] ? prev : { ...prev, [today]: startExtra(today) }))
     setOpenIdx('auto')
   }
-  const actions = <>{!extra && <Button variant="link" size="sm" className="text-accent" onClick={startExtraToday}><Plus aria-hidden="true" /><span className="max-[359px]:sr-only">Treino extra</span></Button>}{pastLink}</>
+  // um treino ao vivo por vez: com a ficha em andamento não abre extra
+  const fichaOpen = !!sessionOf(log[today]) && !log[today].completedAt
+  const actions = <>{!extra && !fichaOpen && <Button variant="link" size="sm" className="text-accent" onClick={startExtraToday}><Plus aria-hidden="true" /><span className="max-[359px]:sr-only">Treino extra</span></Button>}{pastLink}</>
   if (pastOpen) return <Overlay><PastWorkouts onClose={() => setPastOpen(false)} /></Overlay>
   if (extraSummary && extra?.completedAt) {
     return (
       <Overlay>
         <div className="flex flex-col gap-3 pb-6">
           <BackHeader title="Treino extra" onBack={() => setExtraSummary(false)} />
-          <DoneSummary session={extra} log={training} onChange={(p) => patchExtra((s) => ({ ...s, ...p }))} />
+          <DoneSummary session={extra} sessions={training} onChange={(p) => patchExtra((s) => ({ ...s, ...p }))} />
         </div>
       </Overlay>
     )
@@ -280,10 +282,10 @@ export function TreinoTab() {
 
       {!session && !extraOpen && workout ? (
         <>
-          <WorkoutPreview workout={workout} log={training} today={today} />
+          <WorkoutPreview workout={workout} sessions={training} today={today} />
           {!log[today] && !extra && <Button variant="outline" className="w-full" onClick={markRest}><Moon aria-hidden="true" /> Descansar hoje</Button>}
         </>
-      ) : session?.completedAt ? <DoneSummary session={session} log={training} next={next} onChange={(p) => patch((s) => ({ ...s, ...p }))} /> : (
+      ) : session?.completedAt ? <DoneSummary session={session} sessions={training} next={next} onChange={(p) => patch((s) => ({ ...s, ...p }))} /> : (
         <>
         <Card className="flex-row items-center gap-3.5">
           <div

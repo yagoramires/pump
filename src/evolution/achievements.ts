@@ -36,10 +36,10 @@ function dayRun(from: string | undefined, today: string, ok: (k: string) => bool
 }
 
 export function computeAchievements(d: EvolutionInput, today: string): Achievement[] {
-  const sessions = completedSessions(d.workoutLog)
+  const sessions = completedSessions(d.sessions)
   const total = (n: number): Achievement['earnedAt'] => sessions[n - 1]?.date
 
-  const trained = trainedDays(d.workoutLog)
+  const trained = trainedDays(d.sessions)
   const goal = weeklyGoal(d.profile.daysPerWeek, d.workoutPlan.workouts.length)
   const thisWeek = weekStart(today)
   const firstWeek = sessions.length ? weekStart(sessions[0].date) : ''

@@ -51,7 +51,7 @@ export const dietDay = (done: boolean[], over: Partial<DietDay> = {}): DietDay =
 })
 
 export const evolutionInput = (over: Partial<EvolutionInput> = {}): EvolutionInput => ({
-  workoutLog: DEFAULTS.workoutLog, workoutPlan: DEFAULTS.workoutPlan, measurements: DEFAULTS.measurements, photoSets: DEFAULTS.photoSets,
+  sessions: [], workoutPlan: DEFAULTS.workoutPlan, measurements: DEFAULTS.measurements, photoSets: DEFAULTS.photoSets,
   profile: DEFAULTS.profile, dietLog: DEFAULTS.dietLog, waterLog: DEFAULTS.waterLog, dietPlan: DEFAULTS.dietPlan, ...over,
 })
 

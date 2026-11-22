@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui/card'
 import { formatDayMonth } from '@/lib/date'
 import { formatKg } from '@/lib/number'
-import type { Workout, WorkoutLog } from './types'
+import type { Workout, WorkoutSession } from './types'
 import { completedSessions, previousSets, sessionStats, suggestedKg } from './stats'
 import { nthOccurrence } from './session'
 import { isCardio } from './reps'
@@ -20,10 +20,10 @@ function Stat({ value, label }: { value: string; label: string }) {
 }
 
 /** antes de iniciar: o que o treino vai trabalhar, quanto é e como foi da última vez */
-export function WorkoutPreview({ workout, log, today }: { workout: Workout; log: WorkoutLog; today: string }) {
+export function WorkoutPreview({ workout, sessions, today }: { workout: Workout; sessions: WorkoutSession[]; today: string }) {
   const levels = useMuscleLevels(workout.exercises)
   const sets = workout.exercises.reduce((a, e) => a + e.sets, 0)
-  const last = completedSessions(log).filter((s) => s.workoutId === workout.id && s.date < today).at(-1)
+  const last = completedSessions(sessions).filter((s) => s.workoutId === workout.id && s.date < today).at(-1)
   const lastMinutes = last && sessionStats(last).minutes
   return (
     <>
@@ -38,7 +38,7 @@ export function WorkoutPreview({ workout, log, today }: { workout: Workout; log:
         {workout.exercises.map((e, i) => {
           const cardio = isCardio(e)
           // a carga que a tela do treino já vai sugerir: a da última vez, ou a do plano
-          const kg = suggestedKg(e, previousSets(log, today, e.exerciseId, nthOccurrence(workout.exercises, i)))
+          const kg = suggestedKg(e, previousSets(sessions, today, e.exerciseId, nthOccurrence(workout.exercises, i)))
           return (
             <div key={i} className="flex items-center gap-3 border-t border-line px-3.5 py-2.5 first:border-t-0">
               <ExerciseThumb muscles={e.muscles} image={e.images[0]} cardio={cardio} />

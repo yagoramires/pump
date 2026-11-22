@@ -10,6 +10,10 @@ export const CHANGELOG: [Release, ...Release[]] = [
     correcoes: [
       'Treino extra num dia de descanso não apaga mais o descanso; descartar o extra e depois desfazer não deixa o dia com os dois',
       'Dá pra descartar o treino extra enquanto edita as séries dele, mesmo depois de tirar todos os exercícios',
+      'Treino extra só abre quando o treino do dia não está em andamento',
+      'Pular uma série não cancela mais o descanso que está correndo',
+      'A duração de treinos antigos concluídos sem horário de início agora pode ser editada',
+      'Treinos anteriores abrem mais rápido com histórico grande',
     ],
   },
   {

@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card'
 import { Item } from '@/components/ui/item'
-import type { WorkoutLog } from '@/workout/types'
+import type { WorkoutSession } from '@/workout/types'
 import { MeasureValue } from './Delta'
 import { MODE_TEXT, loadsSummary, type LoadRow, type Measure, type Tally } from './loads'
 import { PERIODS, type Period } from './chart'
@@ -21,8 +21,8 @@ function Value({ m, row }: { m: Measure; row: LoadRow }) {
   )
 }
 
-export function LoadsCard({ log, today, period, onPeriod, onOpen }: { log: WorkoutLog; today: string; period: Period; onPeriod: (p: Period) => void; onOpen: (exerciseId: string) => void }) {
-  const { top, total, groups } = useMemo(() => loadsSummary(log, period, today), [log, period, today])
+export function LoadsCard({ sessions, today, period, onPeriod, onOpen }: { sessions: WorkoutSession[]; today: string; period: Period; onPeriod: (p: Period) => void; onOpen: (exerciseId: string) => void }) {
+  const { top, total, groups } = useMemo(() => loadsSummary(sessions, period, today), [sessions, period, today])
   return (
     <Card size="flush">
       <CardHeader>

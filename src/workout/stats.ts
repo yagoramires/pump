@@ -1,14 +1,14 @@
 import { allResolved, hasMarkedSet, markedSets, setsToDo } from './session'
 import { isRest } from './rest'
 import { isCardio, isTimed, repsNumber } from './reps'
-import type { SessionExercise, SetDone, WorkoutLog, WorkoutSession } from './types'
+import type { SessionExercise, SetDone, WorkoutSession } from './types'
 
 const doneSets = (s: WorkoutSession) => s.exercises.flatMap(markedSets)
 
 // por tempo: as "reps" são segundos, não entram no volume
 export const exerciseVolume = (e: SessionExercise) => isTimed(e.reps) ? 0 : markedSets(e).reduce((a, d) => a + d.weightKg * repsNumber(d.reps), 0)
 
-export const completedSessions = (log: WorkoutLog) => Object.values(log)
+export const completedSessions = (sessions: WorkoutSession[]) => sessions
   .filter((s) => !isRest(s) && s.completedAt)
   .sort((a, b) => a.date.localeCompare(b.date) || (a.completedAt ?? '').localeCompare(b.completedAt ?? ''))
 
@@ -50,19 +50,32 @@ export const sessionStats = (s: WorkoutSession, now?: Date) => {
 }
 
 const timeOf = (s: WorkoutSession) => s.completedAt ?? s.endedAt ?? s.startedAt ?? ''
-// o log nunca é mutado (cada mudança gera outro objeto): a ordem vale enquanto o objeto viver
-const newestCache = new WeakMap<WorkoutLog, WorkoutSession[]>()
-/** mais recente primeiro, por data e depois hora; não usa as chaves, que no log mesclado não são datas */
-const newestFirst = (log: WorkoutLog) => {
-  let list = newestCache.get(log)
-  if (!list) newestCache.set(log, (list = Object.values(log).sort((a, b) => b.date.localeCompare(a.date) || timeOf(b).localeCompare(timeOf(a)))))
+// a lista nunca é mutada (cada mudança gera outra): a ordem vale enquanto ela viver
+const newestCache = new WeakMap<WorkoutSession[], WorkoutSession[]>()
+/** mais recente primeiro, por data e depois hora */
+const newestFirst = (sessions: WorkoutSession[]) => {
+  let list = newestCache.get(sessions)
+  if (!list) newestCache.set(sessions, (list = [...sessions].sort((a, b) => b.date.localeCompare(a.date) || timeOf(b).localeCompare(timeOf(a)))))
   return list
 }
 
+/** índice da 1ª sessão de data anterior a `today` na lista mais-recente-primeiro (busca binária: listas longas no histórico) */
+const firstBefore = (list: WorkoutSession[], today: string) => {
+  let lo = 0
+  let hi = list.length
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1
+    if (list[mid].date >= today) lo = mid + 1
+    else hi = mid
+  }
+  return lo
+}
+
 /** nth: qual aparição do exercício no treino de hoje (o 2º supino compara com o 2º supino); sem par, usa a 1ª */
-export const previousSets = (log: WorkoutLog, today: string, exerciseId: string, nth = 0): (SetDone | null)[] => {
-  for (const s of newestFirst(log)) {
-    if (s.date >= today) continue
+export const previousSets = (sessions: WorkoutSession[], today: string, exerciseId: string, nth = 0): (SetDone | null)[] => {
+  const list = newestFirst(sessions)
+  for (let i = firstBefore(list, today); i < list.length; i++) {
+    const s = list[i]
     const same = s.exercises.filter((e) => e.exerciseId === exerciseId)
     const ex = same[nth] ?? same[0]
     if (ex && hasMarkedSet(ex)) return ex.sets

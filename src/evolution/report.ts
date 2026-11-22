@@ -20,7 +20,7 @@ export interface Report {
 }
 
 export function buildReport(d: EvolutionInput, today: string): Report {
-  const sessions = completedSessions(d.workoutLog)
+  const sessions = completedSessions(d.sessions)
   const ms = byDate(d.measurements)
   const sets = byDate(d.photoSets)
   const start = [sessions[0]?.date, ms[0]?.date, sets[0]?.date, firstDietDate(d.dietLog, d.waterLog)].filter((x): x is string => !!x).sort()[0] ?? today

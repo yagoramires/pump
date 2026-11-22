@@ -59,10 +59,10 @@ export const setDone = (s: WorkoutSession, exIdx: number, setIdx: number, v: Set
     return v ? unskip(next, setIdx) : next
   })
 
-/** pular limpa os valores da série e o descanso; pular de novo volta a não marcada */
+/** pular limpa os valores da série (o descanso segue); pular de novo volta a não marcada */
 export function toggleSkip(s: WorkoutSession, exIdx: number, setIdx: number, now: number): WorkoutSession {
   if (isSkipped(s.exercises[exIdx], setIdx)) return withExercise(s, exIdx, (e) => unskip(e, setIdx))
-  return markEnd(clearRest(withExercise(setDone(s, exIdx, setIdx, null), exIdx, (e) => ({ ...e, skipped: [...(e.skipped ?? []), setIdx] }))), now)
+  return markEnd(withExercise(setDone(s, exIdx, setIdx, null), exIdx, (e) => ({ ...e, skipped: [...(e.skipped ?? []), setIdx] })), now)
 }
 
 // editar um treino concluído não estica a duração

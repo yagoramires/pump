@@ -117,13 +117,13 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
               {done && (
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c2)"><Dumbbell size={16} aria-hidden="true" /></IconDot>
-                  <WorkoutDayLine session={done} log={training} now={now} />
+                  <WorkoutDayLine session={done} sessions={training} now={now} />
                 </div>
               )}
               {extra && (
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c2)"><Dumbbell size={16} aria-hidden="true" /></IconDot>
-                  <WorkoutDayLine session={extra} log={training} now={now} />
+                  <WorkoutDayLine session={extra} sessions={training} now={now} />
                 </div>
               )}
               {rest && (

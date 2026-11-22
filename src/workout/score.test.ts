@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { bestSet, exerciseScore, sessionScore, upSoFar } from './score'
-import type { SessionExercise, SetDone, WorkoutLog, WorkoutSession } from './types'
+import type { SessionExercise, SetDone, WorkoutSession } from './types'
 import { pe } from '../../test/helpers'
 
 const ex = (kg: number, reps: string, over: Partial<SessionExercise> = {}, n = 3): SessionExercise =>
   ({ ...pe({ reps }), sets: Array(n).fill({ weightKg: kg, reps } as SetDone), ...over })
 const sess = (date: string, exercises: SessionExercise[], effort?: number): WorkoutSession =>
   ({ date, workoutId: 'w', workoutLabel: 'A', workoutName: 'A', exercises, effort })
-const logOf = (...ss: WorkoutSession[]): WorkoutLog => Object.fromEntries(ss.map((s) => [s.date, s]))
+const logOf = (...ss: WorkoutSession[]): WorkoutSession[] => ss
 
 describe('bestSet', () => {
   it('escolhe pelo 1RM estimado', () => {
@@ -28,7 +28,7 @@ describe('sessionScore', () => {
     expect(sessionScore(logOf(prev), sess('2026-01-02', [ex(50, '10')])).score).toBe(10)
   })
   it('sem exercícios dá 0', () => {
-    expect(sessionScore({}, sess('2026-01-02', [])).score).toBe(0)
+    expect(sessionScore([], sess('2026-01-02', [])).score).toBe(0)
   })
   it('upSoFar conta quantos subiram', () => {
     expect(upSoFar(logOf(prev), sess('2026-01-02', [ex(50, '10')]))).toBe(1)
@@ -39,7 +39,7 @@ describe('exerciseScore', () => {
   const prev = sess('2026-01-01', [ex(40, '10')])
   const score = (e: SessionExercise, log = logOf(prev)) => exerciseScore(log, '2026-01-02', e, 0)
   it('primeira vez é new, 0.7', () => {
-    expect(exerciseScore({}, '2026-01-02', ex(40, '10'), 0)).toMatchObject({ trend: 'new', points: 0.7 })
+    expect(exerciseScore([], '2026-01-02', ex(40, '10'), 0)).toMatchObject({ trend: 'new', points: 0.7 })
   })
   it('força igual, mesmo zero, é same', () => {
     expect(score(ex(0, 'máx'), logOf(sess('2026-01-01', [ex(0, 'máx')])))).toMatchObject({ trend: 'same' })

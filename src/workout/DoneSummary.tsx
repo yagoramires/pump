@@ -11,7 +11,7 @@ import { addDays, formatDayMonth, mondayWeekStart } from '@/lib/date'
 import { formatDec, formatKg, plural } from '@/lib/number'
 import { useToday } from '@/lib/useToday'
 import { usePersisted } from '@/storage/db'
-import type { SessionExercise, SetDone, Workout, WorkoutLog, WorkoutSession } from './types'
+import type { SessionExercise, SetDone, Workout, WorkoutSession } from './types'
 import { sessionStats } from './stats'
 import { hasMarkedSet, markedSets } from './session'
 import { useMuscleLevels } from './useMuscleLevels'
@@ -44,6 +44,14 @@ function rowText(r: ExerciseScore) {
   if (r.done < r.planned || !r.best) return `${r.done} de ${r.planned} séries`
   const before = r.prevBest && (r.trend === 'up' || r.trend === 'down') ? ` (antes ${setText(r.prevBest)})` : ''
   return [ARROW[r.trend], `${setText(r.best)}${before}`].filter(Boolean).join(' ')
+}
+
+/** com início, o fim vira início + minutos; sessão antiga sem início guarda o fim e ganha o início */
+function withMinutes(s: WorkoutSession, min: number): Pick<WorkoutSession, 'startedAt' | 'endedAt'> {
+  const ms = min * 60000
+  if (s.startedAt) return { endedAt: new Date(Date.parse(s.startedAt) + ms).toISOString() }
+  const end = s.endedAt ?? s.completedAt!
+  return { startedAt: new Date(Date.parse(end) - ms).toISOString(), endedAt: end }
 }
 
 const HIGHLIGHT_ICON = { first: Sparkles, record: Trophy, goal: Target, improved: TrendingUp, neutral: Check }
@@ -84,7 +92,7 @@ function ExerciseRow({ e, r, record }: { e: SessionExercise; r: ExerciseScore; r
 }
 
 /** sem `onChange` (Treinos anteriores) a tela é só leitura */
-export function DoneSummary({ session, log, next, onChange }: { session: WorkoutSession; log: WorkoutLog; next?: Workout; onChange?: (p: Pick<WorkoutSession, 'endedAt' | 'effort'>) => void }) {
+export function DoneSummary({ session, sessions, next, onChange }: { session: WorkoutSession; sessions: WorkoutSession[]; next?: Workout; onChange?: (p: Pick<WorkoutSession, 'startedAt' | 'endedAt' | 'effort'>) => void }) {
   const [sheet, setSheet] = useState<'duration' | 'score' | CardInput>()
   const [profile] = usePersisted('profile')
   const [plan] = usePersisted('workoutPlan')
@@ -94,11 +102,11 @@ export function DoneSummary({ session, log, next, onChange }: { session: Workout
   const levels = useMuscleLevels(done)
 
   const stats = sessionStats(session)
-  const score = sessionScore(log, session)
+  const score = sessionScore(sessions, session)
   const goal = weeklyGoal(profile.daysPerWeek, plan.workouts.length)
-  const highlight = sessionHighlight(log, session, goal)
-  const days = weekDays(log, session)
-  const marks = exerciseMarks(log, session)
+  const highlight = sessionHighlight(sessions, session, goal)
+  const days = weekDays(sessions, session)
+  const marks = exerciseMarks(sessions, session)
   const volume = volumeCoverage(session)
   const count = exerciseCount(session)
   const duration = stats.minutes === null ? '—' : formatDuration(stats.minutes)
@@ -125,7 +133,7 @@ export function DoneSummary({ session, log, next, onChange }: { session: Workout
         {muscles.length > 0 && <div className="text-meta text-text-2">{muscles.join(' · ')}</div>}
       </Card>
       <div className="flex gap-2">
-        <Stat value={duration} label="Duração" onClick={onChange && stats.minutes !== null ? () => setSheet('duration') : undefined} />
+        <Stat value={duration} label="Duração" onClick={onChange && (() => setSheet('duration'))} />
         <Stat value={String(count)} label={count === 1 ? 'Exercício' : 'Exercícios'} />
         <Stat value={String(stats.done)} label={stats.done === 1 ? 'Série' : 'Séries'} />
       </div>
@@ -190,7 +198,7 @@ export function DoneSummary({ session, log, next, onChange }: { session: Workout
         </Card>
       )}
 
-      {sheet === 'duration' && onChange && session.startedAt && stats.minutes !== null && <DurationSheet startedAt={session.startedAt} minutes={stats.minutes} onSave={(endedAt) => { onChange({ endedAt }); setSheet(undefined) }} onClose={() => setSheet(undefined)} />}
+      {sheet === 'duration' && onChange && <DurationSheet minutes={stats.minutes ?? 60} onSave={(min) => { onChange(withMinutes(session, min)); setSheet(undefined) }} onClose={() => setSheet(undefined)} />}
       {sheet === 'score' && <ScoreSheet score={score} onClose={() => setSheet(undefined)} />}
       {typeof sheet === 'object' && <ShareSheet input={sheet} onClose={() => setSheet(undefined)} />}
     </>

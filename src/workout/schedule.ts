@@ -3,7 +3,7 @@ import { isUnfinishedWorkout } from './session'
 import { completedSessions } from './stats'
 
 export const nextWorkout = (plan: WorkoutPlan, log: WorkoutLog): Workout | undefined => {
-  const done = completedSessions(log)
+  const done = completedSessions(Object.values(log))
   const { start } = plan
   // conta o início: treino começado antes do import e reaberto/concluído depois não cancela a escolha
   const chosen = start && !done.some((s) => (s.startedAt ?? s.completedAt)! > start.since) && plan.workouts.find((w) => w.label === start.label)
@@ -15,7 +15,7 @@ export const nextWorkout = (plan: WorkoutPlan, log: WorkoutLog): Workout | undef
 
 /** sessão de dia anterior, posterior à última concluída, com série marcada que ficou sem concluir (as mais antigas ficam como estão) */
 export const unfinishedSession = (log: WorkoutLog, today: string): WorkoutSession | undefined => {
-  const lastDone = completedSessions(log).at(-1)?.date ?? ''
+  const lastDone = completedSessions(Object.values(log)).at(-1)?.date ?? ''
   return Object.values(log)
     .filter((s) => s.date > lastDone && s.date < today && isUnfinishedWorkout(s))
     .sort((a, b) => a.date.localeCompare(b.date))
