@@ -68,6 +68,18 @@ test('Configurações: grupo DIETA abre cardápio, IA e a tela da água, e cada 
   await user.click(screen.getByRole('button', { name: 'Voltar' }))
   expect(await screen.findByRole('heading', { name: 'Configurações' })).toBeInTheDocument()
 })
+test('Configurações: MEDIDAS abre o registro de medidas de hoje e mostra o último registro', async () => {
+  await seedStore({
+    settings: { lastTab: 'treino', onboardingDone: true, seenChangelog: CHANGELOG[0].version }, profile: { sex: 'M', heightCm: 180 },
+    measurements: [{ id: 'm', date: '2026-11-10', weightKg: 82 }],
+  })
+  const user = userEvent.setup()
+  await renderLoaded(<App />)
+  await user.click(await screen.findByRole('button', { name: 'Configurações' }))
+  const medidas = within(screen.getByRole('group', { name: 'MEDIDAS' }))
+  await user.click(medidas.getByRole('button', { name: /Registrar medidas.*Último registro: 10 nov/ }))
+  expect(await screen.findByRole('dialog', { name: /^Registrar · / })).toBeInTheDocument()
+})
 test('dados ilegíveis: tela de erro em vez da montagem, sem gravar nada', async () => {
   const settings = { lastTab: 'treino' as const, onboardingDone: true }
   await seedStore({ settings })
@@ -112,5 +124,6 @@ test('versão nova abre as Novidades uma vez; Configurações lista o histórico
   await user.click(await screen.findByRole('button', { name: /configurações/i }))
   expect(screen.queryByRole('dialog', { name: 'Novidades' })).not.toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: /^Novidades/ }))
-  expect(await screen.findByRole('heading', { name: formatDayMonth(CHANGELOG[0].date) })).toBeInTheDocument()
+  // mais de uma versão no mesmo dia repete o título da data
+  expect((await screen.findAllByRole('heading', { name: formatDayMonth(CHANGELOG[0].date) }))[0]).toBeInTheDocument()
 })

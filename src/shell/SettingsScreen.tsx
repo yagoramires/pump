@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { RotateCcw, Share2, Sparkles, Upload, User } from 'lucide-react'
+import { RotateCcw, Ruler, Share2, Sparkles, Upload, User } from 'lucide-react'
 import { usePersisted } from '@/storage/db'
 import { formatDayMonth, todayKey } from '@/lib/date'
 import { ChangelogList } from './Changelog'
@@ -10,7 +10,8 @@ import { Overlay } from '@/components/Overlay'
 import { BackHeader } from '@/components/BackHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { SettingsRow, SettingsSection } from '@/components/SettingsSection'
-import { latestWeight } from '@/evolution/measurements'
+import { byDate, latestWeight } from '@/evolution/measurements'
+import { MeasureDrawer } from '@/evolution/MeasureDrawer'
 import { ProfileScreen } from '@/profile/ProfileScreen'
 import { hasProfile } from '@/profile/profile'
 import { WorkoutSettings } from '@/workout/WorkoutSettings'
@@ -27,9 +28,11 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
   const [settings, setSettings] = usePersisted('settings')
   const [view, setView] = useState<ReactNode>()
   const [confirmRedo, setConfirmRedo] = useState(false)
+  const [measuring, setMeasuring] = useState(false)
   const [profile] = usePersisted('profile')
   const [measurements] = usePersisted('measurements')
   const weight = latestWeight(measurements)
+  const lastMeasure = byDate(measurements).at(-1)?.date
   const back = () => setView(undefined)
 
   if (view) return <Overlay>{view}</Overlay>
@@ -46,6 +49,9 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
           icon={<User size={18} aria-hidden="true" />} color="var(--c2)" title="Perfil" sub={weight && hasProfile(profile) ? `${formatKg(weight)} kg · ${profile.heightCm} cm` : undefined}
           onClick={() => setView(<><BackHeader title="Perfil" onBack={back} /><div className="mt-3"><ProfileScreen onDone={back} /></div></>)}
         />
+      </SettingsSection>
+      <SettingsSection title="MEDIDAS">
+        <SettingsRow icon={<Ruler size={18} aria-hidden="true" />} color="var(--c6)" title="Registrar medidas" sub={lastMeasure ? `Último registro: ${formatDayMonth(lastMeasure)}` : 'Nenhum registro ainda'} onClick={() => setMeasuring(true)} />
       </SettingsSection>
       <SettingsSection title="DIETA">
         <DietSettings open={setView} />
@@ -66,6 +72,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
       <Card size="flush" className="mt-2.5">
         <SettingsRow icon={<RotateCcw size={18} aria-hidden="true" />} color="var(--color-negative)" title="Refazer montagem" destructive onClick={() => setConfirmRedo(true)} />
       </Card>
+      {measuring && <MeasureDrawer date={todayKey()} onClose={() => setMeasuring(false)} />}
       <ConfirmDialog
         open={confirmRedo} title="Refazer montagem?" text="Você volta ao passo a passo inicial. Seus dados continuam salvos." confirm="Refazer" destructive
         onConfirm={() => { setSettings((s) => ({ ...s, onboardingDone: false })); onClose() }} onCancel={() => setConfirmRedo(false)}
