@@ -1,8 +1,9 @@
 import type { EvolutionInput } from './types'
-import { addDays, eachDay, weekStart } from '@/lib/date'
+import { addDays, eachDay, mondayWeekStart as weekStart } from '@/lib/date'
 import { formatKg } from '@/lib/number'
 import { dayStatus } from '@/diet/day'
 import { completedSessions, exerciseHistory, loadPoints } from '@/workout/stats'
+import { trainedDays, weeklyGoal } from '@/workout/week'
 import { waterMet } from '@/diet/water'
 import { goalDirection } from './goal'
 import { WEIGHT, byDate, fatSeries, series } from './measurements'
@@ -38,8 +39,8 @@ export function computeAchievements(d: EvolutionInput, today: string): Achieveme
   const sessions = completedSessions(d.workoutLog)
   const total = (n: number): Achievement['earnedAt'] => sessions[n - 1]?.date
 
-  const trained = new Set(sessions.map((s) => s.date))
-  const goal = Math.min(7, Math.max(1, d.profile.daysPerWeek ?? d.workoutPlan.workouts.length))
+  const trained = trainedDays(d.workoutLog)
+  const goal = weeklyGoal(d.profile.daysPerWeek, d.workoutPlan.workouts.length)
   const thisWeek = weekStart(today)
   const firstWeek = sessions.length ? weekStart(sessions[0].date) : ''
   const reached = new Map<number, string>()

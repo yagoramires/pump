@@ -1,26 +1,23 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { startSession } from './session'
 import { DurationSheet } from './DurationSheet'
-import { pe } from '../../test/helpers'
 
-const sessao = (startedAt: Date, endedAt: Date) => ({
-  ...startSession({ id: 'a', label: 'A', name: 'Peito', exercises: [pe({ name: 'Supino' })] }, '2026-11-16'),
-  startedAt: startedAt.toISOString(), endedAt: endedAt.toISOString(),
-})
+const inicio = new Date(2026, 10, 16, 23, 30).toISOString()
 
-test('treino que passa da meia-noite salva com o fim no dia seguinte', async () => {
+test('ajustar os minutos mantém o início e move o fim, mesmo passando da meia-noite', async () => {
   const onSave = vi.fn()
-  render(<DurationSheet session={sessao(new Date(2026, 10, 16, 23, 30), new Date(2026, 10, 17, 0, 40))} onSave={onSave} onClose={() => {}} />)
+  render(<DurationSheet startedAt={inicio} minutes={65} onSave={onSave} onClose={() => {}} />)
+  await userEvent.click(screen.getByRole('button', { name: 'Aumentar duração' }))
   await userEvent.click(screen.getByRole('button', { name: 'Salvar' }))
-  const [start, end] = onSave.mock.calls[0]
-  expect(start).toBe(new Date(2026, 10, 16, 23, 30).toISOString())
-  expect(end).toBe(new Date(2026, 10, 17, 0, 40).toISOString())
-  expect((Date.parse(end) - Date.parse(start)) / 60000).toBe(70)
+  expect(onSave).toHaveBeenCalledWith(inicio, new Date(2026, 10, 17, 0, 40).toISOString())
 })
 
-test('início igual ao fim não salva', () => {
-  const t = new Date(2026, 10, 16, 18, 0)
-  render(<DurationSheet session={sessao(t, t)} onSave={() => {}} onClose={() => {}} />)
-  expect(screen.getByRole('button', { name: 'Salvar' })).toBeDisabled()
+test('digitar os minutos salva essa duração', async () => {
+  const onSave = vi.fn()
+  render(<DurationSheet startedAt={inicio} minutes={104} onSave={onSave} onClose={() => {}} />)
+  const campo = screen.getByRole('textbox', { name: 'Duração em minutos' })
+  await userEvent.clear(campo)
+  await userEvent.type(campo, '90')
+  await userEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+  expect(onSave).toHaveBeenCalledWith(inicio, new Date(2026, 10, 17, 1, 0).toISOString())
 })

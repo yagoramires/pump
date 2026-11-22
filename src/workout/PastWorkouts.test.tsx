@@ -13,7 +13,7 @@ const sess = (date: string, name: string, over: Partial<WorkoutSession> = {}): W
   ],
   ...over,
 })
-test('lista em ordem decrescente; tocar abre o resumo e os exercícios ficam atrás de um toque', async () => {
+test('lista em ordem decrescente; tocar abre o resumo e os detalhes ficam atrás de um toque', async () => {
   await save('workoutLog', { '2026-11-10': sess('2026-11-10', 'Antigo'), '2026-11-14': sess('2026-11-14', 'Recente'), '2026-11-15': { ...sess('2026-11-15', 'Aberto'), completedAt: undefined } })
   const user = userEvent.setup()
   await renderLoaded(<PastWorkouts onClose={() => {}} />)
@@ -26,12 +26,14 @@ test('lista em ordem decrescente; tocar abre o resumo e os exercícios ficam atr
   await user.click(rows[0])
   expect(screen.getByRole('heading', { name: 'Recente' })).toBeInTheDocument()
   expect(screen.getByText('Treino concluído')).toBeInTheDocument()
-  expect(screen.queryByText('40 kg × 10')).not.toBeInTheDocument()
-  await user.click(screen.getByRole('button', { name: 'Exercícios' }))
-  expect(screen.getAllByText('Supino reto')).toHaveLength(2) // placar + lista de séries
-  expect(screen.getByText('40 kg × 10')).toBeInTheDocument()
-  expect(screen.getAllByText('Rosca direta')).toHaveLength(1) // só no placar: a lista de séries esconde exercício sem série
+  expect(screen.getByText('Sem esforço registrado')).toBeInTheDocument() // só leitura: sem o seletor
+  expect(screen.queryByRole('radio', { name: 'Leve' })).not.toBeInTheDocument()
+  expect(screen.queryByText('Supino reto')).not.toBeInTheDocument() // detalhes começam recolhidos
+  await user.click(screen.getByRole('button', { name: 'Detalhes' }))
   expect(screen.getByText('0 de 1 séries')).toBeInTheDocument()
+  expect(screen.queryByText('40 kg × 10')).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: /^Supino reto/ }))
+  expect(screen.getByText('40 kg × 10')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Voltar' }))
   expect(screen.getByRole('heading', { name: 'Treinos anteriores' })).toBeInTheDocument()
 })

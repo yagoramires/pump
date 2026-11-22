@@ -1,8 +1,8 @@
-import { exerciseHistory, exerciseVolume, loadPoints, previousSets, sessionRecords, sessionStats, sessionVolume, suggestedKg } from './stats'
+import { exerciseHistory, exerciseVolume, loadPoints, previousSets, sessionStats, sessionVolume, suggestedKg } from './stats'
 import { startSession } from './session'
 import { trainingLog } from './extra'
 import { pe, workoutOf } from '../../test/helpers'
-import type { SetDone, WorkoutLog, WorkoutSession } from './types'
+import type { SetDone, WorkoutSession } from './types'
 
 test('volume usa o primeiro número das reps; sem número conta 0', () => {
   const s = startSession(workoutOf([{ sets: 3 }]), '2026-11-16')
@@ -98,27 +98,6 @@ test('exerciseHistory e loadPoints: só exercício feito, sem cardio/tempo, e 0 
   expect(loadPoints(h.get('agacho')!)).toEqual([{ date: '2026-11-08', value: 40 }])
 })
 
-describe('resumo do treino concluído', () => {
-  const NAMES: Record<string, string> = { Supino: 'Supino reto', Remada: 'Remada', Barra: 'Barra fixa' }
-  const sx = (date: string, workoutId: string, exs: Record<string, number[]>): WorkoutSession => ({
-    date, workoutId, workoutLabel: workoutId.toUpperCase(), workoutName: '', completedAt: `${date}T10:00:00`,
-    exercises: Object.entries(exs).map(([id, kgs]) => ({ ...pe({ exerciseId: id, name: NAMES[id] ?? id }), sets: kgs.map((weightKg) => ({ reps: '10', weightKg })) })),
-  })
-  const esteira = (s: WorkoutSession, kg: number): WorkoutSession => ({
-    ...s, exercises: [...s.exercises, { ...pe({ exerciseId: 'Esteira', name: 'Esteira', reps: '20 min' }), sets: [{ reps: '20 min', weightKg: kg }] }],
-  })
-  const logOf = (...ss: WorkoutSession[]): WorkoutLog => Object.fromEntries(ss.map((s) => [s.date, s]))
-
-  test('sessionRecords: passa a maior carga anterior; primeira vez e cardio não contam', () => {
-    const hoje = esteira(sx('2026-11-16', 'a', { Supino: [80, 75], Remada: [50] }), 5)
-    const log = logOf(sx('2026-11-10', 'a', { Supino: [70] }), esteira(sx('2026-11-12', 'b', { Supino: [75, 75] }), 3), hoje)
-    expect(sessionRecords(log, hoje)).toEqual([{ name: 'Supino reto', kg: 80, prevKg: 75 }])
-  })
-  test('sessionRecords: igualar a carga não é recorde; só peso do corpo → []', () => {
-    const hoje = sx('2026-11-16', 'a', { Supino: [80], Barra: [0] })
-    expect(sessionRecords(logOf(sx('2026-11-12', 'a', { Supino: [80], Barra: [0] }), hoje), hoje)).toEqual([])
-  })
-})
 
 test('duração termina na última série, não na conclusão', () => {
   const s = startSession(workoutOf([{ sets: 1 }]), '2026-11-16', new Date(2026, 10, 16, 18, 0))

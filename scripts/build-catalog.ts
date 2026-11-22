@@ -36,7 +36,8 @@ export function buildCatalog(up: Upstream[], g: Glossary, t: Translations): Exer
       if (tr.instructions.length !== x.instructions.length)
         throw new Error(`Número de passos diferente para o id ${x.id}: ${tr.instructions.length} em vez de ${x.instructions.length} passos`)
       const muscles = [...new Set([...x.primaryMuscles, ...x.secondaryMuscles].map((m) => g.muscles[m]))]
-      return { id: x.id, name: tr.name, muscles, equipment: g.equipment[String(x.equipment)], instructions: tr.instructions, images: x.images }
+      const primary = [...new Set(x.primaryMuscles.map((m) => g.muscles[m]))]
+      return { id: x.id, name: tr.name, muscles, primary, equipment: g.equipment[String(x.equipment)], instructions: tr.instructions, images: x.images }
     })
     .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
 }

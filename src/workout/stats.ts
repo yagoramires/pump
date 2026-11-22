@@ -74,17 +74,4 @@ export const previousSets = (log: WorkoutLog, today: string, exerciseId: string,
 export const suggestedKg = (ex: { weightKg: number }, prev: (SetDone | null)[], set?: number): number =>
   (set === undefined ? prev.find(Boolean) : prev[set])?.weightKg ?? ex.weightKg
 
-const completedBefore = (log: WorkoutLog, s: WorkoutSession) => completedSessions(log).filter((d) => d.date < s.date)
 
-/** exercícios cuja maior carga de hoje passa a maior de todas as sessões concluídas antes; primeira vez, cardio e por tempo não contam */
-export const sessionRecords = (log: WorkoutLog, s: WorkoutSession): { name: string; kg: number; prevKg: number }[] => {
-  const history = exerciseHistory(completedBefore(log, s))
-  const seen = new Set<string>()
-  return s.exercises.flatMap((e) => {
-    if (seen.has(e.exerciseId) || isCardio(e) || isTimed(e.reps)) return []
-    seen.add(e.exerciseId)
-    const kg = Math.max(...s.exercises.filter((x) => x.exerciseId === e.exerciseId).map(maxLoad))
-    const prevKg = Math.max(0, ...loadPoints(history.get(e.exerciseId) ?? []).map((p) => p.value))
-    return prevKg > 0 && kg > prevKg ? [{ name: e.name, kg, prevKg }] : []
-  })
-}

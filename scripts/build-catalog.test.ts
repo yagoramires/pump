@@ -6,7 +6,7 @@ const up: Upstream[] = [{ id: 'X', name: 'Barbell Curl', equipment: 'barbell', p
 
 test('traduz pelo glossário e monta Exercise', () => {
   expect(buildCatalog(up, glossary, { X: { name: 'Rosca direta', instructions: ['1', '2'] } })).toEqual([
-    { id: 'X', name: 'Rosca direta', muscles: ['bíceps', 'antebraços'], equipment: 'barra', instructions: ['1', '2'], images: ['X/0.jpg', 'X/1.jpg'] },
+    { id: 'X', name: 'Rosca direta', muscles: ['bíceps', 'antebraços'], primary: ['bíceps'], equipment: 'barra', instructions: ['1', '2'], images: ['X/0.jpg', 'X/1.jpg'] },
   ])
 })
 test('falha se faltar tradução, se os passos diferirem ou se o nome vier vazio', () => {

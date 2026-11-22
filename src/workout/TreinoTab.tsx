@@ -14,6 +14,7 @@ import { TabHeader } from '@/components/TabHeader'
 import { plural } from '@/lib/number'
 import { PlanEditor } from './PlanEditor'
 import { Overlay } from '@/components/Overlay'
+import { BackHeader } from '@/components/BackHeader'
 import { ExerciseCard } from './ExerciseCard'
 import { ExercisePreview } from './ExercisePreview'
 import { SetTable } from './SetTable'
@@ -55,6 +56,7 @@ export function TreinoTab() {
   const [editingPlan, setEditingPlan] = useState(false)
   const [switching, setSwitching] = useState<'list' | Workout>()
   const [pastOpen, setPastOpen] = useState(false)
+  const [extraSummary, setExtraSummary] = useState(false)
   const [adding, setAdding] = useState(false)
   const [discarding, setDiscarding] = useState(false)
   const [concluding, setConcluding] = useState(false)
@@ -114,6 +116,17 @@ export function TreinoTab() {
   }
   const actions = <>{!extra && <Button variant="link" size="sm" className="text-accent" onClick={startExtraToday}><Plus aria-hidden="true" /><span className="max-[359px]:sr-only">Treino extra</span></Button>}{pastLink}</>
   if (pastOpen) return <Overlay><PastWorkouts onClose={() => setPastOpen(false)} /></Overlay>
+  if (extraSummary && extra?.completedAt) {
+    const patchExtra = (f: (s: WorkoutSession) => WorkoutSession) => setExtraLog((prev) => (prev[today] ? { ...prev, [today]: f(prev[today]) } : prev))
+    return (
+      <Overlay>
+        <div className="flex flex-col gap-3 pb-6">
+          <BackHeader title="Treino extra" onBack={() => setExtraSummary(false)} />
+          <DoneSummary session={extra} log={training} onEditTimes={(startedAt, endedAt) => patchExtra((s) => ({ ...s, startedAt, endedAt }))} onEffort={(effort) => patchExtra((s) => ({ ...s, effort }))} />
+        </div>
+      </Overlay>
+    )
+  }
   if (editingPlan) return <Overlay><PlanEditor initial={plan} onSave={(p) => { replacePlan(p); setEditingPlan(false) }} onCancel={() => setEditingPlan(false)} /></Overlay>
   if (plan.workouts.length === 0) {
     return (
@@ -257,11 +270,11 @@ export function TreinoTab() {
   }
 
   return (
-    <div className={cn('flex flex-col gap-2.5', timer ? 'pb-44' : 'pb-24')}>
+    <div className={cn('flex flex-col gap-2.5', timer ? 'pb-44' : session?.completedAt ? 'pb-28' : 'pb-24')}>
       <TabHeader eyebrow={extraOpen ? `Treino extra · ${formatDayLabel(today)}` : workoutDayLabel(today, view.workoutLabel)} title={view.workoutName} actions={actions} />
       {unresolved}
       {extra?.completedAt && (
-        <p className="text-meta text-text-2">Treino extra concluído · <Button variant="link" size="sm" className="h-auto p-0 text-meta" aria-label="Editar séries do treino extra" onClick={editExtra}>Editar séries</Button></p>
+        <p className="text-meta text-text-2">Treino extra concluído · <Button variant="link" size="sm" className="h-auto p-0 text-meta" onClick={() => setExtraSummary(true)}>Ver resumo</Button> · <Button variant="link" size="sm" className="h-auto p-0 text-meta" aria-label="Editar séries do treino extra" onClick={editExtra}>Editar séries</Button></p>
       )}
       {!extraOpen && !session?.completedAt && plan.workouts.length > 1 && (
         <Button variant="link" className="min-h-11 self-start" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>

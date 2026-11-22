@@ -18,7 +18,7 @@ vi.mock('idb-keyval', async (orig) => {
   const m = await orig<typeof import('idb-keyval')>()
   return { ...m, set: vi.fn(m.set) }
 })
-vi.mock('@/catalog/catalog', async (orig) => ({ ...(await orig<typeof import('@/catalog/catalog')>()), fetchExercises: vi.fn() }))
+vi.mock('@/catalog/catalog', async (orig) => ({ ...(await orig<typeof import('@/catalog/catalog')>()), fetchExercises: vi.fn(async () => []) }))
 
 const plano: WorkoutPlan = { workouts: [
   { id: 'a', label: 'A', name: 'Peito e tríceps', exercises: [
@@ -590,11 +590,13 @@ describe('resumo do treino concluído', () => {
     await user.click(await screen.findByRole('button', { name: 'Concluir treino' }))
     await user.click(await screen.findByRole('button', { name: 'Pular' }))
     expect(await screen.findByText('Treino concluído')).toBeInTheDocument()
-    expect(screen.getByText('↑ 1 · = 0 · ↓ 0')).toBeInTheDocument()
+    expect(screen.getByText('Recorde de carga')).toBeInTheDocument()
+    expect(screen.getByText('Supino reto · 45 kg × 10 (antes 40 kg × 10)')).toBeInTheDocument()
+    expect(screen.getByText('1 de 2 treinos na semana')).toBeInTheDocument() // semana seg–dom: o treino de dom 15 fica na anterior; meta = 2 treinos do plano
+    expect(screen.queryByText('↑ 45 × 10 (antes 40 × 10)')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Detalhes' }))
     expect(screen.getByText('↑ 45 × 10 (antes 40 × 10)')).toBeInTheDocument()
-    expect(screen.queryByText(/de volume em relação/)).not.toBeInTheDocument()
-    expect(screen.getByText('Recordes · 1')).toBeInTheDocument()
-    expect(screen.getByText('antes 40 kg')).toBeInTheDocument()
+    expect(screen.getByLabelText('Recorde')).toBeInTheDocument()
     expect(screen.getByText(/^B · /)).toBeInTheDocument()
     expect(screen.queryByRole('checkbox', { name: /Série 1 de Supino reto/ })).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Editar séries' }))
@@ -603,31 +605,55 @@ describe('resumo do treino concluído', () => {
     expect(screen.getByRole('button', { name: 'Concluir treino' })).toBeEnabled()
     await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16'].completedAt).toBeUndefined())
   })
-  test('resumo sem treino anterior não mostra comparação nem recordes', async () => {
+  test('resumo sem treino anterior destaca o primeiro treino, sem comparação nem recordes', async () => {
     await save('workoutPlan', plano2)
     await save('workoutLog', { '2026-11-16': hoje('2026-11-16T20:00:00.000Z') })
     await renderLoaded(<TreinoTab />)
-    expect(await screen.findByText('Treino concluído')).toBeInTheDocument()
+    expect(await screen.findByText('Seu primeiro treino no Pump')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Detalhes' }))
+    expect(screen.getByText('primeira vez')).toBeInTheDocument()
     expect(screen.queryByText(/antes/)).not.toBeInTheDocument()
-    expect(screen.queryByText(/^Recordes/)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Recorde')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Editar séries' })).toBeInTheDocument()
   })
-  test('concluir pede o esforço: 8 grava e o resumo mostra nota e esforço; tocar na linha troca pra 6', async () => {
+  test('concluir pede o esforço: Puxado grava 9; no resumo troca pra Na medida e o 2º toque remove', async () => {
     await save('workoutPlan', plano2)
     await save('workoutLog', { ...logOntem('2026-11-15T20:00:00.000Z'), '2026-11-16': hoje() })
     const user = userEvent.setup()
     await renderLoaded(<TreinoTab />)
     await user.click(await screen.findByRole('button', { name: 'Concluir treino' }))
-    expect(await screen.findByText('Quão pesado foi?')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Esforço 8' }))
-    await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16']).toMatchObject({ effort: 8, completedAt: expect.any(String) }))
+    expect(await screen.findByRole('dialog', { name: 'Como foi hoje?' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Puxado' }))
+    await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16']).toMatchObject({ effort: 9, completedAt: expect.any(String) }))
     expect(await screen.findByText('Nota')).toBeInTheDocument()
-    expect(screen.getByText('9,4')).toBeInTheDocument() // 0,7 × 10 + 0,3 × 8
-    await user.click(screen.getByRole('button', { name: 'Esforço 8 · pesado' }))
-    expect(screen.queryByRole('button', { name: 'Pular' })).not.toBeInTheDocument()
-    await user.click(await screen.findByRole('button', { name: 'Esforço 6' }))
+    expect(screen.getByText('9,7')).toBeInTheDocument() // 0,7 × 10 + 0,3 × 9
+    expect(screen.getByRole('radio', { name: 'Puxado' })).toBeChecked()
+    await user.click(screen.getByRole('radio', { name: 'Na medida' }))
     await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16'].effort).toBe(6))
-    expect(await screen.findByRole('button', { name: 'Esforço 6 · moderado' })).toBeInTheDocument()
+    await user.click(screen.getByRole('radio', { name: 'Na medida' }))
+    await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16'].effort).toBeUndefined())
+  })
+  test('Compartilhar abre a prévia com cargas e data escondidas', async () => {
+    await save('workoutLog', { '2026-11-16': hoje('2026-11-16T20:00:00.000Z') })
+    const user = userEvent.setup()
+    await renderLoaded(<TreinoTab />)
+    await user.click(await screen.findByRole('button', { name: 'Compartilhar' }))
+    expect(await screen.findByRole('dialog', { name: 'Compartilhar treino' })).toBeInTheDocument()
+    expect(screen.getByRole('switch', { name: 'Cargas' })).not.toBeChecked()
+    expect(screen.getByRole('switch', { name: 'Data' })).not.toBeChecked()
+    expect(screen.getByRole('switch', { name: 'Semana' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: 'Cartão' })).toBeChecked()
+    await user.click(screen.getByRole('radio', { name: 'Stories' }))
+    expect(screen.getByText(/cole por cima de uma foto sua no Stories/)).toBeInTheDocument()
+  })
+  test('tocar na Nota abre a conta', async () => {
+    await save('workoutPlan', plano2)
+    await save('workoutLog', { ...logOntem('2026-11-15T20:00:00.000Z'), '2026-11-16': hoje('2026-11-16T20:00:00.000Z') })
+    const user = userEvent.setup()
+    await renderLoaded(<TreinoTab />)
+    await user.click(await screen.findByRole('button', { name: /^Nota/ }))
+    expect(await screen.findByRole('dialog', { name: 'Nota 10,0 de 10' })).toBeInTheDocument()
+    expect(screen.getByText(/puladas ou não marcadas/)).toBeInTheDocument()
   })
   test('reconcluir depois de Editar séries mantém o esforço, sem pedir de novo', async () => {
     await save('workoutPlan', plano2)
@@ -635,11 +661,11 @@ describe('resumo do treino concluído', () => {
     const user = userEvent.setup()
     await renderLoaded(<TreinoTab />)
     await user.click(await screen.findByRole('button', { name: 'Concluir treino' }))
-    await user.click(await screen.findByRole('button', { name: 'Esforço 8' }))
+    await user.click(await screen.findByRole('button', { name: 'Puxado' }))
     await user.click(await screen.findByRole('button', { name: 'Editar séries' }))
     await user.click(await screen.findByRole('button', { name: 'Concluir treino' }))
-    expect(screen.queryByText('Quão pesado foi?')).not.toBeInTheDocument()
-    await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16']).toMatchObject({ effort: 8, completedAt: expect.any(String) }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16']).toMatchObject({ effort: 9, completedAt: expect.any(String) }))
   })
   test('Pular conclui sem esforço', async () => {
     await save('workoutLog', { '2026-11-16': hoje() })
@@ -649,7 +675,7 @@ describe('resumo do treino concluído', () => {
     await user.click(await screen.findByRole('button', { name: 'Pular' }))
     await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16'].completedAt).toBeDefined())
     expect((await stored('workoutLog'))?.['2026-11-16'].effort).toBeUndefined()
-    expect(await screen.findByRole('button', { name: 'Sem esforço registrado' })).toBeInTheDocument()
+    expect(await screen.findByRole('radio', { name: 'Leve' })).not.toBeChecked()
   })
   test('durante o treino mostra os exercícios subindo no lugar do volume', async () => {
     await save('workoutLog', { ...logOntem('2026-11-15T20:00:00.000Z'), '2026-11-16': hoje() })
@@ -680,11 +706,19 @@ describe('treino extra', () => {
     await user.click(await screen.findByRole('button', { name: 'Adicionar' }))
     await user.click(await screen.findByRole('checkbox', { name: 'Série 1 de Remada' }))
     await user.click(screen.getByRole('button', { name: 'Concluir treino' }))
-    await user.click(await screen.findByRole('button', { name: 'Esforço 7' }))
-    await waitFor(async () => expect((await stored('extraLog'))?.['2026-11-16']).toMatchObject({ effort: 7, completedAt: expect.any(String) }))
+    await user.click(await screen.findByRole('button', { name: 'Na medida' }))
+    await waitFor(async () => expect((await stored('extraLog'))?.['2026-11-16']).toMatchObject({ effort: 6, completedAt: expect.any(String) }))
     expect((await stored('workoutLog'))?.['2026-11-16']).toBeUndefined()
     expect(await screen.findByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
     expect(await within(screen.getByRole('region', { name: /Notifications/ })).findByText('Treino extra concluído')).toBeInTheDocument()
+    // o extra é um treino: tem resumo próprio e conta na semana
+    await user.click(screen.getByRole('button', { name: 'Ver resumo' }))
+    expect(await screen.findByRole('heading', { name: 'Treino extra' })).toBeInTheDocument()
+    expect(screen.getByText('Seu primeiro treino no Pump')).toBeInTheDocument()
+    expect(screen.getByText('Meta da semana batida · 1 de 1')).toBeInTheDocument() // plano com 1 treino: meta 1
+    expect(screen.getByRole('radio', { name: 'Na medida' })).toBeChecked()
+    await user.click(screen.getByRole('button', { name: 'Voltar' }))
+    expect(await screen.findByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
   })
   test('descartar o extra não mexe na série já marcada da ficha', async () => {
     const user = userEvent.setup()
@@ -795,22 +829,21 @@ describe('treino extra', () => {
   })
 })
 
-test('toca na duração do treino concluído e edita início e fim', async () => {
-  await save('workoutLog', { '2026-11-16': { ...logOntem('2026-11-16T21:00:00.000Z')['2026-11-15'], date: '2026-11-16', startedAt: new Date(2026, 10, 16, 17, 0).toISOString() } })
+test('toca na duração do treino concluído e edita os minutos', async () => {
+  const startedAt = new Date(2026, 10, 16, 17, 0).toISOString()
+  await save('workoutLog', { '2026-11-16': { ...logOntem('2026-11-16T21:00:00.000Z')['2026-11-15'], date: '2026-11-16', startedAt } })
   const user = userEvent.setup()
   await renderLoaded(<TreinoTab />)
   await user.click(await screen.findByRole('button', { name: /Duração/ }))
-  for (const [nome, h, m] of [['Início', '18', '00'], ['Fim', '18', '45']]) {
-    await user.click(screen.getByRole('button', { name: new RegExp(`^${nome}`) }))
-    await user.click(screen.getByRole('radio', { name: `${h} h` }))
-    await user.click(screen.getByRole('radio', { name: `${m} min` }))
-  }
+  const campo = screen.getByRole('textbox', { name: 'Duração em minutos' })
+  await user.clear(campo)
+  await user.type(campo, '45')
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
   await waitFor(async () => {
     const s = (await stored('workoutLog'))?.['2026-11-16']
-    expect([s?.startedAt, s?.endedAt]).toEqual([new Date(2026, 10, 16, 18, 0).toISOString(), new Date(2026, 10, 16, 18, 45).toISOString()])
+    expect([s?.startedAt, s?.endedAt]).toEqual([startedAt, new Date(2026, 10, 16, 17, 45).toISOString()])
   })
-  expect(await screen.findByText('45')).toBeInTheDocument()
+  expect(await screen.findByText('45 min')).toBeInTheDocument()
 })
 test('descartar extra esquecido aberto num dia de descanso devolve o descanso daquele dia', async () => {
   const extra = { ...logOntem()['2026-11-15'], workoutId: 'extra', workoutLabel: 'Extra', workoutName: 'Treino extra', fromRest: true }
