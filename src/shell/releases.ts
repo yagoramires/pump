@@ -4,6 +4,12 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 10,
+    date: '2026-11-22',
+    novidades: [],
+    correcoes: ['O boneco dos músculos mostra só os músculos dos exercícios de força. O cardio não entra mais.'],
+  },
+  {
     version: 9,
     date: '2026-11-22',
     novidades: ['Troque o cardio pelo próprio card do exercício. A escolha fica salva no treino do dia, com a mesma duração.'],

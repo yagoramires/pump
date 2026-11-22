@@ -90,7 +90,7 @@ test('esforço antigo lido por faixa', () => {
   expect([1, 4, 5, 7, 8, 10, undefined].map(feelingOf)).toEqual(['leve', 'leve', 'medida', 'medida', 'puxado', 'puxado', undefined])
 })
 
-test('músculos: principal vence, personalizado é todo principal, plano antigo usa catálogo ou o 1º', () => {
+test('músculos: cardio fica de fora, principal vence, personalizado é todo principal, plano antigo usa catálogo ou o 1º', () => {
   const done = [{ weightKg: 10, reps: '10' }]
   const exs = [
     { ...pe({ exerciseId: 'agach', muscles: ['quadríceps', 'glúteos', 'lombar'], primary: ['quadríceps'] }), sets: done },
@@ -98,6 +98,7 @@ test('músculos: principal vence, personalizado é todo principal, plano antigo 
     { ...pe({ exerciseId: 'antigo', muscles: ['lombar', 'glúteos'] }), sets: done },
     { ...pe({ exerciseId: 'meu', muscles: ['panturrilhas', 'adutores'], custom: true }), sets: done },
     { ...pe({ exerciseId: 'nao-fiz', muscles: ['peito'] }), sets: [null] },
+    { ...pe({ exerciseId: 'esteira', muscles: ['quadríceps', 'panturrilhas', 'abdômen'] }), reps: '20 min', sets: done },
   ]
   expect(Object.fromEntries(muscleLevels(exs.filter((e) => e.sets.some(Boolean)), new Map([['stiff', ['posteriores de coxa']]])))).toEqual({
     adutores: 'primary', panturrilhas: 'primary', glúteos: 'secondary', 'posteriores de coxa': 'primary', lombar: 'primary', quadríceps: 'primary',
