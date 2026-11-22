@@ -37,6 +37,7 @@ import { UnfinishedCard } from './UnfinishedCard'
 import { SwitchWorkout, WorkoutRow } from './SwitchWorkout'
 import { PastWorkouts } from './PastWorkouts'
 import { DoneSummary } from './DoneSummary'
+import { WorkoutPreview } from './WorkoutPreview'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import type { Workout } from './types'
 import { addExtraExercise, removeExercise, startExtra, unfinishedExtra } from './extra'
@@ -280,7 +281,12 @@ export function TreinoTab() {
         <Button variant="link" className="min-h-11 self-start" onClick={() => setSwitching('list')}><ArrowLeftRight aria-hidden="true" /> Trocar treino</Button>
       )}
 
-      {session?.completedAt ? <DoneSummary session={session} log={training} next={next} onEditTimes={(startedAt, endedAt) => patch((s) => ({ ...s, startedAt, endedAt }))} onEffort={(effort) => patch((s) => ({ ...s, effort }))} /> : (
+      {!session && !extraOpen && workout ? (
+        <>
+          <WorkoutPreview workout={workout} log={training} today={today} />
+          {!log[today] && !extra && <Button variant="outline" className="w-full" onClick={markRest}><Moon aria-hidden="true" /> Descansar hoje</Button>}
+        </>
+      ) : session?.completedAt ? <DoneSummary session={session} log={training} next={next} onEditTimes={(startedAt, endedAt) => patch((s) => ({ ...s, startedAt, endedAt }))} onEffort={(effort) => patch((s) => ({ ...s, effort }))} /> : (
         <>
         <Card className="flex-row items-center gap-3.5">
           <div
@@ -297,9 +303,6 @@ export function TreinoTab() {
             <div className="text-meta text-text-2">{minutes === null ? plural(view.exercises.length, 'exercício', 'exercícios') : `${minutes} min · ${plural(view.exercises.length, 'exercício', 'exercícios')}`}</div>
           </div>
         </Card>
-        {!log[today] && !extra && workout && (
-          <Button variant="outline" className="w-full" onClick={markRest}><Moon aria-hidden="true" /> Descansar hoje</Button>
-        )}
 
         <ExerciseGroups
           exercises={view.exercises}

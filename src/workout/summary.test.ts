@@ -99,7 +99,7 @@ test('músculos: principal vence, personalizado é todo principal, plano antigo 
     { ...pe({ exerciseId: 'meu', muscles: ['panturrilhas', 'adutores'], custom: true }), sets: done },
     { ...pe({ exerciseId: 'nao-fiz', muscles: ['peito'] }), sets: [null] },
   ]
-  expect(Object.fromEntries(muscleLevels(exs, new Map([['stiff', ['posteriores de coxa']]])))).toEqual({
+  expect(Object.fromEntries(muscleLevels(exs.filter((e) => e.sets.some(Boolean)), new Map([['stiff', ['posteriores de coxa']]])))).toEqual({
     adutores: 'primary', panturrilhas: 'primary', glúteos: 'secondary', 'posteriores de coxa': 'primary', lombar: 'primary', quadríceps: 'primary',
   })
 })

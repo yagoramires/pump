@@ -125,11 +125,10 @@ export const feelingOf = (n?: number): Feeling | undefined => (n === undefined ?
 export type MuscleLevel = 'primary' | 'secondary'
 const MUSCLE_ORDER = [...MUSCLE_GROUPS.keys()]
 
-/** músculos dos exercícios feitos; principal em qualquer exercício vence. Plano antigo sem `primary`: catálogo, ou o 1º músculo (o catálogo grava os principais primeiro) */
-export function muscleLevels(exercises: SessionExercise[], catalogPrimary?: Map<string, string[]>): Map<string, MuscleLevel> {
+/** músculos dos exercícios (filtre antes os feitos, se for o caso); principal em qualquer exercício vence. Plano antigo sem `primary`: catálogo, ou o 1º músculo (o catálogo grava os principais primeiro) */
+export function muscleLevels(exercises: Pick<SessionExercise, 'exerciseId' | 'muscles' | 'primary' | 'custom'>[], catalogPrimary?: Map<string, string[]>): Map<string, MuscleLevel> {
   const levels = new Map<string, MuscleLevel>()
   for (const e of exercises) {
-    if (!hasMarkedSet(e)) continue
     const primary = e.custom ? e.muscles : (e.primary ?? catalogPrimary?.get(e.exerciseId) ?? e.muscles.slice(0, 1))
     for (const m of e.muscles) {
       if (primary.includes(m)) levels.set(m, 'primary')
