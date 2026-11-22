@@ -76,7 +76,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const confirmTitle = (k: keyof typeof CONFIRM) => (k === 'photo' && photoAngle ? `Apagar foto de ${label(photoAngle)}?` : CONFIRM[k].title)
 
   // a câmera ocupa a tela; ao voltar, o dia escolhido continua
-  if (day && capturing) return <PhotoCapture date={day} angle={capturing} onClose={() => setCapturing(undefined)} />
+  if (day && capturing) return <PhotoCapture date={day} angle={capturing} once onClose={() => setCapturing(undefined)} />
 
   return (
     <Overlay>

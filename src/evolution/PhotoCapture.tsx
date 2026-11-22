@@ -26,7 +26,8 @@ const Silhouette = () => (
   </svg>
 )
 
-export function PhotoCapture({ date, angle, onClose }: { date: string; angle?: Angle; onClose: () => void }) {
+/** `once`: troca só o ângulo pedido e fecha (Histórico), em vez de seguir pro próximo */
+export function PhotoCapture({ date, angle, once, onClose }: { date: string; angle?: Angle; once?: boolean; onClose: () => void }) {
   const { setAngle } = usePhotoSets()
   const [i, setI] = useState(ANGLES.indexOf(angle ?? 'frente'))
   const [facing, setFacing] = useState<'user' | 'environment'>('user')
@@ -112,7 +113,8 @@ export function PhotoCapture({ date, angle, onClose }: { date: string; angle?: A
     }
     setAngle(date, ANGLES[i], id)
     setSaving(false)
-    goTo(i + 1)
+    if (once) close()
+    else goTo(i + 1)
   }
 
   return (
