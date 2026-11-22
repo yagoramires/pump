@@ -26,7 +26,7 @@ export function ScoreSheet({ score, onClose }: { score: ReturnType<typeof sessio
             ))}
           </div>
           <p className="pt-3 text-meta text-text-2">Séries não feitas (puladas ou não marcadas) reduzem os pontos do exercício na proporção do que faltou.</p>
-          {score.effort !== undefined && <p className="pt-2 text-meta text-text-2">{`${pct(PERF_WEIGHT)} desempenho (${formatDec(score.perf, 1)}) + ${pct(1 - PERF_WEIGHT)} esforço (${score.effort})`}</p>}
+          <p className="pt-2 text-meta text-text-2">{`${pct(PERF_WEIGHT)} desempenho (${formatDec(score.perf, 1)}) + ${pct(1 - PERF_WEIGHT)} esforço (${score.effort}${score.effortMissing ? ', sem resposta conta como leve' : ''})`}</p>
         </SheetBody>
       </DrawerContent>
     </Drawer>

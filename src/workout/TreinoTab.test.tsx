@@ -670,7 +670,7 @@ describe('resumo do treino concluído', () => {
     const user = userEvent.setup()
     await renderLoaded(<TreinoTab />)
     await user.click(await screen.findByRole('button', { name: /^Nota/ }))
-    expect(await screen.findByRole('dialog', { name: 'Nota 10,0 de 10' })).toBeInTheDocument()
+    expect(await screen.findByRole('dialog', { name: 'Nota 7,9 de 10' })).toBeInTheDocument()
     expect(screen.getByText(/puladas ou não marcadas/)).toBeInTheDocument()
   })
   test('reconcluir depois de Editar séries mantém o esforço, sem pedir de novo', async () => {

@@ -1,6 +1,7 @@
 import { isCardio, isTimed, repsNumber } from './reps'
 import { markedSets, nthOccurrence } from './session'
 import { previousSets } from './stats'
+import { FEELINGS } from './summary'
 import type { SessionExercise, SetDone, WorkoutSession } from './types'
 
 export type Trend = 'up' | 'same' | 'down' | 'new' | 'timed'
@@ -43,9 +44,10 @@ export const PERF_WEIGHT = 0.7
 export function sessionScore(sessions: WorkoutSession[], s: WorkoutSession) {
   const rows = rowsOf(sessions, s)
   const perf = rows.length ? (10 * rows.reduce((a, r) => a + r.points, 0)) / rows.length : 0
-  const effort = s.effort
-  const score = effort ? PERF_WEIGHT * perf + (1 - PERF_WEIGHT) * effort : perf
-  return { score: Math.round(score * 10) / 10, perf, effort, rows }
+  // sem resposta conta como o esforço mais baixo: pular a pergunta nunca dá nota maior que responder
+  const effort = s.effort ?? FEELINGS.leve
+  const score = PERF_WEIGHT * perf + (1 - PERF_WEIGHT) * effort
+  return { score: Math.round(score * 10) / 10, perf, effort, effortMissing: s.effort === undefined, rows }
 }
 
 export const upSoFar = (sessions: WorkoutSession[], s: WorkoutSession): number => rowsOf(sessions, s).filter((r) => r.done > 0 && r.trend === 'up').length

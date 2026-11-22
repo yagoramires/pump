@@ -23,12 +23,12 @@ describe('sessionScore', () => {
   it('igual, com esforço 7, dá 7', () => {
     expect(sessionScore(logOf(prev), sess('2026-01-02', [ex(40, '10')], 7)).score).toBe(7)
   })
-  it('tudo subiu com esforço 9 dá 9,7; sem esforço 10', () => {
+  it('tudo subiu com esforço 9 dá 9,7; sem resposta conta como leve e dá 7,9', () => {
     expect(sessionScore(logOf(prev), sess('2026-01-02', [ex(50, '10')], 9)).score).toBe(9.7)
-    expect(sessionScore(logOf(prev), sess('2026-01-02', [ex(50, '10')])).score).toBe(10)
+    expect(sessionScore(logOf(prev), sess('2026-01-02', [ex(50, '10')])).score).toBe(7.9)
   })
-  it('sem exercícios dá 0', () => {
-    expect(sessionScore([], sess('2026-01-02', [])).score).toBe(0)
+  it('sem exercícios fica só o esforço', () => {
+    expect(sessionScore([], sess('2026-01-02', [], 6)).score).toBe(1.8)
   })
   it('upSoFar conta quantos subiram', () => {
     expect(upSoFar(logOf(prev), sess('2026-01-02', [ex(50, '10')]))).toBe(1)

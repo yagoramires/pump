@@ -14,6 +14,7 @@ export const CHANGELOG: [Release, ...Release[]] = [
       'Pular uma série não cancela mais o descanso que está correndo',
       'A duração de treinos antigos concluídos sem horário de início agora pode ser editada',
       'Treinos anteriores abrem mais rápido com histórico grande',
+      'Pular a pergunta "Como foi hoje?" conta como Leve na nota: não responder não dá mais nota maior que responder',
     ],
   },
   {
