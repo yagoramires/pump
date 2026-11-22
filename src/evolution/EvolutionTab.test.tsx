@@ -26,13 +26,14 @@ test('sem dados: estado vazio com Registrar', async () => {
   expect(await screen.findByRole('heading', { name: 'Sua evolução começa aqui' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Registrar' })).toBeInTheDocument()
 })
-test('perfil sem altura: gordura mostra —', async () => {
+test('perfil sem altura: sem aba Gordura; Peso e Medidas aparecem', async () => {
   await save('profile', { sex: 'M', heightCm: 0 })
   await save('measurements', [{ id: 'a', date: '2026-11-17', neckCm: 38, waistCm: 85, weightKg: 80 }])
   await renderLoaded(<EvolutionTab />)
-  expect(await screen.findByText('Gordura')).toBeInTheDocument()
-  // célula do KPI: valor e diferença
-  expect(screen.getByText('Gordura').parentElement).toHaveTextContent(/^Gordura——$/)
+  const tabs = within(await screen.findByRole('tablist', { name: 'Dados do corpo' }))
+  expect(tabs.getByRole('tab', { name: 'Peso' })).toBeInTheDocument()
+  expect(tabs.getByRole('tab', { name: 'Medidas' })).toBeInTheDocument()
+  expect(tabs.queryByRole('tab', { name: 'Gordura' })).toBeNull()
 })
 test('diferença de peso verde quando o objetivo é emagrecer e o peso caiu', async () => {
   await save('profile', { sex: 'M', heightCm: 178, dietGoal: 'perder' })
@@ -98,13 +99,25 @@ test('PDF offline: avisa que precisa de internet', async () => {
   await user.click(await screen.findByRole('button', { name: 'Gerar PDF' }))
   expect(await screen.findByText('Sem internet pra gerar o PDF. Conecte e tente de novo.')).toBeInTheDocument()
 })
-test('Evolução de quem só faz dieta mostra o cartão Dieta', async () => {
+test('Evolução de quem só faz dieta: Dieta na lista abre e fecha as linhas', async () => {
+  const user = userEvent.setup()
   const today = '2026-11-18'
   await save('dietLog', { [today]: dietDay([true, true]) })
   await save('waterLog', { [today]: { ml: 2500, goalMl: 2000 } })
   await renderLoaded(<EvolutionTab />)
-  expect(await screen.findByText('Dieta · 30 dias')).toBeInTheDocument()
+  const dieta = await screen.findByRole('button', { name: /Dieta/ })
+  expect(dieta).toHaveTextContent('1 de 1 dias no plano')
   expect(screen.queryByRole('heading', { name: 'Sua evolução começa aqui' })).not.toBeInTheDocument()
+  await user.click(dieta)
+  expect(screen.getByText('Dias no plano')).toBeInTheDocument()
+  await user.click(dieta)
+  expect(screen.queryByText('Dias no plano')).toBeNull()
+})
+test('fotos: com dois conjuntos mostra antes e depois da frente', async () => {
+  await save('photoSets', [{ id: 'p1', date: '2026-11-01', frente: 'a' }, { id: 'p2', date: '2026-11-15', frente: 'b' }])
+  await renderLoaded(<EvolutionTab />)
+  expect(await screen.findByText('1 nov · Frente')).toBeInTheDocument()
+  expect(screen.getByText('15 nov · Frente')).toBeInTheDocument()
 })
 
 const treino = (date: string, sets: SetDone[]): WorkoutSession => ({
