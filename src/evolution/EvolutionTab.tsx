@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Camera, FileText, Plus, Ruler, Share2, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
 import type { EvolutionInput } from './types'
@@ -21,6 +21,13 @@ import { LoadsCard } from './LoadsCard'
 import { RisersCard } from './RisersCard'
 import { ExerciseLoadScreen } from './ExerciseLoadScreen'
 import { BodyCard } from './BodyCard'
+import { HighlightsCard } from './HighlightsCard'
+import { ConsistencyCard } from './ConsistencyCard'
+import { MusclesCard } from './MusclesCard'
+import { highlights } from './highlights'
+import { weeklyBars } from './consistency'
+import { muscleSummary } from './muscleSets'
+import { weeklyGoal } from '@/workout/week'
 import { PhotosCard } from './PhotosCard'
 import { MoreList } from './MoreList'
 import { CheckInFlow, CheckInCard } from './CheckInFlow'
@@ -49,6 +56,10 @@ export function EvolutionTab() {
   const [pdf, setPdf] = useState<{ blob: Blob; input: EvolutionInput; today: string }>()
   const { today, tick } = useToday()
   const { due } = useCheckIn()
+  const goal = weeklyGoal(input.profile.daysPerWeek, input.workoutPlan.workouts.length)
+  const items = useMemo(() => highlights(input, today), [input, today])
+  const weeks = useMemo(() => weeklyBars(input.sessions, goal, today), [input.sessions, goal, today])
+  const muscles = useMemo(() => muscleSummary(input.sessions, today), [input.sessions, today])
 
   // detalhe antes das telas: aberto a partir de "Ver todos", o Voltar volta pra lista
   if (exerciseId) return <ExerciseLoadScreen sessions={input.sessions} exerciseId={exerciseId} period={loadPeriod} today={today} onClose={() => setExerciseId(undefined)} />
@@ -133,9 +144,14 @@ export function EvolutionTab() {
       <TabHeader eyebrow={`Desde ${formatDayMonth(period.start)} · ${plural(period.days, 'dia', 'dias')}`} title="Evolução" />
       {cards}
 
+      <HighlightsCard items={items} />
+      <ConsistencyCard bars={weeks.bars} avgDays={weeks.avgDays} goal={goal} />
+
       <BodyCard body={body} fat={fat} range={range} onRange={setRange} today={today} onRegister={() => setMeasurementDate(tick())} />
 
       <RisersCard sessions={input.sessions} today={today} period={loadPeriod} onPeriod={setLoadPeriod} onOpen={setExerciseId} onAll={() => setView('loads')} />
+
+      {muscles && <MusclesCard summary={muscles} />}
 
       <PhotosCard report={report} sets={input.photoSets.length} onNew={() => setPhotoDate(tick())} onCompare={() => setView('compare')} />
 

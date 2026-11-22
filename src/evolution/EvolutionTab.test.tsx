@@ -199,3 +199,30 @@ test('detalhe de exercício sem carga usa rótulos de reps', async () => {
   expect(screen.getByText('12')).toBeInTheDocument()
   expect(screen.queryByText(/0×/)).toBeNull()
 })
+
+test('destaque de recorde aparece antes das cargas', async () => {
+  await doisTreinos()
+  await renderLoaded(<EvolutionTab />)
+  const rec = await screen.findByText('Recorde no Supino reto: 60 kg')
+  expect(rec.compareDocumentPosition(screen.getByText('Cargas que mais subiram'))).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+})
+test('constância e músculos com treino recente', async () => {
+  await save('workoutLog', { '2026-11-15': treino('2026-11-15', [{ reps: '10', weightKg: 60 }]) })
+  await renderLoaded(<EvolutionTab />)
+  expect(await screen.findByText('Constância')).toBeInTheDocument()
+  expect(screen.getByText('Músculos treinados')).toBeInTheDocument()
+  expect(screen.getByText(/séries?\/sem$/)).toBeInTheDocument()
+})
+test('sem treino nos 30 dias: sem Músculos', async () => {
+  await save('workoutLog', { '2026-09-01': treino('2026-09-01', [{ reps: '10', weightKg: 60 }]) })
+  await renderLoaded(<EvolutionTab />)
+  await screen.findByText('Constância')
+  expect(screen.queryByText('Músculos treinados')).toBeNull()
+})
+test('abrir a Evolução não baixa o catálogo', async () => {
+  const fetchSpy = vi.spyOn(globalThis, 'fetch')
+  await save('workoutLog', { '2026-11-15': treino('2026-11-15', [{ reps: '10', weightKg: 60 }]) }) // sem `primary`: plano antigo
+  await renderLoaded(<EvolutionTab />)
+  await screen.findByText('Músculos treinados')
+  expect(fetchSpy.mock.calls.some(([url]) => String(url).includes('exercises.json'))).toBe(false)
+})
