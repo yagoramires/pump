@@ -48,3 +48,7 @@ test('ordem: treinados por séries, depois auxiliares, depois parados; sem Outro
   const s = muscleSummary([sess('2026-11-18', [agacho([set(80), set(80)]), supino([set(60)], { muscles: ['peito', 'ombros'], primary: ['peito'] })])], today)!
   expect(s.groups.map((g) => g.label)).toEqual(['Pernas', 'Peito', 'Ombros', 'Costas', 'Braços', 'Abdômen'])
 })
+test('primeira semana: divide por pelo menos uma semana', () => {
+  const s = muscleSummary([sess('2026-11-19', [supino(Array(12).fill(set(60)))])], today)!
+  expect(s.groups[0]).toMatchObject({ label: 'Peito', perWeek: 12 })
+})

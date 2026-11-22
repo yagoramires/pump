@@ -29,6 +29,8 @@ function record(d: EvolutionInput, today: string): EvoHighlight | undefined {
     return { kind: 'record', title: `Recorde no ${name}: ${mark.reps} reps com ${formatKg(mark.kg)} kg`, detail: `+${mark.reps - mark.prevReps} reps · antes ${mark.prevReps} · ${when(date, today)}` }
   }
   const first = loadPoints(exerciseHistory(sessions).get(best.exerciseId) ?? [])[0]
+  // exercício que depois virou por tempo some do histórico: compara com o recorde anterior
+  if (!first) return { kind: 'record', title: `Recorde no ${name}: ${formatKg(mark.kg)} kg`, detail: `+${formatKg(mark.kg - mark.prevKg)} kg · antes ${formatKg(mark.prevKg)} kg · ${when(date, today)}` }
   return {
     kind: 'record',
     title: `Recorde no ${name}: ${formatKg(mark.kg)} kg`,

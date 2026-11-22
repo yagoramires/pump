@@ -19,7 +19,8 @@ export function muscleSummary(sessions: WorkoutSession[], today: string): { leve
   if (!exercises.length) return null
   const levels = muscleLevels(exercises)
   const firstDay = done.map((s) => s.date).sort()[0]
-  const weeks = (daysBetween(firstDay > from ? firstDay : from, today) + 1) / 7
+  // pelo menos uma semana: na 1ª, um treino só não vira "84 séries/sem"
+  const weeks = Math.max(7, daysBetween(firstDay > from ? firstDay : from, today) + 1) / 7
   const sets = new Map<string, number>()
   for (const e of exercises) {
     const token = muscleGroup(e.muscles)

@@ -53,3 +53,7 @@ test('sequência: primeira semana parcial não quebra', () => {
 test('sequência: bestBefore é a maior sequência anterior à atual', () => {
   expect(goalStreak(streakLog([3, 3, 3, 0, 3, 3]), 3, '2026-11-23')).toEqual({ current: 2, bestBefore: 3 })
 })
+test('média não infla quando o primeiro treino é desta semana', () => {
+  // um treino na segunda, visto na quinta: 1 dia na semana, não 1,75
+  expect(weeklyBars([sess('2026-11-16')], 3, today).avgDays).toBe(1)
+})

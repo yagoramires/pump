@@ -103,3 +103,7 @@ test('no máximo 3 e nesta ordem: recorde, peso, sequência', () => {
 test('sem nada: lista vazia', () => {
   expect(highlights(evolutionInput(), today)).toEqual([])
 })
+test('recorde de exercício que virou por tempo não quebra: usa o recorde anterior', () => {
+  const d = evolutionInput({ sessions: [sess('2026-11-01', [supino([set(70)])]), sess('2026-11-10', [supino([set(80)])]), sess('2026-11-15', [supino([set(0, '40 s')], { reps: '40 s' })])] })
+  expect(highlights(d, today)[0]).toEqual({ kind: 'record', title: 'Recorde no Supino: 80 kg', detail: '+10 kg · antes 70 kg · 10 nov' })
+})

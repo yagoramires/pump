@@ -24,7 +24,7 @@ export function weeklyBars(sessions: WorkoutSession[], goal: number, today: stri
   })
   if (!bars.length) return { bars, avgDays: 0 }
   const elapsed = (daysBetween(mondayWeekStart(today), today) + 1) / 7
-  return { bars, avgDays: bars.reduce((a, b) => a + b.days, 0) / (bars.length - 1 + elapsed) }
+  return { bars, avgDays: bars.reduce((a, b) => a + b.days, 0) / Math.max(1, bars.length - 1 + elapsed) }
 }
 
 /** semanas seguidas com a meta batida; a semana atual e a do 1º treino (parcial) só somam, nunca quebram */
