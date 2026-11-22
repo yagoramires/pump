@@ -19,8 +19,9 @@ import { WorkoutDayLine } from '@/workout/WorkoutDayLine'
 import { useTrainingLog } from '@/workout/useTrainingLog'
 import { DietDayLine } from '@/diet/DietDayLine'
 import { FIELDS, formatValue, removeMeasurement } from './measurements'
-import { ANGLES } from './types'
-import { hasPhoto } from './photoSets'
+import { ANGLES, ANGLE_LABEL, type Angle } from './types'
+import { MeasureDrawer } from './MeasureDrawer'
+import { PhotoCapture } from './PhotoCapture'
 import { usePhotoSets } from './usePhotoSets'
 import { dayRecords } from './dayRecords'
 import { PhotoThumb } from './PhotoThumb'
@@ -33,12 +34,13 @@ const CONFIRM = {
   diet: { title: 'Apagar dieta?', text: 'O que foi marcado na dieta deste dia some do histórico.' },
   water: { title: 'Apagar água?', text: 'A água registrada neste dia some do histórico.' },
   supplements: { title: 'Apagar suplementos?', text: 'Os suplementos marcados neste dia somem do histórico.' },
+  photo: { title: '', text: 'Esta foto é apagada do aparelho.' },
 }
 
 export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const { workoutLog: log, extraLog, training } = useTrainingLog()
   const [measures, setMeasures] = usePersisted('measurements')
-  const { sets, removeSet } = usePhotoSets()
+  const { sets, removeSet, removeAngle } = usePhotoSets()
   const [diet, setDiet] = usePersisted('dietLog')
   const [water, setWater] = usePersisted('waterLog')
   const [supLog, setSupLog] = usePersisted('supplementLog')
@@ -46,6 +48,9 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const [month, setMonth] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1))
   const [day, setDay] = useState<string | undefined>(today)
   const [confirm, setConfirm] = useState<keyof typeof CONFIRM>()
+  const [photoAngle, setPhotoAngle] = useState<Angle>()
+  const [editing, setEditing] = useState(false)
+  const [capturing, setCapturing] = useState<Angle>()
   const descId = useId()
 
   const y = month.getFullYear()
@@ -65,7 +70,13 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
     if (confirm === 'supplements') setSupLog((prev) => removeSupplementDay(prev, day))
     if (confirm === 'measures') setMeasures((prev) => removeMeasurement(prev, day))
     if (confirm === 'photos' && photos) removeSet(photos.id)
+    if (confirm === 'photo' && photoAngle) removeAngle(day, photoAngle)
   }
+  const label = (a: Angle) => ANGLE_LABEL[a].toLowerCase()
+  const confirmTitle = (k: keyof typeof CONFIRM) => (k === 'photo' && photoAngle ? `Apagar foto de ${label(photoAngle)}?` : CONFIRM[k].title)
+
+  // a câmera ocupa a tela; ao voltar, o dia escolhido continua
+  if (day && capturing) return <PhotoCapture date={day} angle={capturing} onClose={() => setCapturing(undefined)} />
 
   return (
     <Overlay>
@@ -162,6 +173,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                       {FIELDS.filter((f) => measure[f.key] !== undefined).map((f) => `${f.label} ${formatValue(f, measure[f.key]!)}`).join(' · ')}
                     </div>
                   </div>
+                  <Button type="button" variant="link" size="sm" className="shrink-0 px-1 text-meta text-accent" onClick={() => setEditing(true)}>Editar medidas</Button>
                   <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('measures')}>Apagar medidas</Button>
                 </div>
               )}
@@ -172,11 +184,18 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                     <span className="flex-1 text-body font-semibold text-strong">Fotos</span>
                     <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('photos')}>Apagar fotos</Button>
                   </div>
-                  {hasPhoto(photos) && (
-                    <div className="mt-3 grid grid-cols-3 gap-2">
-                      {ANGLES.filter((k) => photos[k]).map((k) => <PhotoThumb key={k} id={photos[k]} alt={`Foto de ${k}`} className="rounded-lg" />)}
-                    </div>
-                  )}
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    {ANGLES.map((a) => (
+                      <div key={a} className="flex flex-col items-center gap-1">
+                        <Button type="button" variant="outline" aria-label={`${photos[a] ? 'Trocar' : 'Adicionar'} foto de ${label(a)}`} onClick={() => setCapturing(a)} className="block h-auto w-full overflow-hidden rounded-lg p-0 has-[>svg]:px-0">
+                          <PhotoThumb id={photos[a]} alt={`Foto de ${a}`} empty={<Camera size={18} className="absolute inset-0 m-auto text-faint" />}>
+                            <span className="absolute inset-x-0 bottom-0 bg-bg/70 py-0.5 text-center text-caption font-normal text-text-2">{ANGLE_LABEL[a]}</span>
+                          </PhotoThumb>
+                        </Button>
+                        {photos[a] && <Button type="button" variant="link" size="sm" aria-label={`Apagar foto de ${label(a)}`} className={DEL} onClick={() => { setPhotoAngle(a); setConfirm('photo') }}>Apagar</Button>}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </Card>
@@ -186,9 +205,10 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
       </div>
 
       <ConfirmDialog
-        open={!!confirm} title={confirm ? CONFIRM[confirm].title : ''} text={confirm ? CONFIRM[confirm].text : ''} confirm="Apagar" destructive
+        open={!!confirm} title={confirm ? confirmTitle(confirm) : ''} text={confirm ? CONFIRM[confirm].text : ''} confirm="Apagar" destructive
         onConfirm={remove} onCancel={() => setConfirm(undefined)}
       />
+      {editing && day && <MeasureDrawer date={day} onClose={() => setEditing(false)} />}
     </Overlay>
   )
 }
