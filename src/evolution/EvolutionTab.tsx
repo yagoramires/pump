@@ -18,6 +18,7 @@ import { PhotoCompare } from './PhotoCompare'
 import { AchievementsScreen } from './AchievementsScreen'
 import { HistoryScreen } from './HistoryScreen'
 import { LoadsCard } from './LoadsCard'
+import { RisersCard } from './RisersCard'
 import { ExerciseLoadScreen } from './ExerciseLoadScreen'
 import { BodyCard } from './BodyCard'
 import { PhotosCard } from './PhotosCard'
@@ -26,6 +27,7 @@ import { CheckInFlow, CheckInCard } from './CheckInFlow'
 import { AnamnesisCard } from '@/profile/AnamnesisCard'
 import { useCheckIn } from './useCheckIn'
 import { Overlay } from '@/components/Overlay'
+import { BackHeader } from '@/components/BackHeader'
 import { AnamnesisFlow } from '@/profile/AnamnesisFlow'
 import { DayZero } from './DayZero'
 import { useEvolution } from './useEvolution'
@@ -33,7 +35,7 @@ import { buildReport } from './report'
 import { generatePdf } from './pdf/generate'
 import { shareFile } from '@/lib/share'
 
-type View = 'checkin' | 'anamnesis' | 'compare' | 'achievements' | 'history'
+type View = 'checkin' | 'anamnesis' | 'compare' | 'achievements' | 'history' | 'loads'
 export function EvolutionTab() {
   const input = useEvolution()
   const [range, setRange] = useState<Period>('90')
@@ -48,13 +50,22 @@ export function EvolutionTab() {
   const { today, tick } = useToday()
   const { due } = useCheckIn()
 
+  // detalhe antes das telas: aberto a partir de "Ver todos", o Voltar volta pra lista
+  if (exerciseId) return <ExerciseLoadScreen sessions={input.sessions} exerciseId={exerciseId} period={loadPeriod} today={today} onClose={() => setExerciseId(undefined)} />
   if (view === 'checkin') return <CheckInFlow onClose={() => setView(undefined)} />
   if (view === 'anamnesis') return <Overlay><AnamnesisFlow DayZero={DayZero} onDone={() => setView(undefined)} onCancel={() => setView(undefined)} /></Overlay>
   if (photoDate) return <PhotoCapture date={photoDate} onClose={() => setPhotoDate(undefined)} />
   if (view === 'compare') return <PhotoCompare onClose={() => setView(undefined)} />
   if (view === 'achievements') return <AchievementsScreen onClose={() => setView(undefined)} />
   if (view === 'history') return <HistoryScreen onClose={() => setView(undefined)} />
-  if (exerciseId) return <ExerciseLoadScreen sessions={input.sessions} exerciseId={exerciseId} period={loadPeriod} today={today} onClose={() => setExerciseId(undefined)} />
+  if (view === 'loads') {
+    return (
+      <Overlay>
+        <BackHeader title="Todas as cargas" onBack={() => setView(undefined)} />
+        <LoadsCard sessions={input.sessions} today={today} period={loadPeriod} onPeriod={setLoadPeriod} onOpen={setExerciseId} />
+      </Overlay>
+    )
+  }
 
   const drawers = (
     <>
@@ -124,7 +135,7 @@ export function EvolutionTab() {
 
       <BodyCard body={body} fat={fat} range={range} onRange={setRange} today={today} onRegister={() => setMeasurementDate(tick())} />
 
-      <LoadsCard sessions={input.sessions} today={today} period={loadPeriod} onPeriod={setLoadPeriod} onOpen={setExerciseId} />
+      <RisersCard sessions={input.sessions} today={today} period={loadPeriod} onPeriod={setLoadPeriod} onOpen={setExerciseId} onAll={() => setView('loads')} />
 
       <PhotosCard report={report} sets={input.photoSets.length} onNew={() => setPhotoDate(tick())} onCompare={() => setView('compare')} />
 
