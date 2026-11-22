@@ -4,6 +4,12 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 12,
+    date: '2026-11-22',
+    novidades: ['No Histórico, edite as medidas de um dia e troque, adicione ou apague uma foto só.'],
+    correcoes: [],
+  },
+  {
     version: 11,
     date: '2026-11-22',
     novidades: [
