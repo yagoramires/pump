@@ -4,6 +4,16 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 11,
+    date: '2026-11-22',
+    novidades: [
+      'A aba Evolução foi redesenhada. No topo, os destaques do mês: recorde, rumo do peso e sequência de semanas batendo a meta.',
+      'Constância em barras por semana, músculos treinados nos últimos 30 dias e as cargas que mais subiram, com a lista completa em Ver todos.',
+      'Peso, gordura e medidas num card só, e as fotos em antes e depois.',
+    ],
+    correcoes: [],
+  },
+  {
     version: 10,
     date: '2026-11-22',
     novidades: [],
