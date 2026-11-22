@@ -68,5 +68,15 @@ export function loadsSummary(sessions: WorkoutSession[], period: Period, today: 
   return { top: tally(rows, 'top'), total: tally(rows, 'total'), groups }
 }
 
-export const exerciseLoads = (sessions: WorkoutSession[], exerciseId: string, period: Period, today: string): ExerciseLoads | undefined =>
+export interface RiserRow extends LoadRow { topPoints: Point[] }
+
+/** exercícios de carga com maior subida da carga máx. no período */
+export const risers = (sessions: WorkoutSession[], period: Period, today: string, n = 3): RiserRow[] =>
+  calcAll(sessions, period, today)
+    .filter((r) => r.mode === 'load' && (r.top.delta ?? 0) > 0)
+    .sort((a, b) => (b.top.delta ?? 0) - (a.top.delta ?? 0))
+    .slice(0, n)
+    .map(({ exerciseId, name, mode, sessions: count, top, total, topPoints }) => ({ exerciseId, name, mode, sessions: count, top, total, topPoints }))
+
+export const exerciseLoads =(sessions: WorkoutSession[], exerciseId: string, period: Period, today: string): ExerciseLoads | undefined =>
   calcAll(sessions, period, today).find((x) => x.exerciseId === exerciseId)

@@ -1,5 +1,5 @@
 import type { DietLog, DietPlan, WaterLog } from '@/diet/types'
-import { daysBetween } from '@/lib/date'
+import { addDays, daysBetween } from '@/lib/date'
 import { countsForAverage, dayStatus, daySummary, freeCount } from '@/diet/day'
 import { waterMet } from '@/diet/water'
 
@@ -36,4 +36,13 @@ export function dietStats(log: DietLog, water: WaterLog, from: string, to: strin
     freeUses: frees,
     days: first ? Math.max(0, daysBetween(start, to) + 1) : 0,
   }
+}
+
+/** últimos 30 dias incluindo hoje (hoje entra ao vivo; as conquistas só olham dias fechados); água só com registro na janela */
+export const dietStats30 = (log: DietLog, water: WaterLog, today: string) => dietStats(log, water, addDays(today, -29), today)
+
+/** "N de M dias no plano" da janela de 30 dias; sem dia registrado, nada */
+export function dietSummary(log: DietLog, water: WaterLog, today: string): string | undefined {
+  const s = dietStats30(log, water, today)
+  return s.days ? `${s.fullDays} de ${s.days} dias no plano` : undefined
 }

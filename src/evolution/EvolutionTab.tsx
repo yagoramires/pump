@@ -1,39 +1,40 @@
-import { useState, type ReactNode } from 'react'
-import { CalendarDays, Camera, ChevronRight, FileText, Plus, Ruler, Share2, TrendingUp, Trophy } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Camera, FileText, Plus, Ruler, Share2, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
 import type { EvolutionInput } from './types'
 import { loadPhoto } from '@/storage/photos'
 import { formatDayMonth } from '@/lib/date'
 import { useToday } from '@/lib/useToday'
-import { formatDec, plural } from '@/lib/number'
+import { plural } from '@/lib/number'
 import { Button } from '@/components/ui/button'
-import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { TabHeader } from '@/components/TabHeader'
 import { EmptyState } from '@/components/EmptyState'
-import { IconDot } from '@/components/IconDot'
-import type { Metric } from './goal'
-import { FAT, WEIGHT, deltaUnit, formatValue } from './measurements'
-import { BodyRowLine } from './BodyRowLine'
-import { LineChart } from './LineChart'
-import { PERIODS, inPeriod, type Period } from './chart'
-import { PeriodTabs } from './PeriodTabs'
+import { fatSeries } from './measurements'
+import type { Period } from './chart'
 import { MeasureDrawer } from './MeasureDrawer'
-import { Delta } from './Delta'
-import { PhotoThumb } from './PhotoThumb'
-import { ANGLES, ANGLE_LABEL } from './types'
 import { PhotoCapture } from './PhotoCapture'
 import { PhotoCompare } from './PhotoCompare'
-import { AchievementIcon } from './AchievementIcon'
 import { AchievementsScreen } from './AchievementsScreen'
 import { HistoryScreen } from './HistoryScreen'
 import { LoadsCard } from './LoadsCard'
+import { RisersCard } from './RisersCard'
 import { ExerciseLoadScreen } from './ExerciseLoadScreen'
-import { DietCard } from './DietCard'
+import { BodyCard } from './BodyCard'
+import { HighlightsCard } from './HighlightsCard'
+import { ConsistencyCard } from './ConsistencyCard'
+import { MusclesCard } from './MusclesCard'
+import { highlights } from './highlights'
+import { weeklyBars } from './consistency'
+import { muscleSummary } from './muscleSets'
+import { weeklyGoal } from '@/workout/week'
+import { PhotosCard } from './PhotosCard'
+import { MoreList } from './MoreList'
 import { CheckInFlow, CheckInCard } from './CheckInFlow'
 import { AnamnesisCard } from '@/profile/AnamnesisCard'
 import { useCheckIn } from './useCheckIn'
 import { Overlay } from '@/components/Overlay'
+import { BackHeader } from '@/components/BackHeader'
 import { AnamnesisFlow } from '@/profile/AnamnesisFlow'
 import { DayZero } from './DayZero'
 import { useEvolution } from './useEvolution'
@@ -41,19 +42,7 @@ import { buildReport } from './report'
 import { generatePdf } from './pdf/generate'
 import { shareFile } from '@/lib/share'
 
-type View = 'checkin' | 'anamnesis' | 'compare' | 'achievements' | 'history'
-const LINK = 'text-meta text-accent disabled:text-faint'
-const KPI: Metric[] = [WEIGHT.key, FAT.key]
-function Kpi({ label, value, children }: { label: string; value: string; children: ReactNode }) {
-  return (
-    <Card size="sm" className="min-w-0 gap-0.5">
-      <div className="text-xs text-faint">{label}</div>
-      <div className="text-lg font-semibold text-strong tabular-nums">{value}</div>
-      <div className="text-meta tabular-nums">{children}</div>
-    </Card>
-  )
-}
-
+type View = 'checkin' | 'anamnesis' | 'compare' | 'achievements' | 'history' | 'loads'
 export function EvolutionTab() {
   const input = useEvolution()
   const [range, setRange] = useState<Period>('90')
@@ -67,14 +56,27 @@ export function EvolutionTab() {
   const [pdf, setPdf] = useState<{ blob: Blob; input: EvolutionInput; today: string }>()
   const { today, tick } = useToday()
   const { due } = useCheckIn()
+  const goal = weeklyGoal(input.profile.daysPerWeek, input.workoutPlan.workouts.length)
+  const items = useMemo(() => highlights(input, today), [input, today])
+  const weeks = useMemo(() => weeklyBars(input.sessions, goal, today), [input.sessions, goal, today])
+  const muscles = useMemo(() => muscleSummary(input.sessions, today), [input.sessions, today])
 
+  // detalhe antes das telas: aberto a partir de "Ver todos", o Voltar volta pra lista
+  if (exerciseId) return <ExerciseLoadScreen sessions={input.sessions} exerciseId={exerciseId} period={loadPeriod} today={today} onClose={() => setExerciseId(undefined)} />
   if (view === 'checkin') return <CheckInFlow onClose={() => setView(undefined)} />
   if (view === 'anamnesis') return <Overlay><AnamnesisFlow DayZero={DayZero} onDone={() => setView(undefined)} onCancel={() => setView(undefined)} /></Overlay>
   if (photoDate) return <PhotoCapture date={photoDate} onClose={() => setPhotoDate(undefined)} />
   if (view === 'compare') return <PhotoCompare onClose={() => setView(undefined)} />
   if (view === 'achievements') return <AchievementsScreen onClose={() => setView(undefined)} />
   if (view === 'history') return <HistoryScreen onClose={() => setView(undefined)} />
-  if (exerciseId) return <ExerciseLoadScreen sessions={input.sessions} exerciseId={exerciseId} period={loadPeriod} today={today} onClose={() => setExerciseId(undefined)} />
+  if (view === 'loads') {
+    return (
+      <Overlay>
+        <BackHeader title="Todas as cargas" onBack={() => setView(undefined)} />
+        <LoadsCard sessions={input.sessions} today={today} period={loadPeriod} onPeriod={setLoadPeriod} onOpen={setExerciseId} />
+      </Overlay>
+    )
+  }
 
   const drawers = (
     <>
@@ -102,7 +104,7 @@ export function EvolutionTab() {
   )
 
   const report = buildReport(input, today)
-  const { period, training, body, lastSet } = report
+  const { period, training, body } = report
   if (!training.workouts && !input.measurements.length && !input.photoSets.length && !report.hasDiet) {
     return (
       <div className="flex flex-col gap-2.5">
@@ -117,12 +119,7 @@ export function EvolutionTab() {
     )
   }
 
-  const weights = body?.weight ?? []
-  const points = weights.filter((p) => inPeriod(range, p.date, today))
-  const weight = body?.rows.find((r) => r.key === WEIGHT.key)
-  const fat = body?.rows.find((r) => r.key === FAT.key)
-  const rows = body?.rows.filter((r) => !KPI.includes(r.key)) ?? []
-  const earned = report.achievements.filter((x) => x.earnedAt)
+  const fat = fatSeries(input.profile, input.measurements)
 
   const blob = pdf?.input === input && pdf.today === today ? pdf.blob : undefined
   const makePdf = async () => {
@@ -147,79 +144,18 @@ export function EvolutionTab() {
       <TabHeader eyebrow={`Desde ${formatDayMonth(period.start)} · ${plural(period.days, 'dia', 'dias')}`} title="Evolução" />
       {cards}
 
-      <div className="grid grid-cols-3 gap-2">
-        <Kpi label={WEIGHT.label} value={weight ? formatValue(WEIGHT, weight.last.value) : '—'}>
-          <Delta value={weight?.delta} good={!!weight?.good} unit={deltaUnit(WEIGHT)} />
-        </Kpi>
-        <Kpi label={FAT.label} value={fat ? formatValue(FAT, fat.last.value) : '—'}>
-          <Delta value={fat?.delta} good={!!fat?.good} unit={deltaUnit(FAT)} />
-        </Kpi>
-        <Kpi label="Treinos" value={String(training.workouts)}>
-          <span className={training.workouts ? 'text-accent' : 'text-text-2'}>{training.workouts ? `${formatDec(training.perWeek, 1)}/sem` : '—'}</span>
-        </Kpi>
-      </div>
+      <HighlightsCard items={items} />
+      <ConsistencyCard bars={weeks.bars} avgDays={weeks.avgDays} goal={goal} />
 
-      <Card size="flush">
-        <CardHeader>
-          <CardTitle>Peso</CardTitle>
-          <CardAction>
-            <PeriodTabs value={range} onChange={setRange} options={PERIODS} label="Período do gráfico" />
-          </CardAction>
-        </CardHeader>
-        <div className="px-3.5 pb-3"><LineChart points={points} label="Gráfico de peso" empty={weights.length >= 2 ? 'Poucos registros nesse período' : 'Registre mais um peso pra ver o gráfico'} /></div>
-      </Card>
+      <BodyCard body={body} fat={fat} range={range} onRange={setRange} today={today} onRegister={() => setMeasurementDate(tick())} />
 
-      <LoadsCard sessions={input.sessions} today={today} period={loadPeriod} onPeriod={setLoadPeriod} onOpen={setExerciseId} />
+      <RisersCard sessions={input.sessions} today={today} period={loadPeriod} onPeriod={setLoadPeriod} onOpen={setExerciseId} onAll={() => setView('loads')} />
 
-      {rows.length > 0 && (
-        <Card size="flush">
-          <CardHeader className="pt-3 pb-2"><CardTitle>Medidas</CardTitle></CardHeader>
-          {rows.map((r) => <BodyRowLine key={r.key} row={r} />)}
-        </Card>
-      )}
+      {muscles && <MusclesCard summary={muscles} />}
 
-      {report.hasDiet && <DietCard log={input.dietLog} water={input.waterLog} today={today} />}
+      <PhotosCard report={report} sets={input.photoSets.length} onNew={() => setPhotoDate(tick())} onCompare={() => setView('compare')} />
 
-      <Card size="flush">
-        <CardHeader>
-          <CardTitle>Fotos</CardTitle>
-          <CardAction className="flex gap-4">
-            <Button type="button" variant="link" className={LINK} onClick={() => setPhotoDate(tick())}>Nova foto</Button>
-            <Button type="button" variant="link" className={LINK} disabled={input.photoSets.length < 2} onClick={() => setView('compare')}>Comparar</Button>
-          </CardAction>
-        </CardHeader>
-        <div className="grid grid-cols-3 gap-2 px-3.5 pb-3.5">
-          {ANGLES.map((angle) => (
-            <PhotoThumb key={angle} id={lastSet?.[angle]} alt={`Foto de ${angle}`} className="flex items-end justify-center rounded-lg pb-1.5 text-xs text-text-2">
-              <span className="relative">{ANGLE_LABEL[angle]}</span>
-            </PhotoThumb>
-          ))}
-        </div>
-      </Card>
-
-      <Card size="flush">
-        <div className="flex min-h-11 items-center justify-between pl-3.5 pr-2">
-          <span className="text-body font-semibold text-strong">Conquistas</span>
-          <Button type="button" variant="link" className={LINK} onClick={() => setView('achievements')}>Ver todas</Button>
-        </div>
-        <div className="flex gap-2.5 px-3.5 pb-3.5">
-          {Array.from({ length: 4 }, (_, i) => earned[i]).map((x, i) =>
-            x ? (
-              <span key={x.id} role="img" aria-label={x.title} title={x.title} className="flex size-15 items-center justify-center rounded-2xl border border-accent-line bg-accent-bg text-accent"><AchievementIcon id={x.id} /></span>
-            ) : (
-              <span key={i} aria-hidden="true" className="flex size-15 items-center justify-center rounded-2xl border border-border bg-surface text-border-strong"><Trophy size={22} /></span>
-            ),
-          )}
-        </div>
-      </Card>
-
-      <Card size="flush">
-        <Button type="button" variant="ghost" className="h-auto min-h-14 w-full justify-start gap-3 rounded-none px-3.5 py-2 text-left" onClick={() => setView('history')}>
-          <IconDot size={36} color="var(--c2)"><CalendarDays size={18} aria-hidden="true" /></IconDot>
-          <span className="flex-1 text-body font-semibold text-strong">Histórico</span>
-          <ChevronRight size={18} className="text-faint" aria-hidden="true" />
-        </Button>
-      </Card>
+      <MoreList input={input} report={report} today={today} onAchievements={() => setView('achievements')} onHistory={() => setView('history')} />
 
       <div className="pointer-events-none fixed bottom-[calc(var(--nav-h)+env(safe-area-inset-bottom))] left-1/2 h-24 w-full max-w-md -translate-x-1/2 bg-linear-to-b from-transparent to-bg to-60%" />
       <div className="fixed bottom-[calc(var(--nav-h)+12px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) flex w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 gap-2">
