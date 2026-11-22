@@ -50,6 +50,15 @@ const withExercise = (s: WorkoutSession, exIdx: number, f: (e: SessionExercise) 
   ...s,
   exercises: s.exercises.map((e, i) => (i === exIdx ? f(e) : e)),
 })
+export function switchCardio(s: WorkoutSession, idx: number, activity: Pick<SessionExercise, 'exerciseId' | 'name'>): WorkoutSession {
+  const exercise = s.exercises[idx]
+  if (!exercise || !isCardio(exercise) || exercise.name === activity.name) return s
+
+  return withExercise(s, idx, ({ reps, sets, skipped }) => ({
+    ...activity, reps, sets, skipped, muscles: [], images: [], instructions: [], weightKg: 0, restSec: 0,
+  }))
+}
+
 const unskip = (e: SessionExercise, i: number) => (e.skipped ? { ...e, skipped: e.skipped.filter((j) => j !== i) } : e)
 
 /** marcar (v não nulo) uma série pulada tira o "pulada" */

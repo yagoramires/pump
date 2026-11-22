@@ -305,6 +305,27 @@ test('cardio fica num bloco à parte, só com a duração, e marca feito sem des
   expect(screen.queryByText('01:30')).not.toBeInTheDocument()
   expect(screen.getByRole('checkbox', { name: 'Esteira feito' })).toBeChecked()
 })
+test('trocar cardio preserva a duração e o feito na sessão sem editar a ficha', async () => {
+  const user = userEvent.setup()
+  const esteira = pe({ exerciseId: 'esteira', name: 'Esteira', sets: 1, reps: '15 min', images: ['esteira/0.jpg'] })
+  const ficha = { workouts: [{ ...plano.workouts[0], exercises: [esteira, ...plano.workouts[0].exercises] }] }
+  await save('workoutPlan', ficha)
+  const { unmount } = await renderStarted(<TreinoTab />)
+  await user.click(await screen.findByRole('checkbox', { name: 'Esteira feito' }))
+  await user.click(screen.getByRole('button', { name: 'Trocar cardio (Esteira)' }))
+  await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Bicicleta' }))
+  expect(await screen.findByRole('checkbox', { name: 'Bicicleta feito' })).toBeChecked()
+  expect(screen.getByText('15 min')).toBeInTheDocument()
+  expect(screen.queryByText('Esteira')).not.toBeInTheDocument()
+  await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16'].exercises[0]).toMatchObject({
+    name: 'Bicicleta', images: [], sets: [{ reps: '15 min', weightKg: 0 }],
+  }))
+  expect(await stored('workoutPlan')).toEqual(ficha)
+  unmount()
+  await seedStore({})
+  await renderLoaded(<TreinoTab />)
+  expect(await screen.findByRole('checkbox', { name: 'Bicicleta feito' })).toBeChecked()
+})
 test('cancelar um treino vazio volta para a prévia com extra e histórico', async () => {
   const user = userEvent.setup()
   await renderStarted(<TreinoTab />)
@@ -343,14 +364,16 @@ test('somente cardio registra os exercícios de cardio da ficha sem avançar a s
   expect(await screen.findByRole('heading', { name: 'Somente cardio' })).toBeInTheDocument()
   expect(screen.queryByText('Supino reto')).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Adicionar exercício' })).not.toBeInTheDocument()
-  await user.click(screen.getByRole('checkbox', { name: 'Esteira feito' }))
+  await user.click(screen.getByRole('button', { name: 'Trocar cardio (Esteira)' }))
+  await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Corrida' }))
+  await user.click(await screen.findByRole('checkbox', { name: 'Corrida feito' }))
   await user.click(screen.getByRole('button', { name: 'Concluir treino' }))
   await user.click(await screen.findByRole('button', { name: 'Pular' }))
   expect(await screen.findByRole('heading', { name: 'Peito e tríceps' })).toBeInTheDocument()
   await waitFor(async () => expect((await stored('extraLog'))?.['2026-11-16']).toMatchObject({
     workoutName: 'Somente cardio',
     completedAt: expect.any(String),
-    exercises: [{ name: 'Esteira', sets: [{ reps: '15 min', weightKg: 0 }] }],
+    exercises: [{ name: 'Corrida', sets: [{ reps: '15 min', weightKg: 0 }] }],
   }))
   expect(await stored('workoutLog')).toBeUndefined()
   await user.click(screen.getByRole('button', { name: 'Treinos anteriores' }))

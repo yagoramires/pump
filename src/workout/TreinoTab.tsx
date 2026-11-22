@@ -23,7 +23,7 @@ import { nextWorkout, unfinishedSession } from './schedule'
 import {
   activeRest, changePlanRest, changeRestDuration, clearRest, completeSession, completeUnfinishedSession, editSession, extendRest,
   firstIncompleteExercise, hasMarkedSets, holdsTrainingDay, isExerciseComplete, nthOccurrence, reopenSession, restExerciseIndex,
-  setDone, startSession, toggleRestPause, toggleSetWithRest, toggleSkip,
+  setDone, startSession, switchCardio, toggleRestPause, toggleSetWithRest, toggleSkip,
 } from './session'
 import { previousSets, sessionStats } from './stats'
 import { isRest, restRecord, sessionOf } from './rest'
@@ -45,6 +45,7 @@ import { AddExtraExercise } from './AddExtraExercise'
 import { EffortSheet } from './EffortSheet'
 import { upSoFar } from './score'
 import { DurationSheet } from './DurationSheet'
+import { CardioSwitchSheet } from './CardioSwitchSheet'
 import { isCardio } from './reps'
 
 export function TreinoTab() {
@@ -62,6 +63,7 @@ export function TreinoTab() {
   const [adding, setAdding] = useState(false)
   const [discarding, setDiscarding] = useState(false)
   const [pickingCardio, setPickingCardio] = useState(false)
+  const [cardioIdx, setCardioIdx] = useState<number>()
   const [concluding, setConcluding] = useState(false)
   const [preview, setPreview] = useState<number>()
   const [openIdx, setOpenIdx] = useState<'auto' | number | null>('auto')
@@ -81,6 +83,7 @@ export function TreinoTab() {
       setOpenIdx('auto')
       setDiscarding(false)
       setPickingCardio(false)
+      setCardioIdx(undefined)
     }
   }
 
@@ -357,16 +360,21 @@ export function TreinoTab() {
             const key = `${view.workoutId}-${today}-${e.exerciseId}-${occurrence}`
             if (cardio) {
               return (
-                <Card size="sm" key={key} className="flex-row items-center gap-1.5">
-                  <Button variant="ghost" size="icon" aria-label={`Ver ${e.name}`} onClick={() => setPreview(i)}>
-                    <ExerciseThumb muscles={e.muscles} image={e.images[0]} cardio />
+                <Card size="sm" key={key} className="gap-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <Button variant="ghost" size="icon" aria-label={`Ver ${e.name}`} onClick={() => setPreview(i)}>
+                      <ExerciseThumb muscles={e.muscles} image={e.images[0]} cardio />
+                    </Button>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-body font-semibold break-words text-strong">{e.name}</span>
+                      <span className="block text-meta text-text-2">{e.reps}</span>
+                    </span>
+                    <Checkbox size="check" className="mr-1.5" checked={!!e.sets[0]} aria-label={`${e.name} feito`} onCheckedChange={() => toggleCardio(i)} />
+                    {canEditExtraExercises && <Button variant="ghost" size="icon" className="text-negative hover:text-negative" aria-label={`Remover ${e.name}`} onClick={() => removeAt(i)}><Trash2 aria-hidden="true" /></Button>}
+                  </div>
+                  <Button variant="ghost" size="sm" className="self-end text-accent" aria-label={`Trocar cardio (${e.name})`} onClick={() => setCardioIdx(i)}>
+                    <ArrowLeftRight aria-hidden="true" /> Trocar cardio
                   </Button>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-body font-semibold break-words text-strong">{e.name}</span>
-                    <span className="block text-meta text-text-2">{e.reps}</span>
-                  </span>
-                  <Checkbox size="check" className="mr-1.5" checked={!!e.sets[0]} aria-label={`${e.name} feito`} onCheckedChange={() => toggleCardio(i)} />
-                  {canEditExtraExercises && <Button variant="ghost" size="icon" className="text-negative hover:text-negative" aria-label={`Remover ${e.name}`} onClick={() => removeAt(i)}><Trash2 aria-hidden="true" /></Button>}
                 </Card>
               )
             }
@@ -427,6 +435,12 @@ export function TreinoTab() {
       {concluding && <EffortSheet value={session?.effort} onPick={conclude} onSkip={() => conclude()} onClose={() => setConcluding(false)} />}
       <ConfirmDialog open={discarding} title="Cancelar treino?" text={session?.editedFrom ? 'O treino será removido do histórico.' : 'As séries marcadas serão perdidas.'} confirm="Descartar treino" destructive onCancel={() => setDiscarding(false)} onConfirm={discardSession} />
       {cardioPicker}
+      {cardioIdx !== undefined && (
+        <CardioSwitchSheet
+          onPick={(activity) => { patch((s) => switchCardio(s, cardioIdx, activity)); setCardioIdx(undefined) }}
+          onClose={() => setCardioIdx(undefined)}
+        />
+      )}
       {adding && (
         <AddExtraExercise
           onAdd={(e, sets) => { patch((s) => addExtraExercise(s, e, sets)); setOpenIdx(view.exercises.length); setAdding(false) }}
