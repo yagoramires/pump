@@ -29,7 +29,7 @@ import { AchievementsScreen } from './AchievementsScreen'
 import { HistoryScreen } from './HistoryScreen'
 import { LoadsCard } from './LoadsCard'
 import { ExerciseLoadScreen } from './ExerciseLoadScreen'
-import { DietCard } from './DietCard'
+import { DietRows } from './DietCard'
 import { CheckInFlow, CheckInCard } from './CheckInFlow'
 import { AnamnesisCard } from '@/profile/AnamnesisCard'
 import { useCheckIn } from './useCheckIn'
@@ -178,7 +178,12 @@ export function EvolutionTab() {
         </Card>
       )}
 
-      {report.hasDiet && <DietCard log={input.dietLog} water={input.waterLog} today={today} />}
+      {report.hasDiet && (
+        <Card size="flush">
+          <div className="px-3.5 pt-3 pb-2 text-body font-semibold text-strong">Dieta · 30 dias</div>
+          <DietRows log={input.dietLog} water={input.waterLog} today={today} />
+        </Card>
+      )}
 
       <Card size="flush">
         <CardHeader>
