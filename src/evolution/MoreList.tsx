@@ -6,7 +6,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { IconDot } from '@/components/IconDot'
 import type { EvolutionInput } from './types'
 import type { Report } from './report'
-import { DietRows, dietSummary } from './DietCard'
+import { DietRows } from './DietCard'
+import { dietSummary } from './dietStats'
 
 const ROW = 'h-auto min-h-14 w-full justify-start gap-3 rounded-none px-3.5 py-2 text-left font-normal'
 

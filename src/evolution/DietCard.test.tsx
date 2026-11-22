@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { dietDay, food } from '../../test/helpers'
-import { DietRows, dietSummary } from './DietCard'
+import { DietRows } from './DietCard'
+import { dietSummary } from './dietStats'
 
 const value = (label: string) => screen.getByText(label).parentElement
 
