@@ -99,7 +99,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
                       <span className="min-w-0 flex-1">
                         <span className="block text-body text-strong">{shown}</span>
                         <span className="block text-caption text-text-2">{portionText(i)}</span>
-                        {note && <span className={cn('block text-caption', warn ? 'text-warning' : 'text-faint')}>{note}</span>}
+                        {note && <span className={cn('block text-caption', warn ? 'text-warning' : 'text-text-2')}>{note}</span>}
                       </span>
                       <span className="shrink-0 text-meta tabular-nums text-text-2">{itemKcalText(i)}</span>
                     </>

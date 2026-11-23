@@ -25,9 +25,9 @@ const translucent = (color: string) => {
   return color.startsWith('rgb') ? `rgba(${r}, ${g}, ${b}, 0.35)` : `${color}59`
 }
 
-/** o boneco mostra músculo treinado: usa o success ("feito") do tema */
+/** o boneco mostra músculo treinado: success-fg (lime no escuro, verde escuro no claro, onde o lime some no fundo) */
 export function bodyColors(): BodyColors {
-  const primary = resolvedColor('success', '#c6ff3d')
+  const primary = resolvedColor('success-fg', '#c6ff3d')
   return { primary, secondary: translucent(primary), base: resolvedColor('border-strong', '#3a3d45') }
 }
 

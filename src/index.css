@@ -31,7 +31,7 @@
   --color-negative: light-dark(#c9303a, #ff705d);
   --color-negative-bg: light-dark(#fde3e1, rgb(255 112 93 / .14));
   --color-warning: light-dark(#a16207, #ffce2f);
-  --color-info: light-dark(#0074e2, #6d9cfe);
+  --color-info: light-dark(#005bb5, #6d9cfe);
   --color-info-bg: light-dark(#dde9fd, rgb(109 156 254 / .14));
   --color-overlay: light-dark(rgb(14 17 22 / .45), rgb(5 7 10 / .72));
   --color-shadow: light-dark(rgb(14 17 22 / .12), rgb(0 0 0 / .35));

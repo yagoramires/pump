@@ -123,7 +123,7 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
                   {skipped ? <Undo2 size={14} aria-hidden="true" /> : <Ban size={14} aria-hidden="true" />}
                 </Button>
               </TableCell>
-              <TableCell className={cn(TD, 'text-meta text-faint')}>{p ? `${formatKg(p.weightKg)}×${p.reps}` : '—'}</TableCell>
+              <TableCell className={cn(TD, 'text-meta text-text-2')}>{p ? `${formatKg(p.weightKg)}×${p.reps}` : '—'}</TableCell>
               <TableCell className={TD}>
                 <Input
                   className={box(!!s)}

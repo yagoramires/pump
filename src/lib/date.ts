@@ -63,5 +63,5 @@ export function formatDayLabel(key: string): string {
 
 export function formatDayMonth(key: string): string {
   const d = parseDayKey(key)
-  return `${d.getDate()} ${MESES[d.getMonth()].toLowerCase()}`
+  return `${d.getDate()} ${MESES[d.getMonth()]}`
 }

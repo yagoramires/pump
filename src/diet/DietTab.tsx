@@ -116,7 +116,7 @@ export function DietTab() {
           return (
             <li key={m.id} aria-current={isNow ? 'true' : undefined} className={cn('flex items-center gap-2 border-t border-line px-3.5 first:border-t-0', isNow && 'bg-accent-bg')}>
               <Button variant="ghost" className="h-auto min-h-14 min-w-0 flex-1 justify-start gap-3 rounded-none px-0 py-2.5 text-left font-normal hover:bg-transparent" onClick={() => setOpenId(m.id)}>
-                <span className={cn('w-10 shrink-0 text-caption tabular-nums', isNow ? 'text-accent' : 'text-faint')}>{m.time}</span>
+                <span className={cn('w-10 shrink-0 text-caption tabular-nums', isNow ? 'text-accent' : 'text-text-2')}>{m.time}</span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-body font-semibold text-strong">{m.name}</span>
                   <span className="block truncate text-caption text-text-2">{sub}</span>

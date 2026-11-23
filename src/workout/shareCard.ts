@@ -111,13 +111,12 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, max: number): string[
 type Palette = { bg: string; line: string; strong: string; text: string; text2: string; accent: string }
 type Font = (size: number, weight: number, spacing?: number) => void
 
-/** PNG 1080×1920 (placar ou adesivo do Stories); as cores vêm das variáveis CSS do app (o canvas não lê var()) */
+/** imagem exportada: paleta fixa, não segue o tema do app (e o canvas não lê var() nem light-dark()) */
+const CARD: Palette = { bg: '#0b0c0d', line: '#222428', strong: '#fff', text: '#d6d8dd', text2: '#8a8d96', accent: '#c6ff3d' }
+
+/** PNG 1080×1920 (placar ou adesivo do Stories) */
 export async function renderCard(input: CardInput, opts: CardOptions): Promise<Blob> {
-  const css = getComputedStyle(document.documentElement)
-  const color = (n: string, fallback: string) => css.getPropertyValue(`--color-${n}`).trim() || fallback
-  const c: Palette = {
-    bg: color('bg', '#0b0c0d'), line: color('line', '#222428'), strong: color('strong', '#fff'), text: color('text', '#d6d8dd'), text2: color('text-2', '#8a8d96'), accent: color('accent', '#c6ff3d'),
-  }
+  const c = CARD
   const stories = opts.format === 'stories'
   const figures = opts.map && input.levels.size ? await bodyImages(input.levels, stories) : []
   const canvas = document.createElement('canvas')

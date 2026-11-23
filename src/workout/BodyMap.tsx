@@ -22,10 +22,10 @@ export function BodyMap({ levels }: { levels: Map<string, MuscleLevel> }) {
     <div role="img" aria-label={`Músculos trabalhados. ${label}`} className="flex flex-col gap-3">
       <BodyFigures levels={levels} colors={bodyColors()} scale={0.8} />
       <div className="flex justify-center gap-4 text-caption text-text-2">
-        <span className="flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-success" />Principal</span>
-        <span className="flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-success/35" />Auxiliar</span>
+        <span className="flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-success-fg" />Principal</span>
+        <span className="flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-success-fg/35" />Auxiliar</span>
       </div>
-      {secondary.length > 0 && <p className="text-center text-caption text-faint">{`Auxiliares: ${secondary.join(' · ')}`}</p>}
+      {secondary.length > 0 && <p className="text-center text-caption text-text-2">{`Auxiliares: ${secondary.join(' · ')}`}</p>}
     </div>
   )
 }

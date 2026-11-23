@@ -17,7 +17,7 @@ export function ConsistencyCard({ bars, avgDays, goal }: { bars: WeekBar[]; avgD
       <div role="img" aria-label={`Treinos por semana: ${bars.map((b) => b.days).join(', ')}`} className="flex h-14 items-end gap-1 px-3.5">
         {bars.map((b) => <span key={b.start} className={cn('flex-1 rounded-sm', color(b.ratio))} style={{ height: `${Math.max(8, b.ratio * 100)}%` }} />)}
       </div>
-      <div className="flex justify-between gap-2 px-3.5 pt-1 pb-3 text-caption text-faint">
+      <div className="flex justify-between gap-2 px-3.5 pt-1 pb-3 text-caption text-text-2">
         <span>{bars.length > 1 ? `${plural(bars.length - 1, 'semana', 'semanas')} atrás` : ''}</span>
         <span>{`meta: ${goal}/sem`}</span>
         <span>esta semana</span>

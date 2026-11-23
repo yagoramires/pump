@@ -74,7 +74,7 @@ function ExerciseRow({ e, r, record }: { e: SessionExercise; r: ExerciseScore; r
         <ChevronDown size={16} className="shrink-0 text-faint transition-transform group-data-[state=open]:rotate-180" aria-hidden="true" />
       </CollapsibleTrigger>
       <CollapsibleContent className="pb-2.5">
-        {sets.length === 0 ? <div className="text-meta text-faint">nenhuma série feita</div>
+        {sets.length === 0 ? <div className="text-meta text-text-2">nenhuma série feita</div>
           : isCardio(e) ? <div className="text-meta text-text-2">feito</div>
             : sets.map((d, j) => <div key={j} className="text-meta text-text-2 tabular-nums">{`${formatKg(d.weightKg)} kg × ${d.reps}`}</div>)}
       </CollapsibleContent>
@@ -160,7 +160,7 @@ export function DoneSummary({ session, sessions, next, onChange }: { session: Wo
               <div className="flex items-baseline justify-between gap-3 text-sm">
                 <span className="text-text-2">Volume registrado</span>
                 <span className="text-right font-semibold text-strong tabular-nums">{`${formatDec(volume.kg)} kg`}
-                  {volume.counted < volume.total && <span className="block text-caption font-normal text-faint">{`calculado sobre ${volume.counted} de ${plural(volume.total, 'série', 'séries')}`}</span>}
+                  {volume.counted < volume.total && <span className="block text-caption font-normal text-text-2">{`calculado sobre ${volume.counted} de ${plural(volume.total, 'série', 'séries')}`}</span>}
                 </span>
               </div>
             )}

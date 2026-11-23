@@ -11,7 +11,7 @@ test('mapeia os músculos nas regiões do desenho; principal vence quando dois c
 
 test('cores do boneco: rgb resolvido vira rgba translúcido; sem resolver, cai no hex padrão', () => {
   const real = window.getComputedStyle
-  vi.spyOn(window, 'getComputedStyle').mockImplementation((el) => ({ ...real(el), color: (el as HTMLElement).style.color.includes('success') ? 'rgb(63, 125, 0)' : 'rgb(207, 212, 219)' }) as CSSStyleDeclaration)
+  vi.spyOn(window, 'getComputedStyle').mockImplementation((el) => ({ ...real(el), color: (el as HTMLElement).style.color.includes('success-fg') ? 'rgb(63, 125, 0)' : 'rgb(207, 212, 219)' }) as CSSStyleDeclaration)
   expect(bodyColors()).toEqual({ primary: 'rgb(63, 125, 0)', secondary: 'rgba(63, 125, 0, 0.35)', base: 'rgb(207, 212, 219)' })
   vi.restoreAllMocks()
   vi.spyOn(window, 'getComputedStyle').mockImplementation((el) => ({ ...real(el), color: '' }) as CSSStyleDeclaration)

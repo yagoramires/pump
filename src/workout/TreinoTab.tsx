@@ -121,7 +121,7 @@ export function TreinoTab() {
   )
   const closePreview = useCallback(() => setPreview(undefined), [])
 
-    const pastLink = <Button variant="link" size="sm" className="text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" />Treinos anteriores</Button>
+  const pastLink = <Button variant="link" size="sm" className="text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" />Treinos anteriores</Button>
   // o extra não mexe no registro da ficha: num dia de descanso, o descanso continua lá
   const startExtraToday = (started: WorkoutSession) => {
     setExtraLog((prev) => (prev[today] ? prev : { ...prev, [today]: started }))
@@ -333,7 +333,7 @@ export function TreinoTab() {
           >
             <div className="flex size-14.5 flex-col items-center justify-center rounded-full bg-panel">
               <span className="text-body leading-none font-bold text-strong tabular-nums">{stats.done}/{stats.total}</span>
-              <span className="text-caption text-faint">séries</span>
+              <span className="text-caption text-text-2">séries</span>
             </div>
           </div>
           <div>

@@ -10,7 +10,7 @@ export function UnfinishedCard({ session, onConclude, onDiscard }: {
 }) {
   return (
     <Card className="gap-2.5">
-      <p className="text-body font-semibold text-strong">{`Treino ${session.workoutLabel} de ${formatDayLabel(session.date)} ficou sem concluir`}</p>
+      <p className="text-body font-semibold text-strong">{`Treino ${session.workoutLabel} de ${formatDayLabel(session.date).toLowerCase()} ficou sem concluir`}</p>
       <div className="flex gap-2">
         <Button className="flex-1" onClick={onConclude}>Concluir</Button>
         <Button variant="outline" className="flex-1" onClick={onDiscard}>Descartar</Button>

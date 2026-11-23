@@ -31,7 +31,7 @@ export function ExerciseCard({ ex, open, onToggle, onPreview, prev, children }: 
                 <span className="block text-body font-semibold break-words text-strong">{ex.name}</span>
                 <span className="block text-meta text-text-2 first-letter:uppercase">{sub}</span>
               </span>
-              <span className={cn('flex shrink-0 items-center gap-1.5 text-meta font-normal tabular-nums', complete ? 'text-success-fg' : 'text-faint')}>
+              <span className={cn('flex shrink-0 items-center gap-1.5 text-meta font-normal tabular-nums', complete ? 'text-success-fg' : 'text-text-2')}>
                 {done}/{setsToDo(ex)}
                 {complete ? <Check size={14} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" className={cn('transition-transform', open && 'rotate-180')} />}
               </span>

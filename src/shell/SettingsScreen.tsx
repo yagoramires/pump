@@ -75,7 +75,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
           icon={<Sparkles size={18} aria-hidden="true" />} color="var(--c3)" title="Novidades" sub={`Atualizado em ${formatDayMonth(CHANGELOG[0].date)}`}
           onClick={() => setView(<><BackHeader title="Novidades" onBack={back} /><ChangelogList /></>)}
         />
-        <SettingsRow icon={<RefreshCw size={18} aria-hidden="true" />} color="var(--c3)" title="Atualizar app" sub="Busca a versão nova e recarrega" onClick={() => void updateNow()} />
+        <SettingsRow icon={<RefreshCw size={18} aria-hidden="true" />} color="var(--c2)" title="Atualizar app" sub="Busca a versão nova e recarrega" onClick={() => void updateNow()} />
       </SettingsSection>
       <Alert role="note" className="mt-2.5">Seus dados ficam só neste aparelho. Envie um backup de vez em quando.</Alert>
       <Card size="flush" className="mt-2.5">
