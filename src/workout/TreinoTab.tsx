@@ -329,7 +329,7 @@ export function TreinoTab() {
         <Card className="flex-row items-center gap-3.5">
           <div
             className="flex size-18 shrink-0 items-center justify-center rounded-full"
-            style={{ background: `conic-gradient(var(--color-success) 0 ${stats.total ? (stats.done / stats.total) * 100 : 0}%, var(--color-surface) 0)` }}
+            style={{ background: `conic-gradient(var(--color-success-fg) 0 ${stats.total ? (stats.done / stats.total) * 100 : 0}%, var(--color-surface) 0)` }}
           >
             <div className="flex size-14.5 flex-col items-center justify-center rounded-full bg-panel">
               <span className="text-body leading-none font-bold text-strong tabular-nums">{stats.done}/{stats.total}</span>

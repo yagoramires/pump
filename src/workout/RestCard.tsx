@@ -51,7 +51,7 @@ export function RestCard({ timer, totalSec, restSec, onExtend, onDone, onToggleP
     <Card
       role="timer"
       aria-label="Descanso"
-      className="fixed bottom-[calc(var(--nav-h)+68px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 border-accent-line bg-surface p-1.5 shadow-lg"
+      className="fixed bottom-[calc(var(--nav-h)+68px+env(safe-area-inset-bottom))] left-1/2 z-(--z-bar) w-[calc(100%-2rem)] max-w-[calc(28rem-2rem)] -translate-x-1/2 border-border-strong bg-raised p-1.5 shadow-[0_10px_30px_-10px_var(--color-shadow)]"
     >
       <div className="flex items-center gap-1.5">
         <Button variant="ghost" size="icon-sm" aria-label="Definir tempo de descanso" className="text-accent" onClick={onPickDuration}>
@@ -59,16 +59,16 @@ export function RestCard({ timer, totalSec, restSec, onExtend, onDone, onToggleP
         </Button>
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex items-baseline gap-1.5 whitespace-nowrap">
-            <b className="text-title leading-none font-bold text-accent tabular-nums">{restClock(left, true)}</b>
+            <b className="text-heading leading-none font-bold text-strong tabular-nums">{restClock(left, true)}</b>
             <span className="text-caption text-text-2 tabular-nums">de {restClock(restSec)}</span>
           </div>
           <Progress value={pct} aria-label="Descanso restante" className="h-1 bg-surface" />
         </div>
-        <Button variant="outline" size="icon-sm" aria-label={timer.paused ? 'Continuar descanso' : 'Pausar descanso'} onClick={onTogglePause}>
+        <Button variant="secondary" size="icon-sm" aria-label={timer.paused ? 'Continuar descanso' : 'Pausar descanso'} onClick={onTogglePause}>
           {timer.paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
         </Button>
-        <Button variant="outline" size="icon-sm" className="w-auto px-2 text-xs" onClick={onExtend}>{`+${restSecondsLabel(REST_STEP)}`}</Button>
-        <Button variant="outline" size="icon-sm" aria-label="Pular descanso" onClick={onDone}><SkipForward aria-hidden="true" /></Button>
+        <Button variant="secondary" size="icon-sm" className="w-auto px-2 text-xs" onClick={onExtend}>{`+${restSecondsLabel(REST_STEP)}`}</Button>
+        <Button variant="secondary" size="icon-sm" aria-label="Pular descanso" onClick={onDone}><SkipForward aria-hidden="true" /></Button>
       </div>
     </Card>
   )

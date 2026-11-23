@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card'
 import type { WeekBar } from './consistency'
 
-const color = (ratio: number) => (ratio >= 1 ? 'bg-success' : ratio > 0 ? 'bg-success-line' : 'bg-surface')
+const color = (ratio: number) => (ratio >= 1 ? 'bg-success-fg' : ratio > 0 ? 'bg-success-fg/40' : 'bg-surface')
 
 // barras em divs: o shadcn não tem gráfico de barras
 export function ConsistencyCard({ bars, avgDays, goal }: { bars: WeekBar[]; avgDays: number; goal: number }) {

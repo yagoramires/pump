@@ -5,7 +5,7 @@
    strong/text=text-primary, text-2=text-secondary, faint=text-disabled, accent=accent (monocromático), success=lime "feito". */
 @custom-variant dark (&:where([data-mode=dark], [data-mode=dark] *));
 
-@theme {
+@theme static {
   --color-bg: light-dark(#f2f3f5, #13161b);
   --color-panel: light-dark(#ffffff, #181b21);
   --color-surface: light-dark(#e9ebef, #232830);
