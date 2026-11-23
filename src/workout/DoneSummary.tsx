@@ -136,7 +136,7 @@ export function DoneSummary({ session, sessions, next, onChange }: { session: Wo
 
       <Card className="gap-2 py-3.5">
         <div className="flex items-center gap-2">
-          <span className="label-caps flex-1">{mondayWeekStart(today) === week ? 'Semana' : `Semana · ${formatDayMonth(week)} a ${formatDayMonth(addDays(week, 6))}`}</span>
+          <span className="label-section flex-1">{mondayWeekStart(today) === week ? 'Semana' : `Semana · ${formatDayMonth(week)} a ${formatDayMonth(addDays(week, 6))}`}</span>
           {onChange && openSettings && <Button variant="link" size="sm" className="h-auto p-0 text-accent" onClick={openSettings}>Ajustar meta</Button>}
         </div>
         <div className="text-body font-semibold text-strong tabular-nums">{days >= goal ? `Meta da semana batida · ${days} de ${goal}` : `${days} de ${goal} treinos na semana`}</div>

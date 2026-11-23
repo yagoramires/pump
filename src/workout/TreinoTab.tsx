@@ -220,7 +220,7 @@ export function TreinoTab() {
           <p className="max-w-64 text-sm text-text-2">Hoje é dia de recuperar. Quer treinar mesmo assim?</p>
           <Button variant="outline"  onClick={undoRest}><Undo2 aria-hidden="true" /> Desfazer</Button>
         </EmptyState>
-        <div className="label-caps">Escolher um treino</div>
+        <div className="label-section">Escolher um treino</div>
         <Card size="flush">
           {plan.workouts.map((w) => (
             <WorkoutRow key={w.id} workout={w} sub={plural(w.exercises.length, 'exercício', 'exercícios')} onClick={() => setChosenId(w.id)} className="border-t border-line px-3.5 py-2.5 first:border-t-0">
@@ -334,7 +334,7 @@ export function TreinoTab() {
           >
             <div className="flex size-14.5 flex-col items-center justify-center rounded-full bg-panel">
               <span className="text-body leading-none font-bold text-strong tabular-nums">{stats.done}/{stats.total}</span>
-              <span className="text-micro text-faint">séries</span>
+              <span className="text-caption text-faint">séries</span>
             </div>
           </div>
           <div>

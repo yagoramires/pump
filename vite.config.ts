@@ -32,8 +32,8 @@ export default defineConfig({
         short_name: 'Pump',
         lang: 'pt-BR',
         display: 'standalone',
-        background_color: '#121315',
-        theme_color: '#121315',
+        background_color: '#13161b',
+        theme_color: '#13161b',
         start_url: BASE,
         scope: BASE,
         icons: [

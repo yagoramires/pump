@@ -107,7 +107,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
 
       {day && (
         <>
-          <div className="label-caps mx-0.5 pt-1">
+          <div className="label-section mx-0.5 pt-1">
             {done || extra ? `${formatDayMonth(day)} · ${[done && `Treino ${done.workoutLabel}`, extra && (done ? 'Extra' : 'Treino Extra')].filter(Boolean).join(' + ')}` : formatDayMonth(day)}
           </div>
           {!done && !extra && !others ? (

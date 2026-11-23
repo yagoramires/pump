@@ -88,7 +88,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
             {meal.options.map((o, oi) => (
               <div key={o.id} className="pb-1.5">
                 {meal.options.length > 1 && (
-                  <div className="label-caps px-3.5 pt-2">
+                  <div className="label-section px-3.5 pt-2">
                     {`${optionLabel(oi, o.name)} · ${kcalOf(o.items)} kcal`}
                   </div>
                 )}

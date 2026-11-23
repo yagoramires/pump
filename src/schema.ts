@@ -6,9 +6,11 @@ import type { DietItem, DietLog, DietPlan, Supplement, SupplementLog, WaterLog, 
 import type { Measurement, PhotoSet } from './evolution/types'
 
 export type Tab = 'treino' | 'evolucao' | 'dieta'
+export const THEMES = ['dark', 'light', 'system'] as const
+export type Theme = (typeof THEMES)[number]
 
 /** datas = todayKey */
-interface CoreSettings { lastTab: Tab; onboardingDone: boolean; firstUseAt?: string; lastBackupAt?: string; installDismissed?: boolean; seenChangelog?: number }
+interface CoreSettings { lastTab: Tab; onboardingDone: boolean; firstUseAt?: string; lastBackupAt?: string; installDismissed?: boolean; seenChangelog?: number; theme?: Theme }
 export type Settings = CoreSettings & { seenAchievements?: string[]; earnedAchievements?: Record<string, string>; shoppingChecked?: string[]; water?: WaterSettings; supplements?: Supplement[]; checkInDay?: number; anamnesisAt?: string }
 export interface UserData { profile: Profile; workoutPlan: WorkoutPlan; workoutLog: WorkoutLog; extraLog: WorkoutLog; customExercises: CustomExercise[]; settings: Settings; measurements: Measurement[]; photoSets: PhotoSet[]; dietPlan: DietPlan; dietLog: DietLog; waterLog: WaterLog; supplementLog: SupplementLog; foods: DietItem[] }
 
@@ -51,7 +53,8 @@ export const VALID: Record<keyof UserData, (v: unknown) => boolean> = {
   extraLog: validWorkoutLog,
   customExercises: Array.isArray,
   // supplements vira .map na aba Dieta: formato errado travaria o app a cada abertura
-  settings: (v) => isObj(v) && (v.supplements === undefined || (Array.isArray(v.supplements) && v.supplements.every((x) => isObj(x) && typeof x.id === 'string' && typeof x.name === 'string'))),
+  // theme entra pelo backup: valor desconhecido deixaria o app sem tema
+  settings: (v) => isObj(v) && (v.theme === undefined || (THEMES as readonly unknown[]).includes(v.theme)) && (v.supplements === undefined || (Array.isArray(v.supplements) && v.supplements.every((x) => isObj(x) && typeof x.id === 'string' && typeof x.name === 'string'))),
   measurements: datedList,
   photoSets: datedList,
   dietPlan: (v) => isObj(v) && Array.isArray(v.menus),

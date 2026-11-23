@@ -166,7 +166,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
                   {!groups.length && <p className="text-meta text-text-2">Sem refeições em outros cardápios.</p>}
                   {groups.map((g) => (
                     <div key={g.id} className="flex flex-col gap-1.5 pt-3">
-                      <h3 className="label-caps">{g.label}</h3>
+                      <h3 className="label-section">{g.label}</h3>
                       <Card size="flush" variant="inset"><ul aria-label={g.label}>
                         {g.rows.map((r) => (
                           <li key={r.id} className="border-t border-line first:border-t-0">

@@ -22,7 +22,7 @@ export function PastWorkouts({ onClose }: { onClose: () => void }) {
     return (
       <div className="flex flex-col gap-3">
         <BackHeader title={open.workoutName} onBack={() => setOpenKey(undefined)} />
-        <div className="label-caps -mt-2">{workoutDayLabel(open.date, open.workoutLabel)}</div>
+        <div className="label-section -mt-2">{workoutDayLabel(open.date, open.workoutLabel)}</div>
         <DoneSummary session={open} sessions={merged} />
       </div>
     )
@@ -38,7 +38,7 @@ export function PastWorkouts({ onClose }: { onClose: () => void }) {
             <Item key={key(s)} asChild className="h-auto min-h-14 w-full flex-nowrap justify-start gap-3 rounded-none border-0 border-t border-line px-3.5 py-2.5 text-left font-normal whitespace-normal first:border-t-0 has-[>svg]:px-3.5">
               <Button variant="ghost" onClick={() => setOpenKey(key(s))}>
                 <span className="block min-w-0 flex-1">
-                  <span className="label-caps block">{workoutDayLabel(s.date, s.workoutLabel)}</span>
+                  <span className="label-section block">{workoutDayLabel(s.date, s.workoutLabel)}</span>
                   <WorkoutDayLine session={s} sessions={merged} />
                 </span>
                 <ChevronRight className="size-4.5 shrink-0 text-faint" aria-hidden="true" />

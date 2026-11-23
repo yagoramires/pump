@@ -5,6 +5,7 @@ import { BottomNav } from '@/shell/BottomNav'
 import { InstallGate } from '@/shell/InstallGate'
 import { SettingsScreen } from '@/shell/SettingsScreen'
 import { WhatsNew } from '@/shell/Changelog'
+import { applyTheme } from '@/shell/theme'
 import { isIOS, isStandalone } from '@/shell/platform'
 import { Onboarding } from '@/onboarding/Onboarding'
 import { TreinoTab } from '@/workout/TreinoTab'
@@ -39,6 +40,7 @@ export default function App() {
 function Shell() {
   use(boot(migrateOnBoot))
   const [settings, setSettings] = usePersisted('settings')
+  useEffect(() => applyTheme(settings.theme), [settings.theme])
   const [storageError, setStorageError] = useState<string>()
   const [showSettings, setShowSettings] = useState(false)
   const { due } = useCheckIn()

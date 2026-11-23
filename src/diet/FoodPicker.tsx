@@ -114,13 +114,13 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
               <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {shownRecents.length > 0 && (
                   <div className="flex flex-col gap-1.5">
-                    <h3 className="label-caps">Recentes e do cardápio</h3>
+                    <h3 className="label-section">Recentes e do cardápio</h3>
                     <Rows label="Recentes e do cardápio" foods={shownRecents} selected={sel && foodKey(sel.name)} onSelect={setSel} />
                   </div>
                 )}
                 {results.length > 0 && (
                   <div className="flex flex-col gap-1.5">
-                    <h3 className="label-caps">TACO</h3>
+                    <h3 className="label-section">TACO</h3>
                     <Rows label="Resultados da TACO" foods={results} selected={sel && foodKey(sel.name)} onSelect={setSel} />
                   </div>
                 )}

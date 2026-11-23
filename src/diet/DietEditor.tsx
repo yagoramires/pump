@@ -113,7 +113,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
         <div className="grid grid-cols-3 gap-2">
           {MACRO_KEYS.map((k) => (
             <label key={k} className="flex flex-col gap-1">
-              <span className="label-caps">{MACRO_LABELS[k]} (g)</span>
+              <span className="label-section">{MACRO_LABELS[k]} (g)</span>
               <NumberField className="text-center" aria-label={`Meta de ${MACRO_LABELS[k].toLowerCase()} em g`} placeholder="—" autoComplete="off" enterKeyHint="done" min={MACRO_G[0]} max={MACRO_G[1]} value={menu.goalMacros?.[k] || undefined} onChange={(n) => n !== null && patchMenu((m) => setMacro(m, k, n))} />
             </label>
           ))}

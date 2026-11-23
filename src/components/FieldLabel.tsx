@@ -5,7 +5,7 @@ import { Optional } from './Optional'
 export function FieldLabel({ label, optional, htmlFor }: { label: string; optional?: boolean; htmlFor?: string }) {
   return (
     <div className="flex flex-wrap items-baseline gap-x-1.5">
-      {htmlFor ? <Label htmlFor={htmlFor} className="label-caps-wide">{label}</Label> : <span className="label-caps-wide">{label}</span>}
+      {htmlFor ? <Label htmlFor={htmlFor} className="label-section">{label}</Label> : <span className="label-section">{label}</span>}
       {optional && <Optional />}
     </div>
   )

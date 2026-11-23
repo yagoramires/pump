@@ -8,7 +8,7 @@ export function TabHeader({ eyebrow, title, actions }: { eyebrow: ReactNode; tit
   return (
     <header className="flex flex-col">
       <div className="flex items-center justify-between gap-2">
-        <span className="label-caps min-w-0 truncate">{eyebrow}</span>
+        <span className="label-section min-w-0 truncate">{eyebrow}</span>
         <div className="flex shrink-0 items-center gap-2">
           {actions}
           {openSettings && <Button type="button" variant="outline" size="icon" aria-label="Configurações" onClick={openSettings}><SettingsIcon aria-hidden="true" /></Button>}

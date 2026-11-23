@@ -20,6 +20,10 @@ import { BackupRestore } from '@/backup/BackupRestore'
 import { daysSinceBackup, sendBackup } from '@/backup/backup'
 import { Alert } from '@/components/ui/alert'
 import { updateNow } from '@/lib/holdUpdates'
+import { Chips } from '@/components/Chips'
+import type { Theme } from '@/schema'
+
+const THEME_LABELS: Record<Theme, string> = { dark: 'Escuro', light: 'Claro', system: 'Sistema' }
 
 const BUILT_AT = new Date(import.meta.env.VITE_BUILT_AT).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
 /** hash do commit e hora do build mudam a cada deploy: dá pra ver se a versão nova já entrou */
@@ -44,26 +48,29 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
   return (
     <Overlay>
       <BackHeader title="Configurações" onBack={onClose} label="Fechar configurações" />
-      <SettingsSection title="TREINO">
+      <SettingsSection title="Treino">
         <WorkoutSettings open={setView} />
         <SettingsRow
           icon={<User size={18} aria-hidden="true" />} color="var(--c2)" title="Perfil" sub={weight && hasProfile(profile) ? `${formatKg(weight)} kg · ${profile.heightCm} cm` : undefined}
           onClick={() => setView(<><BackHeader title="Perfil" onBack={back} /><div className="mt-3"><ProfileScreen onDone={back} /></div></>)}
         />
       </SettingsSection>
-      <SettingsSection title="MEDIDAS">
+      <SettingsSection title="Medidas">
         <SettingsRow icon={<Ruler size={18} aria-hidden="true" />} color="var(--c6)" title="Registrar medidas" sub={lastMeasure ? `Último registro: ${formatDayMonth(lastMeasure)}` : 'Nenhum registro ainda'} onClick={() => setMeasuring(true)} />
       </SettingsSection>
-      <SettingsSection title="DIETA">
+      <SettingsSection title="Dieta">
         <DietSettings open={setView} />
       </SettingsSection>
-      <SettingsSection title="SEUS DADOS">
+      <SettingsSection title="Seus dados">
         <SettingsRow icon={<Share2 size={18} aria-hidden="true" />} color="var(--c6)" title="Enviar backup" sub={`WhatsApp, Arquivos… · ${last}`} onClick={sendBackup} />
         <BackupRestore trigger={(pick) => (
           <SettingsRow icon={<Upload size={18} aria-hidden="true" />} color="var(--c5)" title="Restaurar backup" onClick={pick} />
         )} />
       </SettingsSection>
-      <SettingsSection title="APP">
+      <SettingsSection title="App">
+        <div className="px-3.5 py-3">
+          <Chips label="Aparência" options={THEME_LABELS} value={settings.theme ?? 'dark'} onChange={(theme) => theme && setSettings((s) => ({ ...s, theme }))} />
+        </div>
         <SettingsRow
           icon={<Sparkles size={18} aria-hidden="true" />} color="var(--c3)" title="Novidades" sub={`Atualizado em ${formatDayMonth(CHANGELOG[0].date)}`}
           onClick={() => setView(<><BackHeader title="Novidades" onBack={back} /><ChangelogList /></>)}

@@ -28,7 +28,7 @@ type Drag = { i: number; x: number; y: number; dx: number; on: boolean }
 
 const parseKg = (v: string) => parseInRange(v, ...KG)
 // desfaz os padrões do Table do shadcn que mudariam o visual da tabela de séries
-const TH = 'label-caps h-auto px-2 pb-1.5 text-center font-semibold whitespace-normal text-faint'
+const TH = 'h-auto px-2 pb-1.5 text-center text-caption font-semibold whitespace-normal text-text-2'
 const TD = 'px-0 py-1.5 whitespace-normal'
 
 export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
