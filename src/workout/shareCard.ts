@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom'
 import { createRoot } from 'react-dom/client'
 import { formatDayLabel, p2, parseDayKey } from '@/lib/date'
 import { formatKg, plural } from '@/lib/number'
-import { bodyColors } from './bodyParts'
+import { EXPORT_BODY_COLORS } from './bodyParts'
 import type { Highlight, MuscleLevel } from './summary'
 
 export type CardInput = {
@@ -87,7 +87,7 @@ async function bodyImages(levels: CardInput['levels'], light: boolean): Promise<
   const { BodyFigures } = await import('./BodyMap')
   const div = document.createElement('div')
   const root = createRoot(div)
-  flushSync(() => root.render(createElement(BodyFigures, { levels, colors: light ? { ...bodyColors(), base: '#ffffff59' } : bodyColors(), scale: 2 })))
+  flushSync(() => root.render(createElement(BodyFigures, { levels, colors: light ? { ...EXPORT_BODY_COLORS, base: '#ffffff59' } : EXPORT_BODY_COLORS, scale: 2 })))
   const svgs = [...div.querySelectorAll('svg')].map((svg) => { svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg'); return svg.outerHTML })
   root.unmount()
   return Promise.all(svgs.map((src) => new Promise<HTMLImageElement>((resolve, reject) => {
