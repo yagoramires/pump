@@ -118,7 +118,9 @@ const encodeTreino = (w: Workout): PumpTreino => ({
   })),
 })
 
-export const exportPlanFormat = (plan: WorkoutPlan): string => writeEnvelope({ treinos: plan.workouts.map(encodeTreino) })
+export const treinosOf = (plan: WorkoutPlan): PumpTreino[] => plan.workouts.map(encodeTreino)
+
+export const exportPlanFormat = (plan: WorkoutPlan): string => writeEnvelope({ treinos: treinosOf(plan) })
 
 /** o que o editor não deixa salvar: as mesmas regras da importação (o "Ajustar com IA" reimporta), no texto do editor */
 export function planProblem(plan: WorkoutPlan): string | undefined {

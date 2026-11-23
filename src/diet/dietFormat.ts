@@ -1,5 +1,5 @@
 import type { DietItem, DietPlan, Menu, TacoFood } from './types'
-import { FormatError, readHalf, writeEnvelope } from '@/format/envelope'
+import { FROM_PUMP, FormatError, readHalf, writeEnvelope } from '@/format/envelope'
 import { str } from '@/lib/text'
 import { isObj } from '@/lib/utils'
 import { inRange, round1 } from '@/lib/number'
@@ -15,7 +15,7 @@ interface PumpOpcao { nome?: string; alimentos: PumpAlimento[] }
 interface PumpRefeicao { nome: string; horario: string; opcoes: PumpOpcao[] }
 interface PumpMacros { proteinaG: number; carboG: number; gorduraG: number }
 interface PumpCardapio { nome: string; metaKcal?: number; macros?: PumpMacros; refeicoes: PumpRefeicao[] }
-export interface PumpDieta { cardapios: PumpCardapio[]; ignoredWorkouts?: boolean }
+export interface PumpDieta { cardapios: PumpCardapio[]; ignoredWorkouts?: boolean; fromPump?: boolean }
 
 type Obj = Record<string, unknown>
 type DraftRule = 'menuName' | 'emptyMenu' | 'mealFields' | 'emptyOption' | 'goal' | 'macros'
@@ -91,15 +91,16 @@ export const parseDietFormat = (text: string): PumpDieta => readHalf(text, 'diet
     cardapios = d.cardapios.map((x: unknown, i) => parseMenu(isObj(x) ? x : {}, `Cardápio ${i + 1}`, problem))
   } else cardapios = [parseMenu(d, undefined, problem)]
   if (problems.length) throw new FormatError(problems)
-  return { cardapios, ignoredWorkouts }
+  return { cardapios, ignoredWorkouts, ...(raw.origem === FROM_PUMP.origem && { fromPump: true }) }
 })
 
 type Match = 'custom' | 'exact' | 'words' | 'ia' | 'none'
 export type ItemReport = { match: Match; aiName: string }
 
-function itemFromFormat(a: PumpAlimento, taco: TacoFood[] | null, customs: DietItem[]): { item: DietItem; match: Match } {
+function itemFromFormat(a: PumpAlimento, taco: TacoFood[] | null, customs: DietItem[], fromPump: boolean): { item: DietItem; match: Match } {
   const base = { id: crypto.randomUUID(), grams: a.gramas, ...(a.porcao && { portion: a.porcao }) }
-  const found = matchFood(a.nome, a.gramas, a.kcal, taco ?? [], customs)
+  // sem kcal o matchFood só aceita nome igual: arquivo do Pump volta como saiu, sem trocar por um parecido da TACO
+  const found = matchFood(a.nome, a.gramas, fromPump ? undefined : a.kcal, taco ?? [], customs)
   if (found?.kind === 'custom') {
     return { match: 'custom', item: { ...asFood(found.item), ...base } }
   }
@@ -133,7 +134,7 @@ export function dietFromFormat(
         id: crypto.randomUUID(),
         ...(op.nome && { name: op.nome }),
         items: op.alimentos.map((a) => {
-          const { item, match } = itemFromFormat(a, taco, customs)
+          const { item, match } = itemFromFormat(a, taco, customs, !!d.fromPump)
           reports[item.id] = { match, aiName: a.nome }
           return item
         }),
@@ -170,8 +171,10 @@ const encodeMenu = (menu: Menu): PumpCardapio => ({
   })),
 })
 
+export const dietaOf = (plan: DietPlan) => ({ cardapios: plan.menus.map(encodeMenu) })
+
 export function exportDietFormat(plan: DietPlan): string {
-  return writeEnvelope({ dieta: { cardapios: plan.menus.map(encodeMenu) } })
+  return writeEnvelope({ dieta: dietaOf(plan) })
 }
 
 export function planProblem(plan: DietPlan): { menuId: string; text: string } | undefined {
