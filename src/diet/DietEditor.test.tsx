@@ -1,6 +1,6 @@
 import { DEFAULTS } from '@/schema'
 import type { DietItem, DietPlan } from './types'
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { renderLoaded } from '../../test/render'
 import { seedStore } from '../../test/store'
 import userEvent from '@testing-library/user-event'
@@ -206,4 +206,58 @@ test('pede correção de uma meta fracionária legada antes de salvar', async ()
   await user.click(await screen.findByRole('button', { name: 'Salvar' }))
   expect(screen.getByRole('alert')).toHaveTextContent('Dia de treino: informe a meta em kcal inteiras')
   expect(onSave).not.toHaveBeenCalled()
+})
+
+const arroz: DietItem = { id: 'i2', name: 'Arroz', grams: 100, per100: { kcal: 0, p: 10, c: 20, f: 5 }, source: 'custom' }
+const twoItems = (): DietPlan => ({ menus: [{ id: 'A', name: 'Base', meals: [{ id: 'm1', name: 'Almoço', time: '12:00', options: [{ id: 'o1', items: [pao, arroz, shake] }] }] }] })
+
+test('Selecionar remove vários alimentos com confirmação', async () => {
+  const user = setup()
+  const onSave = vi.fn()
+  await renderLoaded(<DietEditor initial={twoItems()} onSave={onSave} onCancel={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: 'Selecionar' }))
+  expect(screen.queryByRole('button', { name: 'Mover Arroz' })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('checkbox', { name: 'Selecionar Pão francês' }))
+  await user.click(screen.getByRole('checkbox', { name: 'Selecionar Meu shake' }))
+  await user.click(screen.getByRole('button', { name: 'Remover (2)' }))
+  await user.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Remover' }))
+  await user.click(screen.getByRole('button', { name: 'Salvar' }))
+  expect(saved(onSave).menus[0].meals[0].options[0].items.map((i) => i.name)).toEqual(['Arroz'])
+})
+
+test('a barrinha mostra os macros da opção aberta', async () => {
+  await renderLoaded(<DietEditor initial={{ menus: [{ id: 'A', name: 'Base', meals: [{ id: 'm1', name: 'Almoço', time: '12:00', options: [{ id: 'o1', items: [arroz] }] }] }] }} onSave={vi.fn()} onCancel={vi.fn()} />)
+  expect(await screen.findByText('proteína 10 g, carbo 20 g, gordura 5 g')).toBeInTheDocument()
+})
+
+test('cada alimento tem a alça de arrastar fora do modo seleção', async () => {
+  await renderLoaded(<DietEditor initial={twoItems()} onSave={vi.fn()} onCancel={vi.fn()} />)
+  expect(await screen.findByRole('button', { name: 'Mover Arroz' })).toBeInTheDocument()
+})
+
+test('com onChange não mostra Salvar nem Apagar todos e avisa cada mudança', async () => {
+  const user = setup()
+  const onChange = vi.fn()
+  await renderLoaded(<DietEditor initial={twoItems()} onChange={onChange} />)
+  expect(screen.queryByRole('button', { name: 'Salvar' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Apagar todos os cardápios' })).not.toBeInTheDocument()
+  expect(onChange).not.toHaveBeenCalled()
+  const g = await screen.findByRole('textbox', { name: 'Gramas de Arroz' })
+  await user.clear(g)
+  await user.type(g, '150')
+  expect(onChange.mock.calls.at(-1)![0].menus[0].meals[0].options[0].items[1].grams).toBe(150)
+})
+
+test('itens marcados em cardápios diferentes saem todos', async () => {
+  const user = setup()
+  const onChange = vi.fn()
+  await renderLoaded(<DietEditor initial={plan()} onChange={onChange} />)
+  await user.click(await screen.findByRole('button', { name: 'Selecionar' }))
+  await user.click(screen.getByRole('checkbox', { name: 'Selecionar Meu shake' }))
+  await user.click(screen.getByRole('button', { name: 'Dia de treino' }))
+  await user.click(screen.getByRole('checkbox', { name: 'Selecionar Pão francês' }))
+  await user.click(screen.getByRole('button', { name: 'Remover (2)' }))
+  await user.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Remover' }))
+  const last: DietPlan = onChange.mock.calls.at(-1)![0]
+  expect(last.menus.flatMap((m) => m.meals.flatMap((ml) => ml.options.flatMap((o) => o.items)))).toEqual([])
 })

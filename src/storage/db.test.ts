@@ -4,7 +4,7 @@ import * as idb from 'idb-keyval'
 import { DEFAULTS, type UserData } from '@/schema'
 import { renderHookLoaded } from '../../test/render'
 import { seedStore, stored } from '../../test/store'
-import { allData, onStorageError, readCurrent, replaceAll, save, StorageReadError, usePersisted } from './db'
+import { allData, memoryOnly, onStorageError, readCurrent, replaceAll, save, StorageReadError, usePersisted } from './db'
 
 vi.mock('idb-keyval', async (orig) => {
   const m = await orig<typeof import('idb-keyval')>()
@@ -117,4 +117,18 @@ test('save lento não desfaz o update seguinte', async () => {
   await act(async () => slow.resolve())
   expect(Object.keys(h.result.current[0]).sort()).toEqual(['a', 'b'])
   await waitFor(async () => expect(Object.keys((await stored('workoutLog'))!).sort()).toEqual(['a', 'b']))
+})
+
+test('memoryOnly: lê os padrões e grava só na memória, sem tocar no IndexedDB', async () => {
+  await seedStore({ customExercises: [{ id: 'old', name: 'Do aparelho', muscles: [] }] })
+  vi.mocked(idb.get).mockClear()
+  vi.mocked(idb.set).mockClear()
+  memoryOnly()
+  const { result } = await persisted('customExercises')
+  expect(result.current[0]).toEqual([])
+  act(() => { result.current[1]([{ id: 'n', name: 'Novo', muscles: [] }]) })
+  expect(result.current[0]).toEqual([{ id: 'n', name: 'Novo', muscles: [] }])
+  expect(idb.get).not.toHaveBeenCalled()
+  expect(idb.set).not.toHaveBeenCalled()
+  expect(await stored('customExercises')).toEqual([{ id: 'old', name: 'Do aparelho', muscles: [] }])
 })

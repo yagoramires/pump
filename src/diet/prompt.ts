@@ -9,7 +9,6 @@ import { FOOD_LIST_URL } from '@/catalog/urls'
 import { aboutMe as aboutMeBlock, adjustPrompt, askFirst, formatSpec, label, listRule as rule, names } from '@/format/promptRules'
 import { profileLines } from '@/profile/promptLines'
 import { exportDietFormat } from './dietFormat'
-import { preparePlan } from './plan'
 import type { DietPlan } from './types'
 import { GOAL_KCAL, GRAMS, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 
@@ -165,4 +164,4 @@ ${FORMAT}`
 export const buildDietAdjustPrompt = (plan: DietPlan): string => adjustPrompt('dieta', [
   `Para alimento novo: ${NEW_FOOD_RULE}`,
   'Os valores (kcal, proteinaG, carboG, gorduraG) são da quantidade em gramas, não por 100 g: se mudar as gramas ou incluir um alimento, recalcule esses valores.',
-], exportDietFormat(preparePlan(plan)))
+], exportDietFormat(plan))

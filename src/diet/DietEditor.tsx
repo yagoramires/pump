@@ -1,13 +1,25 @@
-import { useState } from 'react'
-import { ArrowDown, ArrowUp, Copy, Plus, Trash2 } from 'lucide-react'
+import { useState, type ReactNode } from 'react'
+import { Copy, Plus, Trash2 } from 'lucide-react'
+import { DndContext, DragOverlay, closestCorners, pointerWithin, useDroppable, type CollisionDetection, type DragEndEvent, type DragOverEvent } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { DEFAULTS } from '@/schema'
 import type { DietItem, DietPlan, Macros, Meal, MealOption, Menu } from './types'
-import { MACRO_LABELS, iaLabel, itemKcalText, optionLabel, optionLetter } from './display'
+import { MACRO_LABELS, optionLabel, optionLetter } from './display'
 import { MACRO_KEYS, kcalOf, macrosOf } from './food'
 import { currentMenu, emptyMeal, emptyMenu, emptyOption } from './plan'
 import { planProblem } from './dietFormat'
-import { GOAL_KCAL, GRAMS, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
+import { GOAL_KCAL, MACRO_G, MAX_ITEMS, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 import { FoodPicker } from './FoodPicker'
+import { DietItemCard } from './DietItemCard'
+import { macroSplit, moveFood } from './dietEdit'
+import { SortableItem } from '@/components/Sortable'
+import { LIFTED, useEditorDrag } from '@/components/dnd'
+import { SelectToggle, SelectionBar } from '@/components/SelectionBar'
+import { useEditorDraft } from '@/components/useEditorDraft'
+import { SplitBar } from '@/components/SplitBar'
+import { Checkbox } from '@/components/ui/checkbox'
+import { useSelection } from '@/lib/useSelection'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Toggle } from '@/components/ui/toggle'
@@ -20,8 +32,18 @@ import { TimePicker } from '@/components/TimePicker'
 import { Alert } from '@/components/ui/alert'
 import { useHoldUpdates } from '@/lib/holdUpdates'
 
-/** "Apagar todos" entrega o plano vazio em `onSave` */
-type Props = { initial: DietPlan; onSave: (plan: DietPlan) => void; onCancel: () => void }
+/** no app: Salvar/Cancelar ("Apagar todos" entrega o plano vazio em `onSave`). Na web (`onChange`): sem cabeçalho, cada mudança sai na hora */
+type Props = { initial: DietPlan; onSave?: (plan: DietPlan) => void; onCancel?: () => void; onChange?: (plan: DietPlan) => void }
+
+const MACRO_COLOR = { p: 'var(--color-plate-red)', c: 'var(--color-plate-yellow)', f: 'var(--color-plate-blue)' } as const
+const TAB = 'tab:'
+// a aba da opção é pequena: o que está debaixo do ponteiro ganha; fora de tudo, o mais perto
+const collision: CollisionDetection = (args) => { const hit = pointerWithin(args); return hit.length ? hit : closestCorners(args) }
+
+function OptionTab({ id, children }: { id: string; children: ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({ id: TAB + id })
+  return <span ref={setNodeRef} className={cn('rounded-lg', isOver && 'ring-2 ring-border-strong')}>{children}</span>
+}
 
 const CONFIRM = {
   menu: { title: 'Apagar este cardápio?', text: 'As refeições dele saem do editor. O histórico fica.' },
@@ -42,14 +64,16 @@ const setMacro = (m: Menu, k: keyof Macros, n?: number): Menu => {
   return { ...m, goalMacros: MACRO_KEYS.some((x) => g[x]) ? g : undefined }
 }
 
-export function DietEditor({ initial, onSave, onCancel }: Props) {
+export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
   useHoldUpdates()
-  const [plan, setPlan] = useState<DietPlan>(() => (initial.menus.length ? structuredClone(initial) : { menus: [emptyMenu(1, [emptyMeal(1)])] }))
+  const [plan, setPlan] = useEditorDraft<DietPlan>(() => (initial.menus.length ? structuredClone(initial) : { menus: [emptyMenu(1, [emptyMeal(1)])] }), onChange)
   const [menuId, setMenuId] = useState(() => currentMenu(plan)!.id)
   const [optOf, setOptOf] = useState<Record<string, number>>({})
   const [picking, setPicking] = useState<{ mealId: string; oi: number; name: string }>()
   const [confirm, setConfirm] = useState<keyof typeof CONFIRM>()
   const [error, setError] = useState('')
+  const sel = useSelection()
+  const drag = useEditorDrag(plan, setPlan)
 
   const menu = plan.menus.find((m) => m.id === menuId) ?? plan.menus[0]
   const patchMenu = (f: (m: Menu) => Menu) => setPlan((p) => ({ ...p, menus: p.menus.map((m) => (m.id === menu.id ? f(m) : m)) }))
@@ -84,15 +108,53 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
       setError(problem.text)
       return setMenuId(problem.menuId)
     }
-    onSave(plan)
+    onSave?.(plan)
   }
-  const confirmed = () => (confirm === 'menu' ? removeMenu() : onSave(DEFAULTS.dietPlan))
+  const confirmed = () => (confirm === 'menu' ? removeMenu() : onSave?.(DEFAULTS.dietPlan))
+
+  const locate = (m: Menu, id: string) => {
+    if (id.startsWith(TAB)) return { optionId: id.slice(TAB.length), index: Infinity }
+    for (const o of m.meals.flatMap((x) => x.options)) {
+      const index = o.items.findIndex((it) => it.id === id)
+      if (index >= 0) return { optionId: o.id, index }
+    }
+  }
+  const dragOver = ({ active, over }: DragOverEvent) => {
+    if (!over || String(over.id).startsWith(TAB)) return
+    patchMenu((m) => {
+      const from = locate(m, String(active.id))
+      const to = locate(m, String(over.id))
+      return from && to && from.optionId !== to.optionId ? moveFood(m, from, to) : m
+    })
+  }
+  const dragEnd = ({ active, over }: DragEndEvent) => {
+    if (!drag.finish(over)) return
+    if (active.id === over.id) return
+    patchMenu((m) => {
+      const from = locate(m, String(active.id))
+      const to = locate(m, String(over.id))
+      if (!from || !to || (from.optionId === to.optionId && to.index === Infinity)) return m
+      return moveFood(m, from, to)
+    })
+    // solto na aba de outra opção: mostra essa opção, senão o alimento só some da tela
+    const tab = String(over.id)
+    if (!tab.startsWith(TAB)) return
+    const optionId = tab.slice(TAB.length)
+    const meal = menu.meals.find((ml) => ml.options.some((o) => o.id === optionId))
+    if (meal) setOptOf((s) => ({ ...s, [meal.id]: meal.options.findIndex((o) => o.id === optionId) }))
+  }
+  // em todos os cardápios: a seleção continua ligada quando se troca de cardápio
+  const removeItems = (ids: Set<string>) =>
+    setPlan((p) => ({ ...p, menus: p.menus.map((m) => ({ ...m, meals: m.meals.map((ml) => ({ ...ml, options: ml.options.map((o) => ({ ...o, items: o.items.filter((it) => !ids.has(it.id)) })) })) })) }))
+  const draggedItem = drag.dragging ? menu.meals.flatMap((m) => m.options).flatMap((o) => o.items).find((it) => it.id === drag.dragging) : undefined
 
   return (
     <div className="flex flex-col gap-3 pb-6">
-      <BackHeader title="Cardápio" onBack={onCancel} label="Cancelar">
-        <Button size="sm" onClick={save}>Salvar</Button>
-      </BackHeader>
+      {onSave && (
+        <BackHeader title="Cardápio" onBack={() => onCancel?.()} label="Cancelar">
+          <Button size="sm" onClick={save}>Salvar</Button>
+        </BackHeader>
+      )}
       {error && <Alert variant="destructive">{error}</Alert>}
 
       <ChipRow label="Cardápios" className="-mx-4">
@@ -120,12 +182,22 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
         </div>
       </Card>
 
+      <SelectToggle sel={sel} />
+      <DndContext
+        {...drag.context}
+        collisionDetection={collision}
+        onDragOver={dragOver}
+        onDragEnd={dragEnd}
+      >
+      <div className="@container">
+      <div className="flex flex-col gap-3 @3xl:flex-row @3xl:items-start @3xl:overflow-x-auto @3xl:pb-2">
       {menu.meals.map((meal, mi) => {
         const oi = Math.min(optOf[meal.id] ?? 0, meal.options.length - 1)
         const opt = meal.options[oi]
         const kcal = kcalOf(opt.items)
+        const macros = macroSplit(opt.items)
         return (
-          <Card size="sm" key={meal.id} className="gap-2.5">
+          <Card size="sm" key={meal.id} className="gap-2.5 @3xl:w-96 @3xl:shrink-0">
             <div className="flex items-center gap-2">
               <Input className="min-w-0 flex-1 font-semibold" aria-label={`Nome da refeição ${mi + 1}`} autoComplete="off" enterKeyHint="done" value={meal.name} onChange={(e) => patchMeal(meal.id, (m) => ({ ...m, name: e.target.value }))} />
               <TimePicker className="w-28" aria-label={`Horário da refeição ${mi + 1}`} value={meal.time} onChange={(v) => patchMeal(meal.id, (m) => ({ ...m, time: v ?? '' }))} />
@@ -133,46 +205,52 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
               {meal.options.map((o, j) => (
-                <Toggle key={o.id} variant="outline" className="px-2.5 text-caption font-semibold" pressed={j === oi} onPressedChange={() => setOptOf((s) => ({ ...s, [meal.id]: j }))}>
-                  {optionLabel(j)}
-                </Toggle>
+                <OptionTab key={o.id} id={o.id}>
+                  <Toggle variant="outline" className="px-2.5 text-caption font-semibold" pressed={j === oi} onPressedChange={() => setOptOf((s) => ({ ...s, [meal.id]: j }))}>
+                    {optionLabel(j)}
+                  </Toggle>
+                </OptionTab>
               ))}
               {meal.options.length < MAX_OPTIONS && <Button variant="ghost" size="icon" className="text-accent" aria-label={`Adicionar opção na refeição ${mi + 1}`} onClick={() => addOption(meal)}><Plus aria-hidden="true" /></Button>}
               <span className="ml-auto text-caption tabular-nums text-text-2">{kcal} kcal</span>
             </div>
+            <SplitBar parts={macros.map((x) => ({ color: MACRO_COLOR[x.key], value: x.kcal }))} legend={macros.map((x) => `${MACRO_LABELS[x.key].toLowerCase()} ${Math.round(x.grams)} g`).join(', ')} />
             <div className="flex items-center gap-2">
               <Input className="min-w-0 flex-1" aria-label={`Nome da opção da refeição ${mi + 1}`} placeholder={`Nome da opção ${optionLetter(oi)} (opcional)`} autoComplete="off" value={opt.name ?? ''} onChange={(e) => patchOption(meal.id, oi, (o) => ({ ...o, name: e.target.value || undefined }))} />
               {meal.options.length > 1 && <Button variant="outline" size="icon" aria-label={`Remover opção ${optionLetter(oi)} da refeição ${mi + 1}`} onClick={() => removeOption(meal, oi)}><Trash2 aria-hidden="true" /></Button>}
             </div>
-            <ul>
-              {opt.items.map((it, i) => {
-                const ia = iaLabel(it)
-                return (
-                  <li key={it.id} className="flex flex-col gap-1.5 border-t border-line py-2.5">
-                    <div className="flex items-baseline gap-2">
-                      <span className="min-w-0 flex-1 truncate text-body text-strong">{it.name}</span>
-                      <span className="text-caption tabular-nums text-text-2">{itemKcalText(it)}</span>
-                    </div>
-                    {ia && <span className="text-caption text-warning">{ia}</span>}
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <Input className="min-w-24 flex-1" aria-label={`Porção de ${it.name}`} placeholder="Porção" autoComplete="off" value={it.portion ?? ''} onChange={(e) => patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, portion: e.target.value || undefined } : x)))} />
-                      <NumberField className="w-16 text-center" aria-label={`Gramas de ${it.name}`} autoComplete="off" enterKeyHint="done" min={GRAMS[0]} max={GRAMS[1]} value={it.grams} onChange={(n) => n != null && patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, grams: n } : x)))} />
-                      <span className="text-caption text-text-2">g</span>
-                      <Button variant="outline" size="icon" aria-label={`Subir ${it.name}`} disabled={i === 0} onClick={() => patchItems(meal.id, oi, (xs) => { const a = [...xs]; [a[i - 1], a[i]] = [a[i], a[i - 1]]; return a })}><ArrowUp aria-hidden="true" /></Button>
-                      <Button variant="outline" size="icon" aria-label={`Descer ${it.name}`} disabled={i === opt.items.length - 1} onClick={() => patchItems(meal.id, oi, (xs) => { const a = [...xs]; [a[i], a[i + 1]] = [a[i + 1], a[i]]; return a })}><ArrowDown aria-hidden="true" /></Button>
-                      <Button variant="outline" size="icon" aria-label={`Remover ${it.name}`} onClick={() => patchItems(meal.id, oi, (xs) => xs.filter((x) => x.id !== it.id))}><Trash2 aria-hidden="true" /></Button>
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
+            <SortableContext items={opt.items.map((it) => it.id)} strategy={verticalListSortingStrategy}>
+              <div className="flex min-h-11 flex-col gap-2">
+                {opt.items.map((it) => (
+                  <SortableItem key={it.id} id={it.id} label={it.name}>
+                    {({ handle }) => (
+                      <DietItemCard
+                        item={it}
+                        onChange={(patch) => patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, ...patch } : x)))}
+                        onRemove={() => patchItems(meal.id, oi, (xs) => xs.filter((x) => x.id !== it.id))}
+                        checkbox={sel.on && <Checkbox size="check" aria-label={`Selecionar ${it.name}`} checked={sel.selected.has(it.id)} onCheckedChange={() => sel.toggle(it.id)} />}
+                        handle={!sel.on && handle}
+                      />
+                    )}
+                  </SortableItem>
+                ))}
+              </div>
+            </SortableContext>
             <Button variant="ghost" className="w-full justify-start text-accent" disabled={opt.items.length >= MAX_ITEMS} onClick={() => setPicking({ mealId: meal.id, oi, name: meal.name })}><Plus aria-hidden="true" /> Alimento</Button>
           </Card>
         )
       })}
-      <Button variant="outline" className="w-full border-dashed border-border-strong text-text-2" disabled={menu.meals.length >= MAX_MEALS} onClick={addMeal}><Plus aria-hidden="true" /> Refeição</Button>
+      <Button variant="outline" className="min-h-14 w-full border-dashed border-border-strong text-text-2 @3xl:w-60 @3xl:shrink-0" disabled={menu.meals.length >= MAX_MEALS} onClick={addMeal}><Plus aria-hidden="true" /> Refeição</Button>
+      </div>
+      </div>
+        <DragOverlay>
+          {draggedItem && <div className={cn('rounded-lg', LIFTED)}><DietItemCard item={draggedItem} onChange={() => {}} onRemove={() => {}} /></div>}
+        </DragOverlay>
+      </DndContext>
 
-      <Button variant="link" className="text-negative hover:text-negative" onClick={() => setConfirm('all')}>Apagar todos os cardápios</Button>
+      {onSave && <Button variant="link" className="text-negative hover:text-negative" onClick={() => setConfirm('all')}>Apagar todos os cardápios</Button>}
+
+      <SelectionBar sel={sel} noun={['alimento', 'alimentos']} onRemove={removeItems} />
 
       {picking && (
         <FoodPicker

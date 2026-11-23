@@ -30,6 +30,18 @@ function extractJson(text: string): unknown {
 }
 
 export type Half = 'treinos' | 'dieta'
+
+/** arquivo que o próprio Pump gerou (exportar plano, editor web): a importação não troca item por um parecido do catálogo.
+ * Chave a mais: o leitor da versão 1 ignora, então o formato continua compatível */
+export const FROM_PUMP = { origem: 'pump' } as const
+export const pumpOrigin = (raw: Record<string, unknown>) => (raw.origem === FROM_PUMP.origem ? { fromPump: true } : {})
+
+export function halvesIn(text: string): Half[] {
+  const raw = extractJson(text)
+  if (!isObj(raw)) return []
+  return (['treinos', 'dieta'] as const).filter((h) => raw[h] !== undefined)
+}
+
 const ONLY: Record<Half, string> = {
   treinos: 'Este arquivo só tem treinos. Importe na aba Treino.',
   dieta: 'Este arquivo só tem dieta. Importe na aba Dieta.',

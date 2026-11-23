@@ -12,7 +12,7 @@ export function WorkoutSettings({ open }: { open: OpenView }) {
   return (
     <>
       <SettingsRow icon={<List size={18} aria-hidden="true" />} color="var(--c1)" title="Editar plano" onClick={() => open(<PlanEditor initial={plan} onSave={(p) => { replacePlan(p); back() }} onCancel={back} />)} />
-      <AiPlanRows adjustPrompt={() => buildAdjustPrompt(plan)} onImport={(mode) => open(<PlanImport mode={mode} onDone={back} onBack={back} />)} />
+      <AiPlanRows file={() => ({ workout: plan })} adjustPrompt={() => buildAdjustPrompt(plan)} onImport={(mode) => open(<PlanImport mode={mode} onDone={back} onBack={back} />)} />
     </>
   )
 }

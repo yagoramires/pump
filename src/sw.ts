@@ -8,7 +8,8 @@ self.skipWaiting()
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()))
 precacheAndRoute(self.__WB_MANIFEST)
 cleanupOutdatedCaches()
-registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html')))
+// o editor web é outra página (editor.html): não pode cair no app
+registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html'), { denylist: [/\/editor\.html(\?|$)/] }))
 registerRoute(({ url }) => url.hostname === IMAGE_HOST,
   async ({ request }) => (await (await caches.open(PREVIEW_CACHE)).match(request)) ?? fetch(request))
 // sem rota para catalog/: vai sempre à rede
