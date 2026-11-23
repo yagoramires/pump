@@ -11,6 +11,7 @@ export const CHANGELOG: [Release, ...Release[]] = [
       'Os grupos musculares ganharam as cores das anilhas: peito vermelho, costas azul, pernas amarelo, ombros verde e braços branco.',
       'Modo claro: em Configurações > Aparência, escolha Escuro, Claro ou seguir o aparelho.',
       'Botão "Atualizar app" em Configurações busca a versão nova e recarrega na hora.',
+      'Novo ícone do Pump na tela inicial do aparelho.',
     ],
     correcoes: [],
   },
