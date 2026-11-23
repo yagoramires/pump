@@ -43,7 +43,7 @@ function Row({ e, mine, onPick }: { e: Exercise | CustomExercise; mine?: boolean
   )
 }
 
-const LABEL = 'label-caps px-4 pt-3 pb-1'
+const LABEL = 'label-section px-4 pt-3 pb-1'
 
 export function CatalogPicker({ onPick, onClose }: { onPick: (e: Exercise | CustomExercise) => void; onClose: () => void }) {
   const { list: catalog, offline } = useCatalog(fetchExercises)

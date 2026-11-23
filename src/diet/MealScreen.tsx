@@ -52,8 +52,8 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
         {i.extra && <Plus size={12} className="shrink-0 text-accent" aria-hidden="true" />}
         <span className="min-w-0 flex-1 py-1.5">
           <span className={cn('block truncate text-sm', i.skipped ? 'text-faint line-through' : i.swappedFrom ? 'text-accent' : 'text-text')}>{i.name}</span>
-          <span className="block truncate text-caption text-faint">{portionText(i)}</span>
-          {ia && <span className="block text-caption text-c7">{ia}</span>}
+          <span className="block truncate text-caption text-text-2">{portionText(i)}</span>
+          {ia && <span className="block text-caption text-warning">{ia}</span>}
         </span>
         <span className="w-10 shrink-0 text-right text-caption tabular-nums text-text-2">{Math.round(itemKcal(i))}</span>
       </>
@@ -166,7 +166,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
                   {!groups.length && <p className="text-meta text-text-2">Sem refeições em outros cardápios.</p>}
                   {groups.map((g) => (
                     <div key={g.id} className="flex flex-col gap-1.5 pt-3">
-                      <h3 className="label-caps">{g.label}</h3>
+                      <h3 className="label-section">{g.label}</h3>
                       <Card size="flush" variant="inset"><ul aria-label={g.label}>
                         {g.rows.map((r) => (
                           <li key={r.id} className="border-t border-line first:border-t-0">

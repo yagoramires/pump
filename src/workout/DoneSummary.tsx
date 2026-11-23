@@ -52,8 +52,8 @@ function HighlightCard({ h }: { h: Highlight }) {
   const Icon = HIGHLIGHT_ICON[h.kind]
   const lit = h.kind !== 'neutral'
   return (
-    <Card className={`flex-row items-center gap-3 py-3.5 ${lit ? 'border-accent-line bg-accent-bg' : ''}`}>
-      <div className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${lit ? 'bg-accent text-on-accent' : 'bg-surface text-text-2'}`}><Icon size={20} aria-hidden="true" /></div>
+    <Card className={`flex-row items-center gap-3 py-3.5 ${lit ? 'border-success-line bg-success-bg' : ''}`}>
+      <div className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${lit ? 'bg-success text-on-success' : 'bg-surface text-text-2'}`}><Icon size={20} aria-hidden="true" /></div>
       <div className="min-w-0">
         <div className="text-body font-semibold text-strong">{title}</div>
         {detail && <div className="text-meta text-text-2 tabular-nums">{detail}</div>}
@@ -68,13 +68,13 @@ function ExerciseRow({ e, r, record }: { e: SessionExercise; r: ExerciseScore; r
     <Collapsible className="border-t border-line first:border-t-0">
       <CollapsibleTrigger className="group flex min-h-11 w-full items-center gap-2 py-2 text-left text-sm">
         <span className="min-w-0 flex-1 text-strong">{e.name}</span>
-        {record && <Trophy size={15} className="shrink-0 text-accent" aria-label="Recorde" />}
+        {record && <Trophy size={15} className="shrink-0 text-success-fg" aria-label="Recorde" />}
         {r.trend === 'new' && r.done > 0 && <Badge variant="outline" className="shrink-0">primeira vez</Badge>}
         <span className="shrink-0 text-text-2 tabular-nums">{rowText(r)}</span>
         <ChevronDown size={16} className="shrink-0 text-faint transition-transform group-data-[state=open]:rotate-180" aria-hidden="true" />
       </CollapsibleTrigger>
       <CollapsibleContent className="pb-2.5">
-        {sets.length === 0 ? <div className="text-meta text-faint">nenhuma série feita</div>
+        {sets.length === 0 ? <div className="text-meta text-text-2">nenhuma série feita</div>
           : isCardio(e) ? <div className="text-meta text-text-2">feito</div>
             : sets.map((d, j) => <div key={j} className="text-meta text-text-2 tabular-nums">{`${formatKg(d.weightKg)} kg × ${d.reps}`}</div>)}
       </CollapsibleContent>
@@ -114,10 +114,10 @@ export function DoneSummary({ session, sessions, next, onChange }: { session: Wo
   return (
     <>
       <Card
-        className="items-center gap-2 border-accent-line px-4 py-4 text-center"
-        style={{ background: 'radial-gradient(120% 90% at 50% 0%, var(--color-accent-bg) 0%, var(--color-panel) 70%)' }}
+        className="items-center gap-2 border-success-line px-4 py-4 text-center"
+        style={{ background: 'radial-gradient(120% 90% at 50% 0%, var(--color-success-bg) 0%, var(--color-panel) 70%)' }}
       >
-        <div className="flex size-10 items-center justify-center rounded-full bg-accent text-on-accent shadow-[0_0_0_6px_rgb(198_255_61/0.12)]">
+        <div className="flex size-10 items-center justify-center rounded-full bg-success text-on-success shadow-[0_0_0_6px_var(--color-success-bg)]">
           <Check size={22} strokeWidth={3} aria-hidden="true" />
         </div>
         <div className="text-title font-bold text-strong">Treino concluído</div>
@@ -136,11 +136,11 @@ export function DoneSummary({ session, sessions, next, onChange }: { session: Wo
 
       <Card className="gap-2 py-3.5">
         <div className="flex items-center gap-2">
-          <span className="label-caps flex-1">{mondayWeekStart(today) === week ? 'Semana' : `Semana · ${formatDayMonth(week)} a ${formatDayMonth(addDays(week, 6))}`}</span>
+          <span className="label-section flex-1">{mondayWeekStart(today) === week ? 'Semana' : `Semana · ${formatDayMonth(week)} a ${formatDayMonth(addDays(week, 6))}`}</span>
           {onChange && openSettings && <Button variant="link" size="sm" className="h-auto p-0 text-accent" onClick={openSettings}>Ajustar meta</Button>}
         </div>
         <div className="text-body font-semibold text-strong tabular-nums">{days >= goal ? `Meta da semana batida · ${days} de ${goal}` : `${days} de ${goal} treinos na semana`}</div>
-        <Progress value={Math.min(100, (days / goal) * 100)} aria-label="Treinos na semana" className="h-1.5 bg-line" />
+        <Progress value={Math.min(100, (days / goal) * 100)} aria-label="Treinos na semana" className="h-1.5 bg-surface" />
       </Card>
 
       <BodyMapCard levels={levels} />
@@ -160,7 +160,7 @@ export function DoneSummary({ session, sessions, next, onChange }: { session: Wo
               <div className="flex items-baseline justify-between gap-3 text-sm">
                 <span className="text-text-2">Volume registrado</span>
                 <span className="text-right font-semibold text-strong tabular-nums">{`${formatDec(volume.kg)} kg`}
-                  {volume.counted < volume.total && <span className="block text-caption font-normal text-faint">{`calculado sobre ${volume.counted} de ${plural(volume.total, 'série', 'séries')}`}</span>}
+                  {volume.counted < volume.total && <span className="block text-caption font-normal text-text-2">{`calculado sobre ${volume.counted} de ${plural(volume.total, 'série', 'séries')}`}</span>}
                 </span>
               </div>
             )}

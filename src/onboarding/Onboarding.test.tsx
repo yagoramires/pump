@@ -57,7 +57,7 @@ test('pular o treino leva à dieta, não conclui', async () => {
   const user = userEvent.setup()
   await renderLoaded(<Onboarding />)
   await toTreino(user)
-  expect(screen.getByText('PASSO 4 DE 5')).toBeInTheDocument()
+  expect(screen.getByText('Passo 4 de 5')).toBeInTheDocument()
   expect(screen.getByRole('heading', { name: 'Seu treino' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Pular por agora' }))
   expect(screen.getByRole('heading', { name: 'Sua dieta' })).toBeInTheDocument()

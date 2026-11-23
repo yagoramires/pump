@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { groupColor } from '@/catalog/muscles'
 import { ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card'
@@ -38,8 +39,8 @@ export function LoadsCard({ sessions, today, period, onPeriod, onOpen }: { sessi
           </div>
           {groups.map((g) => (
             <div key={g.token}>
-              <div className="flex items-center gap-2 border-t border-line px-3.5 pt-2.5 pb-1 text-meta text-faint">
-                <span aria-hidden="true" className="size-2 rounded-full" style={{ background: `var(--${g.token})` }} />
+              <div className="flex items-center gap-2 border-t border-line px-3.5 pt-2.5 pb-1 text-meta text-text-2">
+                <span aria-hidden="true" className="size-2 rounded-full" style={{ background: groupColor(g.token) }} />
                 {g.label}
               </div>
               {g.rows.map((r) => (
@@ -47,7 +48,7 @@ export function LoadsCard({ sessions, today, period, onPeriod, onOpen }: { sessi
                   <Button variant="ghost" onClick={() => onOpen(r.exerciseId)}>
                     <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <span className="flex items-center justify-between gap-3"><span className="text-text-2">{r.name}</span><Value m={r.top} row={r} /></span>
-                    <span className="flex items-center justify-between gap-3 text-meta text-faint"><span>{MODE_TEXT[r.mode].total}</span><Value m={r.total} row={r} /></span>
+                    <span className="flex items-center justify-between gap-3 text-meta text-text-2"><span>{MODE_TEXT[r.mode].total}</span><Value m={r.total} row={r} /></span>
                     </span>
                     <ChevronRight className="size-4.5 shrink-0 text-faint" aria-hidden="true" />
                   </Button>

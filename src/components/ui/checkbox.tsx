@@ -5,7 +5,7 @@ import { CheckIcon } from "lucide-react"
 import { Checkbox as CheckboxPrimitive } from "radix-ui"
 
 const checkboxVariants = cva(
-  "peer relative shrink-0 border border-border-strong transition-colors outline-none hover:not-data-[state=checked]:bg-hover focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+  "peer relative shrink-0 border border-border-strong transition-colors outline-none hover:not-data-[state=checked]:bg-hover focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=checked]:border-success data-[state=checked]:bg-success data-[state=checked]:text-on-success",
   {
     variants: {
       // check: marcação de série/refeição, caixa de 28px com área de toque de 44px (o ::after estende o alvo)

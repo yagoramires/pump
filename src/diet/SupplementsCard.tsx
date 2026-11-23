@@ -12,9 +12,9 @@ export function SupplementsCard() {
   const done = list.filter((s) => taken.includes(s.id)).length
   return (
     <section aria-labelledby={titleId} className="flex flex-col gap-1.5">
-      <div className="flex items-center gap-1.5 px-0.5 pt-1.5 text-caption text-text-2">
+      <div className="flex items-center gap-1.5 px-0.5 pt-1.5 text-meta text-text-2">
         <Pill size={14} className="text-c4" aria-hidden="true" />
-        <h2 id={titleId} className="uppercase tracking-wide">Suplementos</h2>
+        <h2 id={titleId} className="font-semibold">Suplementos</h2>
         <span className="ml-auto tabular-nums text-text">{`${done} de ${list.length}`}</span>
       </div>
       <Card size="flush">

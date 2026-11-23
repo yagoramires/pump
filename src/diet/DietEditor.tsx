@@ -113,7 +113,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
         <div className="grid grid-cols-3 gap-2">
           {MACRO_KEYS.map((k) => (
             <label key={k} className="flex flex-col gap-1">
-              <span className="label-caps">{MACRO_LABELS[k]} (g)</span>
+              <span className="label-section">{MACRO_LABELS[k]} (g)</span>
               <NumberField className="text-center" aria-label={`Meta de ${MACRO_LABELS[k].toLowerCase()} em g`} placeholder="—" autoComplete="off" enterKeyHint="done" min={MACRO_G[0]} max={MACRO_G[1]} value={menu.goalMacros?.[k] || undefined} onChange={(n) => n !== null && patchMenu((m) => setMacro(m, k, n))} />
             </label>
           ))}
@@ -153,7 +153,7 @@ export function DietEditor({ initial, onSave, onCancel }: Props) {
                       <span className="min-w-0 flex-1 truncate text-body text-strong">{it.name}</span>
                       <span className="text-caption tabular-nums text-text-2">{itemKcalText(it)}</span>
                     </div>
-                    {ia && <span className="text-caption text-c7">{ia}</span>}
+                    {ia && <span className="text-caption text-warning">{ia}</span>}
                     <div className="flex flex-wrap items-center gap-1.5">
                       <Input className="min-w-24 flex-1" aria-label={`Porção de ${it.name}`} placeholder="Porção" autoComplete="off" value={it.portion ?? ''} onChange={(e) => patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, portion: e.target.value || undefined } : x)))} />
                       <NumberField className="w-16 text-center" aria-label={`Gramas de ${it.name}`} autoComplete="off" enterKeyHint="done" min={GRAMS[0]} max={GRAMS[1]} value={it.grams} onChange={(n) => n != null && patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, grams: n } : x)))} />

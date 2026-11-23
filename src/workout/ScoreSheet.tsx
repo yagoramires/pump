@@ -21,7 +21,7 @@ export function ScoreSheet({ score, onClose }: { score: ReturnType<typeof sessio
             {ROWS.map(([t, label]) => (
               <div key={t} className="flex items-baseline gap-3 border-t border-line py-2.5 text-sm first:border-t-0">
                 <span className="min-w-0 flex-1 text-strong">{label}</span>
-                <span className="text-faint">{pointsText(t)}</span>
+                <span className="text-text-2">{pointsText(t)}</span>
                 <span className="w-8 text-right font-semibold text-strong tabular-nums">{count(t)}</span>
               </div>
             ))}

@@ -41,9 +41,9 @@ function Rows({ label, foods, selected, onSelect }: { label: string; foods: Food
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-body font-semibold text-strong">{f.name}</span>
                 <span className="block text-caption tabular-nums text-text-2">{Math.round(f.per100.kcal)} kcal · P {formatDec(f.per100.p)} g por 100 g</span>
-                {source && <span className="block text-caption text-c7">{source}</span>}
+                {source && <span className="block text-caption text-warning">{source}</span>}
               </span>
-              <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-full', on ? 'bg-accent text-on-accent' : 'text-accent')}>{on ? <Check size={16} /> : <Plus size={18} />}</span>
+              <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-full', on ? 'bg-success text-on-success' : 'text-accent')}>{on ? <Check size={16} /> : <Plus size={18} />}</span>
             </Toggle>
           </li>
         )
@@ -114,13 +114,13 @@ export function FoodPicker({ title, initialGrams = 100, confirmLabel, onPick, on
               <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {shownRecents.length > 0 && (
                   <div className="flex flex-col gap-1.5">
-                    <h3 className="label-caps">Recentes e do cardápio</h3>
+                    <h3 className="label-section">Recentes e do cardápio</h3>
                     <Rows label="Recentes e do cardápio" foods={shownRecents} selected={sel && foodKey(sel.name)} onSelect={setSel} />
                   </div>
                 )}
                 {results.length > 0 && (
                   <div className="flex flex-col gap-1.5">
-                    <h3 className="label-caps">TACO</h3>
+                    <h3 className="label-section">TACO</h3>
                     <Rows label="Resultados da TACO" foods={results} selected={sel && foodKey(sel.name)} onSelect={setSel} />
                   </div>
                 )}

@@ -19,7 +19,7 @@ test('medidas: diferença de peso entre as datas', async () => {
   await save('photoSets', [{ id: 's1', date: '2026-11-01' }, { id: 's2', date: '2026-11-17' }])
   await renderLoaded(<PhotoCompare onClose={vi.fn()} />)
   expect(await screen.findByText('80 → 78,4 kg')).toBeInTheDocument()
-  expect(screen.getByText('−1,6 kg')).toHaveClass('text-accent')
+  expect(screen.getByText('−1,6 kg')).toHaveClass('text-success-fg')
 })
 test('gordura usa um registro só (o mais próximo com pescoço e cintura), não campos de dias diferentes', async () => {
   await save('profile', { sex: 'M', heightCm: 178 })

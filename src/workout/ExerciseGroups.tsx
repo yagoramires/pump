@@ -12,7 +12,7 @@ export function ExerciseGroups<T extends ExerciseShape>({ exercises, className, 
 }) {
   return groupExercises(exercises).map(({ cardio, items }) => items.length > 0 && (
     <div key={String(cardio)} className={className?.(cardio)}>
-      {cardio && <div className={cn('label-caps', heading)}>Cardio</div>}
+      {cardio && <div className={cn('label-section', heading)}>Cardio</div>}
       {items.map(({ exercise, index }) => row(exercise, index, cardio))}
     </div>
   ))

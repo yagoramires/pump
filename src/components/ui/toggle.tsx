@@ -9,9 +9,9 @@ const toggleVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-transparent hover:bg-hover hover:text-strong data-[state=on]:bg-accent-bg data-[state=on]:text-accent",
+        default: "bg-transparent hover:bg-hover hover:text-strong data-[state=on]:bg-raised data-[state=on]:text-strong",
         outline:
-          "border border-input bg-transparent hover:bg-hover hover:text-strong data-[state=on]:bg-accent-bg data-[state=on]:text-accent",
+          "border border-input bg-transparent hover:bg-hover hover:text-strong data-[state=on]:bg-raised data-[state=on]:text-strong",
         segmented: segmentedItem,
       },
       size: {

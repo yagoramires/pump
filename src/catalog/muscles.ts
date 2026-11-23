@@ -14,4 +14,9 @@ export const GROUPS: readonly { token: string; label: string }[] = [
 
 export const muscleGroup = (muscles: string[]): string => muscles.map((m) => MUSCLE_GROUPS.get(m)).find(Boolean) ?? OTHER_GROUP
 
-export const muscleColor = (muscles: string[]): string => `var(--${muscleGroup(muscles)})`
+/** o token cN é a identidade do grupo (cargas, séries por semana); a cor vem das anilhas de competição */
+const PLATE: Record<string, string> = { c2: 'red', c6: 'blue', c1: 'yellow', c4: 'green', c3: 'white', c7: 'purple', c5: 'gray' }
+
+export const groupColor = (token: string): string => `var(--color-plate-${PLATE[token] ?? 'gray'})`
+
+export const muscleColor = (muscles: string[]): string => groupColor(muscleGroup(muscles))

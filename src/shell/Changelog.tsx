@@ -11,7 +11,7 @@ export function ReleaseNotes({ release }: { release: Release }) {
     <>
       {LIST.map(([title, key]) => release[key].length > 0 && (
         <section key={key} className="pt-2">
-          <h3 className="label-caps pb-1">{title}</h3>
+          <h3 className="label-section pb-1">{title}</h3>
           <ul className="list-disc space-y-1 pl-5 text-body text-text">
             {release[key].map((item) => <li key={item}>{item}</li>)}
           </ul>

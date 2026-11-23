@@ -26,14 +26,14 @@ export default defineConfig({
       injectRegister: false,
       // o PDF (react-pdf ~445 KB gzip) só baixa quando pedido, fora do precache
       // ReportDocument-* é o chunk de src/evolution/pdf/ReportDocument.tsx: renomear o arquivo exige mudar aqui
-      injectManifest: { globIgnores: ['**/catalog/**', '**/react-pdf*', '**/ReportDocument-*'] },
+      injectManifest: { globPatterns: ['**/*.{js,css,html,woff2}'], globIgnores: ['**/catalog/**', '**/react-pdf*', '**/ReportDocument-*'] },
       manifest: {
         name: 'Pump',
         short_name: 'Pump',
         lang: 'pt-BR',
         display: 'standalone',
-        background_color: '#121315',
-        theme_color: '#121315',
+        background_color: '#13161b',
+        theme_color: '#13161b',
         start_url: BASE,
         scope: BASE,
         icons: [

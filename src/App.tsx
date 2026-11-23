@@ -5,6 +5,7 @@ import { BottomNav } from '@/shell/BottomNav'
 import { InstallGate } from '@/shell/InstallGate'
 import { SettingsScreen } from '@/shell/SettingsScreen'
 import { WhatsNew } from '@/shell/Changelog'
+import { applyTheme } from '@/shell/theme'
 import { isIOS, isStandalone } from '@/shell/platform'
 import { Onboarding } from '@/onboarding/Onboarding'
 import { TreinoTab } from '@/workout/TreinoTab'
@@ -39,6 +40,7 @@ export default function App() {
 function Shell() {
   use(boot(migrateOnBoot))
   const [settings, setSettings] = usePersisted('settings')
+  useEffect(() => applyTheme(settings.theme), [settings.theme])
   const [storageError, setStorageError] = useState<string>()
   const [showSettings, setShowSettings] = useState(false)
   const { due } = useCheckIn()
@@ -67,7 +69,7 @@ function Shell() {
       {banner}
       <PreviewSync />
       {backupDays !== undefined && (
-        <div className="mx-auto mt-3 max-w-md px-4"><Alert variant="accent" role="status" className="flex items-center gap-2 py-1 pr-1">
+        <div className="mx-auto mt-3 max-w-md px-4"><Alert variant="info" role="status" className="flex items-center gap-2 py-1 pr-1">
           <span className="flex-1">{`Faz ${backupDays} dias sem backup`}</span>
           <Button type="button" variant="link" size="sm" className="text-accent" onClick={sendBackup}>Enviar backup</Button>
         </Alert></div>

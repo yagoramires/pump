@@ -23,7 +23,7 @@ export function AchievementsScreen({ onClose }: { onClose: () => void }) {
             <span
               role="img"
               aria-label={x.earnedAt ? 'Ganha' : 'Bloqueada'}
-              className={cn('flex size-14.5 items-center justify-center rounded-2xl border', x.earnedAt ? 'border-accent-line bg-accent-bg text-accent' : 'border-border bg-surface text-border-strong')}
+              className={cn('flex size-14.5 items-center justify-center rounded-2xl border', x.earnedAt ? 'border-success-line bg-success-bg text-success-fg' : 'border-border bg-surface text-border-strong')}
             >
               <AchievementIcon id={x.id} />
             </span>

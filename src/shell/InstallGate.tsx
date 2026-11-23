@@ -21,7 +21,7 @@ export function InstallGate({ onDismiss }: { onDismiss: () => void }) {
             <Button type="button" variant="secondary" className="w-full max-w-xs" onClick={sendBackup}>Exportar backup</Button>
           </>
         )}
-        <p className="max-w-xs text-xs text-faint">Os dados daqui não passam sozinhos pro app instalado.</p>
+        <p className="max-w-xs text-meta text-text-2">Os dados daqui não passam sozinhos pro app instalado.</p>
         <Button type="button" variant="link" className="text-text-2" onClick={onDismiss}>Continuar no navegador mesmo assim</Button>
       </EmptyState>
     </CenteredScreen>

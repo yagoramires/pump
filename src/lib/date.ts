@@ -1,6 +1,6 @@
-export const WEEKDAY_SHORT = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB']
+export const WEEKDAY_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 export const WEEKDAY_LONG = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado']
-const MESES = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ']
+const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
 export const p2 = (n: number) => String(n).padStart(2, '0')
 
 export const todayKey = (d = new Date()) => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`
@@ -63,5 +63,5 @@ export function formatDayLabel(key: string): string {
 
 export function formatDayMonth(key: string): string {
   const d = parseDayKey(key)
-  return `${d.getDate()} ${MESES[d.getMonth()].toLowerCase()}`
+  return `${d.getDate()} ${MESES[d.getMonth()]}`
 }

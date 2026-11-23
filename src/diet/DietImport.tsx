@@ -88,7 +88,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
             {meal.options.map((o, oi) => (
               <div key={o.id} className="pb-1.5">
                 {meal.options.length > 1 && (
-                  <div className="label-caps px-3.5 pt-2">
+                  <div className="label-section px-3.5 pt-2">
                     {`${optionLabel(oi, o.name)} · ${kcalOf(o.items)} kcal`}
                   </div>
                 )}
@@ -99,7 +99,7 @@ export function DietImport({ mode, onDone, onBack }: Props) {
                       <span className="min-w-0 flex-1">
                         <span className="block text-body text-strong">{shown}</span>
                         <span className="block text-caption text-text-2">{portionText(i)}</span>
-                        {note && <span className={cn('block text-caption', warn ? 'text-c7' : 'text-faint')}>{note}</span>}
+                        {note && <span className={cn('block text-caption', warn ? 'text-warning' : 'text-text-2')}>{note}</span>}
                       </span>
                       <span className="shrink-0 text-meta tabular-nums text-text-2">{itemKcalText(i)}</span>
                     </>

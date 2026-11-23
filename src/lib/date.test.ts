@@ -7,8 +7,8 @@ test('todayKey usa o dia local mesmo depois das 21h', () => {
 test('weekday, daysBetween e formatDayLabel', () => {
   expect(weekday('2026-11-16')).toBe(1)
   expect(daysBetween('2026-11-01', '2026-11-15')).toBe(14)
-  expect(formatDayLabel('2026-11-16')).toBe('SEG, 16 NOV')
-  expect(formatDayLabel('2026-11-21')).toBe('SÁB, 21 NOV')
+  expect(formatDayLabel('2026-11-16')).toBe('Seg, 16 nov')
+  expect(formatDayLabel('2026-11-21')).toBe('Sáb, 21 nov')
 })
 test('weekStart volta ao domingo e formatDayMonth abrevia o mês', () => {
   expect(weekStart('2026-11-15')).toBe('2026-11-15')

@@ -1,7 +1,7 @@
 import { DIET_GOAL_LABEL, FOCUS_LABEL, type Profile } from './types'
 import { Chips } from '@/components/Chips'
 
-const HINT = 'text-caption text-faint'
+const HINT = 'text-caption text-text-2'
 
 export function GoalsForm({ value, onChange }: { value: Profile; onChange: (p: Profile) => void }) {
   return (

@@ -28,7 +28,7 @@ type Drag = { i: number; x: number; y: number; dx: number; on: boolean }
 
 const parseKg = (v: string) => parseInRange(v, ...KG)
 // desfaz os padrões do Table do shadcn que mudariam o visual da tabela de séries
-const TH = 'label-caps h-auto px-2 pb-1.5 text-center font-semibold whitespace-normal text-faint'
+const TH = 'h-auto px-2 pb-1.5 text-center text-caption font-semibold whitespace-normal text-text-2'
 const TD = 'px-0 py-1.5 whitespace-normal'
 
 export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
@@ -59,7 +59,7 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
     clearDraft(i)
     onSkip(i)
   }
-  const box = (done: boolean) => cn('mx-auto w-16 rounded-lg px-1 text-center font-semibold tabular-nums', done ? 'bg-transparent text-accent' : 'bg-surface')
+  const box = (done: boolean) => cn('mx-auto w-16 rounded-lg px-1 text-center font-semibold tabular-nums', done ? 'bg-transparent text-success-fg' : 'bg-surface')
   const inputProps = (i: number) => ({
     ...field,
     onBlur: () => commit(i),
@@ -107,7 +107,7 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
           return (
             <TableRow
               key={i}
-              className={cn('border-t border-b-0 border-line text-center', s ? 'bg-accent-bg hover:bg-accent-bg' : 'hover:bg-transparent', skipped && 'line-through opacity-50')}
+              className={cn('border-t border-b-0 border-line text-center', s ? 'bg-success-bg hover:bg-success-bg' : 'hover:bg-transparent', skipped && 'line-through opacity-50')}
               style={drag?.i === i && drag.on ? { transform: `translateX(${drag.dx}px)` } : undefined}
               {...rowDrag(i)}
             >
@@ -123,7 +123,7 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
                   {skipped ? <Undo2 size={14} aria-hidden="true" /> : <Ban size={14} aria-hidden="true" />}
                 </Button>
               </TableCell>
-              <TableCell className={cn(TD, 'text-meta text-faint')}>{p ? `${formatKg(p.weightKg)}×${p.reps}` : '—'}</TableCell>
+              <TableCell className={cn(TD, 'text-meta text-text-2')}>{p ? `${formatKg(p.weightKg)}×${p.reps}` : '—'}</TableCell>
               <TableCell className={TD}>
                 <Input
                   className={box(!!s)}

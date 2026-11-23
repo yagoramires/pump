@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom'
 import { createRoot } from 'react-dom/client'
 import { formatDayLabel, p2, parseDayKey } from '@/lib/date'
 import { formatKg, plural } from '@/lib/number'
-import { bodyColors } from './bodyParts'
+import { EXPORT_BODY_COLORS } from './bodyParts'
 import type { Highlight, MuscleLevel } from './summary'
 
 export type CardInput = {
@@ -87,7 +87,7 @@ async function bodyImages(levels: CardInput['levels'], light: boolean): Promise<
   const { BodyFigures } = await import('./BodyMap')
   const div = document.createElement('div')
   const root = createRoot(div)
-  flushSync(() => root.render(createElement(BodyFigures, { levels, colors: light ? { ...bodyColors(), base: '#ffffff59' } : bodyColors(), scale: 2 })))
+  flushSync(() => root.render(createElement(BodyFigures, { levels, colors: light ? { ...EXPORT_BODY_COLORS, base: '#ffffff59' } : EXPORT_BODY_COLORS, scale: 2 })))
   const svgs = [...div.querySelectorAll('svg')].map((svg) => { svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg'); return svg.outerHTML })
   root.unmount()
   return Promise.all(svgs.map((src) => new Promise<HTMLImageElement>((resolve, reject) => {
@@ -111,13 +111,12 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, max: number): string[
 type Palette = { bg: string; line: string; strong: string; text: string; text2: string; accent: string }
 type Font = (size: number, weight: number, spacing?: number) => void
 
-/** PNG 1080×1920 (placar ou adesivo do Stories); as cores vêm das variáveis CSS do app (o canvas não lê var()) */
+/** imagem exportada: paleta fixa, não segue o tema do app (e o canvas não lê var() nem light-dark()) */
+const CARD: Palette = { bg: '#0b0c0d', line: '#222428', strong: '#fff', text: '#d6d8dd', text2: '#8a8d96', accent: '#c6ff3d' }
+
+/** PNG 1080×1920 (placar ou adesivo do Stories) */
 export async function renderCard(input: CardInput, opts: CardOptions): Promise<Blob> {
-  const css = getComputedStyle(document.documentElement)
-  const color = (n: string, fallback: string) => css.getPropertyValue(`--color-${n}`).trim() || fallback
-  const c: Palette = {
-    bg: color('bg', '#0b0c0d'), line: color('line', '#222428'), strong: color('strong', '#fff'), text: color('text', '#d6d8dd'), text2: color('text-2', '#8a8d96'), accent: color('accent', '#c6ff3d'),
-  }
+  const c = CARD
   const stories = opts.format === 'stories'
   const figures = opts.map && input.levels.size ? await bodyImages(input.levels, stories) : []
   const canvas = document.createElement('canvas')

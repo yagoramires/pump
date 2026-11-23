@@ -45,7 +45,7 @@ export function DietTab() {
   if (!day || !plan.menus.length) {
     return (
       <>
-        <TabHeader eyebrow="Dieta" />
+        <TabHeader title="Dieta" />
         <DietStart hint="Um cardápio pra seguir no dia a dia. Dá pra mudar quando quiser." />
         <SupplementsCard />
       </>
@@ -80,7 +80,7 @@ export function DietTab() {
     <div className="flex flex-col gap-2.5 pb-6">
       <TabHeader
         eyebrow={`${formatDayLabel(today)} · ${day.menuName}`} title="Dieta"
-        actions={<Button variant="outline" size="icon" aria-label="Mais opções da dieta" onClick={() => setSheet('more')}><MoreHorizontal aria-hidden="true" /></Button>}
+        actions={<Button variant="secondary" size="icon" aria-label="Mais opções da dieta" onClick={() => setSheet('more')}><MoreHorizontal aria-hidden="true" /></Button>}
       />
 
       <Card role="group" aria-label="Calorias" className="flex-row items-center gap-3">
@@ -100,7 +100,7 @@ export function DietTab() {
         {waterSettings && (
           <Button
             variant="outline" aria-label={`Água: ${liters(water.ml)} de ${liters(waterSettings.goalMl)} litros`} onClick={() => setSheet('water')}
-            className="border-c2/40 bg-c2/15 px-3 text-caption tabular-nums text-c2 hover:bg-c2/25 hover:text-c2"
+            className="border-transparent bg-info-bg px-3 text-caption tabular-nums text-info hover:bg-info-bg hover:text-info"
           >
             <Droplet aria-hidden="true" />{`${liters(water.ml)}/${liters(waterSettings.goalMl)} L`}
           </Button>
@@ -116,7 +116,7 @@ export function DietTab() {
           return (
             <li key={m.id} aria-current={isNow ? 'true' : undefined} className={cn('flex items-center gap-2 border-t border-line px-3.5 first:border-t-0', isNow && 'bg-accent-bg')}>
               <Button variant="ghost" className="h-auto min-h-14 min-w-0 flex-1 justify-start gap-3 rounded-none px-0 py-2.5 text-left font-normal hover:bg-transparent" onClick={() => setOpenId(m.id)}>
-                <span className={cn('w-10 shrink-0 text-caption tabular-nums', isNow ? 'text-accent' : 'text-faint')}>{m.time}</span>
+                <span className={cn('w-10 shrink-0 text-caption tabular-nums', isNow ? 'text-accent' : 'text-text-2')}>{m.time}</span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-body font-semibold text-strong">{m.name}</span>
                   <span className="block truncate text-caption text-text-2">{sub}</span>

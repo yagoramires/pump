@@ -10,13 +10,29 @@ const SLUG: Record<string, Slug> = {
 
 export type BodyColors = { primary: string; secondary: string; base: string }
 
-/** as variáveis CSS não valem dentro dos atributos do SVG nem no canvas: lê as cores do tema já resolvidas */
-export function bodyColors(): BodyColors {
-  const css = getComputedStyle(document.documentElement)
-  const color = (n: string, fallback: string) => css.getPropertyValue(`--color-${n}`).trim() || fallback
-  const accent = color('accent', '#c6ff3d')
-  return { primary: accent, secondary: `${accent}59`, base: color('border-strong', '#3a3d45') }
+/** cor do modo atual já resolvida: atributo de SVG e canvas não aceitam var(), e getPropertyValue devolve o light-dark() (ou o polyfill do build) sem resolver */
+function resolvedColor(name: string, fallback: string): string {
+  const probe = document.createElement('span')
+  probe.style.color = `var(--color-${name})`
+  document.body.append(probe)
+  const color = getComputedStyle(probe).color
+  probe.remove()
+  return color.startsWith('rgb') ? color : fallback
 }
+
+const translucent = (color: string) => {
+  const [r, g, b] = color.match(/[\d.]+/g) ?? []
+  return color.startsWith('rgb') ? `rgba(${r}, ${g}, ${b}, 0.35)` : `${color}59`
+}
+
+/** o boneco mostra músculo treinado: success-fg (lime no escuro, verde escuro no claro, onde o lime some no fundo) */
+export function bodyColors(): BodyColors {
+  const primary = resolvedColor('success-fg', '#c6ff3d')
+  return { primary, secondary: translucent(primary), base: resolvedColor('border-strong', '#3a3d45') }
+}
+
+/** imagem exportada (cartão de compartilhar) não segue o tema do app */
+export const EXPORT_BODY_COLORS: BodyColors = { primary: '#c6ff3d', secondary: '#c6ff3d59', base: '#3a3d45' }
 
 export function bodyParts(levels: Map<string, MuscleLevel>, c: BodyColors): ExtendedBodyPart[] {
   const bySlug = new Map<Slug, MuscleLevel>()

@@ -23,7 +23,7 @@ function Column({ title, label, items, current, unit, pick }: { title: string; l
   }, [])
   return (
     <div className="flex flex-1 flex-col gap-1">
-      <span className="label-caps text-center">{title}</span>
+      <span className="label-section text-center">{title}</span>
       <ScrollArea className="h-56">
         <ToggleGroup ref={ref} type="single" orientation="vertical" spacing={1} aria-label={label} value={current ?? ''} onValueChange={(v) => v && pick(v)} className="w-full pr-2">
           {items.map((v) => <ToggleGroupItem key={v} value={v} aria-label={`${v} ${unit}`} className="h-11 w-full">{v}</ToggleGroupItem>)}
