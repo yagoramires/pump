@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { RefreshCw, RotateCcw, Ruler, Share2, Sparkles, Upload, User } from 'lucide-react'
+import { RefreshCw, Volume2, RotateCcw, Ruler, Share2, Sparkles, Upload, User } from 'lucide-react'
 import { usePersisted } from '@/storage/db'
 import { formatDayMonth, todayKey } from '@/lib/date'
 import { ChangelogList } from './Changelog'
@@ -21,6 +21,9 @@ import { daysSinceBackup, sendBackup } from '@/backup/backup'
 import { Alert } from '@/components/ui/alert'
 import { updateNow } from '@/lib/holdUpdates'
 import { Chips } from '@/components/Chips'
+import { IconDot } from '@/components/IconDot'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import type { Theme } from '@/schema'
 
 const THEME_LABELS: Record<Theme, string> = { dark: 'Escuro', light: 'Claro', system: 'Sistema' }
@@ -70,6 +73,11 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
       <SettingsSection title="App">
         <div className="px-3.5 py-3">
           <Chips label="Aparência" options={THEME_LABELS} value={settings.theme ?? 'dark'} onChange={(theme) => theme && setSettings((s) => ({ ...s, theme }))} />
+        </div>
+        <div className="flex min-h-14 items-center gap-3 border-t border-line px-3.5 py-2">
+          <IconDot size={36} color="var(--c4)"><Volume2 size={18} aria-hidden="true" /></IconDot>
+          <Label htmlFor="sound-switch" className="flex-1 text-body font-semibold normal-case tracking-normal text-strong">Som do descanso</Label>
+          <Switch id="sound-switch" checked={!settings.muted} onCheckedChange={(on) => setSettings((s) => ({ ...s, muted: !on }))} />
         </div>
         <SettingsRow
           icon={<Sparkles size={18} aria-hidden="true" />} color="var(--c3)" title="Novidades" sub={`Atualizado em ${formatDayMonth(CHANGELOG[0].date)}`}

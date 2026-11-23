@@ -12,8 +12,8 @@ export function unlockAudio(): void {
   void ctx.resume()
 }
 
-export function beep(): void {
-  if (ctx) {
+export function beep(muted = false): void {
+  if (ctx && !muted) {
     const audio = ctx
     // já liberado por um gesto antes; retoma caso o fim do bipe anterior tenha suspendido
     void audio.resume()
