@@ -14,6 +14,8 @@ process.env.VITE_COMMIT = commit().slice(0, 7)
 process.env.VITE_BUILT_AT = new Date().toISOString()
 
 export default defineConfig({
+  // duas páginas: o app e o editor no computador (editor.html, sem o app nem os dados do aparelho)
+  build: { rollupOptions: { input: { main: path.resolve(import.meta.dirname, 'index.html'), editor: path.resolve(import.meta.dirname, 'editor.html') } } },
   plugins: [
     react(),
     tailwindcss(),

@@ -38,16 +38,18 @@ export function PlanExerciseCard({ ex, onChange, onOpen, onPreview, lead, trail,
   return (
     <div className={cn('flex items-center gap-2 rounded-lg bg-surface py-2 pr-1 pl-2', className)}>
       {lead}
-      {image && onPreview && (
-        <Button type="button" variant="ghost" size="icon" aria-label={`Ver prévia de ${ex.name}`} onClick={onPreview}>
-          <ExerciseThumb muscles={ex.muscles} image={image} cardio={cardio} />
-        </Button>
-      )}
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <Button type="button" variant="ghost" className="h-auto min-h-11 justify-start gap-2 px-1 text-left" aria-label={ex.name} onClick={onOpen}>
-          {!image && <ExerciseThumb muscles={ex.muscles} cardio={cardio} />}
-          <span className="truncate text-body font-bold text-strong">{ex.name}</span>
-        </Button>
+        <div className="flex min-w-0 items-center">
+          {image && onPreview && (
+            <Button type="button" variant="ghost" size="icon" aria-label={`Ver prévia de ${ex.name}`} onClick={onPreview}>
+              <ExerciseThumb muscles={ex.muscles} image={image} cardio={cardio} />
+            </Button>
+          )}
+          <Button type="button" variant="ghost" className="h-auto min-h-11 min-w-0 flex-1 justify-start gap-2 px-1 text-left" aria-label={ex.name} onClick={onOpen}>
+            {!(image && onPreview) && <ExerciseThumb muscles={ex.muscles} cardio={cardio} />}
+            <span className="truncate text-body font-bold text-strong">{ex.name}</span>
+          </Button>
+        </div>
         <div className="flex flex-wrap gap-1.5">
           {!cardio && (
             <Pill unit="séries">

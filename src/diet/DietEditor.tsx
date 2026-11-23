@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Copy, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { DndContext, DragOverlay, closestCorners, useDroppable, type DragEndEvent, type DragOverEvent } from '@dnd-kit/core'
+import { DndContext, DragOverlay, closestCorners, pointerWithin, useDroppable, type CollisionDetection, type DragEndEvent, type DragOverEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { DEFAULTS } from '@/schema'
 import type { DietItem, DietPlan, Macros, Meal, MealOption, Menu } from './types'
@@ -38,6 +38,8 @@ type Props = { initial: DietPlan; onSave?: (plan: DietPlan) => void; onCancel?: 
 const MACRO_COLOR = { p: 'var(--color-plate-red)', c: 'var(--color-plate-yellow)', f: 'var(--color-plate-blue)' } as const
 const MACRO_WORD = { p: 'proteína', c: 'carboidrato', f: 'gordura' } as const
 const TAB = 'tab:'
+// a aba da opção é pequena: o que está debaixo do ponteiro ganha; fora de tudo, o mais perto
+const collision: CollisionDetection = (args) => { const hit = pointerWithin(args); return hit.length ? hit : closestCorners(args) }
 
 /** aba da opção: também recebe o alimento solto em cima dela */
 function OptionTab({ id, children }: { id: string; children: ReactNode }) {
@@ -197,7 +199,7 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
       </div>
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCorners}
+        collisionDetection={collision}
         accessibility={{ announcements: PT_ANNOUNCEMENTS }}
         onDragStart={({ active }) => setDragging(String(active.id))}
         onDragOver={dragOver}
@@ -212,7 +214,7 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
         const kcal = kcalOf(opt.items)
         const macros = macroSplit(opt.items)
         return (
-          <Card size="sm" key={meal.id} className="gap-2.5 @3xl:w-80 @3xl:shrink-0">
+          <Card size="sm" key={meal.id} className="gap-2.5 @3xl:w-96 @3xl:shrink-0">
             <div className="flex items-center gap-2">
               <Input className="min-w-0 flex-1 font-semibold" aria-label={`Nome da refeição ${mi + 1}`} autoComplete="off" enterKeyHint="done" value={meal.name} onChange={(e) => patchMeal(meal.id, (m) => ({ ...m, name: e.target.value }))} />
               <TimePicker className="w-28" aria-label={`Horário da refeição ${mi + 1}`} value={meal.time} onChange={(v) => patchMeal(meal.id, (m) => ({ ...m, time: v ?? '' }))} />

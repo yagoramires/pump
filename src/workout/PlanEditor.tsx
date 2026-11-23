@@ -156,7 +156,7 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
             {plan.workouts.map((w) => {
               const split = muscleSplit(w.exercises)
               return (
-                <SortableItem key={w.id} id={WID + w.id} label={`treino ${w.label}`} className="@3xl:w-80 @3xl:shrink-0">
+                <SortableItem key={w.id} id={WID + w.id} label={`treino ${w.label}`} className="@3xl:w-96 @3xl:shrink-0">
                   {({ handle }) => (
                     <Card size="sm" className="gap-2">
                       <div className="flex items-center gap-1">
