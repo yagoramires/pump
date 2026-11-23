@@ -1,3 +1,4 @@
+import { arrayMove } from '@dnd-kit/sortable'
 import type { PlanExercise, Workout, WorkoutPlan } from './types'
 import { GROUPS, muscleGroup } from '@/catalog/muscles'
 import { isCardio } from './reps'
@@ -8,12 +9,6 @@ export type EditorWorkout = Omit<Workout, 'exercises'> & { exercises: Keyed[] }
 export type EditorPlan = Omit<WorkoutPlan, 'workouts'> & { workouts: EditorWorkout[] }
 
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-
-const arrayMove = <T>(xs: T[], from: number, to: number): T[] => {
-  const a = [...xs]
-  a.splice(to, 0, ...a.splice(from, 1))
-  return a
-}
 
 export const toEditor = (plan: WorkoutPlan): EditorPlan => ({
   ...plan,
