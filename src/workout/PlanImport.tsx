@@ -92,7 +92,7 @@ export function PlanImport({ mode, onDone, onBack }: { mode: ImportMode; onDone:
                     <span className="min-w-0 flex-1">
                       <span className="block text-body text-strong">{e.name}</span>
                       <span className="block text-caption tabular-nums text-text-2">{planExerciseLine(e)}</span>
-                      {e.custom && !review.offline && <span className="block text-caption text-c7">sem prévia (fora do catálogo)</span>}
+                      {e.custom && !review.offline && <span className="block text-caption text-warning">sem prévia (fora do catálogo)</span>}
                     </span>
                   </>
                 )

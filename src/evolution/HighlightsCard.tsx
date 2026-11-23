@@ -7,7 +7,7 @@ import type { EvoHighlight } from './highlights'
 const ICON = { down: TrendingDown, up: TrendingUp, flat: Minus } as const
 
 function look(h: EvoHighlight) {
-  if (h.kind === 'record') return { Icon: Trophy, color: 'var(--color-accent)' }
+  if (h.kind === 'record') return { Icon: Trophy, color: 'var(--color-success-fg)' }
   if (h.kind === 'streak') return { Icon: Flame, color: 'var(--c7)' }
   return { Icon: ICON[h.trend ?? 'flat'], color: 'var(--c2)' }
 }

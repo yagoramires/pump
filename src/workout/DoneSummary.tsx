@@ -52,8 +52,8 @@ function HighlightCard({ h }: { h: Highlight }) {
   const Icon = HIGHLIGHT_ICON[h.kind]
   const lit = h.kind !== 'neutral'
   return (
-    <Card className={`flex-row items-center gap-3 py-3.5 ${lit ? 'border-accent-line bg-accent-bg' : ''}`}>
-      <div className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${lit ? 'bg-accent text-on-accent' : 'bg-surface text-text-2'}`}><Icon size={20} aria-hidden="true" /></div>
+    <Card className={`flex-row items-center gap-3 py-3.5 ${lit ? 'border-success-line bg-success-bg' : ''}`}>
+      <div className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${lit ? 'bg-success text-on-success' : 'bg-surface text-text-2'}`}><Icon size={20} aria-hidden="true" /></div>
       <div className="min-w-0">
         <div className="text-body font-semibold text-strong">{title}</div>
         {detail && <div className="text-meta text-text-2 tabular-nums">{detail}</div>}
@@ -68,7 +68,7 @@ function ExerciseRow({ e, r, record }: { e: SessionExercise; r: ExerciseScore; r
     <Collapsible className="border-t border-line first:border-t-0">
       <CollapsibleTrigger className="group flex min-h-11 w-full items-center gap-2 py-2 text-left text-sm">
         <span className="min-w-0 flex-1 text-strong">{e.name}</span>
-        {record && <Trophy size={15} className="shrink-0 text-accent" aria-label="Recorde" />}
+        {record && <Trophy size={15} className="shrink-0 text-success-fg" aria-label="Recorde" />}
         {r.trend === 'new' && r.done > 0 && <Badge variant="outline" className="shrink-0">primeira vez</Badge>}
         <span className="shrink-0 text-text-2 tabular-nums">{rowText(r)}</span>
         <ChevronDown size={16} className="shrink-0 text-faint transition-transform group-data-[state=open]:rotate-180" aria-hidden="true" />
@@ -114,10 +114,10 @@ export function DoneSummary({ session, sessions, next, onChange }: { session: Wo
   return (
     <>
       <Card
-        className="items-center gap-2 border-accent-line px-4 py-4 text-center"
-        style={{ background: 'radial-gradient(120% 90% at 50% 0%, var(--color-accent-bg) 0%, var(--color-panel) 70%)' }}
+        className="items-center gap-2 border-success-line px-4 py-4 text-center"
+        style={{ background: 'radial-gradient(120% 90% at 50% 0%, var(--color-success-bg) 0%, var(--color-panel) 70%)' }}
       >
-        <div className="flex size-10 items-center justify-center rounded-full bg-accent text-on-accent shadow-[0_0_0_6px_rgb(198_255_61/0.12)]">
+        <div className="flex size-10 items-center justify-center rounded-full bg-success text-on-success shadow-[0_0_0_6px_var(--color-success-bg)]">
           <Check size={22} strokeWidth={3} aria-hidden="true" />
         </div>
         <div className="text-title font-bold text-strong">Treino concluído</div>

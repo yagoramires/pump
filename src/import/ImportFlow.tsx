@@ -116,7 +116,7 @@ export function OutsideCatalog({ title, names }: { title: string; names: string[
   if (!names.length) return null
   return (
     <Card className="flex-row items-start gap-2 text-meta text-text-2">
-      <AlertTriangle size={16} className="mt-px shrink-0 text-c7" aria-hidden="true" />
+      <AlertTriangle size={16} className="mt-px shrink-0 text-warning" aria-hidden="true" />
       <span>
         {title}
         <span className="block">{namesText(names)}</span>

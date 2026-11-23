@@ -59,7 +59,7 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
     clearDraft(i)
     onSkip(i)
   }
-  const box = (done: boolean) => cn('mx-auto w-16 rounded-lg px-1 text-center font-semibold tabular-nums', done ? 'bg-transparent text-accent' : 'bg-surface')
+  const box = (done: boolean) => cn('mx-auto w-16 rounded-lg px-1 text-center font-semibold tabular-nums', done ? 'bg-transparent text-success-fg' : 'bg-surface')
   const inputProps = (i: number) => ({
     ...field,
     onBlur: () => commit(i),
@@ -107,7 +107,7 @@ export function SetTable({ ex, prev, onCheck, onEdit, onSkip }: Props) {
           return (
             <TableRow
               key={i}
-              className={cn('border-t border-b-0 border-line text-center', s ? 'bg-accent-bg hover:bg-accent-bg' : 'hover:bg-transparent', skipped && 'line-through opacity-50')}
+              className={cn('border-t border-b-0 border-line text-center', s ? 'bg-success-bg hover:bg-success-bg' : 'hover:bg-transparent', skipped && 'line-through opacity-50')}
               style={drag?.i === i && drag.on ? { transform: `translateX(${drag.dx}px)` } : undefined}
               {...rowDrag(i)}
             >

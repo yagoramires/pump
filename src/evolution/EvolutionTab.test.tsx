@@ -39,7 +39,7 @@ test('diferença de peso verde quando o objetivo é emagrecer e o peso caiu', as
   await save('profile', { sex: 'M', heightCm: 178, dietGoal: 'perder' })
   await save('measurements', [{ id: 'a', date: '2026-11-01', weightKg: 80 }, { id: 'b', date: '2026-11-17', weightKg: 78.4 }])
   await renderLoaded(<EvolutionTab />)
-  expect(await screen.findByText('−1,6 kg')).toHaveClass('text-accent')
+  expect(await screen.findByText('−1,6 kg')).toHaveClass('text-success-fg')
 })
 
 test('Gerar PDF vira Compartilhar PDF e compartilha pump-evolucao-<dia>.pdf', async () => {
@@ -132,7 +132,7 @@ test('card Cargas: linha com carga e diferença; Ver todos mostra grupos', async
   await doisTreinos()
   await renderLoaded(<EvolutionTab />)
   expect(await screen.findByText('Cargas que mais subiram')).toBeInTheDocument()
-  expect(within(screen.getByRole('button', { name: /Supino reto/ })).getByText('+5 kg')).toHaveClass('text-accent')
+  expect(within(screen.getByRole('button', { name: /Supino reto/ })).getByText('+5 kg')).toHaveClass('text-success-fg')
   await user.click(screen.getByRole('button', { name: 'Ver todos' }))
   expect(screen.getByText('Peito')).toBeInTheDocument()
 })

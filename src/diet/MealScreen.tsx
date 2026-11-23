@@ -53,7 +53,7 @@ export function MealScreen({ mealId, onClose }: { mealId: string; onClose: () =>
         <span className="min-w-0 flex-1 py-1.5">
           <span className={cn('block truncate text-sm', i.skipped ? 'text-faint line-through' : i.swappedFrom ? 'text-accent' : 'text-text')}>{i.name}</span>
           <span className="block truncate text-caption text-faint">{portionText(i)}</span>
-          {ia && <span className="block text-caption text-c7">{ia}</span>}
+          {ia && <span className="block text-caption text-warning">{ia}</span>}
         </span>
         <span className="w-10 shrink-0 text-right text-caption tabular-nums text-text-2">{Math.round(itemKcal(i))}</span>
       </>

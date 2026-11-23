@@ -100,7 +100,7 @@ export function DietTab() {
         {waterSettings && (
           <Button
             variant="outline" aria-label={`Água: ${liters(water.ml)} de ${liters(waterSettings.goalMl)} litros`} onClick={() => setSheet('water')}
-            className="border-c2/40 bg-c2/15 px-3 text-caption tabular-nums text-c2 hover:bg-c2/25 hover:text-c2"
+            className="border-transparent bg-info-bg px-3 text-caption tabular-nums text-info hover:bg-info-bg hover:text-info"
           >
             <Droplet aria-hidden="true" />{`${liters(water.ml)}/${liters(waterSettings.goalMl)} L`}
           </Button>

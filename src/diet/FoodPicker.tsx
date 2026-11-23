@@ -41,9 +41,9 @@ function Rows({ label, foods, selected, onSelect }: { label: string; foods: Food
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-body font-semibold text-strong">{f.name}</span>
                 <span className="block text-caption tabular-nums text-text-2">{Math.round(f.per100.kcal)} kcal · P {formatDec(f.per100.p)} g por 100 g</span>
-                {source && <span className="block text-caption text-c7">{source}</span>}
+                {source && <span className="block text-caption text-warning">{source}</span>}
               </span>
-              <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-full', on ? 'bg-accent text-on-accent' : 'text-accent')}>{on ? <Check size={16} /> : <Plus size={18} />}</span>
+              <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-full', on ? 'bg-success text-on-success' : 'text-accent')}>{on ? <Check size={16} /> : <Plus size={18} />}</span>
             </Toggle>
           </li>
         )

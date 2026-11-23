@@ -10,7 +10,7 @@ export function AnamnesisCard({ onStart }: { onStart: () => void }) {
   if (settings.anamnesisAt) return null
   const dismiss = () => setSettings((s) => ({ ...s, anamnesisAt: todayKey() }))
   return (
-    <Card className="relative gap-2 border-accent pr-14">
+    <Card className="relative gap-2 border-transparent bg-info-bg pr-14">
       <Button variant="outline" size="icon" className="absolute top-2 right-2" aria-label="Dispensar" onClick={dismiss}><X size={16} /></Button>
       <h2 className="text-body font-semibold text-strong">Complete sua anamnese</h2>
       <p className="text-meta text-text-2">{ANAMNESIS_STEPS} passos rápidos. O que você já respondeu vem preenchido.</p>

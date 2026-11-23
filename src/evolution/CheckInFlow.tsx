@@ -46,7 +46,7 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
           <div className="text-display font-semibold text-strong tabular-nums">{formatValue(WEIGHT, s.weight)}</div>
         ) : (
           <>
-            <div className={cn('text-display font-semibold tabular-nums', s.weightGood ? 'text-accent' : 'text-strong')}>{`${formatSigned(s.sincePrev)}${kg}`}</div>
+            <div className={cn('text-display font-semibold tabular-nums', s.weightGood ? 'text-success-fg' : 'text-strong')}>{`${formatSigned(s.sincePrev)}${kg}`}</div>
             <div className="text-meta text-text-2">{`${s.prevIsLastWeek ? 'desde a semana passada' : `desde ${formatDayMonth(s.prevDate!)}`} · ${formatValue(WEIGHT, s.weight)}`}</div>
           </>
         )}
@@ -74,7 +74,7 @@ export function CheckInFlow({ onClose }: { onClose: () => void }) {
 export function CheckInCard({ due, today, onStart }: { due: string; today: string; onStart: () => void }) {
   const dia = WEEKDAY_LONG[weekday(due)]
   return (
-    <Card className="gap-2 border-accent">
+    <Card className="gap-2 border-transparent bg-info-bg">
       <h2 className="text-body font-semibold text-strong">Atualizar semana</h2>
       <p className="text-meta text-text-2">{`${due === today ? 'Hoje é' : 'Era'} ${dia}, seu dia de atualizar.`}</p>
       <Button className="w-full" onClick={onStart}>Atualizar</Button>

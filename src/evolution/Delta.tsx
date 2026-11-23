@@ -5,7 +5,7 @@ import type { Measure } from './loads'
 
 export function Delta({ value, good, unit, className }: { value?: number; good: boolean; unit: string; className?: string }) {
   if (value === undefined) return <span className={cn('text-text-2', className)}>—</span>
-  return <span className={cn(good ? 'text-accent' : 'text-text-2', className)}>{`${formatSigned(value)} ${unit}`}</span>
+  return <span className={cn(good ? 'text-success-fg' : 'text-text-2', className)}>{`${formatSigned(value)} ${unit}`}</span>
 }
 
 /** última carga e a variação (subir é bom); `empty` troca o "—" quando não há comparação */

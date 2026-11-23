@@ -93,7 +93,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
               aria-describedby={[trained && `${descId}t`, dot && `${descId}r`].filter(Boolean).join(' ') || undefined}
               className={cn(
                 'relative h-11 min-w-0 rounded-lg border px-0 text-sm tabular-nums',
-                trained ? 'border-accent-line bg-accent-bg font-semibold text-accent' : 'border-transparent text-text-2',
+                trained ? 'border-success-line bg-success-bg font-semibold text-success-fg' : 'border-transparent text-text-2',
                 k === today && 'shadow-[inset_0_0_0_1px_var(--color-strong)]',
                 k === day && 'ring-2 ring-accent/50',
               )}
@@ -141,7 +141,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
               )}
               {drank && (
                 <div className={ROW}>
-                  <IconDot size={32} color="var(--c6)"><GlassWater size={16} aria-hidden="true" /></IconDot>
+                  <IconDot size={32} color="var(--color-info)"><GlassWater size={16} aria-hidden="true" /></IconDot>
                   <div className="min-w-0 flex-1 text-body font-semibold text-strong tabular-nums">{`Água · ${formatDec(drank.ml / 1000)} L`}</div>
                   <Button type="button" variant="link" size="sm" className={DEL} onClick={() => ask('water', () => setWater((prev) => removeWaterDay(prev, day)))}>Apagar água</Button>
                 </div>

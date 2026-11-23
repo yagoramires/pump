@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { groupColor } from '@/catalog/muscles'
 import { ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card'
@@ -39,7 +40,7 @@ export function LoadsCard({ sessions, today, period, onPeriod, onOpen }: { sessi
           {groups.map((g) => (
             <div key={g.token}>
               <div className="flex items-center gap-2 border-t border-line px-3.5 pt-2.5 pb-1 text-meta text-faint">
-                <span aria-hidden="true" className="size-2 rounded-full" style={{ background: `var(--${g.token})` }} />
+                <span aria-hidden="true" className="size-2 rounded-full" style={{ background: groupColor(g.token) }} />
                 {g.label}
               </div>
               {g.rows.map((r) => (
