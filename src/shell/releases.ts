@@ -4,6 +4,14 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 17,
+    date: '2026-11-23',
+    novidades: [
+      'Os botões ficaram mais claros: "Editar treino" (agora com um halter) e "Editar dieta", em Configurações e no menu da aba Dieta.',
+    ],
+    correcoes: [],
+  },
+  {
     version: 16,
     date: '2026-11-23',
     novidades: [
