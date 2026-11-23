@@ -125,8 +125,9 @@ export const feelingOf = (n?: number): Feeling | undefined => (n === undefined ?
 export type MuscleLevel = 'primary' | 'secondary'
 const MUSCLE_ORDER = [...MUSCLE_GROUPS.keys()]
 
+export type MuscleSource = Pick<SessionExercise, 'exerciseId' | 'muscles' | 'primary' | 'custom'> & ExerciseShape
 /** músculos dos exercícios de força (filtre antes os feitos, se for o caso; cardio fica de fora); principal em qualquer exercício vence. Plano antigo sem `primary`: catálogo, ou o 1º músculo (o catálogo grava os principais primeiro) */
-export function muscleLevels(exercises: (Pick<SessionExercise, 'exerciseId' | 'muscles' | 'primary' | 'custom'> & ExerciseShape)[], catalogPrimary?: Map<string, string[]>): Map<string, MuscleLevel> {
+export function muscleLevels(exercises: MuscleSource[], catalogPrimary?: Map<string, string[]>): Map<string, MuscleLevel> {
   const levels = new Map<string, MuscleLevel>()
   for (const e of exercises) {
     if (isCardio(e)) continue

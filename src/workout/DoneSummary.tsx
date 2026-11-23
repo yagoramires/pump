@@ -13,6 +13,7 @@ import { useToday } from '@/lib/useToday'
 import { usePersisted } from '@/storage/db'
 import type { SessionExercise, SetDone, Workout, WorkoutSession } from './types'
 import { sessionStats } from './stats'
+import { Stat } from './Stat'
 import { hasMarkedSet, markedSets } from './session'
 import { useMuscleLevels } from './useMuscleLevels'
 import { BodyMapCard } from './LazyBodyMap'
@@ -27,16 +28,6 @@ import {
   exerciseCount, exerciseMarks, FEELING_LABEL, FEELINGS, feelingOf, formatDuration, highlightText, plannedSets,
   primaryMuscles, sessionHighlight, volumeCoverage, weekDays, type Highlight,
 } from './summary'
-
-function Stat({ value, label, onClick }: { value: string; label: string; onClick?: () => void }) {
-  const card = (
-    <Card className="flex-1 items-center gap-0.5 px-2.5 py-3 text-center">
-      <div className="text-title font-bold text-strong tabular-nums">{value}</div>
-      <div className="label-caps">{label}</div>
-    </Card>
-  )
-  return onClick ? <Button variant="ghost" onClick={onClick} className="h-auto flex-1 p-0 whitespace-normal hover:bg-transparent">{card}</Button> : card
-}
 
 const setText = (s: SetDone) => (s.weightKg ? `${formatKg(s.weightKg)} × ${s.reps}` : s.reps)
 const ARROW = { up: '↑', same: '=', down: '↓' } as Partial<Record<ExerciseScore['trend'], string>>

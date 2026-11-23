@@ -23,10 +23,10 @@ import { nextWorkout, unfinishedSession } from './schedule'
 import {
   activeRest, changePlanRest, changeRestDuration, clearRest, completeSession, completeUnfinishedSession, editSession, extendRest,
   firstIncompleteExercise, hasMarkedSets, holdsTrainingDay, isExerciseComplete, nthOccurrence, reopenSession, restExerciseIndex,
-  setDone, startSession, switchCardio, toggleRestPause, toggleSetWithRest, toggleSkip,
+  setDone, startSession, toggleRestPause, toggleSetWithRest, toggleSkip,
 } from './session'
 import { previousSets, sessionStats } from './stats'
-import { isRest, restRecord, sessionOf } from './rest'
+import { carryRest, dropSession, isRest, restRecord, sessionOf } from './rest'
 import { unlockAudio } from './restTimer'
 import { PLAN_DEFAULTS } from './exercises'
 import { ExerciseGroups, ExerciseThumb } from './ExerciseGroups'
@@ -39,7 +39,7 @@ import { PastWorkouts } from './PastWorkouts'
 import { DoneSummary } from './DoneSummary'
 import { WorkoutPreview } from './WorkoutPreview'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { addExtraExercise, CARDIO_ID, removeExercise, startCardio, startExtra, unfinishedExtra } from './extra'
+import { addExtraExercise, CARDIO_ID, removeExercise, startCardio, startExtra, startFreeCardio, switchCardio, unfinishedExtra } from './extra'
 import { useTrainingLog } from './useTrainingLog'
 import { AddExtraExercise } from './AddExtraExercise'
 import { EffortSheet } from './EffortSheet'
@@ -137,11 +137,8 @@ export function TreinoTab() {
     <Button variant="outline" className="w-full" onClick={pickCardio}><HeartPulse aria-hidden="true" /> Somente cardio</Button>
   )
   const cardioPicker = pickingCardio && (
-    <DurationSheet minutes={20} starting onClose={() => setPickingCardio(false)} onSave={(minutes) => {
-      startExtraToday(startCardio(today, [{
-        ...PLAN_DEFAULTS, exerciseId: CARDIO_ID, name: 'Cardio', muscles: [], images: [], instructions: [],
-        sets: 1, reps: `${minutes} min`,
-      }]))
+    <DurationSheet minutes={20} title="Duração do cardio" saveLabel="Iniciar cardio" onClose={() => setPickingCardio(false)} onSave={(minutes) => {
+      startExtraToday(startFreeCardio(today, minutes))
       setPickingCardio(false)
     }} />
   )
@@ -165,7 +162,7 @@ export function TreinoTab() {
     const { date } = pending
     set((prev) => {
       if (action === 'complete') return prev[date] ? { ...prev, [date]: completeUnfinishedSession(prev[date]) } : prev
-      return omitKey(prev, date)
+      return prev[date] ? dropSession(prev, prev[date]) : prev
     })
     toast(action === 'complete' ? 'Treino concluído' : 'Treino descartado', {
       action: { label: 'Desfazer', onClick: () => set((prev) => ({ ...prev, [date]: pending })) },
@@ -241,7 +238,7 @@ export function TreinoTab() {
   const restIdx = restExerciseIndex(view)
   const timer = activeRest(session)
   const open = openIdx === 'auto' ? firstIncompleteExercise(view) : openIdx
-  const current = (prev: WorkoutLog) => extraOpen ? prev[today] : sessionOf(prev[today]) ?? startSession(workout!, today)
+  const current = (prev: WorkoutLog) => extraOpen ? prev[today] : sessionOf(prev[today]) ?? carryRest(prev[today], startSession(workout!, today))
   const markRest = () => {
     setLog((prev) => (prev[today] ? prev : { ...prev, [today]: restRecord(today) }))
     toast('Descanso marcado')
@@ -259,17 +256,11 @@ export function TreinoTab() {
     const saved = setTarget((prev) => ({ ...prev, [today]: toggleSkip(current(prev), exIdx, setIdx, Date.now()) }))
     if (isExerciseComplete(saved[today].exercises[exIdx])) setOpenIdx('auto')
   }
-  const start = () => setLog((prev) => {
-    const started = current(prev)
-    return { ...prev, [today]: isRest(prev[today]) ? { ...started, replacesRest: true } : started }
-  })
+  const start = () => setLog((prev) => ({ ...prev, [today]: current(prev) }))
   const switchTo = (w: Workout) => {
     setChosenId(w.id)
     setOpenIdx('auto')
-    if (session) setLog((prev) => ({
-      ...prev,
-      [today]: { ...startSession(w, today), ...(prev[today]?.replacesRest && { replacesRest: true }) },
-    }))
+    if (session) setLog((prev) => ({ ...prev, [today]: carryRest(prev[today], startSession(w, today)) }))
   }
   const pick = (w: Workout) => {
     if (w.id === view.workoutId) return setSwitching(undefined)
@@ -306,7 +297,7 @@ export function TreinoTab() {
     setTarget((prev) => {
       const active = sessionOf(prev[today])
       if (!active || active.completedAt) return prev
-      return active.replacesRest ? { ...prev, [today]: restRecord(today) } : omitKey(prev, today)
+      return dropSession(prev, active)
     })
     if (!extraOpen) setChosenId(undefined)
     setOpenIdx('auto')

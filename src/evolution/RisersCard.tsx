@@ -5,17 +5,13 @@ import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card'
 import { Item } from '@/components/ui/item'
 import type { WorkoutSession } from '@/workout/types'
 import { MeasureValue } from './Delta'
-import { loadsSummary, risers } from './loads'
-import { PERIODS, type Period } from './chart'
+import { loadsSummary, tallyText } from './loads'
+import { LOAD_PERIODS, type Period } from './chart'
 import { PeriodTabs } from './PeriodTabs'
 import { Sparkline } from './Sparkline'
 
-const LOAD_PERIODS = PERIODS.filter((p) => p.v !== '7')
-
-/** até 3 exercícios com maior subida de carga; a lista completa fica em "Ver todos" */
 export function RisersCard({ sessions, today, period, onPeriod, onOpen, onAll }: { sessions: WorkoutSession[]; today: string; period: Period; onPeriod: (p: Period) => void; onOpen: (exerciseId: string) => void; onAll: () => void }) {
-  const { top, groups } = useMemo(() => loadsSummary(sessions, period, today), [sessions, period, today])
-  const rows = useMemo(() => risers(sessions, period, today), [sessions, period, today])
+  const { top, groups, risers } = useMemo(() => loadsSummary(sessions, period, today), [sessions, period, today])
   return (
     <Card size="flush">
       <CardHeader>
@@ -28,7 +24,7 @@ export function RisersCard({ sessions, today, period, onPeriod, onOpen, onAll }:
         <p className="px-3.5 pb-3.5 text-sm text-text-2">Nenhum treino com carga nesse período</p>
       ) : (
         <>
-          {rows.map((r) => (
+          {risers.map((r) => (
             <Item key={r.exerciseId} asChild className="h-auto w-full flex-nowrap justify-start gap-2 rounded-none border-0 border-t border-line px-3.5 py-2 text-left text-sm font-normal whitespace-normal hover:bg-transparent has-[>svg]:px-3.5">
               <Button variant="ghost" onClick={() => onOpen(r.exerciseId)}>
                 <span className="min-w-0 flex-1 text-text-2">{r.name}</span>
@@ -41,7 +37,7 @@ export function RisersCard({ sessions, today, period, onPeriod, onOpen, onAll }:
             </Item>
           ))}
           <div className="flex items-center justify-between gap-3 border-t border-line pl-3.5 pr-2 text-meta text-text-2">
-            <span className="tabular-nums">{`↑ ${top.up} · ↓ ${top.down} · = ${top.same} exercícios`}</span>
+            <span className="tabular-nums">{`${tallyText(top)} exercícios`}</span>
             <Button type="button" variant="link" className="text-meta text-accent" onClick={onAll}>Ver todos</Button>
           </div>
         </>

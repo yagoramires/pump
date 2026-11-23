@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { TabHeader } from '@/components/TabHeader'
 import { EmptyState } from '@/components/EmptyState'
-import { fatSeries } from './measurements'
 import type { Period } from './chart'
 import { MeasureDrawer } from './MeasureDrawer'
 import { PhotoCapture } from './PhotoCapture'
@@ -119,8 +118,6 @@ export function EvolutionTab() {
     )
   }
 
-  const fat = fatSeries(input.profile, input.measurements)
-
   const blob = pdf?.input === input && pdf.today === today ? pdf.blob : undefined
   const makePdf = async () => {
     setBusy(true)
@@ -147,7 +144,7 @@ export function EvolutionTab() {
       <HighlightsCard items={items} />
       <ConsistencyCard bars={weeks.bars} avgDays={weeks.avgDays} goal={goal} />
 
-      <BodyCard body={body} fat={fat} range={range} onRange={setRange} today={today} onRegister={() => setMeasurementDate(tick())} />
+      <BodyCard body={body} range={range} onRange={setRange} today={today} onRegister={() => setMeasurementDate(tick())} />
 
       <RisersCard sessions={input.sessions} today={today} period={loadPeriod} onPeriod={setLoadPeriod} onOpen={setExerciseId} onAll={() => setView('loads')} />
 

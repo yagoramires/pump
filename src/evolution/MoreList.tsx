@@ -6,7 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { IconDot } from '@/components/IconDot'
 import type { EvolutionInput } from './types'
 import type { Report } from './report'
-import { DietRows } from './DietCard'
+import { DietRows } from './DietRows'
 import { dietSummary } from './dietStats'
 
 const ROW = 'h-auto min-h-14 w-full justify-start gap-3 rounded-none px-3.5 py-2 text-left font-normal'
@@ -22,7 +22,6 @@ function Line({ icon, color, title, summary, chevron }: { icon: ReactNode; color
   )
 }
 
-/** Dieta (abre no lugar), Conquistas e Histórico */
 export function MoreList({ input, report, today, onAchievements, onHistory }: { input: EvolutionInput; report: Report; today: string; onAchievements: () => void; onHistory: () => void }) {
   const earned = report.achievements.filter((a) => a.earnedAt).length
   const chevron = <ChevronRight size={18} className="text-faint" aria-hidden="true" />

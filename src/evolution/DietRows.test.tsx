@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { dietDay, food } from '../../test/helpers'
-import { DietRows } from './DietCard'
+import { DietRows } from './DietRows'
 import { dietSummary } from './dietStats'
 
 const value = (label: string) => screen.getByText(label).parentElement
@@ -37,8 +37,4 @@ test('dia marcado só com itens de 0 kcal: a média é 0, não falta de dado', (
 test('resumo: dias no plano; sem dia, undefined', () => {
   expect(dietSummary({ '2026-12-10': dietDay([true, true]) }, {}, '2026-12-12')).toBe('1 de 3 dias no plano')
   expect(dietSummary({}, {}, '2026-12-12')).toBeUndefined()
-})
-test('linhas sem card nem título', () => {
-  render(<DietRows log={{ '2026-12-10': dietDay([true]) }} water={{}} today="2026-12-12" />)
-  expect(screen.queryByText('Dieta · 30 dias')).toBeNull()
 })

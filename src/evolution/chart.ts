@@ -1,4 +1,4 @@
-import { daysBetween } from '@/lib/date'
+import { addDays, daysBetween } from '@/lib/date'
 import type { Point } from './measurements'
 
 export function scalePoints(points: Point[], w: number, h: number, pad: number): [x: number, y: number][] {
@@ -13,3 +13,6 @@ export function scalePoints(points: Point[], w: number, h: number, pad: number):
 export const PERIODS = [{ v: '7', label: '7 d' }, { v: '30', label: '30 d' }, { v: '90', label: '90 d' }, { v: 'all', label: 'Tudo' }] as const
 export type Period = (typeof PERIODS)[number]['v']
 export const inPeriod = (period: Period, date: string, today: string) => period === 'all' || daysBetween(date, today) <= Number(period)
+export const LOAD_PERIODS = PERIODS.filter((p) => p.v !== '7')
+/** 1º dia da janela de "últimos 30 dias" (hoje incluso) */
+export const since30 = (today: string) => addDays(today, -29)

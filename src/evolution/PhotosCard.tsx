@@ -8,7 +8,6 @@ import { PhotoThumb } from './PhotoThumb'
 const LINK = 'text-meta text-accent disabled:text-faint'
 const CAPTION = 'flex items-end justify-center rounded-lg pb-1.5 text-xs text-text-2'
 
-/** antes e depois do 1º par de mesmo ângulo; sem par, as miniaturas do último conjunto */
 export function PhotosCard({ report, sets, onNew, onCompare }: { report: Report; sets: number; onNew: () => void; onCompare: () => void }) {
   const pair = report.photoPairs[0]
   return (

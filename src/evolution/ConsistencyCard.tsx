@@ -5,7 +5,7 @@ import type { WeekBar } from './consistency'
 
 const color = (ratio: number) => (ratio >= 1 ? 'bg-accent' : ratio > 0 ? 'bg-accent-line' : 'bg-surface')
 
-/** dias treinados por semana contra a meta; barras em divs (o shadcn não tem gráfico de barras) */
+// barras em divs: o shadcn não tem gráfico de barras
 export function ConsistencyCard({ bars, avgDays, goal }: { bars: WeekBar[]; avgDays: number; goal: number }) {
   if (!bars.length) return null
   return (

@@ -3,7 +3,8 @@ import { SheetBody } from '@/components/SheetRow'
 import { formatDec } from '@/lib/number'
 import { PERF_WEIGHT, POINTS, type sessionScore, type Trend } from './score'
 
-const ROWS: [Trend, string][] = [['up', 'Subiu'], ['same', 'Igual'], ['new', 'Primeira vez'], ['timed', 'Cardio e por tempo'], ['down', 'Caiu']]
+const LABEL: Record<Trend, string> = { up: 'Subiu', same: 'Igual', new: 'Primeira vez', timed: 'Cardio e por tempo', down: 'Caiu' }
+const ROWS = Object.entries(LABEL) as [Trend, string][]
 const pointsText = (t: Trend) => (POINTS[t] === 1 ? '1 ponto' : formatDec(POINTS[t], 1))
 const pct = (n: number) => `${Math.round(n * 100)}%`
 

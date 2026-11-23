@@ -10,7 +10,6 @@ export const setAngle = (sets: PhotoSet[], date: string, angle: Angle, photoId: 
   return byDate([...sets.filter((s) => s.date !== date), { ...(cur ?? { id: crypto.randomUUID(), date }), [angle]: photoId }])
 }
 
-/** tira um ângulo do dia; sem foto nenhuma, o conjunto some */
 export const removeAngle = (sets: PhotoSet[], date: string, angle: Angle): PhotoSet[] =>
   sets.flatMap((s) => {
     if (s.date !== date) return [s]
