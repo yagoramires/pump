@@ -4,6 +4,18 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 15,
+    date: '2026-11-23',
+    novidades: [
+      'Editar o plano e o cardápio ficou mais fácil: arraste exercícios e alimentos pela alça, inclusive de um treino ou refeição pro outro, e reordene os treinos pelo cabeçalho.',
+      'Séries, reps, carga e gramas se editam direto no cartão, e dá pra selecionar vários itens pra remover de uma vez.',
+      'Exportar plano: copie ou gere um arquivo e edite no computador em yagoramires.github.io/pump/editor.html. Depois é só importar de volta pelo Converter.',
+    ],
+    correcoes: [
+      'Um treino que muda de letra continua com o próprio histórico.',
+    ],
+  },
+  {
     version: 14,
     date: '2026-11-23',
     novidades: [
