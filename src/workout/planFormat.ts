@@ -1,7 +1,7 @@
 import type { CustomExercise, Exercise, PlanExercise, Workout, WorkoutPlan } from './types'
 import { normalize, str } from '@/lib/text'
 import { splitExerciseLine } from '@/catalog/exerciseLine'
-import { FROM_PUMP, FormatError, headerProblems, readHalf, writeEnvelope } from '@/format/envelope'
+import { FormatError, headerProblems, pumpOrigin, readHalf, writeEnvelope } from '@/format/envelope'
 import { isObj } from '@/lib/utils'
 import { inRange } from '@/lib/number'
 import { KG, REST_SEC, SETS } from './limits'
@@ -54,7 +54,7 @@ export const parsePlanFormat = (text: string): PumpPlano => readHalf(text, 'trei
   const seen = new Set<string>()
   const treinos = list.map((t: unknown, n) => parseTreino(t, n, seen, (text) => problems.push(text)))
   if (problems.length) throw new FormatError(problems)
-  return { treinos, ignoredDiet, ...(raw.origem === FROM_PUMP.origem && { fromPump: true }) }
+  return { treinos, ignoredDiet, ...pumpOrigin(raw) }
 })
 
 // a lista do catálogo traz "nome (equipamento)": só aceita o nome sem o parêntese final se ele for o equipamento do exercício achado

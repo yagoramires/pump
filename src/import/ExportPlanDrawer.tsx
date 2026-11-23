@@ -1,8 +1,8 @@
 import { Copy, FileDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { EDITOR_URL } from '@/catalog/urls'
-import { planFileName, planFileText, type PlanFile } from '@/format/planFile'
-import { copy, shareFile } from '@/lib/share'
+import { planFileOf, planFileText, type PlanFile } from '@/format/planFile'
+import { FILE_FAIL, copy, shareFile } from '@/lib/share'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 
@@ -10,10 +10,10 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/compone
 export function ExportPlanDrawer({ file, onClose }: { file: PlanFile; onClose: () => void }) {
   const sendFile = async () => {
     try {
-      await shareFile(new File([planFileText(file)], planFileName(file), { type: 'application/json' }))
+      await shareFile(planFileOf(file))
     } catch (e) {
       console.error(e)
-      toast.error('Não consegui gerar o arquivo. Tente de novo.')
+      toast.error(FILE_FAIL)
     }
   }
   return (

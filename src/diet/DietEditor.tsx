@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Copy, Plus, Trash2 } from 'lucide-react'
-import { toast } from 'sonner'
 import { DndContext, DragOverlay, closestCorners, pointerWithin, useDroppable, type CollisionDetection, type DragEndEvent, type DragOverEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { DEFAULTS } from '@/schema'
@@ -14,9 +13,10 @@ import { FoodPicker } from './FoodPicker'
 import { DietItemCard } from './DietItemCard'
 import { macroSplit, moveFood } from './dietEdit'
 import { SortableItem } from '@/components/Sortable'
-import { LIFTED, PT_ANNOUNCEMENTS, useDragSensors, useDragUndo } from '@/components/dnd'
+import { LIFTED, useEditorDrag } from '@/components/dnd'
+import { SelectToggle, SelectionBar } from '@/components/SelectionBar'
+import { useEditorDraft } from '@/components/useEditorDraft'
 import { SplitBar } from '@/components/SplitBar'
-import { BottomBar } from '@/components/BottomBar'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useSelection } from '@/lib/useSelection'
 import { cn } from '@/lib/utils'
@@ -41,7 +41,6 @@ const TAB = 'tab:'
 // a aba da opção é pequena: o que está debaixo do ponteiro ganha; fora de tudo, o mais perto
 const collision: CollisionDetection = (args) => { const hit = pointerWithin(args); return hit.length ? hit : closestCorners(args) }
 
-/** aba da opção: também recebe o alimento solto em cima dela */
 function OptionTab({ id, children }: { id: string; children: ReactNode }) {
   const { setNodeRef, isOver } = useDroppable({ id: TAB + id })
   return <span ref={setNodeRef} className={cn('rounded-lg', isOver && 'ring-2 ring-border-strong')}>{children}</span>
@@ -68,25 +67,14 @@ const setMacro = (m: Menu, k: keyof Macros, n?: number): Menu => {
 
 export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
   useHoldUpdates()
-  const [plan, setPlan] = useState<DietPlan>(() => (initial.menus.length ? structuredClone(initial) : { menus: [emptyMenu(1, [emptyMeal(1)])] }))
+  const [plan, setPlan] = useEditorDraft<DietPlan>(() => (initial.menus.length ? structuredClone(initial) : { menus: [emptyMenu(1, [emptyMeal(1)])] }), onChange)
   const [menuId, setMenuId] = useState(() => currentMenu(plan)!.id)
   const [optOf, setOptOf] = useState<Record<string, number>>({})
   const [picking, setPicking] = useState<{ mealId: string; oi: number; name: string }>()
   const [confirm, setConfirm] = useState<keyof typeof CONFIRM>()
   const [error, setError] = useState('')
-  const [removeMany, setRemoveMany] = useState(false)
-  const [dragging, setDragging] = useState<string>()
   const sel = useSelection()
-  const sensors = useDragSensors()
-  const undo = useDragUndo(plan, setPlan)
-
-  // a web exporta o que está na tela: avisa toda mudança, menos o estado inicial
-  const first = useRef(plan)
-  const notify = useRef(onChange)
-  useEffect(() => { notify.current = onChange })
-  useEffect(() => {
-    if (plan !== first.current) notify.current?.(plan)
-  }, [plan])
+  const drag = useEditorDrag(plan, setPlan)
 
   const menu = plan.menus.find((m) => m.id === menuId) ?? plan.menus[0]
   const patchMenu = (f: (m: Menu) => Menu) => setPlan((p) => ({ ...p, menus: p.menus.map((m) => (m.id === menu.id ? f(m) : m)) }))
@@ -125,7 +113,6 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
   }
   const confirmed = () => (confirm === 'menu' ? removeMenu() : onSave?.(DEFAULTS.dietPlan))
 
-  /** opção (mostrada) onde está um id do arrasto: alimento, aba ou lista */
   const locate = (m: Menu, id: string) => {
     if (id.startsWith(TAB)) return { optionId: id.slice(TAB.length), index: Infinity }
     for (const o of m.meals.flatMap((x) => x.options)) {
@@ -133,7 +120,6 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
       if (index >= 0) return { optionId: o.id, index }
     }
   }
-  // alimento passando pra outra refeição: muda de lista já no arrasto; soltar na aba vai pro fim daquela opção
   const dragOver = ({ active, over }: DragOverEvent) => {
     if (!over || String(over.id).startsWith(TAB)) return
     patchMenu((m) => {
@@ -143,9 +129,7 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
     })
   }
   const dragEnd = ({ active, over }: DragEndEvent) => {
-    setDragging(undefined)
-    if (!over) return undo.cancel()
-    undo.end()
+    if (!drag.finish(over)) return
     if (active.id === over.id) return
     patchMenu((m) => {
       const from = locate(m, String(active.id))
@@ -154,14 +138,9 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
       return moveFood(m, from, to)
     })
   }
-  const removeSelected = () => {
-    const n = sel.selected.size
-    patchMenu((m) => ({ ...m, meals: m.meals.map((ml) => ({ ...ml, options: ml.options.map((o) => ({ ...o, items: o.items.filter((it) => !sel.selected.has(it.id)) })) })) }))
-    sel.stop()
-    setRemoveMany(false)
-    toast(n === 1 ? '1 alimento removido' : `${n} alimentos removidos`)
-  }
-  const draggedItem = dragging ? menu.meals.flatMap((m) => m.options).flatMap((o) => o.items).find((it) => it.id === dragging) : undefined
+  const removeItems = (ids: Set<string>) =>
+    patchMenu((m) => ({ ...m, meals: m.meals.map((ml) => ({ ...ml, options: ml.options.map((o) => ({ ...o, items: o.items.filter((it) => !ids.has(it.id)) })) })) }))
+  const draggedItem = drag.dragging ? menu.meals.flatMap((m) => m.options).flatMap((o) => o.items).find((it) => it.id === drag.dragging) : undefined
 
   return (
     <div className="flex flex-col gap-3 pb-6">
@@ -197,17 +176,12 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
         </div>
       </Card>
 
-      <div className="flex justify-end">
-        <Button variant="ghost" size="sm" className="text-text-2" onClick={sel.on ? sel.stop : sel.start}>{sel.on ? 'Cancelar seleção' : 'Selecionar'}</Button>
-      </div>
+      <SelectToggle sel={sel} />
       <DndContext
-        sensors={sensors}
+        {...drag.context}
         collisionDetection={collision}
-        accessibility={{ announcements: PT_ANNOUNCEMENTS }}
-        onDragStart={({ active }) => { undo.start(); setDragging(String(active.id)) }}
         onDragOver={dragOver}
         onDragEnd={dragEnd}
-        onDragCancel={() => { undo.cancel(); setDragging(undefined) }}
       >
       <div className="@container">
       <div className="flex flex-col gap-3 @3xl:flex-row @3xl:items-start @3xl:overflow-x-auto @3xl:pb-2">
@@ -248,8 +222,8 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
                         item={it}
                         onChange={(patch) => patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, ...patch } : x)))}
                         onRemove={() => patchItems(meal.id, oi, (xs) => xs.filter((x) => x.id !== it.id))}
-                        lead={sel.on && <Checkbox aria-label={`Selecionar ${it.name}`} checked={sel.selected.has(it.id)} onCheckedChange={() => sel.toggle(it.id)} />}
-                        trail={!sel.on && handle}
+                        checkbox={sel.on && <Checkbox aria-label={`Selecionar ${it.name}`} checked={sel.selected.has(it.id)} onCheckedChange={() => sel.toggle(it.id)} />}
+                        handle={!sel.on && handle}
                       />
                     )}
                   </SortableItem>
@@ -270,21 +244,7 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
 
       {onSave && <Button variant="link" className="text-negative hover:text-negative" onClick={() => setConfirm('all')}>Apagar todos os cardápios</Button>}
 
-      {sel.on && (
-        <BottomBar className="gap-2">
-          <Button variant="outline" size="lg" className="flex-1" onClick={sel.stop}>Cancelar</Button>
-          <Button size="lg" className="flex-1" disabled={!sel.selected.size} onClick={() => setRemoveMany(true)}>{`Remover (${sel.selected.size})`}</Button>
-        </BottomBar>
-      )}
-      <ConfirmDialog
-        open={removeMany}
-        title={sel.selected.size === 1 ? 'Remover 1 alimento?' : `Remover ${sel.selected.size} alimentos?`}
-        text="Eles saem do cardápio. O histórico fica."
-        confirm="Remover"
-        destructive
-        onConfirm={removeSelected}
-        onCancel={() => setRemoveMany(false)}
-      />
+      <SelectionBar sel={sel} noun={['alimento', 'alimentos']} onRemove={removeItems} />
 
       {picking && (
         <FoodPicker

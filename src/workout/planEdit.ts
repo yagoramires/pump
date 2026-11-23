@@ -58,7 +58,6 @@ export function moveExercise(plan: EditorPlan, from: { wid: string; index: numbe
   }
 }
 
-/** divisão dos músculos de um treino pela barrinha do editor; cardio fica de fora */
 export function muscleSplit(exercises: PlanExercise[]): { token: string; label: string; count: number }[] {
   const counts = new Map<string, number>()
   for (const e of exercises) if (!isCardio(e)) counts.set(muscleGroup(e.muscles), (counts.get(muscleGroup(e.muscles)) ?? 0) + 1)

@@ -5,8 +5,8 @@ import { catalogOrNull, fetchExercises, fetchTaco } from '@/catalog/catalog'
 import { DietEditor } from '@/diet/DietEditor'
 import { planProblem as dietProblem } from '@/diet/dietFormat'
 import { FormatError } from '@/format/envelope'
-import { planFileName, planFileText, readPlanFile, type PlanFile } from '@/format/planFile'
-import { copy, downloadFile } from '@/lib/share'
+import { PLAN_FILE_ACCEPT, planFileOf, planFileText, readPlanFile, type PlanFile } from '@/format/planFile'
+import { FILE_FAIL, copy, downloadFile } from '@/lib/share'
 import { PlanEditor } from '@/workout/PlanEditor'
 import { planProblem as workoutProblem } from '@/workout/planFormat'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
@@ -57,7 +57,6 @@ export function EditorPage() {
     setProblems([])
     try {
       const next = await readPlanFile(text, LOAD)
-      // só a metade que vem no arquivo troca; perguntar se ela tem mudança não exportada
       if ((next.workout && dirty.workout) || (next.diet && dirty.diet)) setPending(next)
       else apply(next)
     } catch (e) {
@@ -66,11 +65,11 @@ export function EditorPage() {
   }
 
   const exportable = (): PlanFile | undefined => {
-    const found = [file.workout && workoutProblem(file.workout), file.diet && dietProblem(file.diet)?.text].filter((p): p is string => !!p)
+    const found = !file.workout && !file.diet
+      ? ['Abra um plano antes de exportar.']
+      : [file.workout && workoutProblem(file.workout), file.diet && dietProblem(file.diet)?.text].filter((p): p is string => !!p)
     setProblems(found)
-    if (found.length) return undefined
-    if (!file.workout && !file.diet) return void setProblems(['Abra um plano antes de exportar.'])
-    return file
+    return found.length ? undefined : file
   }
 
   const copyPlan = async () => {
@@ -83,11 +82,11 @@ export function EditorPage() {
     const f = exportable()
     if (!f) return
     try {
-      downloadFile(new File([planFileText(f)], planFileName(f), { type: 'application/json' }))
+      downloadFile(planFileOf(f))
       setDirty({})
     } catch (e) {
       console.error(e)
-      toast.error('Não consegui gerar o arquivo. Tente de novo.')
+      toast.error(FILE_FAIL)
     }
   }
 
@@ -109,7 +108,7 @@ export function EditorPage() {
           <Button variant="outline" onClick={() => void downloadPlan()}><FileDown aria-hidden="true" /> Baixar arquivo</Button>
           <Button onClick={() => void copyPlan()}><Copy aria-hidden="true" /> Copiar plano</Button>
         </div>
-        <input id={inputId} type="file" hidden accept=".json,application/json,text/plain" aria-label="Arquivo do plano" onChange={async (e) => {
+        <input id={inputId} type="file" hidden accept={PLAN_FILE_ACCEPT} aria-label="Arquivo do plano" onChange={async (e) => {
           const f = e.target.files?.[0]
           e.target.value = '' // o mesmo arquivo de novo dispara de novo
           if (f) await load(await f.text())

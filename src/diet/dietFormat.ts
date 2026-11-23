@@ -1,5 +1,5 @@
 import type { DietItem, DietPlan, Menu, TacoFood } from './types'
-import { FROM_PUMP, FormatError, readHalf, writeEnvelope } from '@/format/envelope'
+import { FormatError, pumpOrigin, readHalf, writeEnvelope } from '@/format/envelope'
 import { str } from '@/lib/text'
 import { isObj } from '@/lib/utils'
 import { inRange, round1 } from '@/lib/number'
@@ -91,7 +91,7 @@ export const parseDietFormat = (text: string): PumpDieta => readHalf(text, 'diet
     cardapios = d.cardapios.map((x: unknown, i) => parseMenu(isObj(x) ? x : {}, `Cardápio ${i + 1}`, problem))
   } else cardapios = [parseMenu(d, undefined, problem)]
   if (problems.length) throw new FormatError(problems)
-  return { cardapios, ignoredWorkouts, ...(raw.origem === FROM_PUMP.origem && { fromPump: true }) }
+  return { cardapios, ignoredWorkouts, ...pumpOrigin(raw) }
 })
 
 type Match = 'custom' | 'exact' | 'words' | 'ia' | 'none'

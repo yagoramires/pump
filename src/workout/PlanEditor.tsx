@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { MoreHorizontal, Plus } from 'lucide-react'
-import { toast } from 'sonner'
-import { DndContext, DragOverlay, closestCorners, type DragEndEvent, type DragOverEvent, type DragStartEvent } from '@dnd-kit/core'
+import { DndContext, DragOverlay, closestCorners, type DragEndEvent, type DragOverEvent } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import type { PlanExercise, WorkoutPlan } from './types'
 import { CatalogPicker } from './CatalogPicker'
@@ -13,10 +12,11 @@ import { planProblem } from './planFormat'
 import { addWorkout, fromEditor, moveExercise, moveWorkout, muscleSplit, removeWorkout, toEditor, type EditorPlan, type EditorWorkout, type Keyed } from './planEdit'
 import { groupColor } from '@/catalog/muscles'
 import { BackHeader } from '@/components/BackHeader'
-import { BottomBar } from '@/components/BottomBar'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { SortableItem } from '@/components/Sortable'
-import { LIFTED, PT_ANNOUNCEMENTS, useDragSensors, useDragUndo } from '@/components/dnd'
+import { LIFTED, useEditorDrag } from '@/components/dnd'
+import { SelectToggle, SelectionBar } from '@/components/SelectionBar'
+import { useEditorDraft } from '@/components/useEditorDraft'
 import { SplitBar } from '@/components/SplitBar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -33,32 +33,20 @@ import { cn } from '@/lib/utils'
 type Props = { initial: WorkoutPlan; onSave?: (plan: WorkoutPlan) => void; onCancel?: () => void; onChange?: (plan: WorkoutPlan) => void }
 
 const WID = 'w:'
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
 
 export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
   useHoldUpdates()
-  const [plan, setPlan] = useState<EditorPlan>(() => toEditor(structuredClone(initial)))
+  const [plan, setPlan] = useEditorDraft(() => toEditor(structuredClone(initial)), onChange && ((p) => onChange(fromEditor(p))))
   const [picking, setPicking] = useState<string>()
   const [editing, setEditing] = useState<string>()
   const [preview, setPreview] = useState<PlanExercise>()
   const [menuFor, setMenuFor] = useState<string>()
-  const [confirm, setConfirm] = useState<'many'>()
   const [removeId, setRemoveId] = useState<string>()
-  const [dragging, setDragging] = useState<string>()
   const [error, setError] = useState('')
   // ação escolhida no menu do treino: roda depois que a gaveta fecha (dois modais juntos deixam a tela escondida)
   const after = useRef<{ act: 'rename' | 'remove'; id: string }>(undefined)
   const sel = useSelection()
-  const sensors = useDragSensors()
-  const undo = useDragUndo(plan, setPlan)
-
-  // a web exporta o que está na tela: avisa toda mudança, menos o estado inicial
-  const first = useRef(plan)
-  const notify = useRef(onChange)
-  useEffect(() => { notify.current = onChange })
-  useEffect(() => {
-    if (plan !== first.current) notify.current?.(fromEditor(plan))
-  }, [plan])
+  const drag = useEditorDrag(plan, setPlan)
 
   const patchWorkout = (id: string, f: (w: EditorWorkout) => EditorWorkout) =>
     setPlan((p) => ({ ...p, workouts: p.workouts.map((w) => (w.id === id ? f(w) : w)) }))
@@ -67,7 +55,6 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
   const removeKeys = (keys: Set<string>) =>
     setPlan((p) => ({ ...p, workouts: p.workouts.map((w) => ({ ...w, exercises: w.exercises.filter((e) => !keys.has(e.key)) })) }))
 
-  /** onde está cada id do arrasto: treino (índice -1) ou exercício */
   const locate = (p: EditorPlan, id: string) => {
     if (id.startsWith(WID)) return { wid: id.slice(WID.length), index: -1 }
     for (const w of p.workouts) {
@@ -90,12 +77,9 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
   }
 
   const dragEnd = ({ active, over }: DragEndEvent) => {
-    setDragging(undefined)
-    if (!over) return undo.cancel()
-    undo.end()
-    if (active.id === over.id) return
+    if (!drag.finish(over) || active.id === over!.id) return
     const a = String(active.id)
-    const o = String(over.id)
+    const o = String(over!.id)
     setPlan((p) => {
       if (a.startsWith(WID)) {
         const to = locate(p, o)
@@ -117,21 +101,13 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
     onSave?.(saved)
   }
 
-  const removeSelected = () => {
-    const n = sel.selected.size
-    removeKeys(sel.selected)
-    sel.stop()
-    setConfirm(undefined)
-    toast(plural(n, 'exercício removido', 'exercícios removidos'))
-  }
-
   const all = plan.workouts.flatMap((w) => w.exercises)
   const ee = all.find((e) => e.key === editing)
   const mw = plan.workouts.find((w) => w.id === menuFor)
   const rw = plan.workouts.find((w) => w.id === removeId)
-  const dragged: Keyed | EditorWorkout | undefined = dragging?.startsWith(WID)
-    ? plan.workouts.find((w) => WID + w.id === dragging)
-    : all.find((e) => e.key === dragging)
+  const dragged: Keyed | EditorWorkout | undefined = drag.dragging?.startsWith(WID)
+    ? plan.workouts.find((w) => WID + w.id === drag.dragging)
+    : all.find((e) => e.key === drag.dragging)
 
   return (
     <div className="@container flex flex-col gap-3 pb-6">
@@ -141,18 +117,13 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
         </BackHeader>
       )}
       {error && <Alert variant="destructive">{error}</Alert>}
-      <div className="flex justify-end">
-        <Button variant="ghost" size="sm" className="text-text-2" onClick={sel.on ? sel.stop : sel.start}>{sel.on ? 'Cancelar seleção' : 'Selecionar'}</Button>
-      </div>
+      <SelectToggle sel={sel} />
 
       <DndContext
-        sensors={sensors}
+        {...drag.context}
         collisionDetection={closestCorners}
-        accessibility={{ announcements: PT_ANNOUNCEMENTS }}
-        onDragStart={({ active }: DragStartEvent) => { undo.start(); setDragging(String(active.id)) }}
         onDragOver={dragOver}
         onDragEnd={dragEnd}
-        onDragCancel={() => { undo.cancel(); setDragging(undefined) }}
       >
         <SortableContext items={plan.workouts.map((w) => WID + w.id)} strategy={rectSortingStrategy}>
           <div className="flex flex-col gap-3 @3xl:flex-row @3xl:items-start @3xl:overflow-x-auto @3xl:pb-2">
@@ -180,8 +151,8 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
                                   onChange={(patch) => patchEx(e.key, patch)}
                                   onOpen={() => setEditing(e.key)}
                                   onPreview={() => setPreview(e)}
-                                  lead={sel.on && <Checkbox aria-label={`Selecionar ${e.name}`} checked={sel.selected.has(e.key)} onCheckedChange={() => sel.toggle(e.key)} />}
-                                  trail={!sel.on && exHandle}
+                                  checkbox={sel.on && <Checkbox aria-label={`Selecionar ${e.name}`} checked={sel.selected.has(e.key)} onCheckedChange={() => sel.toggle(e.key)} />}
+                                  handle={!sel.on && exHandle}
                                 />
                               )}
                             </SortableItem>
@@ -204,12 +175,7 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
         </DragOverlay>
       </DndContext>
 
-      {sel.on && (
-        <BottomBar className="gap-2">
-          <Button variant="outline" size="lg" className="flex-1" onClick={sel.stop}>Cancelar</Button>
-          <Button size="lg" className="flex-1" disabled={!sel.selected.size} onClick={() => setConfirm('many')}>{`Remover (${sel.selected.size})`}</Button>
-        </BottomBar>
-      )}
+      <SelectionBar sel={sel} noun={['exercício', 'exercícios']} onRemove={removeKeys} />
 
       {preview && <ExercisePreview exercise={preview} onClose={() => setPreview(undefined)} />}
       {ee && (
@@ -248,15 +214,6 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
         destructive
         onConfirm={() => { if (removeId) setPlan((p) => removeWorkout(p, removeId)); setRemoveId(undefined) }}
         onCancel={() => setRemoveId(undefined)}
-      />
-      <ConfirmDialog
-        open={confirm === 'many'}
-        title={`Remover ${plural(sel.selected.size, 'exercício', 'exercícios')}?`}
-        text="Eles saem do plano. O histórico fica."
-        confirm="Remover"
-        destructive
-        onConfirm={removeSelected}
-        onCancel={() => setConfirm(undefined)}
       />
       {picking && (
         <CatalogPicker

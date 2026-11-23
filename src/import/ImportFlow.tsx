@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card'
 import { copy } from '@/lib/share'
 import { catalogFile } from '@/catalog/catalog'
 import { HEADER, type Half } from '@/format/envelope'
+import { PLAN_FILE_ACCEPT } from '@/format/planFile'
 import { namesText } from '@/lib/text'
 import { BottomBar } from '@/components/BottomBar'
 import { Chip, ChipRow } from '@/components/ChipRow'
@@ -68,7 +69,7 @@ export function PasteBox({ paste: { text, set, problems }, half, children }: Pas
        <label>
         <FileUp size={16} aria-hidden="true" />
         Escolher arquivo
-        <input type="file" hidden accept=".json,application/json,text/plain" onChange={async (e) => {
+        <input type="file" hidden accept={PLAN_FILE_ACCEPT} onChange={async (e) => {
           const f = e.target.files?.[0]
           e.target.value = '' // o mesmo arquivo de novo dispara de novo
           if (f) set(await f.text(), true)

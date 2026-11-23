@@ -1,15 +1,15 @@
-import type { DietItem, Menu } from './types'
+import type { DietItem, MealOption, Menu } from './types'
 import { MAX_ITEMS } from './limits'
 import { macrosOf } from './food'
 
 type At = { optionId: string; index: number }
 
-const mapOptions = (menu: Menu, f: (o: Menu['meals'][number]['options'][number]) => Menu['meals'][number]['options'][number]): Menu => ({
+const mapOptions = (menu: Menu, f: (o: MealOption) => MealOption): Menu => ({
   ...menu,
   meals: menu.meals.map((m) => ({ ...m, options: m.options.map(f) })),
 })
 
-/** move um alimento entre opções de qualquer refeição do cardápio; `to.index` é a posição depois de tirar da origem */
+/** `to.index` é a posição depois de tirar da origem */
 export function moveFood(menu: Menu, from: At, to: At): Menu {
   const options = menu.meals.flatMap((m) => m.options)
   const item = options.find((o) => o.id === from.optionId)?.items[from.index]

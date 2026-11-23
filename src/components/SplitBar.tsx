@@ -1,4 +1,3 @@
-/** barrinha de divisão (músculos do treino, macros da refeição) com a legenda em frase embaixo */
 export function SplitBar({ parts, legend }: { parts: { color: string; value: number }[]; legend: string }) {
   const shown = parts.filter((p) => p.value > 0)
   if (!shown.length) return null

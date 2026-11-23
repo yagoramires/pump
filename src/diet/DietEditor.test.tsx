@@ -230,10 +230,9 @@ test('a barrinha mostra os macros da opção aberta', async () => {
   expect(await screen.findByText('proteína 10 g, carboidrato 20 g, gordura 5 g')).toBeInTheDocument()
 })
 
-test('cada alimento tem a alça de arrastar', async () => {
+test('cada alimento tem a alça de arrastar fora do modo seleção', async () => {
   await renderLoaded(<DietEditor initial={twoItems()} onSave={vi.fn()} onCancel={vi.fn()} />)
   expect(await screen.findByRole('button', { name: 'Mover Arroz' })).toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Subir Arroz' })).not.toBeInTheDocument()
 })
 
 test('com onChange não mostra Salvar nem Apagar todos e avisa cada mudança', async () => {

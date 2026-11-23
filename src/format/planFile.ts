@@ -13,6 +13,11 @@ export type PlanFile = { workout?: WorkoutPlan; diet?: DietPlan }
 export const planFileText = ({ workout, diet }: PlanFile): string =>
   writeEnvelope({ ...FROM_PUMP, ...(workout && { treinos: treinosOf(workout) }), ...(diet && { dieta: dietaOf(preparePlan(diet)) }) })
 
+/** o que os seletores de arquivo aceitam: o .json exportado, ou o texto que a IA mandou */
+export const PLAN_FILE_ACCEPT = '.json,application/json,text/plain'
+
+export const planFileOf = (p: PlanFile): File => new File([planFileText(p)], planFileName(p), { type: 'application/json' })
+
 export function planFileName({ workout, diet }: PlanFile, now = new Date()): string {
   const kind = workout && diet ? 'plano' : workout ? 'treino' : 'dieta'
   return `pump-${kind}-${todayKey(now)}.json`

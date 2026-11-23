@@ -15,7 +15,6 @@ export function DragHandle({ label, className, ...rest }: HandleProps & { classN
   )
 }
 
-/** item ordenável: enquanto é arrastado vira o lugar tracejado e o DragOverlay mostra a cópia levantada */
 export function SortableItem({ id, label, data, className, children }: {
   id: string
   label: string

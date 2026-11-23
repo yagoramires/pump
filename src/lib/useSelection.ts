@@ -1,6 +1,5 @@
 import { useState } from 'react'
 
-/** modo "Selecionar" dos editores: liga, marca itens pelo id e desliga limpando */
 export function useSelection() {
   const [on, setOn] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(() => new Set())

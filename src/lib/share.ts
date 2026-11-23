@@ -14,6 +14,7 @@ async function copyText(text: string | Promise<string>): Promise<boolean> {
 }
 
 export const COPY_FAIL = 'Não consegui copiar. Tente de novo.'
+export const FILE_FAIL = 'Não consegui gerar o arquivo. Tente de novo.'
 const COPY_OFFLINE = 'Sem internet pra copiar a lista.'
 
 /** devolve se copiou: quem depende disso (exportar no editor web) só dá a cópia por feita quando deu certo */
