@@ -3,7 +3,7 @@ import { formatKg } from '@/lib/number'
 import type { PlanExercise, SessionExercise } from './types'
 import { isCardio, setCount } from './reps'
 
-export const workoutDayLabel = (date: string, label: string) => `${formatDayLabel(date)} · TREINO ${label}`
+export const workoutDayLabel = (date: string, label: string) => `${formatDayLabel(date)} · Treino ${label}`
 
 export function exerciseSummary(e: PlanExercise | SessionExercise) {
   return `${setCount(e)} × ${e.reps} · ${formatKg(e.weightKg)} kg`

@@ -121,8 +121,7 @@ export function TreinoTab() {
   )
   const closePreview = useCallback(() => setPreview(undefined), [])
 
-  // abaixo de 360 px o rótulo vira só leitor de tela: o eyebrow não pode ser espremido
-  const pastLink = <Button variant="link" size="sm" className="text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" /><span className="max-[359px]:sr-only">Treinos anteriores</span></Button>
+    const pastLink = <Button variant="link" size="sm" className="text-accent" onClick={() => setPastOpen(true)}><History aria-hidden="true" />Treinos anteriores</Button>
   // o extra não mexe no registro da ficha: num dia de descanso, o descanso continua lá
   const startExtraToday = (started: WorkoutSession) => {
     setExtraLog((prev) => (prev[today] ? prev : { ...prev, [today]: started }))
@@ -142,7 +141,7 @@ export function TreinoTab() {
       setPickingCardio(false)
     }} />
   )
-  const actions = <>{!extra && <Button variant="link" size="sm" className="text-accent" onClick={() => startExtraToday(startExtra(today))}><Plus aria-hidden="true" /><span className="max-[359px]:sr-only">Treino extra</span></Button>}{pastLink}</>
+  const actions = <>{!extra && <Button variant="link" size="sm" className="text-accent" onClick={() => startExtraToday(startExtra(today))}><Plus aria-hidden="true" />Treino extra</Button>}{pastLink}</>
   if (pastOpen) return <Overlay><PastWorkouts onClose={() => setPastOpen(false)} /></Overlay>
   if (extraSummary && extra?.completedAt) {
     return (
@@ -197,7 +196,7 @@ export function TreinoTab() {
   if (!workout && !session) {
     return (
       <div className="flex flex-col gap-2.5">
-        <TabHeader eyebrow={formatDayLabel(today)} title="Treino" actions={actions} />
+        <TabHeader eyebrow={formatDayLabel(today)} title="Treino" links={actions} />
         {unresolved}
         {extraDone}
         <EmptyState icon={<Dumbbell size={30} aria-hidden="true" />} title="Nenhum treino montado">
@@ -213,7 +212,7 @@ export function TreinoTab() {
   if (rest && !chosenId && !extraOpen) {
     return (
       <div className="flex flex-col gap-2.5">
-        <TabHeader eyebrow={formatDayLabel(today)} title="Treino" actions={actions} />
+        <TabHeader eyebrow={formatDayLabel(today)} title="Treino" links={actions} />
         {unresolved}
         {extraDone}
         <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Descanso marcado">
@@ -313,7 +312,7 @@ export function TreinoTab() {
 
   return (
     <div className={cn('flex flex-col gap-2.5', timer ? 'pb-44' : session?.completedAt ? 'pb-28' : 'pb-24')}>
-      <TabHeader eyebrow={extraOpen ? `${view.workoutName} · ${formatDayLabel(today)}` : workoutDayLabel(today, view.workoutLabel)} title={view.workoutName} actions={sessionOpen ? cancelButton : actions} />
+      <TabHeader eyebrow={extraOpen ? `${view.workoutName} · ${formatDayLabel(today)}` : workoutDayLabel(today, view.workoutLabel)} title={view.workoutName} links={sessionOpen ? cancelButton : actions} />
       {unresolved}
       {extraDone}
       {!extraOpen && !session?.completedAt && plan.workouts.length > 1 && (

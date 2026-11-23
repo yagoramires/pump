@@ -80,7 +80,7 @@ export function DietTab() {
     <div className="flex flex-col gap-2.5 pb-6">
       <TabHeader
         eyebrow={`${formatDayLabel(today)} · ${day.menuName}`} title="Dieta"
-        actions={<Button variant="outline" size="icon" aria-label="Mais opções da dieta" onClick={() => setSheet('more')}><MoreHorizontal aria-hidden="true" /></Button>}
+        actions={<Button variant="secondary" size="icon" aria-label="Mais opções da dieta" onClick={() => setSheet('more')}><MoreHorizontal aria-hidden="true" /></Button>}
       />
 
       <Card role="group" aria-label="Calorias" className="flex-row items-center gap-3">
