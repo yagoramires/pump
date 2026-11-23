@@ -14,3 +14,5 @@ export const FOOD_LIST = 'alimentos.txt'
 const SITE_CATALOG = `https://yagoramires.github.io${BASE}${CATALOG_DIR}`
 export const EXERCISE_LIST_URL = SITE_CATALOG + EXERCISE_LIST
 export const FOOD_LIST_URL = SITE_CATALOG + FOOD_LIST
+/** página do editor no computador (entrada editor.html do Vite) */
+export const EDITOR_URL = `https://yagoramires.github.io${BASE}editor.html`

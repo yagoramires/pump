@@ -39,3 +39,11 @@ test('Ajustar com IA: clipboard negado mostra o erro', async () => {
   await user.click(await screen.findByRole('button', { name: /Ajustar com IA/ }))
   expect(await screen.findByText(COPY_FAIL)).toBeInTheDocument()
 })
+
+test('Exportar plano abre a gaveta com Copiar e Gerar arquivo', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<Settings />)
+  await user.click(await screen.findByRole('button', { name: /Exportar plano/ }))
+  expect(await screen.findByRole('button', { name: 'Copiar' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Gerar arquivo' })).toBeInTheDocument()
+})
