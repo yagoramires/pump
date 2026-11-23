@@ -16,9 +16,14 @@ async function copyText(text: string | Promise<string>): Promise<boolean> {
 export const COPY_FAIL = 'Não consegui copiar. Tente de novo.'
 const COPY_OFFLINE = 'Sem internet pra copiar a lista.'
 
-export async function copy(text: string | Promise<string>, ok: string) {
-  if (await copyText(text)) return void toast(ok)
+/** devolve se copiou: quem depende disso (exportar no editor web) só dá a cópia por feita quando deu certo */
+export async function copy(text: string | Promise<string>, ok: string): Promise<boolean> {
+  if (await copyText(text)) {
+    toast(ok)
+    return true
+  }
   toast(await Promise.resolve(text).then(() => COPY_FAIL, () => COPY_OFFLINE))
+  return false
 }
 
 export async function shareFile(file: File): Promise<'shared' | 'downloaded' | 'cancelled'> {
@@ -32,6 +37,12 @@ export async function shareFile(file: File): Promise<'shared' | 'downloaded' | '
       if (!(e instanceof DOMException && e.name === 'NotAllowedError')) throw e
     }
   }
+  downloadFile(file)
+  return 'downloaded'
+}
+
+/** baixa sem passar pelo compartilhar (no computador, "Baixar" tem que baixar) */
+export function downloadFile(file: File) {
   const url = URL.createObjectURL(file)
   const a = document.createElement('a')
   a.href = url
@@ -39,5 +50,4 @@ export async function shareFile(file: File): Promise<'shared' | 'downloaded' | '
   a.click()
   // WebKit ainda lê o blob depois do click: revogar na hora pode falhar o download
   setTimeout(() => URL.revokeObjectURL(url), 40_000)
-  return 'downloaded'
 }

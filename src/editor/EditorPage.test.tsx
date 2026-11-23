@@ -107,3 +107,39 @@ test('nada vai pro IndexedDB do aparelho', async () => {
   await user.click(await screen.findByRole('button', { name: 'Novo treino' }))
   expect(await stored('workoutPlan')).toBeUndefined()
 })
+
+test('copiar que falhou continua avisando ao sair', async () => {
+  const { user, writeText } = setupClipboard()
+  writeText.mockRejectedValue(new Error('denied'))
+  await renderLoaded(<EditorPage />)
+  await open(user, planFileText({ workout }))
+  const sets = await screen.findByRole('textbox', { name: 'Séries de Supino reto' })
+  await user.clear(sets)
+  await user.type(sets, '5')
+  await user.click(screen.getByRole('button', { name: 'Copiar plano' }))
+  const e = new Event('beforeunload', { cancelable: true })
+  window.dispatchEvent(e)
+  expect(e.defaultPrevented).toBe(true)
+})
+
+test('Baixar arquivo baixa direto, sem abrir o compartilhar do sistema', async () => {
+  const { user } = setupClipboard()
+  const share = vi.fn().mockResolvedValue(undefined)
+  Object.defineProperty(navigator, 'canShare', { value: () => true, configurable: true })
+  Object.defineProperty(navigator, 'share', { value: share, configurable: true })
+  onTestFinished(() => {
+    delete (navigator as Partial<Navigator>).canShare
+    delete (navigator as Partial<Navigator>).share
+  })
+  const created: Blob[] = []
+  vi.stubGlobal('URL', class extends URL { static createObjectURL = (b: Blob) => { created.push(b); return 'blob:x' }; static revokeObjectURL = () => {} })
+  const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+  onTestFinished(() => click.mockRestore())
+  await renderLoaded(<EditorPage />)
+  await open(user, planFileText({ workout }))
+  await screen.findByDisplayValue('Peito')
+  await user.click(screen.getByRole('button', { name: 'Baixar arquivo' }))
+  expect(share).not.toHaveBeenCalled()
+  expect(click).toHaveBeenCalled()
+  expect((created[0] as File).name).toMatch(/^pump-treino-.*\.json$/)
+})

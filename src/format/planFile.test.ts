@@ -70,3 +70,10 @@ test('planFileName pelo que tem dentro', () => {
   expect(planFileName({ diet }, d)).toBe('pump-dieta-2026-11-23.json')
   expect(planFileName({ workout, diet }, d)).toBe('pump-plano-2026-11-23.json')
 })
+
+test('treino: exercício próprio "Supino (barra)" não vira o "Supino" do catálogo', async () => {
+  const cat: Exercise = { id: 'c1', name: 'Supino', muscles: ['peito'], equipment: 'barra', instructions: [], images: [] }
+  const mine: WorkoutPlan = { workouts: [{ ...workout.workouts[0], exercises: [{ ...workout.workouts[0].exercises[0], exerciseId: 'meu', name: 'Supino (barra)', custom: true }] }] }
+  const back = await readPlanFile(planFileText({ workout: mine }), { exercises: async () => [cat], taco: async () => [] })
+  expect(back.workout!.workouts[0].exercises[0].name).toBe('Supino (barra)')
+})

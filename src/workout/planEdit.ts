@@ -38,7 +38,8 @@ export const removeWorkout = (plan: EditorPlan, id: string): EditorPlan =>
 export function addWorkout(plan: EditorPlan): EditorPlan {
   const label = LETTERS[plan.workouts.length]
   if (!label) return plan
-  return { ...plan, workouts: [...plan.workouts, { id: crypto.randomUUID(), label, name: `Treino ${label}`, exercises: [] }] }
+  // relabel: plano antigo pode ter letra pulada (A, C) e a nova repetiria a última
+  return relabel({ ...plan, workouts: [...plan.workouts, { id: crypto.randomUUID(), label, name: `Treino ${label}`, exercises: [] }] })
 }
 
 /** `to.index` é a posição na lista de destino depois de tirar o item da origem */

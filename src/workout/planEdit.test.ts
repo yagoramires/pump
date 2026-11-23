@@ -67,3 +67,9 @@ test('muscleSplit conta por grupo, ignora cardio e ordena', () => {
   const exs = [pe({ muscles: ['peito'] }), pe({ muscles: ['tríceps'] }), pe({ muscles: ['peito'] }), pe({ muscles: ['quadríceps'], sets: 1, reps: '20 min' })]
   expect(muscleSplit(exs)).toEqual([{ token: 'c2', label: 'peito', count: 2 }, { token: 'c3', label: 'braços', count: 1 }])
 })
+
+test('addWorkout em plano antigo com letra pulada (A, C) não repete letra', () => {
+  const p = addWorkout(toEditor(planOf([{ id: 'a', label: 'A', name: 'Peito' }, { id: 'c', label: 'C', name: 'Pernas' }])))
+  expect(labels(p)).toEqual(['A', 'B', 'C'])
+  expect(names(p)).toEqual(['Peito', 'Pernas', 'Treino C'])
+})

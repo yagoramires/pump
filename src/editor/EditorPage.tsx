@@ -6,7 +6,7 @@ import { DietEditor } from '@/diet/DietEditor'
 import { planProblem as dietProblem } from '@/diet/dietFormat'
 import { FormatError } from '@/format/envelope'
 import { planFileName, planFileText, readPlanFile, type PlanFile } from '@/format/planFile'
-import { copy, shareFile } from '@/lib/share'
+import { copy, downloadFile } from '@/lib/share'
 import { PlanEditor } from '@/workout/PlanEditor'
 import { planProblem as workoutProblem } from '@/workout/planFormat'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
@@ -37,7 +37,10 @@ export function EditorPage() {
   const changed = !!(dirty.workout || dirty.diet)
   useEffect(() => {
     if (!changed) return
-    const warn = (e: BeforeUnloadEvent) => e.preventDefault()
+    const warn = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = '' // Safari antigo só pergunta com o returnValue legado
+    }
     window.addEventListener('beforeunload', warn)
     return () => window.removeEventListener('beforeunload', warn)
   }, [changed])
@@ -73,15 +76,15 @@ export function EditorPage() {
   const copyPlan = async () => {
     const f = exportable()
     if (!f) return
-    await copy(planFileText(f), 'Plano copiado. Importe no Pump pelo Converter.')
-    setDirty({})
+    if (await copy(planFileText(f), 'Plano copiado. Importe no Pump pelo Converter.')) setDirty({})
   }
 
-  const downloadPlan = async () => {
+  const downloadPlan = () => {
     const f = exportable()
     if (!f) return
     try {
-      if ((await shareFile(new File([planFileText(f)], planFileName(f), { type: 'application/json' }))) !== 'cancelled') setDirty({})
+      downloadFile(new File([planFileText(f)], planFileName(f), { type: 'application/json' }))
+      setDirty({})
     } catch (e) {
       console.error(e)
       toast.error('Não consegui gerar o arquivo. Tente de novo.')

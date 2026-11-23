@@ -14,7 +14,7 @@ import { FoodPicker } from './FoodPicker'
 import { DietItemCard } from './DietItemCard'
 import { macroSplit, moveFood } from './dietEdit'
 import { SortableItem } from '@/components/Sortable'
-import { LIFTED, PT_ANNOUNCEMENTS, useDragSensors } from '@/components/dnd'
+import { LIFTED, PT_ANNOUNCEMENTS, useDragSensors, useDragUndo } from '@/components/dnd'
 import { SplitBar } from '@/components/SplitBar'
 import { BottomBar } from '@/components/BottomBar'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -78,6 +78,7 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
   const [dragging, setDragging] = useState<string>()
   const sel = useSelection()
   const sensors = useDragSensors()
+  const undo = useDragUndo(plan, setPlan)
 
   // a web exporta o que está na tela: avisa toda mudança, menos o estado inicial
   const first = useRef(plan)
@@ -143,7 +144,9 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
   }
   const dragEnd = ({ active, over }: DragEndEvent) => {
     setDragging(undefined)
-    if (!over || active.id === over.id) return
+    if (!over) return undo.cancel()
+    undo.end()
+    if (active.id === over.id) return
     patchMenu((m) => {
       const from = locate(m, String(active.id))
       const to = locate(m, String(over.id))
@@ -201,10 +204,10 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
         sensors={sensors}
         collisionDetection={collision}
         accessibility={{ announcements: PT_ANNOUNCEMENTS }}
-        onDragStart={({ active }) => setDragging(String(active.id))}
+        onDragStart={({ active }) => { undo.start(); setDragging(String(active.id)) }}
         onDragOver={dragOver}
         onDragEnd={dragEnd}
-        onDragCancel={() => setDragging(undefined)}
+        onDragCancel={() => { undo.cancel(); setDragging(undefined) }}
       >
       <div className="@container">
       <div className="flex flex-col gap-3 @3xl:flex-row @3xl:items-start @3xl:overflow-x-auto @3xl:pb-2">

@@ -16,7 +16,7 @@ import { BackHeader } from '@/components/BackHeader'
 import { BottomBar } from '@/components/BottomBar'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { SortableItem } from '@/components/Sortable'
-import { LIFTED, PT_ANNOUNCEMENTS, useDragSensors } from '@/components/dnd'
+import { LIFTED, PT_ANNOUNCEMENTS, useDragSensors, useDragUndo } from '@/components/dnd'
 import { SplitBar } from '@/components/SplitBar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -50,6 +50,7 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
   const after = useRef<{ act: 'rename' | 'remove'; id: string }>(undefined)
   const sel = useSelection()
   const sensors = useDragSensors()
+  const undo = useDragUndo(plan, setPlan)
 
   // a web exporta o que está na tela: avisa toda mudança, menos o estado inicial
   const first = useRef(plan)
@@ -90,7 +91,9 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
 
   const dragEnd = ({ active, over }: DragEndEvent) => {
     setDragging(undefined)
-    if (!over || active.id === over.id) return
+    if (!over) return undo.cancel()
+    undo.end()
+    if (active.id === over.id) return
     const a = String(active.id)
     const o = String(over.id)
     setPlan((p) => {
@@ -146,10 +149,10 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
         sensors={sensors}
         collisionDetection={closestCorners}
         accessibility={{ announcements: PT_ANNOUNCEMENTS }}
-        onDragStart={({ active }: DragStartEvent) => setDragging(String(active.id))}
+        onDragStart={({ active }: DragStartEvent) => { undo.start(); setDragging(String(active.id)) }}
         onDragOver={dragOver}
         onDragEnd={dragEnd}
-        onDragCancel={() => setDragging(undefined)}
+        onDragCancel={() => { undo.cancel(); setDragging(undefined) }}
       >
         <SortableContext items={plan.workouts.map((w) => WID + w.id)} strategy={rectSortingStrategy}>
           <div className="flex flex-col gap-3 @3xl:flex-row @3xl:items-start @3xl:overflow-x-auto @3xl:pb-2">

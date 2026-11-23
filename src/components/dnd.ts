@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { KeyboardSensor, PointerSensor, useSensor, useSensors, type Announcements, type UniqueIdentifier } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 
@@ -22,3 +23,16 @@ export const PT_ANNOUNCEMENTS: Announcements = {
 
 /** item flutuando no DragOverlay: só levanta, nunca gira */
 export const LIFTED = 'border border-border-strong bg-raised shadow-lg'
+
+/** o onDragOver já muda o item de lista no meio do arrasto: Esc ou soltar fora de tudo voltam ao estado do começo */
+export function useDragUndo<T>(state: T, setState: (v: T) => void) {
+  const before = useRef<{ v: T }>(undefined)
+  return {
+    start: () => { before.current = { v: state } },
+    end: () => { before.current = undefined },
+    cancel: () => {
+      if (before.current) setState(before.current.v)
+      before.current = undefined
+    },
+  }
+}

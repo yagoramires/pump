@@ -1,7 +1,7 @@
 import type { CustomExercise, Exercise, PlanExercise, Workout, WorkoutPlan } from './types'
 import { normalize, str } from '@/lib/text'
 import { splitExerciseLine } from '@/catalog/exerciseLine'
-import { FormatError, headerProblems, readHalf, writeEnvelope } from '@/format/envelope'
+import { FROM_PUMP, FormatError, headerProblems, readHalf, writeEnvelope } from '@/format/envelope'
 import { isObj } from '@/lib/utils'
 import { inRange } from '@/lib/number'
 import { KG, REST_SEC, SETS } from './limits'
@@ -11,7 +11,7 @@ const PLAN_NOT_FOUND = 'Não encontrei um plano em JSON no texto'
 
 interface PumpExercicio { nome: string; series: number; reps: string; cargaKg?: number; descansoSeg?: number; obs?: string }
 interface PumpTreino { letra: string; nome: string; exercicios: PumpExercicio[] }
-type PumpPlano = { treinos: PumpTreino[]; ignoredDiet: boolean }
+type PumpPlano = { treinos: PumpTreino[]; ignoredDiet: boolean; fromPump?: boolean }
 
 type DraftRule = 'name' | 'empty' | 'reps'
 type Problem = (text: string, rule?: DraftRule, exercise?: number) => void
@@ -54,7 +54,7 @@ export const parsePlanFormat = (text: string): PumpPlano => readHalf(text, 'trei
   const seen = new Set<string>()
   const treinos = list.map((t: unknown, n) => parseTreino(t, n, seen, (text) => problems.push(text)))
   if (problems.length) throw new FormatError(problems)
-  return { treinos, ignoredDiet }
+  return { treinos, ignoredDiet, ...(raw.origem === FROM_PUMP.origem && { fromPump: true }) }
 })
 
 // a lista do catálogo traz "nome (equipamento)": só aceita o nome sem o parêntese final se ele for o equipamento do exercício achado
@@ -83,7 +83,8 @@ export function planFromFormat(
       name: t.nome,
       exercises: t.exercicios.map((x): PlanExercise => {
         const key = normalize(x.nome)
-        let found = known.get(key) ?? withEquipment(x.nome, fromCatalog)
+        // arquivo do Pump volta como saiu: "Supino (barra)" próprio não vira o "Supino" do catálogo
+        let found = known.get(key) ?? (f.fromPump ? undefined : withEquipment(x.nome, fromCatalog))
         if (!found) {
           found = newCustomExercise(x.nome, [], x.obs)
           known.set(key, found)
