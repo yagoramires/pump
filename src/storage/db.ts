@@ -14,6 +14,10 @@ const reads = new Map<Key, Promise<unknown>>()
 const listeners = new Map<Key, Set<() => void>>()
 const errorListeners = new Set<(message: string) => void>()
 let booted: Promise<void> | undefined
+// página do editor web: não pode ler nem gravar os dados do aparelho (só a memória da página)
+let memory = false
+
+export const memoryOnly = () => { memory = true }
 
 export class StorageReadError extends Error {}
 
@@ -21,6 +25,7 @@ export const resetStoreForTests = () => {
   cache.clear()
   reads.clear()
   booted = undefined
+  memory = false
 }
 
 const current = <K extends Key>(k: K): Value<K> => (cache.has(k) ? cache.get(k) : DEFAULTS[k]) as Value<K>
@@ -53,6 +58,11 @@ const tracked = <T>(p: Promise<T>): Promise<T> => {
 function readKey<K extends Key>(k: K): Promise<Value<K>> {
   const cached = reads.get(k)
   if (cached) return cached as Promise<Value<K>>
+  if (memory) {
+    const p = tracked(Promise.resolve(current(k)))
+    reads.set(k, p)
+    return p
+  }
   const p = tracked(get<Value<K>>(k, pumpStore).then(
     (v) => {
       if (!cache.has(k) && v !== undefined) cache.set(k, v)
@@ -82,6 +92,7 @@ export async function readCurrent<K extends Key>(k: K): Promise<Value<K>> {
 export function save<K extends Key>(k: K, v: Value<K>): Promise<void> {
   cache.set(k, v)
   notify(k)
+  if (memory) return Promise.resolve()
   return guarded(() => set(k, v, pumpStore))
 }
 
