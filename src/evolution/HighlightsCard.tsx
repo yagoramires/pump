@@ -12,7 +12,6 @@ function look(h: EvoHighlight) {
   return { Icon: ICON[h.trend ?? 'flat'], color: 'var(--c2)' }
 }
 
-/** até 3 frases do que mudou; sem nenhuma, o card some */
 export function HighlightsCard({ items }: { items: EvoHighlight[] }) {
   if (!items.length) return null
   return (

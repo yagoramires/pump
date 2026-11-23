@@ -12,9 +12,14 @@ import { PeriodTabs } from './PeriodTabs'
 
 type Tab = 'peso' | 'gordura' | 'medidas'
 const LABEL: Record<Tab, string> = { peso: 'Peso', gordura: 'Gordura', medidas: 'Medidas' }
+const METRIC = {
+  peso: { field: WEIGHT, chart: 'Gráfico de peso', more: 'peso' },
+  gordura: { field: FAT, chart: 'Gráfico de gordura', more: 'valor' },
+} as const
 
-function Metric({ row, points, range, onRange, today, chart }: { row?: BodyRow; points: Point[]; range: Period; onRange: (p: Period) => void; today: string; chart: string }) {
-  const field = row ?? (chart === 'Gráfico de peso' ? WEIGHT : FAT)
+function Metric({ tab, rows, points, range, onRange, today }: { tab: keyof typeof METRIC; rows: BodyRow[]; points: Point[]; range: Period; onRange: (p: Period) => void; today: string }) {
+  const { field, chart, more } = METRIC[tab]
+  const row = rows.find((r) => r.key === field.key)
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-2 px-3.5">
@@ -25,16 +30,17 @@ function Metric({ row, points, range, onRange, today, chart }: { row?: BodyRow; 
         <PeriodTabs value={range} onChange={onRange} options={PERIODS} label="Período do gráfico" />
       </div>
       <div className="px-3.5 pb-3 pt-2">
-        <LineChart points={points.filter((p) => inPeriod(range, p.date, today))} label={chart} empty={points.length >= 2 ? 'Poucos registros nesse período' : `Registre mais um ${chart === 'Gráfico de peso' ? 'peso' : 'valor'} pra ver o gráfico`} />
+        <LineChart points={points.filter((p) => inPeriod(range, p.date, today))} label={chart} empty={points.length >= 2 ? 'Poucos registros nesse período' : `Registre mais um ${more} pra ver o gráfico`} />
       </div>
     </>
   )
 }
 
-/** peso, gordura e medidas num card só; cada aba só existe com dado */
-export function BodyCard({ body, fat, range, onRange, today, onRegister }: { body: Report['body']; fat: Point[]; range: Period; onRange: (p: Period) => void; today: string; onRegister: () => void }) {
+export function BodyCard({ body, range, onRange, today, onRegister }: { body: Report['body']; range: Period; onRange: (p: Period) => void; today: string; onRegister: () => void }) {
   const weights = body?.weight ?? []
-  const rows = body?.rows.filter((r) => r.key !== WEIGHT.key && r.key !== FAT.key) ?? []
+  const fat = body?.fat ?? []
+  const all = body?.rows ?? []
+  const rows = all.filter((r) => r.key !== WEIGHT.key && r.key !== FAT.key)
   const tabs = ([weights.length && 'peso', fat.length && 'gordura', rows.length && 'medidas'] as const).filter((t): t is Tab => !!t)
   const [picked, setPicked] = useState<Tab>()
   const tab = picked && tabs.includes(picked) ? picked : tabs[0]
@@ -57,9 +63,9 @@ export function BodyCard({ body, fat, range, onRange, today, onRegister }: { bod
           </Tabs>
         ) : <CardTitle>{LABEL[tab]}</CardTitle>}
       </CardHeader>
-      {tab === 'peso' && <Metric row={body?.rows.find((r) => r.key === WEIGHT.key)} points={weights} range={range} onRange={onRange} today={today} chart="Gráfico de peso" />}
-      {tab === 'gordura' && <Metric row={body?.rows.find((r) => r.key === FAT.key)} points={fat} range={range} onRange={onRange} today={today} chart="Gráfico de gordura" />}
-      {tab === 'medidas' && <div className="pb-1">{rows.map((r) => <BodyRowLine key={r.key} row={r} />)}</div>}
+      {tab === 'medidas'
+        ? <div className="pb-1">{rows.map((r) => <BodyRowLine key={r.key} row={r} />)}</div>
+        : <Metric tab={tab} rows={all} points={tab === 'peso' ? weights : fat} range={range} onRange={onRange} today={today} />}
     </Card>
   )
 }

@@ -34,7 +34,6 @@ const CONFIRM = {
   diet: { title: 'Apagar dieta?', text: 'O que foi marcado na dieta deste dia some do histórico.' },
   water: { title: 'Apagar água?', text: 'A água registrada neste dia some do histórico.' },
   supplements: { title: 'Apagar suplementos?', text: 'Os suplementos marcados neste dia somem do histórico.' },
-  photo: { title: '', text: 'Esta foto é apagada do aparelho.' },
 }
 
 export function HistoryScreen({ onClose }: { onClose: () => void }) {
@@ -47,8 +46,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const { now, today } = useToday()
   const [month, setMonth] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1))
   const [day, setDay] = useState<string | undefined>(today)
-  const [confirm, setConfirm] = useState<keyof typeof CONFIRM>()
-  const [photoAngle, setPhotoAngle] = useState<Angle>()
+  const [confirm, setConfirm] = useState<{ title: string; text: string; run: () => void }>()
   const [editing, setEditing] = useState(false)
   const [capturing, setCapturing] = useState<Angle>()
   const descId = useId()
@@ -63,17 +61,8 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const records = (k: string) => dayRecords({ workoutLog: log, extraLog, dietLog: diet, waterLog: water, supplementLog: supLog, measurements: measures, photoSets: sets }, k)
   const { session: done, extra, rest, diet: meals, water: drank, supplements: sups, measurement: measure, photos, others } = day ? records(day) : {}
 
-  const remove = () => {
-    if (!day) return
-    if (confirm === 'diet') setDiet((prev) => resetDay(prev, day))
-    if (confirm === 'water') setWater((prev) => removeWaterDay(prev, day))
-    if (confirm === 'supplements') setSupLog((prev) => removeSupplementDay(prev, day))
-    if (confirm === 'measures') setMeasures((prev) => removeMeasurement(prev, day))
-    if (confirm === 'photos' && photos) removeSet(photos.id)
-    if (confirm === 'photo' && photoAngle) removeAngle(day, photoAngle)
-  }
+  const ask = (k: keyof typeof CONFIRM, run: () => void) => setConfirm({ ...CONFIRM[k], run })
   const label = (a: Angle) => ANGLE_LABEL[a].toLowerCase()
-  const confirmTitle = (k: keyof typeof CONFIRM) => (k === 'photo' && photoAngle ? `Apagar foto de ${label(photoAngle)}?` : CONFIRM[k].title)
 
   // a câmera ocupa a tela; ao voltar, o dia escolhido continua
   if (day && capturing) return <PhotoCapture date={day} angle={capturing} once onClose={() => setCapturing(undefined)} />
@@ -147,21 +136,21 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c1)"><Utensils size={16} aria-hidden="true" /></IconDot>
                   <DietDayLine day={meals} />
-                  <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('diet')}>Apagar dieta</Button>
+                  <Button type="button" variant="link" size="sm" className={DEL} onClick={() => ask('diet', () => setDiet((prev) => resetDay(prev, day)))}>Apagar dieta</Button>
                 </div>
               )}
               {drank && (
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c6)"><GlassWater size={16} aria-hidden="true" /></IconDot>
                   <div className="min-w-0 flex-1 text-body font-semibold text-strong tabular-nums">{`Água · ${formatDec(drank.ml / 1000)} L`}</div>
-                  <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('water')}>Apagar água</Button>
+                  <Button type="button" variant="link" size="sm" className={DEL} onClick={() => ask('water', () => setWater((prev) => removeWaterDay(prev, day)))}>Apagar água</Button>
                 </div>
               )}
               {sups && (
                 <div className={ROW}>
                   <IconDot size={32} color="var(--c4)"><Pill size={16} aria-hidden="true" /></IconDot>
                   <div className="min-w-0 flex-1 text-body font-semibold text-strong tabular-nums">{`Suplementos · ${sups.taken.length} de ${sups.total}`}</div>
-                  <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('supplements')}>Apagar suplementos</Button>
+                  <Button type="button" variant="link" size="sm" className={DEL} onClick={() => ask('supplements', () => setSupLog((prev) => removeSupplementDay(prev, day)))}>Apagar suplementos</Button>
                 </div>
               )}
               {measure && (
@@ -174,7 +163,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                     </div>
                   </div>
                   <Button type="button" variant="link" size="sm" className="shrink-0 px-1 text-meta text-accent" onClick={() => setEditing(true)}>Editar medidas</Button>
-                  <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('measures')}>Apagar medidas</Button>
+                  <Button type="button" variant="link" size="sm" className={DEL} onClick={() => ask('measures', () => setMeasures((prev) => removeMeasurement(prev, day)))}>Apagar medidas</Button>
                 </div>
               )}
               {photos && (
@@ -182,7 +171,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                   <div className="flex items-center gap-3">
                     <IconDot size={32} color="var(--c4)"><Camera size={16} aria-hidden="true" /></IconDot>
                     <span className="flex-1 text-body font-semibold text-strong">Fotos</span>
-                    <Button type="button" variant="link" size="sm" className={DEL} onClick={() => setConfirm('photos')}>Apagar fotos</Button>
+                    <Button type="button" variant="link" size="sm" className={DEL} onClick={() => ask('photos', () => removeSet(photos.id))}>Apagar fotos</Button>
                   </div>
                   <div className="mt-3 grid grid-cols-3 gap-2">
                     {ANGLES.map((a) => (
@@ -192,7 +181,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                             <span className="absolute inset-x-0 bottom-0 bg-bg/70 py-0.5 text-center text-caption font-normal text-text-2">{ANGLE_LABEL[a]}</span>
                           </PhotoThumb>
                         </Button>
-                        {photos[a] && <Button type="button" variant="link" size="sm" aria-label={`Apagar foto de ${label(a)}`} className={DEL} onClick={() => { setPhotoAngle(a); setConfirm('photo') }}>Apagar</Button>}
+                        {photos[a] && <Button type="button" variant="link" size="sm" aria-label={`Apagar foto de ${label(a)}`} className={DEL} onClick={() => setConfirm({ title: `Apagar foto de ${label(a)}?`, text: 'Esta foto é apagada do aparelho.', run: () => removeAngle(day, a) })}>Apagar</Button>}
                       </div>
                     ))}
                   </div>
@@ -205,8 +194,8 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
       </div>
 
       <ConfirmDialog
-        open={!!confirm} title={confirm ? confirmTitle(confirm) : ''} text={confirm ? CONFIRM[confirm].text : ''} confirm="Apagar" destructive
-        onConfirm={remove} onCancel={() => setConfirm(undefined)}
+        open={!!confirm} title={confirm?.title ?? ''} text={confirm?.text ?? ''} confirm="Apagar" destructive
+        onConfirm={() => confirm?.run()} onCancel={() => setConfirm(undefined)}
       />
       {editing && day && <MeasureDrawer date={day} onClose={() => setEditing(false)} />}
     </Overlay>

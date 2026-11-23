@@ -52,14 +52,13 @@ export const sessionStats = (s: WorkoutSession, now?: Date) => {
 const timeOf = (s: WorkoutSession) => s.completedAt ?? s.endedAt ?? s.startedAt ?? ''
 // a lista nunca é mutada (cada mudança gera outra): a ordem vale enquanto ela viver
 const newestCache = new WeakMap<WorkoutSession[], WorkoutSession[]>()
-/** mais recente primeiro, por data e depois hora */
 const newestFirst = (sessions: WorkoutSession[]) => {
   let list = newestCache.get(sessions)
   if (!list) newestCache.set(sessions, (list = [...sessions].sort((a, b) => b.date.localeCompare(a.date) || timeOf(b).localeCompare(timeOf(a)))))
   return list
 }
 
-/** índice da 1ª sessão de data anterior a `today` na lista mais-recente-primeiro (busca binária: listas longas no histórico) */
+/** índice da 1ª sessão de data anterior a `today` na lista mais-recente-primeiro */
 const firstBefore = (list: WorkoutSession[], today: string) => {
   let lo = 0
   let hi = list.length

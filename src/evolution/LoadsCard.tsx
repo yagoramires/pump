@@ -5,12 +5,9 @@ import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card'
 import { Item } from '@/components/ui/item'
 import type { WorkoutSession } from '@/workout/types'
 import { MeasureValue } from './Delta'
-import { MODE_TEXT, loadsSummary, type LoadRow, type Measure, type Tally } from './loads'
-import { PERIODS, type Period } from './chart'
+import { MODE_TEXT, loadsSummary, tallyText, type LoadRow, type Measure } from './loads'
+import { LOAD_PERIODS, type Period } from './chart'
 import { PeriodTabs } from './PeriodTabs'
-
-const LOAD_PERIODS = PERIODS.filter((p) => p.v !== '7')
-const tally = (t: Tally) => `↑ ${t.up} · ↓ ${t.down} · = ${t.same}`
 
 function Value({ m, row }: { m: Measure; row: LoadRow }) {
   const { unit } = MODE_TEXT[row.mode]
@@ -36,8 +33,8 @@ export function LoadsCard({ sessions, today, period, onPeriod, onOpen }: { sessi
       ) : (
         <>
           <div className="flex flex-col gap-1 px-3.5 pb-3 text-sm text-text-2">
-            <div className="flex justify-between"><span>{MODE_TEXT.load.top}</span><span className="tabular-nums">{tally(top)}</span></div>
-            <div className="flex justify-between"><span>{MODE_TEXT.load.total}</span><span className="tabular-nums">{tally(total)}</span></div>
+            <div className="flex justify-between"><span>{MODE_TEXT.load.top}</span><span className="tabular-nums">{tallyText(top)}</span></div>
+            <div className="flex justify-between"><span>{MODE_TEXT.load.total}</span><span className="tabular-nums">{tallyText(total)}</span></div>
           </div>
           {groups.map((g) => (
             <div key={g.token}>

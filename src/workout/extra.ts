@@ -1,5 +1,6 @@
 import { toPlanExercise } from './exercises'
 import { clearRest, isUnfinishedWorkout, startSession } from './session'
+import { isCardio } from './reps'
 import type { CustomExercise, Exercise, PlanExercise, WorkoutLog, WorkoutSession } from './types'
 
 export const EXTRA_ID = 'extra'
@@ -11,6 +12,28 @@ export const startExtra = (date: string, now = new Date()): WorkoutSession => ({
 
 export const startCardio = (date: string, exercises: PlanExercise[]) =>
   startSession({ id: CARDIO_ID, label: 'Cardio', name: 'Somente cardio', exercises }, date)
+
+// fora do catálogo: 1 série com a duração em `reps` é o que isCardio reconhece
+const cardioExercise = (exerciseId: string, name: string, reps: string): PlanExercise =>
+  ({ exerciseId, name, reps, sets: 1, weightKg: 0, restSec: 0, muscles: [], images: [], instructions: [] })
+
+export const CARDIO_ACTIVITIES = [
+  { exerciseId: 'cardio-bicicleta', name: 'Bicicleta' },
+  { exerciseId: 'cardio-corrida', name: 'Corrida' },
+  { exerciseId: 'cardio-caminhada', name: 'Caminhada' },
+  { exerciseId: 'cardio-esteira', name: 'Esteira' },
+  { exerciseId: 'cardio-eliptico', name: 'Elíptico' },
+  { exerciseId: 'cardio-escada', name: 'Escada' },
+]
+
+export const startFreeCardio = (date: string, minutes: number) => startCardio(date, [cardioExercise(CARDIO_ID, 'Cardio', `${minutes} min`)])
+
+export function switchCardio(s: WorkoutSession, idx: number, activity: { exerciseId: string; name: string }): WorkoutSession {
+  const e = s.exercises[idx]
+  if (!e || !isCardio(e) || e.name === activity.name) return s
+  const swapped = { ...cardioExercise(activity.exerciseId, activity.name, e.reps), sets: e.sets, skipped: e.skipped }
+  return { ...s, exercises: s.exercises.map((x, i) => (i === idx ? swapped : x)) }
+}
 
 export function addExtraExercise(s: WorkoutSession, e: Exercise | CustomExercise, sets: number): WorkoutSession {
   const { sets: _planSets, ...ex } = toPlanExercise(e)

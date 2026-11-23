@@ -1,12 +1,11 @@
 import type { DietLog, WaterLog } from '@/diet/types'
 import { formatDec } from '@/lib/number'
-import { dietStats30 as stats } from './dietStats'
+import { dietStats30 } from './dietStats'
 
 const ROW = 'flex items-center justify-between gap-3 border-t border-line px-3.5 py-2.5 text-sm'
 
-/** linhas da dieta dos últimos 30 dias, sem card em volta */
 export function DietRows({ log, water, today }: { log: DietLog; water: WaterLog; today: string }) {
-  const s = stats(log, water, today)
+  const s = dietStats30(log, water, today)
   const rows = s.days
     ? [
         s.avgKcal !== undefined && { label: 'Média de kcal', value: formatDec(s.avgKcal), goal: s.avgGoal && ` / ${formatDec(s.avgGoal)}` },

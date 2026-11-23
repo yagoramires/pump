@@ -9,17 +9,8 @@ import { formatDuration } from './summary'
 import { ExerciseThumb } from './ExerciseGroups'
 import { useMuscleLevels } from './useMuscleLevels'
 import { BodyMapCard } from './LazyBodyMap'
+import { Stat } from './Stat'
 
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <Card className="flex-1 items-center gap-0.5 px-2.5 py-3 text-center">
-      <div className="text-title font-bold text-strong tabular-nums">{value}</div>
-      <div className="label-caps">{label}</div>
-    </Card>
-  )
-}
-
-/** antes de iniciar: o que o treino vai trabalhar, quanto é e como foi da última vez */
 export function WorkoutPreview({ workout, sessions, today }: { workout: Workout; sessions: WorkoutSession[]; today: string }) {
   const levels = useMuscleLevels(workout.exercises)
   const sets = workout.exercises.reduce((a, e) => a + e.sets, 0)

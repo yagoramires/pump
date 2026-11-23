@@ -1,4 +1,6 @@
-import { risers } from './loads'
+import { loadsSummary } from './loads'
+
+const risers = (...a: Parameters<typeof loadsSummary>) => loadsSummary(...a).risers
 import { pe } from '../../test/helpers'
 import type { SessionExercise, WorkoutSession } from '../workout/types'
 

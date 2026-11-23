@@ -5,11 +5,13 @@ export const MUSCLE_GROUPS = new Map<string, string | undefined>([
   ['meio das costas', 'c6'], ['pescoço', undefined], ['quadríceps', 'c1'], ['ombros', 'c4'], ['trapézio', 'c6'], ['tríceps', 'c3'],
 ])
 
+export const OTHER_GROUP = 'c5'
+
 export const GROUPS: readonly { token: string; label: string }[] = [
   { token: 'c2', label: 'Peito' }, { token: 'c6', label: 'Costas' }, { token: 'c4', label: 'Ombros' }, { token: 'c3', label: 'Braços' },
-  { token: 'c1', label: 'Pernas' }, { token: 'c7', label: 'Abdômen' }, { token: 'c5', label: 'Outros' },
+  { token: 'c1', label: 'Pernas' }, { token: 'c7', label: 'Abdômen' }, { token: OTHER_GROUP, label: 'Outros' },
 ]
 
-export const muscleGroup = (muscles: string[]): string => muscles.map((m) => MUSCLE_GROUPS.get(m)).find(Boolean) ?? 'c5'
+export const muscleGroup = (muscles: string[]): string => muscles.map((m) => MUSCLE_GROUPS.get(m)).find(Boolean) ?? OTHER_GROUP
 
 export const muscleColor = (muscles: string[]): string => `var(--${muscleGroup(muscles)})`

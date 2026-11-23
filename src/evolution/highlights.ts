@@ -3,6 +3,7 @@ import { formatDec, formatKg } from '@/lib/number'
 import { completedSessions, exerciseHistory, loadPoints } from '@/workout/stats'
 import { exerciseMarks, type Mark } from '@/workout/summary'
 import { weeklyGoal } from '@/workout/week'
+import { since30 } from './chart'
 import { goalStreak } from './consistency'
 import { goalDirection, isGood } from './goal'
 import { fatSeries, series, type Point } from './measurements'
@@ -11,16 +12,17 @@ import type { EvolutionInput } from './types'
 export type EvoHighlight = { kind: 'record' | 'weight' | 'streak'; title: string; detail: string; trend?: 'down' | 'up' | 'flat' }
 
 const when = (date: string, today: string) => (date === today ? 'hoje' : date === addDays(today, -1) ? 'ontem' : formatDayMonth(date))
-/** último ponto até `date`, com a data real dele */
 const lastUpTo = (points: Point[], date: string) => points.filter((p) => p.date <= date).at(-1)
 
 function record(d: EvolutionInput, today: string): EvoHighlight | undefined {
   const sessions = completedSessions(d.sessions)
-  const from = addDays(today, -29)
+  const from = since30(today)
+  const recent = sessions.filter((x) => x.date >= from && x.date <= today).reverse()
   let best: { date: string; exerciseId: string; name: string; mark: Mark } | undefined
-  for (const s of sessions.filter((x) => x.date >= from && x.date <= today)) {
+  for (const s of recent) {
+    if (best && s.date < best.date) break
     for (const [exerciseId, { name, record: mark }] of exerciseMarks(d.sessions, s)) {
-      if (mark && (!best || s.date > best.date || (s.date === best.date && mark.kg > best.mark.kg))) best = { date: s.date, exerciseId, name, mark }
+      if (mark && (!best || mark.kg > best.mark.kg)) best = { date: s.date, exerciseId, name, mark }
     }
   }
   if (!best) return undefined
@@ -41,7 +43,8 @@ function record(d: EvolutionInput, today: string): EvoHighlight | undefined {
 function weight(d: EvolutionInput, today: string): EvoHighlight | undefined {
   const points = series(d.measurements, 'weightKg')
   const last = points.at(-1)
-  if (!last || points.length < 2 || last.date < addDays(today, -29)) return undefined
+  if (!last || points.length < 2 || last.date < since30(today)) return undefined
+  // pesagem mensal (o check-in): a base é a última até 30 dias atrás, mesmo antes da janela
   const base = lastUpTo(points, addDays(today, -30)) ?? points[0]
   if (base === last) return undefined
   const n = daysBetween(base.date, last.date)

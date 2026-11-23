@@ -42,7 +42,7 @@ function calcAll(sessions: WorkoutSession[], period: Period, today: string): Exe
     return {
       exerciseId, name: latest.name, mode, sessions: counted.length,
       top: measure(topPoints), total: measure(totalPoints),
-      group: GROUPS.find((g) => g.token === token) ?? GROUPS[GROUPS.length - 1],
+      group: GROUPS.find((g) => g.token === token)!,
       topPoints, totalPoints,
       history: entries.map(({ date, e }) => ({ date, sets: markedSets(e) })).reverse(),
     }
@@ -55,28 +55,28 @@ const tally = (rows: LoadRow[], key: 'top' | 'total'): Tally => {
   return t
 }
 
+export const tallyText = (t: Tally) => `↑ ${t.up} · ↓ ${t.down} · = ${t.same}`
+
+export interface RiserRow extends LoadRow { topPoints: Point[] }
+const toRow = ({ exerciseId, name, mode, sessions, top, total }: ExerciseLoads): LoadRow => ({ exerciseId, name, mode, sessions, top, total })
+
 export function loadsSummary(sessions: WorkoutSession[], period: Period, today: string) {
   const all = calcAll(sessions, period, today)
   const groups = GROUPS.map(({ token, label }) => ({
     token, label,
     rows: all.filter((c) => c.group.token === token)
-      .map(({ exerciseId, name, mode, sessions, top, total }): LoadRow => ({ exerciseId, name, mode, sessions, top, total }))
+      .map(toRow)
       .sort((a, b) => b.sessions - a.sessions || a.name.localeCompare(b.name, 'pt-BR')),
   })).filter((g) => g.rows.length)
   // o resumo fala em kg (carga máx., volume): exercício de reps não entra na conta
   const rows = groups.flatMap((g) => g.rows).filter((r) => r.mode === 'load')
-  return { top: tally(rows, 'top'), total: tally(rows, 'total'), groups }
-}
-
-export interface RiserRow extends LoadRow { topPoints: Point[] }
-
-/** exercícios de carga com maior subida da carga máx. no período */
-export const risers = (sessions: WorkoutSession[], period: Period, today: string, n = 3): RiserRow[] =>
-  calcAll(sessions, period, today)
+  const risers: RiserRow[] = all
     .filter((r) => r.mode === 'load' && (r.top.delta ?? 0) > 0)
     .sort((a, b) => (b.top.delta ?? 0) - (a.top.delta ?? 0))
-    .slice(0, n)
-    .map(({ exerciseId, name, mode, sessions: count, top, total, topPoints }) => ({ exerciseId, name, mode, sessions: count, top, total, topPoints }))
+    .slice(0, 3)
+    .map((r) => ({ ...toRow(r), topPoints: r.topPoints }))
+  return { top: tally(rows, 'top'), total: tally(rows, 'total'), groups, risers }
+}
 
-export const exerciseLoads =(sessions: WorkoutSession[], exerciseId: string, period: Period, today: string): ExerciseLoads | undefined =>
+export const exerciseLoads = (sessions: WorkoutSession[], exerciseId: string, period: Period, today: string): ExerciseLoads | undefined =>
   calcAll(sessions, period, today).find((x) => x.exerciseId === exerciseId)

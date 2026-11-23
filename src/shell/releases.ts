@@ -4,6 +4,15 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 13,
+    date: '2026-11-22',
+    novidades: [],
+    correcoes: [
+      'Descartar um treino esquecido que tinha começado num dia de descanso devolve o descanso daquele dia',
+      'A aba Evolução fica mais leve com histórico grande: as cargas que mais subiram e o recorde do mês são calculados uma vez só',
+    ],
+  },
+  {
     version: 12,
     date: '2026-11-22',
     novidades: ['No Histórico, edite as medidas de um dia e troque, adicione ou apague uma foto só.'],

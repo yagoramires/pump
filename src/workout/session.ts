@@ -9,7 +9,6 @@ export const markedSets = (e: SessionExercise) => e.sets.filter((set) => set !==
 export const hasMarkedSets = (s: WorkoutSession) => s.exercises.some(hasMarkedSet)
 export const hasMarkedSet = (e: SessionExercise) => e.sets.some(Boolean)
 export const isSkipped = (e: SessionExercise, i: number) => !!e.skipped?.includes(i)
-/** séries que ainda contam no treino em curso: a pulada sai do total */
 export const setsToDo = (e: SessionExercise) => e.sets.length - (e.skipped?.length ?? 0)
 export const isExerciseComplete = (e: SessionExercise) => e.sets.every((x, i) => x || isSkipped(e, i))
 export const allResolved = (s: WorkoutSession) => s.exercises.every(isExerciseComplete)
@@ -50,15 +49,6 @@ const withExercise = (s: WorkoutSession, exIdx: number, f: (e: SessionExercise) 
   ...s,
   exercises: s.exercises.map((e, i) => (i === exIdx ? f(e) : e)),
 })
-export function switchCardio(s: WorkoutSession, idx: number, activity: Pick<SessionExercise, 'exerciseId' | 'name'>): WorkoutSession {
-  const exercise = s.exercises[idx]
-  if (!exercise || !isCardio(exercise) || exercise.name === activity.name) return s
-
-  return withExercise(s, idx, ({ reps, sets, skipped }) => ({
-    ...activity, reps, sets, skipped, muscles: [], images: [], instructions: [], weightKg: 0, restSec: 0,
-  }))
-}
-
 const unskip = (e: SessionExercise, i: number) => (e.skipped ? { ...e, skipped: e.skipped.filter((j) => j !== i) } : e)
 
 /** marcar (v não nulo) uma série pulada tira o "pulada" */
