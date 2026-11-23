@@ -3,7 +3,7 @@ import { save } from '@/storage/db'
 import { loadPhoto, savePhoto } from '@/storage/photos'
 import { renderHookLoaded } from '../../test/render'
 import { stored } from '../../test/store'
-import { hasPhoto, photoCount, setAngle } from './photoSets'
+import { hasPhoto, photoCount, removeAngle, setAngle } from './photoSets'
 import { usePhotoSets } from './usePhotoSets'
 
 
@@ -34,4 +34,21 @@ test('usePhotoSets grava sobre o valor guardado: o que mudou depois do render n�
   act(() => void save('photoSets', [{ id: 'a', date: '2026-11-10', lado: 'p0' }]))
   act(() => stale('2026-11-17', 'frente', 'p1'))
   expect((await stored('photoSets'))?.map((s) => s.date)).toEqual(['2026-11-10', '2026-11-17'])
+})
+test('removeAngle tira só aquele ângulo e mantém os outros', () => {
+  const s = removeAngle([{ id: 'a', date: '2026-11-17', frente: 'p1', lado: 'p2' }], '2026-11-17', 'frente')
+  expect(s).toEqual([{ id: 'a', date: '2026-11-17', lado: 'p2' }])
+})
+test('removeAngle da última foto do dia remove o conjunto', () => {
+  expect(removeAngle([{ id: 'a', date: '2026-11-17', frente: 'p1' }, { id: 'b', date: '2026-11-10', lado: 'p3' }], '2026-11-17', 'frente'))
+    .toEqual([{ id: 'b', date: '2026-11-10', lado: 'p3' }])
+})
+test('usePhotoSets: apagar um ângulo apaga a foto do banco e mantém a outra', async () => {
+  const [front, side] = [await savePhoto('data:image/jpeg;base64,A'), await savePhoto('data:image/jpeg;base64,B')]
+  await save('photoSets', [{ id: 's', date: '2026-11-17', frente: front, lado: side }])
+  const h = await renderHookLoaded(() => usePhotoSets())
+  act(() => h.result.current.removeAngle('2026-11-17', 'frente'))
+  await waitFor(async () => expect(await loadPhoto(front)).toBeUndefined())
+  expect(await loadPhoto(side)).toBeDefined()
+  expect(await stored('photoSets')).toEqual([{ id: 's', date: '2026-11-17', lado: side }])
 })

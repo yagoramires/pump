@@ -100,3 +100,13 @@ test('mediaDevices sem getUserMedia: aviso da galeria', async () => {
   await renderLoaded(<PhotoCapture date="2026-11-17" onClose={vi.fn()} />)
   expect(await screen.findByText('Câmera indisponível — escolha da galeria.')).toBeInTheDocument()
 })
+test('foto avulsa (once): salva o ângulo pedido e fecha, sem passar pro próximo', async () => {
+  Object.defineProperty(navigator, 'mediaDevices', { value: undefined, configurable: true })
+  const user = userEvent.setup()
+  const onClose = vi.fn()
+  await renderLoaded(<PhotoCapture date="2026-11-10" angle="frente" once onClose={onClose} />)
+  await user.upload(await screen.findByLabelText('Escolher da galeria'), new File(['x'], 'a.jpg', { type: 'image/jpeg' }))
+  await user.click(await screen.findByRole('button', { name: 'Usar' }))
+  await waitFor(() => expect(onClose).toHaveBeenCalled())
+  expect((await stored('photoSets'))![0]).toMatchObject({ date: '2026-11-10', frente: expect.any(String) })
+})

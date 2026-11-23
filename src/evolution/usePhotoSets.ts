@@ -1,7 +1,7 @@
 import type { Angle, PhotoSet } from './types'
 import { usePersisted } from '@/storage/db'
 import { deletePhotos } from '@/storage/photos'
-import { photoIds, setAngle } from './photoSets'
+import { photoIds, removeAngle, setAngle } from './photoSets'
 
 /** para quem grava; quem só lê usa `usePersisted('photoSets')` */
 export function usePhotoSets() {
@@ -22,5 +22,6 @@ export function usePhotoSets() {
     sets,
     setAngle: (date: string, angle: Angle, photoId: string) => write((prev) => setAngle(prev, date, angle, photoId)),
     removeSet: (id: string) => write((prev) => prev.filter((s) => s.id !== id)),
+    removeAngle: (date: string, angle: Angle) => write((prev) => removeAngle(prev, date, angle)),
   }
 }
