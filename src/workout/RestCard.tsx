@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Chips } from '@/components/Chips'
 import { SheetBody } from '@/components/SheetRow'
+import { usePersisted } from '@/storage/db'
 import { beep } from './restTimer'
 import { restRemainingSeconds, type ActiveRest } from './session'
 import { restClock, restSecondsLabel } from './display'
@@ -26,6 +27,7 @@ type Props = {
 export function RestCard({ timer, totalSec, restSec, onExtend, onDone, onTogglePause, onPickDuration }: Props) {
   const [now, setNow] = useState(() => Date.now())
   const seenRunning = useRef(false)
+  const [{ muted }] = usePersisted('settings')
   const left = restRemainingSeconds(timer, now)
   const [initial] = useState(left)
 
@@ -39,10 +41,10 @@ export function RestCard({ timer, totalSec, restSec, onExtend, onDone, onToggleP
       seenRunning.current = true
       return
     }
-    if (seenRunning.current) beep()
+    if (seenRunning.current) beep(muted)
     seenRunning.current = false
     onDone()
-  }, [left, onDone])
+  }, [left, onDone, muted])
 
   if (left <= 0) return null
   const pct = (left / Math.max(totalSec ?? initial, left)) * 100

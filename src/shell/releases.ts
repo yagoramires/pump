@@ -4,6 +4,14 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 16,
+    date: '2026-11-23',
+    novidades: [
+      'Em Configurações > App, o interruptor "Som do descanso" desliga o bipe do fim do descanso. A vibração continua.',
+    ],
+    correcoes: [],
+  },
+  {
     version: 15,
     date: '2026-11-23',
     novidades: [
