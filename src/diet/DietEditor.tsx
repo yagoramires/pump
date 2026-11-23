@@ -36,7 +36,6 @@ import { useHoldUpdates } from '@/lib/holdUpdates'
 type Props = { initial: DietPlan; onSave?: (plan: DietPlan) => void; onCancel?: () => void; onChange?: (plan: DietPlan) => void }
 
 const MACRO_COLOR = { p: 'var(--color-plate-red)', c: 'var(--color-plate-yellow)', f: 'var(--color-plate-blue)' } as const
-const MACRO_WORD = { p: 'proteína', c: 'carboidrato', f: 'gordura' } as const
 const TAB = 'tab:'
 // a aba da opção é pequena: o que está debaixo do ponteiro ganha; fora de tudo, o mais perto
 const collision: CollisionDetection = (args) => { const hit = pointerWithin(args); return hit.length ? hit : closestCorners(args) }
@@ -208,15 +207,15 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
               {meal.options.length < MAX_OPTIONS && <Button variant="ghost" size="icon" className="text-accent" aria-label={`Adicionar opção na refeição ${mi + 1}`} onClick={() => addOption(meal)}><Plus aria-hidden="true" /></Button>}
               <span className="ml-auto text-caption tabular-nums text-text-2">{kcal} kcal</span>
             </div>
-            <SplitBar parts={macros.map((x) => ({ color: MACRO_COLOR[x.key], value: x.kcal }))} legend={macros.map((x) => `${MACRO_WORD[x.key]} ${Math.round(x.grams)} g`).join(', ')} />
+            <SplitBar parts={macros.map((x) => ({ color: MACRO_COLOR[x.key], value: x.kcal }))} legend={macros.map((x) => `${MACRO_LABELS[x.key].toLowerCase()} ${Math.round(x.grams)} g`).join(', ')} />
             <div className="flex items-center gap-2">
               <Input className="min-w-0 flex-1" aria-label={`Nome da opção da refeição ${mi + 1}`} placeholder={`Nome da opção ${optionLetter(oi)} (opcional)`} autoComplete="off" value={opt.name ?? ''} onChange={(e) => patchOption(meal.id, oi, (o) => ({ ...o, name: e.target.value || undefined }))} />
               {meal.options.length > 1 && <Button variant="outline" size="icon" aria-label={`Remover opção ${optionLetter(oi)} da refeição ${mi + 1}`} onClick={() => removeOption(meal, oi)}><Trash2 aria-hidden="true" /></Button>}
             </div>
             <SortableContext items={opt.items.map((it) => it.id)} strategy={verticalListSortingStrategy}>
-              <div className="flex min-h-11 flex-col gap-2" data-option={opt.id}>
+              <div className="flex min-h-11 flex-col gap-2">
                 {opt.items.map((it) => (
-                  <SortableItem key={it.id} id={it.id} label={it.name} data={{ optionId: opt.id }}>
+                  <SortableItem key={it.id} id={it.id} label={it.name}>
                     {({ handle }) => (
                       <DietItemCard
                         item={it}

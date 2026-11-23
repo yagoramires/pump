@@ -56,7 +56,7 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
     setPlan((p) => ({ ...p, workouts: p.workouts.map((w) => ({ ...w, exercises: w.exercises.filter((e) => !keys.has(e.key)) })) }))
 
   const locate = (p: EditorPlan, id: string) => {
-    if (id.startsWith(WID)) return { wid: id.slice(WID.length), index: -1 }
+    if (id.startsWith(WID)) return { wid: id.slice(WID.length), index: Infinity }
     for (const w of p.workouts) {
       const index = w.exercises.findIndex((e) => e.key === id)
       if (index >= 0) return { wid: w.id, index }
@@ -70,9 +70,7 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
     setPlan((p) => {
       const from = locate(p, a)
       const to = locate(p, String(over.id))
-      if (!from || !to || from.wid === to.wid) return p
-      const size = p.workouts.find((w) => w.id === to.wid)!.exercises.length
-      return moveExercise(p, from, { wid: to.wid, index: to.index < 0 ? size : to.index })
+      return from && to && from.wid !== to.wid ? moveExercise(p, from, to) : p
     })
   }
 
@@ -89,7 +87,7 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
       }
       const from = locate(p, a)
       const to = locate(p, o)
-      if (!from || !to || from.wid !== to.wid || to.index < 0) return p
+      if (!from || !to || from.wid !== to.wid || to.index === Infinity) return p
       return moveExercise(p, from, to)
     })
   }

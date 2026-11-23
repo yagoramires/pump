@@ -227,7 +227,7 @@ test('Selecionar remove vários alimentos com confirmação', async () => {
 
 test('a barrinha mostra os macros da opção aberta', async () => {
   await renderLoaded(<DietEditor initial={{ menus: [{ id: 'A', name: 'Base', meals: [{ id: 'm1', name: 'Almoço', time: '12:00', options: [{ id: 'o1', items: [arroz] }] }] }] }} onSave={vi.fn()} onCancel={vi.fn()} />)
-  expect(await screen.findByText('proteína 10 g, carboidrato 20 g, gordura 5 g')).toBeInTheDocument()
+  expect(await screen.findByText('proteína 10 g, carbo 20 g, gordura 5 g')).toBeInTheDocument()
 })
 
 test('cada alimento tem a alça de arrastar fora do modo seleção', async () => {

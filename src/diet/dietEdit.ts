@@ -1,6 +1,6 @@
 import type { DietItem, MealOption, Menu } from './types'
 import { MAX_ITEMS } from './limits'
-import { macrosOf } from './food'
+import { MACRO_KEYS, macrosOf } from './food'
 
 type At = { optionId: string; index: number }
 
@@ -29,5 +29,5 @@ const KCAL_PER_G = { p: 4, c: 4, f: 9 } as const
 
 export const macroSplit = (items: DietItem[]): { key: 'p' | 'c' | 'f'; grams: number; kcal: number }[] => {
   const m = macrosOf(items)
-  return (['p', 'c', 'f'] as const).map((key) => ({ key, grams: m[key], kcal: m[key] * KCAL_PER_G[key] }))
+  return MACRO_KEYS.map((key) => ({ key, grams: m[key], kcal: m[key] * KCAL_PER_G[key] }))
 }

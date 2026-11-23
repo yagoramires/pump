@@ -6,23 +6,21 @@ import { KG, SETS } from './limits'
 import { useFieldProps } from './useFieldProps'
 import { Button } from '@/components/ui/button'
 import { PillNumber, PillText } from '@/components/Pill'
-import { cn } from '@/lib/utils'
 
 /** cartão do editor: miniatura e nome abrem a gaveta (descanso, observação, remover); séries, reps e carga se editam aqui */
-export function PlanExerciseCard({ ex, onChange, onOpen, onPreview, checkbox, handle, className }: {
+export function PlanExerciseCard({ ex, onChange, onOpen, onPreview, checkbox, handle }: {
   ex: PlanExercise
   onChange: (patch: Partial<PlanExercise>) => void
   onOpen: () => void
   onPreview?: () => void
   checkbox?: ReactNode
   handle?: ReactNode
-  className?: string
 }) {
   const fieldProps = useFieldProps()
   const cardio = isCardio(ex)
   const image = ex.images[0]
   return (
-    <div className={cn('flex items-center gap-2 rounded-lg bg-surface py-2 pr-1 pl-2', className)}>
+    <div className="flex items-center gap-2 rounded-lg bg-surface py-2 pr-1 pl-2">
       {checkbox}
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <div className="flex min-w-0 items-center">

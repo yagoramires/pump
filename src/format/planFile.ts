@@ -2,7 +2,6 @@ import type { Exercise, TacoFood } from '@/catalog/types'
 import type { DietPlan } from '@/diet/types'
 import type { WorkoutPlan } from '@/workout/types'
 import { dietaOf, dietFromFormat, parseDietFormat } from '@/diet/dietFormat'
-import { preparePlan } from '@/diet/plan'
 import { parsePlanFormat, planFromFormat, treinosOf } from '@/workout/planFormat'
 import { todayKey } from '@/lib/date'
 import { FROM_PUMP, FormatError, halvesIn, writeEnvelope } from './envelope'
@@ -11,7 +10,7 @@ import { FROM_PUMP, FormatError, halvesIn, writeEnvelope } from './envelope'
 export type PlanFile = { workout?: WorkoutPlan; diet?: DietPlan }
 
 export const planFileText = ({ workout, diet }: PlanFile): string =>
-  writeEnvelope({ ...FROM_PUMP, ...(workout && { treinos: treinosOf(workout) }), ...(diet && { dieta: dietaOf(preparePlan(diet)) }) })
+  writeEnvelope({ ...FROM_PUMP, ...(workout && { treinos: treinosOf(workout) }), ...(diet && { dieta: dietaOf(diet) }) })
 
 /** o que os seletores de arquivo aceitam: o .json exportado, ou o texto que a IA mandou */
 export const PLAN_FILE_ACCEPT = '.json,application/json,text/plain'

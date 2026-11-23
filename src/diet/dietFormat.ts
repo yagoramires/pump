@@ -5,7 +5,7 @@ import { isObj } from '@/lib/utils'
 import { inRange, round1 } from '@/lib/number'
 import { GOAL_KCAL, GRAMS, HHMM, MACRO_G, MAX_ITEMS, MAX_KCAL_PER_100G, MAX_MACRO_PER_100G, MAX_MEALS, MAX_MENUS, MAX_OPTIONS } from './limits'
 import { matchFood } from './match'
-import { normalizeMealTime } from './plan'
+import { normalizeMealTime, preparePlan } from './plan'
 import { asFood, fromTaco, hasValues } from './food'
 
 const DIET_NOT_FOUND = 'Não encontrei um cardápio em JSON no texto'
@@ -171,7 +171,7 @@ const encodeMenu = (menu: Menu): PumpCardapio => ({
   })),
 })
 
-export const dietaOf = (plan: DietPlan) => ({ cardapios: plan.menus.map(encodeMenu) })
+export const dietaOf = (plan: DietPlan) => ({ cardapios: preparePlan(plan).menus.map(encodeMenu) })
 
 export function exportDietFormat(plan: DietPlan): string {
   return writeEnvelope({ dieta: dietaOf(plan) })
