@@ -18,3 +18,13 @@ export function reloadWhenFree() {
 }
 
 export const reloadPending = () => pending
+
+/** botão "Atualizar app": procura versão nova e recarrega; sem internet a busca falha, mas o reload sai do precache */
+export async function updateNow() {
+  try {
+    await (await navigator.serviceWorker?.getRegistration())?.update()
+  } catch {
+    // sem rede ou sem service worker: recarrega mesmo assim
+  }
+  location.reload()
+}

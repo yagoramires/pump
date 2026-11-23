@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { RotateCcw, Ruler, Share2, Sparkles, Upload, User } from 'lucide-react'
+import { RefreshCw, RotateCcw, Ruler, Share2, Sparkles, Upload, User } from 'lucide-react'
 import { usePersisted } from '@/storage/db'
 import { formatDayMonth, todayKey } from '@/lib/date'
 import { ChangelogList } from './Changelog'
@@ -19,6 +19,7 @@ import { DietSettings } from '@/diet/DietSettings'
 import { BackupRestore } from '@/backup/BackupRestore'
 import { daysSinceBackup, sendBackup } from '@/backup/backup'
 import { Alert } from '@/components/ui/alert'
+import { updateNow } from '@/lib/holdUpdates'
 
 const BUILT_AT = new Date(import.meta.env.VITE_BUILT_AT).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
 /** hash do commit e hora do build mudam a cada deploy: dá pra ver se a versão nova já entrou */
@@ -67,6 +68,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
           icon={<Sparkles size={18} aria-hidden="true" />} color="var(--c3)" title="Novidades" sub={`Atualizado em ${formatDayMonth(CHANGELOG[0].date)}`}
           onClick={() => setView(<><BackHeader title="Novidades" onBack={back} /><ChangelogList /></>)}
         />
+        <SettingsRow icon={<RefreshCw size={18} aria-hidden="true" />} color="var(--c3)" title="Atualizar app" sub="Busca a versão nova e recarrega" onClick={() => void updateNow()} />
       </SettingsSection>
       <Alert role="note" className="mt-2.5">Seus dados ficam só neste aparelho. Envie um backup de vez em quando.</Alert>
       <Card size="flush" className="mt-2.5">
