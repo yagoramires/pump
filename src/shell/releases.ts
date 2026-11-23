@@ -4,6 +4,17 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 14,
+    date: '2026-11-23',
+    novidades: [
+      'Visual novo: interface mais limpa, fonte nova e texto um pouco maior. O verde agora quer dizer só "feito": série marcada, refeição comida, recorde.',
+      'Os grupos musculares ganharam as cores das anilhas: peito vermelho, costas azul, pernas amarelo, ombros verde e braços branco.',
+      'Modo claro: em Configurações > Aparência, escolha Escuro, Claro ou seguir o aparelho.',
+      'Botão "Atualizar app" em Configurações busca a versão nova e recarrega na hora.',
+    ],
+    correcoes: [],
+  },
+  {
     version: 13,
     date: '2026-11-22',
     novidades: [],
