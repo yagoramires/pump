@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#13161b" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#13161b" />
-    <!-- bloqueante de propósito: o tema precisa estar no <html> antes da primeira pintura -->
-    <script src="/theme-boot.js"></script>
+    <!-- o vite.config troca pelo conteúdo de src/shell/theme-boot.js: o tema precisa estar no <html> antes da primeira pintura, sem esperar a rede -->
+    <script data-theme-boot></script>
     <title>Pump · Editor</title>
   </head>
   <body>

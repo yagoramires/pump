@@ -247,3 +247,17 @@ test('com onChange não mostra Salvar nem Apagar todos e avisa cada mudança', a
   await user.type(g, '150')
   expect(onChange.mock.calls.at(-1)![0].menus[0].meals[0].options[0].items[1].grams).toBe(150)
 })
+
+test('itens marcados em cardápios diferentes saem todos', async () => {
+  const user = setup()
+  const onChange = vi.fn()
+  await renderLoaded(<DietEditor initial={plan()} onChange={onChange} />)
+  await user.click(await screen.findByRole('button', { name: 'Selecionar' }))
+  await user.click(screen.getByRole('checkbox', { name: 'Selecionar Meu shake' }))
+  await user.click(screen.getByRole('button', { name: 'Dia de treino' }))
+  await user.click(screen.getByRole('checkbox', { name: 'Selecionar Pão francês' }))
+  await user.click(screen.getByRole('button', { name: 'Remover (2)' }))
+  await user.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Remover' }))
+  const last: DietPlan = onChange.mock.calls.at(-1)![0]
+  expect(last.menus.flatMap((m) => m.meals.flatMap((ml) => ml.options.flatMap((o) => o.items)))).toEqual([])
+})

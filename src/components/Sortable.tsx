@@ -7,9 +7,9 @@ import { cn } from '@/lib/utils'
 
 type HandleProps = { label: string } & Record<string, unknown>
 
-function DragHandle({ label, className, ...rest }: HandleProps & { className?: string }) {
+function DragHandle({ label, ...rest }: HandleProps) {
   return (
-    <Button type="button" variant="ghost" size="icon" aria-label={label} className={cn('cursor-grab touch-none text-faint', className)} {...rest}>
+    <Button type="button" variant="ghost" size="icon" aria-label={label} className="cursor-grab touch-none text-faint" {...rest}>
       <GripVertical size={20} aria-hidden="true" />
     </Button>
   )

@@ -149,7 +149,7 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
                                   onChange={(patch) => patchEx(e.key, patch)}
                                   onOpen={() => setEditing(e.key)}
                                   onPreview={() => setPreview(e)}
-                                  checkbox={sel.on && <Checkbox aria-label={`Selecionar ${e.name}`} checked={sel.selected.has(e.key)} onCheckedChange={() => sel.toggle(e.key)} />}
+                                  checkbox={sel.on && <Checkbox size="check" aria-label={`Selecionar ${e.name}`} checked={sel.selected.has(e.key)} onCheckedChange={() => sel.toggle(e.key)} />}
                                   handle={!sel.on && exHandle}
                                 />
                               )}
@@ -180,7 +180,7 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
         <ExerciseDrawer
           ex={ee}
           onChange={(next) => patchEx(ee.key, next)}
-          onRemove={() => { removeKeys(new Set([ee.key])); setEditing(undefined) }}
+          onRemove={() => { removeKeys(new Set([ee.key])); if (sel.selected.has(ee.key)) sel.toggle(ee.key); setEditing(undefined) }}
           onClose={() => setEditing(undefined)}
         />
       )}

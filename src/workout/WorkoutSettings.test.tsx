@@ -41,9 +41,18 @@ test('Ajustar com IA: clipboard negado mostra o erro', async () => {
 })
 
 test('Exportar plano abre a gaveta com Copiar e Gerar arquivo', async () => {
+  await save('workoutPlan', planWith([{ name: 'Remada curvada (barra)' }]))
   const user = userEvent.setup()
   await renderLoaded(<Settings />)
   await user.click(await screen.findByRole('button', { name: /Exportar plano/ }))
   expect(await screen.findByRole('button', { name: 'Copiar' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Gerar arquivo' })).toBeInTheDocument()
+})
+
+test('Exportar plano sem plano montado avisa em vez de gerar um arquivo que não abre', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<><Settings /><Toaster /></>)
+  await user.click(await screen.findByRole('button', { name: /Exportar plano/ }))
+  expect(await screen.findByText('Monte o plano antes de exportar.')).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Copiar' })).not.toBeInTheDocument()
 })

@@ -170,3 +170,13 @@ test('com onChange não mostra Salvar e avisa cada mudança', async () => {
   await user.click(await screen.findByRole('button', { name: 'Novo treino' }))
   expect(onChange.mock.calls.at(-1)![0].workouts).toHaveLength(4)
 })
+
+test('remover pela gaveta um exercício marcado tira ele da contagem da seleção', async () => {
+  const user = userEvent.setup()
+  await renderLoaded(<PlanEditor initial={ppl()} onSave={vi.fn()} onCancel={vi.fn()} />)
+  await user.click(await screen.findByRole('button', { name: 'Selecionar' }))
+  await user.click(screen.getByRole('checkbox', { name: 'Selecionar Supino reto' }))
+  await user.click(screen.getByRole('button', { name: 'Supino reto' }))
+  await user.click(screen.getByRole('button', { name: 'Remover' }))
+  expect(await screen.findByRole('button', { name: 'Remover (0)' })).toBeDisabled()
+})

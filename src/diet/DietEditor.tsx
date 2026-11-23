@@ -136,9 +136,16 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
       if (!from || !to || (from.optionId === to.optionId && to.index === Infinity)) return m
       return moveFood(m, from, to)
     })
+    // solto na aba de outra opção: mostra essa opção, senão o alimento só some da tela
+    const tab = String(over.id)
+    if (!tab.startsWith(TAB)) return
+    const optionId = tab.slice(TAB.length)
+    const meal = menu.meals.find((ml) => ml.options.some((o) => o.id === optionId))
+    if (meal) setOptOf((s) => ({ ...s, [meal.id]: meal.options.findIndex((o) => o.id === optionId) }))
   }
+  // em todos os cardápios: a seleção continua ligada quando se troca de cardápio
   const removeItems = (ids: Set<string>) =>
-    patchMenu((m) => ({ ...m, meals: m.meals.map((ml) => ({ ...ml, options: ml.options.map((o) => ({ ...o, items: o.items.filter((it) => !ids.has(it.id)) })) })) }))
+    setPlan((p) => ({ ...p, menus: p.menus.map((m) => ({ ...m, meals: m.meals.map((ml) => ({ ...ml, options: ml.options.map((o) => ({ ...o, items: o.items.filter((it) => !ids.has(it.id)) })) })) })) }))
   const draggedItem = drag.dragging ? menu.meals.flatMap((m) => m.options).flatMap((o) => o.items).find((it) => it.id === drag.dragging) : undefined
 
   return (
@@ -221,7 +228,7 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
                         item={it}
                         onChange={(patch) => patchItems(meal.id, oi, (xs) => xs.map((x) => (x.id === it.id ? { ...x, ...patch } : x)))}
                         onRemove={() => patchItems(meal.id, oi, (xs) => xs.filter((x) => x.id !== it.id))}
-                        checkbox={sel.on && <Checkbox aria-label={`Selecionar ${it.name}`} checked={sel.selected.has(it.id)} onCheckedChange={() => sel.toggle(it.id)} />}
+                        checkbox={sel.on && <Checkbox size="check" aria-label={`Selecionar ${it.name}`} checked={sel.selected.has(it.id)} onCheckedChange={() => sel.toggle(it.id)} />}
                         handle={!sel.on && handle}
                       />
                     )}
