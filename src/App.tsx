@@ -69,7 +69,7 @@ function Shell() {
       {banner}
       <PreviewSync />
       {backupDays !== undefined && (
-        <div className="mx-auto mt-3 max-w-md px-4"><Alert variant="accent" role="status" className="flex items-center gap-2 py-1 pr-1">
+        <div className="mx-auto mt-3 max-w-md px-4"><Alert variant="info" role="status" className="flex items-center gap-2 py-1 pr-1">
           <span className="flex-1">{`Faz ${backupDays} dias sem backup`}</span>
           <Button type="button" variant="link" size="sm" className="text-accent" onClick={sendBackup}>Enviar backup</Button>
         </Alert></div>

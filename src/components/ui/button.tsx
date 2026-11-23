@@ -17,8 +17,8 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-hover hover:text-strong",
         ghost:
           "font-medium hover:bg-hover",
-        // nav: item da barra de abas; ativo = cor + barrinha no topo, hover neutro e mais leve que o ativo
-        nav: "relative text-micro font-medium text-faint after:absolute after:inset-x-6 after:top-0 after:h-0.5 after:rounded-full after:bg-accent after:opacity-0 hover:bg-hover/50 hover:text-text aria-[current=page]:text-accent aria-[current=page]:after:opacity-100 aria-[current=page]:hover:bg-transparent",
+        // nav: item da barra de abas; o ativo ganha texto forte e a pílula atrás do ícone (BottomNav)
+        nav: "relative text-caption font-semibold text-text-2 hover:bg-transparent hover:text-strong aria-[current=page]:text-strong",
         // link: ação de texto sem caixa no hover; o ::after estende o alvo de toque pra 44px sem desenhar nada
         link: "relative rounded-sm font-medium text-primary underline-offset-4 after:absolute after:-inset-x-2 after:-inset-y-3 after:content-[''] hover:underline",
       },

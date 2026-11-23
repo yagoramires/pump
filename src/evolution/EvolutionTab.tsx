@@ -107,7 +107,7 @@ export function EvolutionTab() {
   if (!training.workouts && !input.measurements.length && !input.photoSets.length && !report.hasDiet) {
     return (
       <div className="flex flex-col gap-2.5">
-        <TabHeader eyebrow="Evolução" />
+        <TabHeader title="Evolução" />
         {cards}
         <EmptyState icon={<TrendingUp size={30} aria-hidden="true" />} title="Sua evolução começa aqui">
           <p className="max-w-64 text-sm text-text-2">Registre peso, medidas e fotos pra acompanhar.</p>

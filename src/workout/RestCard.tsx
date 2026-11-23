@@ -62,7 +62,7 @@ export function RestCard({ timer, totalSec, restSec, onExtend, onDone, onToggleP
             <b className="text-title leading-none font-bold text-accent tabular-nums">{restClock(left, true)}</b>
             <span className="text-caption text-text-2 tabular-nums">de {restClock(restSec)}</span>
           </div>
-          <Progress value={pct} aria-label="Descanso restante" className="h-1 bg-line" />
+          <Progress value={pct} aria-label="Descanso restante" className="h-1 bg-surface" />
         </div>
         <Button variant="outline" size="icon-sm" aria-label={timer.paused ? 'Continuar descanso' : 'Pausar descanso'} onClick={onTogglePause}>
           {timer.paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}

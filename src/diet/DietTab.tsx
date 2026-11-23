@@ -45,7 +45,7 @@ export function DietTab() {
   if (!day || !plan.menus.length) {
     return (
       <>
-        <TabHeader eyebrow="Dieta" />
+        <TabHeader title="Dieta" />
         <DietStart hint="Um cardápio pra seguir no dia a dia. Dá pra mudar quando quiser." />
         <SupplementsCard />
       </>

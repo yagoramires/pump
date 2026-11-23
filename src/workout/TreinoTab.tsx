@@ -213,7 +213,7 @@ export function TreinoTab() {
   if (rest && !chosenId && !extraOpen) {
     return (
       <div className="flex flex-col gap-2.5">
-        <TabHeader eyebrow={formatDayLabel(today)} actions={actions} />
+        <TabHeader eyebrow={formatDayLabel(today)} title="Treino" actions={actions} />
         {unresolved}
         {extraDone}
         <EmptyState icon={<Moon size={30} aria-hidden="true" />} title="Descanso marcado">

@@ -140,7 +140,7 @@ export function DoneSummary({ session, sessions, next, onChange }: { session: Wo
           {onChange && openSettings && <Button variant="link" size="sm" className="h-auto p-0 text-accent" onClick={openSettings}>Ajustar meta</Button>}
         </div>
         <div className="text-body font-semibold text-strong tabular-nums">{days >= goal ? `Meta da semana batida · ${days} de ${goal}` : `${days} de ${goal} treinos na semana`}</div>
-        <Progress value={Math.min(100, (days / goal) * 100)} aria-label="Treinos na semana" className="h-1.5 bg-line" />
+        <Progress value={Math.min(100, (days / goal) * 100)} aria-label="Treinos na semana" className="h-1.5 bg-surface" />
       </Card>
 
       <BodyMapCard levels={levels} />
