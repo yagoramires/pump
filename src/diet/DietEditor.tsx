@@ -151,7 +151,7 @@ export function DietEditor({ initial, onSave, onCancel, onChange }: Props) {
   return (
     <div className="flex flex-col gap-3 pb-6">
       {onSave && (
-        <BackHeader title="Cardápio" onBack={() => onCancel?.()} label="Cancelar">
+        <BackHeader title="Editar dieta" onBack={() => onCancel?.()} label="Cancelar">
           <Button size="sm" onClick={save}>Salvar</Button>
         </BackHeader>
       )}

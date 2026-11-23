@@ -20,7 +20,7 @@ export function DietSettings({ open }: { open: OpenView }) {
   const back = () => open()
   return (
     <>
-      <SettingsRow icon={<Utensils size={18} aria-hidden="true" />} color="var(--c7)" title="Cardápio" onClick={() => open(<DietEditor initial={dietPlan} onSave={(next) => { replacePlan(next); back() }} onCancel={back} />)} />
+      <SettingsRow icon={<Utensils size={18} aria-hidden="true" />} color="var(--c7)" title="Editar dieta" onClick={() => open(<DietEditor initial={dietPlan} onSave={(next) => { replacePlan(next); back() }} onCancel={back} />)} />
       <AiPlanRows file={() => ({ diet: dietPlan })} adjustPrompt={() => buildDietAdjustPrompt(dietPlan)} onImport={(mode) => open(<DietImport mode={mode} onDone={back} onBack={back} />)} />
       <SettingsRow icon={<Droplet size={18} aria-hidden="true" />} color="var(--color-info)" title="Água" sub={on ? `${liters(on.goalMl)} L por dia` : 'Desligada'} onClick={() => open(<><BackHeader title="Água" onBack={back} /><WaterSettings /></>)} />
       <SettingsRow icon={<Pill size={18} aria-hidden="true" />} color="var(--c4)" title="Suplementos" sub={n ? `${n} ${n === 1 ? 'suplemento' : 'suplementos'}` : 'Nenhum'} onClick={() => open(<SupplementSettings open={open} />)} />

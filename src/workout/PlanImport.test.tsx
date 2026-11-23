@@ -88,7 +88,7 @@ test('Editar abre o editor; Salvar grava o plano e os exercícios novos', async 
   await user.paste(JSON.stringify({ formato: 'pump-plano', versao: 1, treinos: [{ letra: 'A', nome: 'Peito', dias: ['seg'], exercicios: [{ nome: 'Remada X', series: 3, reps: '10' }] }] }))
   await screen.findByText('1 treino · 1 exercício')
   await user.click(screen.getByRole('button', { name: 'Editar' }))
-  expect(await screen.findByRole('heading', { name: 'Editar plano' })).toBeInTheDocument()
+  expect(await screen.findByRole('heading', { name: 'Editar treino' })).toBeInTheDocument()
   expect(await stored('workoutPlan')).toBeUndefined()
   await user.click(screen.getByRole('button', { name: 'Salvar' }))
   expect(onDone).toHaveBeenCalled()

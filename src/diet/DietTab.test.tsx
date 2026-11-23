@@ -52,7 +52,7 @@ test('sem cardápio mostra o convite com os 3 caminhos', async () => {
   expect(await screen.findByRole('heading', { name: 'Converter dieta' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Voltar' }))
   await user.click(await screen.findByRole('button', { name: 'Do zero' }))
-  expect(await screen.findByRole('heading', { name: 'Cardápio' })).toBeInTheDocument()
+  expect(await screen.findByRole('heading', { name: 'Editar dieta' })).toBeInTheDocument()
   expect(screen.getByRole('textbox', { name: 'Nome da refeição 1' })).toHaveValue('Refeição 1')
 })
 
@@ -223,8 +223,8 @@ test('menu ⋯: dia livre e trocar cardápio com confirmação', async () => {
   expect((await stored('dietLog'))?.[TODAY]).toBeUndefined()
   expect(await screen.findByRole('checkbox', { name: 'Café feita' })).not.toBeChecked()
 
-  await user.click(within(await more(user)).getByRole('button', { name: 'Editar cardápio' }))
-  expect(await screen.findByRole('heading', { name: 'Cardápio' })).toBeInTheDocument()
+  await user.click(within(await more(user)).getByRole('button', { name: 'Editar dieta' }))
+  expect(await screen.findByRole('heading', { name: 'Editar dieta' })).toBeInTheDocument()
 })
 
 test('trocar item só hoje não muda o cardápio', async () => {
@@ -349,7 +349,7 @@ test('editar e salvar o cardápio não grava o dia (B7)', async () => {
   await seedStore({ dietPlan: plan })
   const user = userEvent.setup()
   await renderLoaded(<DietTab />)
-  await user.click(within(await more(user)).getByRole('button', { name: 'Editar cardápio' }))
+  await user.click(within(await more(user)).getByRole('button', { name: 'Editar dieta' }))
   await user.click(await screen.findByRole('button', { name: 'Salvar' }))
   expect(await screen.findByRole('list', { name: 'Refeições' })).toBeInTheDocument()
   expect((await stored('dietPlan'))?.lastMenuId).toBe('A')

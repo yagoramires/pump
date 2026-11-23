@@ -170,7 +170,7 @@ export function DietTab() {
                     {plan.menus.length > 1 && <SheetRow icon={<ListChecks size={18} className="text-accent" aria-hidden="true" />} label="Cardápio de hoje" onClick={() => setSheet('menus')} />}
                     <SheetRow icon={<Sparkles size={18} className="text-accent" aria-hidden="true" />} label={day.free ? 'Desfazer dia livre' : 'Dia livre'} onClick={() => { setSheet(undefined); act(toggleDayFree) }} />
                     <SheetRow icon={<ShoppingCart size={18} className="text-accent" aria-hidden="true" />} label="Lista de compras" onClick={() => { setSheet(undefined); setShopping(true) }} />
-                    <SheetRow icon={<Pencil size={18} className="text-accent" aria-hidden="true" />} label="Editar cardápio" onClick={() => { setSheet(undefined); setEditing(true) }} />
+                    <SheetRow icon={<Pencil size={18} className="text-accent" aria-hidden="true" />} label="Editar dieta" onClick={() => { setSheet(undefined); setEditing(true) }} />
                   </ul></Card>
                 </>
               )}

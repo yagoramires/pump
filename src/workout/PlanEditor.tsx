@@ -110,7 +110,7 @@ export function PlanEditor({ initial, onSave, onCancel, onChange }: Props) {
   return (
     <div className="@container flex flex-col gap-3 pb-6">
       {onSave && (
-        <BackHeader title="Editar plano" onBack={() => onCancel?.()} label="Cancelar">
+        <BackHeader title="Editar treino" onBack={() => onCancel?.()} label="Cancelar">
           <Button size="sm" onClick={save}>Salvar</Button>
         </BackHeader>
       )}
