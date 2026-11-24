@@ -742,6 +742,19 @@ describe('resumo do treino concluído', () => {
     expect(screen.queryByLabelText('Recorde')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Editar séries' })).toBeInTheDocument()
   })
+  test('Próximo treino abre a lista do treino seguinte com a carga de hoje', async () => {
+    const supinoNoB = { ...wB, exercises: [plano.workouts[0].exercises[0], ...wB.exercises] }
+    await save('workoutPlan', { workouts: [plano.workouts[0], supinoNoB] })
+    await save('workoutLog', { ...logOntem('2026-11-15T20:00:00.000Z'), '2026-11-16': hoje('2026-11-16T20:00:00.000Z') })
+    const user = userEvent.setup()
+    await renderLoaded(<TreinoTab />)
+    expect(await screen.findByText('Treino concluído')).toBeInTheDocument()
+    expect(screen.queryByText('Remada curvada')).not.toBeInTheDocument() // começa recolhido
+    await user.click(screen.getByRole('button', { name: /Próximo treino/ }))
+    expect(screen.getByText('Remada curvada')).toBeInTheDocument()
+    expect(screen.getByText('2 × 10 · 45 kg')).toBeInTheDocument() // hoje (45), não ontem (40) nem o plano
+    expect(screen.getByText('2 × 10 · 30 kg')).toBeInTheDocument()
+  })
   test('concluir pede o esforço: Puxado grava 9; no resumo troca pra Na medida e o 2º toque remove', async () => {
     await save('workoutPlan', plano2)
     await save('workoutLog', { ...logOntem('2026-11-15T20:00:00.000Z'), '2026-11-16': hoje() })

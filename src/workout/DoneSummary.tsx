@@ -17,6 +17,7 @@ import { Stat } from './Stat'
 import { hasMarkedSet, markedSets } from './session'
 import { useMuscleLevels } from './useMuscleLevels'
 import { BodyMapCard } from './LazyBodyMap'
+import { WorkoutExercises } from './WorkoutPreview'
 import { isCardio } from './reps'
 import { DurationSheet } from './DurationSheet'
 import { ScoreSheet } from './ScoreSheet'
@@ -183,10 +184,19 @@ export function DoneSummary({ session, sessions, next, onChange }: { session: Wo
       <Button variant="outline" className="w-full" onClick={() => setSheet(share())}><Share2 aria-hidden="true" /> Compartilhar</Button>
 
       {next && (
-        <Card className="flex-row items-center gap-3 py-3">
-          <span className="size-2 rounded-full bg-accent" aria-hidden="true" />
-          <div className="text-meta text-text-2">Próximo treino<div className="text-body font-semibold text-strong">{`${next.label} · ${next.name}`}</div></div>
-        </Card>
+        <Collapsible asChild>
+          <Card size="flush" className="gap-0">
+            <CollapsibleTrigger className="group flex min-h-12 items-center gap-3 px-3.5 py-3 text-left">
+              <span className="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+              <span className="min-w-0 flex-1 text-meta text-text-2">Próximo treino<span className="block text-body font-semibold text-strong">{`${next.label} · ${next.name}`}</span></span>
+              <ChevronDown size={18} className="shrink-0 text-faint transition-transform group-data-[state=open]:rotate-180" aria-hidden="true" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="border-t border-line">
+              {/* dia seguinte: a carga sugerida já conta o treino de hoje */}
+              <WorkoutExercises workout={next} sessions={sessions} today={addDays(session.date, 1)} />
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
       )}
 
       {sheet === 'duration' && onChange && <DurationSheet minutes={stats.minutes ?? 60} onSave={(min) => { onChange(withMinutes(session, min)); setSheet(undefined) }} onClose={() => setSheet(undefined)} />}
