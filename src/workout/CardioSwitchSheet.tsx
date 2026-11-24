@@ -1,24 +1,41 @@
-import { HeartPulse } from 'lucide-react'
+import { HeartPulse, ListChecks, Trophy } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { SheetBody, SheetRow } from '@/components/SheetRow'
-import { CARDIO_ACTIVITIES } from './extra'
+import { CARDIO_ACTIVITIES, SPORT_ACTIVITIES, type Activity } from './extra'
 
+const GROUPS = [
+  { title: 'Cardio', items: CARDIO_ACTIVITIES, icon: <HeartPulse aria-hidden="true" /> },
+  { title: 'Esportes', items: SPORT_ACTIVITIES, icon: <Trophy aria-hidden="true" /> },
+]
 
-export function CardioSwitchSheet({ onPick, onClose }: { onPick: (activity: typeof CARDIO_ACTIVITIES[number]) => void; onClose: () => void }) {
+/** planned: atalho para o cardio que já está na ficha */
+export function CardioSwitchSheet({ title = 'Trocar atividade', planned, onPick, onPlanned, onClose }: { title?: string; planned?: string; onPick: (activity: Activity) => void; onPlanned?: () => void; onClose: () => void }) {
   return (
     <Drawer open onOpenChange={(open) => !open && onClose()}>
       <DrawerContent>
         <SheetBody>
-          <DrawerTitle className="pb-1 text-title font-semibold text-strong">Trocar cardio</DrawerTitle>
+          <DrawerTitle className="pb-1 text-title font-semibold text-strong">{title}</DrawerTitle>
           <DrawerDescription className="pb-3 text-meta text-text-2">Escolha a atividade para este treino</DrawerDescription>
-          <Card variant="inset" size="flush">
-            <ul>
-              {CARDIO_ACTIVITIES.map((activity) => (
-                <SheetRow key={activity.exerciseId} label={activity.name} icon={<HeartPulse aria-hidden="true" />} onClick={() => onPick(activity)} />
-              ))}
-            </ul>
-          </Card>
+          <div className="flex flex-col gap-3">
+            {planned && onPlanned && (
+              <Card variant="inset" size="flush">
+                <ul><SheetRow label={planned} icon={<ListChecks aria-hidden="true" />} onClick={onPlanned} /></ul>
+              </Card>
+            )}
+            {GROUPS.map((g) => (
+              <section key={g.title} aria-label={g.title} className="flex flex-col gap-1.5">
+                <h3 className="text-meta text-text-2">{g.title}</h3>
+                <Card variant="inset" size="flush">
+                  <ul>
+                    {g.items.map((activity) => (
+                      <SheetRow key={activity.exerciseId} label={activity.name} icon={g.icon} onClick={() => onPick(activity)} />
+                    ))}
+                  </ul>
+                </Card>
+              </section>
+            ))}
+          </div>
         </SheetBody>
       </DrawerContent>
     </Drawer>

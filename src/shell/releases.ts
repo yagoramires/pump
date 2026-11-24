@@ -4,6 +4,15 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 18,
+    date: '2026-11-24',
+    novidades: [
+      'Toque numa foto da Evolução, do Comparar ou do Histórico para ver ela grande. Na escolha das datas do Comparar, cada dia mostra uma miniatura.',
+      '"Somente cardio" virou "Cardio ou esporte": além do cardio, dá pra registrar futebol, tênis, beach tennis, padel, vôlei, basquete, natação e luta.',
+    ],
+    correcoes: [],
+  },
+  {
     version: 17,
     date: '2026-11-23',
     novidades: [

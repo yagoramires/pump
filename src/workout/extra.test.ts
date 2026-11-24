@@ -1,6 +1,6 @@
 import { ex, pe } from '../../test/helpers'
 import type { WorkoutLog, WorkoutSession } from './types'
-import { addExtraExercise, removeExercise, startExtra, trainingSessions, unfinishedExtra } from './extra'
+import { addExtraExercise, removeExercise, startActivity, startCardio, startExtra, switchCardio, trainingSessions, unfinishedExtra } from './extra'
 import { completedSessions, previousSets } from './stats'
 
 const done = (date: string, id = 'w', marked = true): WorkoutSession => ({
@@ -40,4 +40,13 @@ test('unfinishedExtra', () => {
   expect(unfinishedExtra({ '2026-11-21': open('2026-11-21', true) }, '2026-11-21')).toBeUndefined()
   expect(unfinishedExtra({ '2026-11-20': open('2026-11-20', false) }, '2026-11-21')).toBeUndefined()
   expect(unfinishedExtra({ '2026-11-20': open('2026-11-20', true) }, '2026-11-21')?.date).toBe('2026-11-20')
+})
+
+test('trocar a atividade de uma sessão avulsa troca o nome do treino junto', () => {
+  const futebol = startActivity('2026-11-21', { exerciseId: 'esporte-futebol', name: 'Futebol' }, 60)
+  expect(futebol).toMatchObject({ workoutName: 'Futebol', exercises: [{ name: 'Futebol', reps: '60 min' }] })
+  const tenis = switchCardio(futebol, 0, { exerciseId: 'esporte-tenis', name: 'Tênis' })
+  expect(tenis).toMatchObject({ workoutName: 'Tênis', exercises: [{ name: 'Tênis', reps: '60 min' }] })
+  const ficha = startCardio('2026-11-21', [pe({ exerciseId: 'esteira', name: 'Esteira', sets: 1, reps: '15 min' })])
+  expect(switchCardio(ficha, 0, { exerciseId: 'esporte-tenis', name: 'Tênis' }).workoutName).toBe('Somente cardio')
 })
