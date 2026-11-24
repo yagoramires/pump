@@ -10,8 +10,8 @@ export const startExtra = (date: string, now = new Date()): WorkoutSession => ({
   date, startedAt: now.toISOString(), workoutId: EXTRA_ID, workoutLabel: 'Extra', workoutName: 'Treino extra', exercises: [],
 })
 
-export const startCardio = (date: string, exercises: PlanExercise[]) =>
-  startSession({ id: CARDIO_ID, label: 'Cardio', name: 'Somente cardio', exercises }, date)
+export const startCardio = (date: string, exercises: PlanExercise[], name = 'Somente cardio') =>
+  startSession({ id: CARDIO_ID, label: 'Cardio', name, exercises }, date)
 
 // fora do catálogo: 1 série com a duração em `reps` é o que isCardio reconhece
 const cardioExercise = (exerciseId: string, name: string, reps: string): PlanExercise =>
@@ -26,13 +26,31 @@ export const CARDIO_ACTIVITIES = [
   { exerciseId: 'cardio-escada', name: 'Escada' },
 ]
 
-export const startFreeCardio = (date: string, minutes: number) => startCardio(date, [cardioExercise(CARDIO_ID, 'Cardio', `${minutes} min`)])
+// registrados como cardio: uma série com a duração, sem carga nem músculo
+export const SPORT_ACTIVITIES = [
+  { exerciseId: 'esporte-futebol', name: 'Futebol' },
+  { exerciseId: 'esporte-tenis', name: 'Tênis' },
+  { exerciseId: 'esporte-beach-tennis', name: 'Beach tennis' },
+  { exerciseId: 'esporte-padel', name: 'Padel' },
+  { exerciseId: 'esporte-volei', name: 'Vôlei' },
+  { exerciseId: 'esporte-basquete', name: 'Basquete' },
+  { exerciseId: 'esporte-natacao', name: 'Natação' },
+  { exerciseId: 'esporte-luta', name: 'Luta' },
+]
 
-export function switchCardio(s: WorkoutSession, idx: number, activity: { exerciseId: string; name: string }): WorkoutSession {
+export type Activity = { exerciseId: string; name: string }
+
+/** sessão avulsa de uma atividade só: o nome do treino é o da atividade */
+export const startActivity = (date: string, activity: Activity, minutes: number) =>
+  startCardio(date, [cardioExercise(activity.exerciseId, activity.name, `${minutes} min`)], activity.name)
+
+export function switchCardio(s: WorkoutSession, idx: number, activity: Activity): WorkoutSession {
   const e = s.exercises[idx]
   if (!e || !isCardio(e) || e.name === activity.name) return s
   const swapped = { ...cardioExercise(activity.exerciseId, activity.name, e.reps), sets: e.sets, skipped: e.skipped }
-  return { ...s, exercises: s.exercises.map((x, i) => (i === idx ? swapped : x)) }
+  // a sessão avulsa leva o nome da atividade; trocar a atividade troca o nome junto
+  const workoutName = s.workoutId === CARDIO_ID && s.workoutName === e.name ? activity.name : s.workoutName
+  return { ...s, workoutName, exercises: s.exercises.map((x, i) => (i === idx ? swapped : x)) }
 }
 
 export function addExtraExercise(s: WorkoutSession, e: Exercise | CustomExercise, sets: number): WorkoutSession {

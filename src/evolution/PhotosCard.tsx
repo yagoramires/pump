@@ -23,13 +23,13 @@ export function PhotosCard({ report, sets, onNew, onCompare }: { report: Report;
         <div className="grid grid-cols-2 gap-2 px-3.5 pb-3.5">
           {[pair.before, pair.after].map((p) => {
             const caption = `${formatDayMonth(p.date)} · ${ANGLE_LABEL[pair.angle]}`
-            return <PhotoThumb key={p.id} id={p.id} alt={caption} className={CAPTION}><span className="relative">{caption}</span></PhotoThumb>
+            return <PhotoThumb key={p.id} id={p.id} alt={caption} className={CAPTION} zoom><span className="relative">{caption}</span></PhotoThumb>
           })}
         </div>
       ) : (
         <div className="grid grid-cols-3 gap-2 px-3.5 pb-3.5">
           {ANGLES.map((angle) => (
-            <PhotoThumb key={angle} id={report.lastSet?.[angle]} alt={`Foto de ${angle}`} className={CAPTION}>
+            <PhotoThumb key={angle} id={report.lastSet?.[angle]} alt={`Foto de ${angle}`} className={CAPTION} zoom>
               <span className="relative">{ANGLE_LABEL[angle]}</span>
             </PhotoThumb>
           ))}

@@ -39,7 +39,7 @@ import { PastWorkouts } from './PastWorkouts'
 import { DoneSummary } from './DoneSummary'
 import { WorkoutPreview } from './WorkoutPreview'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { addExtraExercise, CARDIO_ID, removeExercise, startCardio, startExtra, startFreeCardio, switchCardio, unfinishedExtra } from './extra'
+import { addExtraExercise, CARDIO_ID, removeExercise, startActivity, startCardio, startExtra, switchCardio, unfinishedExtra, type Activity } from './extra'
 import { useTrainingLog } from './useTrainingLog'
 import { AddExtraExercise } from './AddExtraExercise'
 import { EffortSheet } from './EffortSheet'
@@ -62,7 +62,8 @@ export function TreinoTab() {
   const [extraSummary, setExtraSummary] = useState(false)
   const [adding, setAdding] = useState(false)
   const [discarding, setDiscarding] = useState(false)
-  const [pickingCardio, setPickingCardio] = useState(false)
+  // 'list' = escolhendo a atividade; depois, a atividade escolhida espera a duração
+  const [pickingCardio, setPickingCardio] = useState<'list' | Activity>()
   const [cardioIdx, setCardioIdx] = useState<number>()
   const [concluding, setConcluding] = useState(false)
   const [preview, setPreview] = useState<number>()
@@ -82,7 +83,7 @@ export function TreinoTab() {
       setChosenId(undefined)
       setOpenIdx('auto')
       setDiscarding(false)
-      setPickingCardio(false)
+      setPickingCardio(undefined)
       setCardioIdx(undefined)
     }
   }
@@ -127,18 +128,22 @@ export function TreinoTab() {
     setExtraLog((prev) => (prev[today] ? prev : { ...prev, [today]: started }))
     setOpenIdx('auto')
   }
-  const pickCardio = () => {
-    const planned = workout?.exercises.filter(isCardio)
-    if (planned?.length) startExtraToday(startCardio(today, planned))
-    else setPickingCardio(true)
-  }
+  const planned = workout?.exercises.filter(isCardio)
   const cardioButton = !extra && (
-    <Button variant="outline" className="w-full" onClick={pickCardio}><HeartPulse aria-hidden="true" /> Somente cardio</Button>
+    <Button variant="outline" className="w-full" onClick={() => setPickingCardio('list')}><HeartPulse aria-hidden="true" /> Cardio ou esporte</Button>
   )
-  const cardioPicker = pickingCardio && (
-    <DurationSheet minutes={20} title="Duração do cardio" saveLabel="Iniciar cardio" onClose={() => setPickingCardio(false)} onSave={(minutes) => {
-      startExtraToday(startFreeCardio(today, minutes))
-      setPickingCardio(false)
+  const cardioPicker = pickingCardio === 'list' ? (
+    <CardioSwitchSheet
+      title="Cardio ou esporte"
+      planned={planned?.length ? `Cardio do treino ${workout?.label}` : undefined}
+      onPlanned={() => { if (planned?.length) startExtraToday(startCardio(today, planned)); setPickingCardio(undefined) }}
+      onPick={setPickingCardio}
+      onClose={() => setPickingCardio(undefined)}
+    />
+  ) : pickingCardio && (
+    <DurationSheet minutes={pickingCardio.exerciseId.startsWith('esporte-') ? 60 : 20} title={pickingCardio.name} saveLabel="Iniciar" onClose={() => setPickingCardio(undefined)} onSave={(minutes) => {
+      startExtraToday(startActivity(today, pickingCardio, minutes))
+      setPickingCardio(undefined)
     }} />
   )
   const actions = <>{!extra && <Button variant="link" size="sm" className="text-accent" onClick={() => startExtraToday(startExtra(today))}><Plus aria-hidden="true" />Treino extra</Button>}{pastLink}</>
@@ -362,8 +367,8 @@ export function TreinoTab() {
                     <Checkbox size="check" className="mr-1.5" checked={!!e.sets[0]} aria-label={`${e.name} feito`} onCheckedChange={() => toggleCardio(i)} />
                     {canEditExtraExercises && <Button variant="ghost" size="icon" className="text-negative hover:text-negative" aria-label={`Remover ${e.name}`} onClick={() => removeAt(i)}><Trash2 aria-hidden="true" /></Button>}
                   </div>
-                  <Button variant="ghost" size="sm" className="self-end text-accent" aria-label={`Trocar cardio (${e.name})`} onClick={() => setCardioIdx(i)}>
-                    <ArrowLeftRight aria-hidden="true" /> Trocar cardio
+                  <Button variant="ghost" size="sm" className="self-end text-accent" aria-label={`Trocar atividade (${e.name})`} onClick={() => setCardioIdx(i)}>
+                    <ArrowLeftRight aria-hidden="true" /> Trocar atividade
                   </Button>
                 </Card>
               )
