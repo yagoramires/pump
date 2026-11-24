@@ -4,6 +4,14 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 19,
+    date: '2026-11-24',
+    novidades: [
+      'Na tela de treino concluído, toque em "Próximo treino" para ver os exercícios dele, com séries e a carga sugerida.',
+    ],
+    correcoes: [],
+  },
+  {
     version: 18,
     date: '2026-11-24',
     novidades: [

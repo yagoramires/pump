@@ -25,22 +25,25 @@ export function WorkoutPreview({ workout, sessions, today }: { workout: Workout;
       </div>
       {last && <p className="text-center text-meta text-text-2">{`Último treino ${workout.label} em ${formatDayMonth(last.date)}`}</p>}
       <BodyMapCard levels={levels} />
-      <Card size="flush" className="gap-0">
-        {workout.exercises.map((e, i) => {
-          const cardio = isCardio(e)
-          // a carga que a tela do treino já vai sugerir: a da última vez, ou a do plano
-          const kg = suggestedKg(e, previousSets(sessions, today, e.exerciseId, nthOccurrence(workout.exercises, i)))
-          return (
-            <div key={i} className="flex items-center gap-3 border-t border-line px-3.5 py-2.5 first:border-t-0">
-              <ExerciseThumb muscles={e.muscles} image={e.images[0]} cardio={cardio} />
-              <span className="min-w-0 flex-1">
-                <span className="block text-body font-semibold break-words text-strong">{e.name}</span>
-                <span className="block text-meta text-text-2 tabular-nums">{cardio ? e.reps : `${e.sets} × ${e.reps}${kg > 0 ? ` · ${formatKg(kg)} kg` : ''}`}</span>
-              </span>
-            </div>
-          )
-        })}
-      </Card>
+      <Card size="flush" className="gap-0"><WorkoutExercises workout={workout} sessions={sessions} today={today} /></Card>
     </>
   )
+}
+
+/** `today` exclusivo: a carga sugerida vem das sessões antes dele */
+export function WorkoutExercises({ workout, sessions, today }: { workout: Workout; sessions: WorkoutSession[]; today: string }) {
+  return workout.exercises.map((e, i) => {
+    const cardio = isCardio(e)
+    // a carga que a tela do treino já vai sugerir: a da última vez, ou a do plano
+    const kg = suggestedKg(e, previousSets(sessions, today, e.exerciseId, nthOccurrence(workout.exercises, i)))
+    return (
+      <div key={i} className="flex items-center gap-3 border-t border-line px-3.5 py-2.5 first:border-t-0">
+        <ExerciseThumb muscles={e.muscles} image={e.images[0]} cardio={cardio} />
+        <span className="min-w-0 flex-1">
+          <span className="block text-body font-semibold break-words text-strong">{e.name}</span>
+          <span className="block text-meta text-text-2 tabular-nums">{cardio ? e.reps : `${e.sets} × ${e.reps}${kg > 0 ? ` · ${formatKg(kg)} kg` : ''}`}</span>
+        </span>
+      </div>
+    )
+  })
 }
