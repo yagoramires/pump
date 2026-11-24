@@ -29,7 +29,7 @@ export function PhotosCard({ report, sets, onNew, onCompare }: { report: Report;
       ) : (
         <div className="grid grid-cols-3 gap-2 px-3.5 pb-3.5">
           {ANGLES.map((angle) => (
-            <PhotoThumb key={angle} id={report.lastSet?.[angle]} alt={`Foto de ${angle}`} className={CAPTION} zoom>
+            <PhotoThumb key={angle} id={report.lastSet?.[angle]} alt={report.lastSet ? `${formatDayMonth(report.lastSet.date)} · ${ANGLE_LABEL[angle]}` : ANGLE_LABEL[angle]} className={CAPTION} zoom>
               <span className="relative">{ANGLE_LABEL[angle]}</span>
             </PhotoThumb>
           ))}

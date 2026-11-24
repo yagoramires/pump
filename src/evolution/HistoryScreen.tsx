@@ -28,6 +28,7 @@ import { PhotoThumb } from './PhotoThumb'
 
 const ROW = 'flex items-center gap-3 border-t border-line px-3.5 py-2.5 first:border-t-0'
 const DEL = 'shrink-0 px-1 text-meta text-destructive hover:text-destructive'
+const NO_PHOTO = <Camera size={18} className="absolute inset-0 m-auto text-faint" />
 const angleTag = (a: Angle) => <span className="absolute inset-x-0 bottom-0 bg-bg/70 py-0.5 text-center text-caption font-normal text-text-2">{ANGLE_LABEL[a]}</span>
 const CONFIRM = {
   measures: { title: 'Apagar medidas?', text: 'As medidas deste dia somem do histórico e dos gráficos.' },
@@ -179,7 +180,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                       <div key={a} className="flex flex-col items-center gap-1">
                         {photos[a] ? (
                           <>
-                            <PhotoThumb id={photos[a]} alt={`Foto de ${label(a)}`} className="w-full rounded-lg border border-border" zoom>{angleTag(a)}</PhotoThumb>
+                            <PhotoThumb id={photos[a]} alt={`Foto de ${label(a)}`} className="w-full rounded-lg border border-border" empty={NO_PHOTO} zoom>{angleTag(a)}</PhotoThumb>
                             <div className="flex gap-3">
                               <Button type="button" variant="link" size="sm" aria-label={`Trocar foto de ${label(a)}`} className="text-meta text-accent" onClick={() => setCapturing(a)}>Trocar</Button>
                               <Button type="button" variant="link" size="sm" aria-label={`Apagar foto de ${label(a)}`} className={DEL} onClick={() => setConfirm({ title: `Apagar foto de ${label(a)}?`, text: 'Esta foto é apagada do aparelho.', run: () => removeAngle(day, a) })}>Apagar</Button>
@@ -187,7 +188,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                           </>
                         ) : (
                           <Button type="button" variant="outline" aria-label={`Adicionar foto de ${label(a)}`} onClick={() => setCapturing(a)} className="block h-auto w-full overflow-hidden rounded-lg p-0 has-[>svg]:px-0">
-                            <PhotoThumb alt={`Foto de ${a}`} empty={<Camera size={18} className="absolute inset-0 m-auto text-faint" />}>{angleTag(a)}</PhotoThumb>
+                            <PhotoThumb alt={`Foto de ${a}`} empty={NO_PHOTO}>{angleTag(a)}</PhotoThumb>
                           </Button>
                         )}
                       </div>

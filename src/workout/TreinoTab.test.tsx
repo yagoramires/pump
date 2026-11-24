@@ -824,7 +824,7 @@ describe('treino extra', () => {
     await renderLoaded(<><TreinoTab /><Toaster /></>)
     await user.click(await screen.findByRole('button', { name: 'Treino extra' }))
     expect(await screen.findByRole('heading', { name: 'Treino extra' })).toBeInTheDocument()
-    expect(screen.getByText(`Treino extra · ${formatDayLabel('2026-11-16')}`)).toBeInTheDocument()
+    expect(screen.getByText(`Extra · ${formatDayLabel('2026-11-16')}`)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Descansar hoje' })).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Adicionar exercício' }))
     await user.click(await screen.findByRole('button', { name: 'Adicionar Remada' }))

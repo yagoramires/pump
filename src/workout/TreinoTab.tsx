@@ -39,7 +39,7 @@ import { PastWorkouts } from './PastWorkouts'
 import { DoneSummary } from './DoneSummary'
 import { WorkoutPreview } from './WorkoutPreview'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { addExtraExercise, CARDIO_ID, removeExercise, startActivity, startCardio, startExtra, switchCardio, unfinishedExtra, type Activity } from './extra'
+import { addExtraExercise, CARDIO_ID, removeExercise, SPORT_ACTIVITIES, startActivity, startCardio, startExtra, switchCardio, unfinishedExtra, type Activity } from './extra'
 import { useTrainingLog } from './useTrainingLog'
 import { AddExtraExercise } from './AddExtraExercise'
 import { EffortSheet } from './EffortSheet'
@@ -141,7 +141,7 @@ export function TreinoTab() {
       onClose={() => setPickingCardio(undefined)}
     />
   ) : pickingCardio && (
-    <DurationSheet minutes={pickingCardio.exerciseId.startsWith('esporte-') ? 60 : 20} title={pickingCardio.name} saveLabel="Iniciar" onClose={() => setPickingCardio(undefined)} onSave={(minutes) => {
+    <DurationSheet minutes={SPORT_ACTIVITIES.includes(pickingCardio) ? 60 : 20} title={pickingCardio.name} saveLabel="Iniciar" onClose={() => setPickingCardio(undefined)} onSave={(minutes) => {
       startExtraToday(startActivity(today, pickingCardio, minutes))
       setPickingCardio(undefined)
     }} />
@@ -317,7 +317,7 @@ export function TreinoTab() {
 
   return (
     <div className={cn('flex flex-col gap-2.5', timer ? 'pb-44' : session?.completedAt ? 'pb-28' : 'pb-24')}>
-      <TabHeader eyebrow={extraOpen ? `${view.workoutName} · ${formatDayLabel(today)}` : workoutDayLabel(today, view.workoutLabel)} title={view.workoutName} links={sessionOpen ? cancelButton : actions} />
+      <TabHeader eyebrow={extraOpen ? `${view.workoutLabel} · ${formatDayLabel(today)}` : workoutDayLabel(today, view.workoutLabel)} title={view.workoutName} links={sessionOpen ? cancelButton : actions} />
       {unresolved}
       {extraDone}
       {!extraOpen && !session?.completedAt && plan.workouts.length > 1 && (
