@@ -13,21 +13,24 @@ export const startExtra = (date: string, now = new Date()): WorkoutSession => ({
 export const startCardio = (date: string, exercises: PlanExercise[], name = 'Somente cardio') =>
   startSession({ id: CARDIO_ID, label: 'Cardio', name, exercises }, date)
 
-// fora do catálogo: 1 série com a duração em `reps` é o que isCardio reconhece
-const cardioExercise = (exerciseId: string, name: string, reps: string): PlanExercise =>
-  ({ exerciseId, name, reps, sets: 1, weightKg: 0, restSec: 0, muscles: [], images: [], instructions: [] })
+// 1 série com a duração em `reps` é o que isCardio reconhece; sem músculo para não contar como volume
+const cardioExercise = ({ exerciseId, name, images = [] }: Activity, reps: string): PlanExercise =>
+  ({ exerciseId, name, reps, sets: 1, weightKg: 0, restSec: 0, muscles: [], images, instructions: [] })
 
-export const CARDIO_ACTIVITIES = [
-  { exerciseId: 'cardio-bicicleta', name: 'Bicicleta' },
-  { exerciseId: 'cardio-corrida', name: 'Corrida' },
-  { exerciseId: 'cardio-caminhada', name: 'Caminhada' },
-  { exerciseId: 'cardio-esteira', name: 'Esteira' },
-  { exerciseId: 'cardio-eliptico', name: 'Elíptico' },
-  { exerciseId: 'cardio-escada', name: 'Escada' },
+// o id fica o próprio (o histórico já gravado usa ele); as fotos vêm do exercício equivalente do catálogo
+const photos = (catalogId: string) => [`${catalogId}/0.jpg`, `${catalogId}/1.jpg`]
+
+export const CARDIO_ACTIVITIES: Activity[] = [
+  { exerciseId: 'cardio-bicicleta', name: 'Bicicleta', images: photos('Bicycling_Stationary') },
+  { exerciseId: 'cardio-corrida', name: 'Corrida', images: photos('Trail_Running_Walking') },
+  { exerciseId: 'cardio-caminhada', name: 'Caminhada', images: photos('Walking_Treadmill') },
+  { exerciseId: 'cardio-esteira', name: 'Esteira', images: photos('Running_Treadmill') },
+  { exerciseId: 'cardio-eliptico', name: 'Elíptico', images: photos('Elliptical_Trainer') },
+  { exerciseId: 'cardio-escada', name: 'Escada', images: photos('Stairmaster') },
 ]
 
 // registrados como cardio: uma série com a duração, sem carga nem músculo
-export const SPORT_ACTIVITIES = [
+export const SPORT_ACTIVITIES: Activity[] = [
   { exerciseId: 'esporte-futebol', name: 'Futebol' },
   { exerciseId: 'esporte-tenis', name: 'Tênis' },
   { exerciseId: 'esporte-beach-tennis', name: 'Beach tennis' },
@@ -38,16 +41,16 @@ export const SPORT_ACTIVITIES = [
   { exerciseId: 'esporte-luta', name: 'Luta' },
 ]
 
-export type Activity = { exerciseId: string; name: string }
+export type Activity = { exerciseId: string; name: string; images?: string[] }
 
 /** sessão avulsa de uma atividade só: o nome do treino é o da atividade */
 export const startActivity = (date: string, activity: Activity, minutes: number) =>
-  startCardio(date, [cardioExercise(activity.exerciseId, activity.name, `${minutes} min`)], activity.name)
+  startCardio(date, [cardioExercise(activity, `${minutes} min`)], activity.name)
 
 export function switchCardio(s: WorkoutSession, idx: number, activity: Activity): WorkoutSession {
   const e = s.exercises[idx]
   if (!e || !isCardio(e) || e.name === activity.name) return s
-  const swapped = { ...cardioExercise(activity.exerciseId, activity.name, e.reps), sets: e.sets, skipped: e.skipped }
+  const swapped = { ...cardioExercise(activity, e.reps), sets: e.sets, skipped: e.skipped }
   // a sessão avulsa leva o nome da atividade; trocar a atividade troca o nome junto
   const workoutName = s.workoutId === CARDIO_ID && s.workoutName === e.name ? activity.name : s.workoutName
   return { ...s, workoutName, exercises: s.exercises.map((x, i) => (i === idx ? swapped : x)) }

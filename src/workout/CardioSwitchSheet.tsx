@@ -2,6 +2,7 @@ import { HeartPulse, ListChecks, Trophy } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { SheetBody, SheetRow } from '@/components/SheetRow'
+import { ExerciseThumb } from './ExerciseGroups'
 import { CARDIO_ACTIVITIES, SPORT_ACTIVITIES, type Activity } from './extra'
 
 const GROUPS = [
@@ -29,7 +30,7 @@ export function CardioSwitchSheet({ title = 'Trocar atividade', planned, onPick,
                 <Card variant="inset" size="flush">
                   <ul>
                     {g.items.map((activity) => (
-                      <SheetRow key={activity.exerciseId} label={activity.name} icon={g.icon} onClick={() => onPick(activity)} />
+                      <SheetRow key={activity.exerciseId} label={activity.name} icon={activity.images ? <ExerciseThumb muscles={[]} image={activity.images[0]} cardio /> : g.icon} onClick={() => onPick(activity)} />
                     ))}
                   </ul>
                 </Card>

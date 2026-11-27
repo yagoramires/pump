@@ -1,6 +1,6 @@
 import { ex, pe } from '../../test/helpers'
 import type { WorkoutLog, WorkoutSession } from './types'
-import { addExtraExercise, removeExercise, startActivity, startCardio, startExtra, switchCardio, trainingSessions, unfinishedExtra } from './extra'
+import { addExtraExercise, CARDIO_ACTIVITIES, removeExercise, startActivity, startCardio, startExtra, switchCardio, trainingSessions, unfinishedExtra } from './extra'
 import { completedSessions, previousSets } from './stats'
 
 const done = (date: string, id = 'w', marked = true): WorkoutSession => ({
@@ -49,4 +49,11 @@ test('trocar a atividade de uma sessão avulsa troca o nome do treino junto', ()
   expect(tenis).toMatchObject({ workoutName: 'Tênis', exercises: [{ name: 'Tênis', reps: '60 min' }] })
   const ficha = startCardio('2026-11-21', [pe({ exerciseId: 'esteira', name: 'Esteira', sets: 1, reps: '15 min' })])
   expect(switchCardio(ficha, 0, { exerciseId: 'esporte-tenis', name: 'Tênis' }).workoutName).toBe('Somente cardio')
+})
+
+test('cardio leva as fotos do exercício do catálogo e esporte segue sem foto', () => {
+  const bike = CARDIO_ACTIVITIES.find((a) => a.name === 'Bicicleta')!
+  const session = startActivity('2026-11-21', bike, 20)
+  expect(session.exercises[0]).toMatchObject({ exerciseId: 'cardio-bicicleta', images: ['Bicycling_Stationary/0.jpg', 'Bicycling_Stationary/1.jpg'], muscles: [] })
+  expect(switchCardio(session, 0, { exerciseId: 'esporte-tenis', name: 'Tênis' }).exercises[0].images).toEqual([])
 })
