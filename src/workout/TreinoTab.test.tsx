@@ -318,7 +318,7 @@ test('trocar cardio preserva a duração e o feito na sessão sem editar a ficha
   expect(screen.getByText('15 min')).toBeInTheDocument()
   expect(screen.queryByText('Esteira')).not.toBeInTheDocument()
   await waitFor(async () => expect((await stored('workoutLog'))?.['2026-11-16'].exercises[0]).toMatchObject({
-    name: 'Bicicleta', images: [], sets: [{ reps: '15 min', weightKg: 0 }],
+    name: 'Bicicleta', images: ['Bicycling_Stationary/0.jpg', 'Bicycling_Stationary/1.jpg'], sets: [{ reps: '15 min', weightKg: 0 }],
   }))
   expect(await stored('workoutPlan')).toEqual(ficha)
   unmount()
