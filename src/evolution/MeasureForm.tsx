@@ -3,11 +3,12 @@ import type { Profile } from '@/profile/types'
 import type { MeasureFields } from './types'
 import { usePersisted } from '@/storage/db'
 import { formatInput, inRange, parseDecimal } from '@/lib/number'
+import { formatDayMonth } from '@/lib/date'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { bodyFat } from './bodyFat'
-import { FIELDS, fieldsFor, upsertMeasurement, type UpsertStatus } from './measurements'
+import { FIELDS, fieldsFor, formatValue, previousMeasure, upsertMeasurement, type UpsertStatus } from './measurements'
 import { Optional } from '@/components/Optional'
 import { Alert } from '@/components/ui/alert'
 import { CM, WEIGHT_KG } from './limits'
@@ -33,25 +34,33 @@ export function MeasureForm({ date, profile: draft, onSaved, submitLabel = 'Salv
 
   return (
     <div className="flex flex-col gap-2">
-      {fields.map(({ key, label, unit }) => (
-        <Label key={key} className="justify-between gap-3 border-t border-line pt-2 text-sm first:border-t-0 first:pt-0 font-normal normal-case tracking-normal text-text-2">
-          <span>{label}{needWeight && key !== 'weightKg' && <> <Optional /></>}</span>
-          <span className="relative w-30">
-            <Input
-              className="pr-9 font-semibold tabular-nums"
-              inputMode="decimal"
-              enterKeyHint="done"
-              autoComplete="off"
-              aria-label={label}
-              aria-invalid={invalid.includes(key) || undefined}
-              value={text[key]}
-              onFocus={select}
-              onChange={(e) => setText((t) => ({ ...t, [key]: e.target.value }))}
-            />
-            <small className="absolute top-1/2 right-3 -translate-y-1/2 text-xs text-faint">{unit}</small>
-          </span>
-        </Label>
-      ))}
+      {fields.map((field) => {
+        const { key, label, unit } = field
+        const previous = previousMeasure(list, key, date)
+        return (
+          <Label key={key} className="justify-between gap-3 border-t border-line py-2 text-body first:border-t-0 font-normal normal-case tracking-normal">
+            <span className="flex flex-col gap-1">
+              <span className="font-semibold text-strong">{label}{needWeight && key !== 'weightKg' && <> <Optional /></>}</span>
+              {previous && <span id={`previous-${key}`} className="text-caption text-text-2">Anterior: {formatValue(field, previous.value)} em {formatDayMonth(previous.date)}</span>}
+            </span>
+            <span className="relative w-30">
+              <Input
+                className="h-11 pr-9 font-semibold tabular-nums"
+                inputMode="decimal"
+                enterKeyHint="done"
+                autoComplete="off"
+                aria-label={label}
+                aria-describedby={previous ? `previous-${key}` : undefined}
+                aria-invalid={invalid.includes(key) || undefined}
+                value={text[key]}
+                onFocus={select}
+                onChange={(e) => setText((t) => ({ ...t, [key]: e.target.value }))}
+              />
+              <small className="absolute top-1/2 right-3 -translate-y-1/2 text-xs text-faint">{unit}</small>
+            </span>
+          </Label>
+        )
+      })}
       <Alert role="note" className="flex items-center justify-between">
         <span>% de gordura (estimativa)</span>
         <b className={fat === null ? 'text-text-2' : 'text-accent'}>{fat === null ? '—' : `${formatInput(fat)}%`}</b>

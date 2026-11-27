@@ -34,6 +34,7 @@ Abra a ficha do dia para ver os exercícios e os músculos que vão trabalhar. D
 - **Ajustar a ficha.** Em **Configurações → Editar plano**, toque na miniatura para ver a execução ou no nome do exercício para editar séries, repetições, carga e descanso. Uma prescrição como **12-10-8** preenche as três séries em ordem.
 - **Mudar o dia.** Use **Trocar treino** para escolher outra ficha ou marque um dia de descanso. **Treinos anteriores** reúne as sessões concluídas.
 - **Controlar o intervalo.** Quando há descanso programado, marcar uma série inicia o cronômetro. Dá para pausar, acrescentar 15 segundos ou pular o intervalo.
+- **Compartilhar a sessão.** No resumo do treino concluído, escolha **Post 4:5** ou **Stories 9:16**. Selecione os dados e use uma foto sua, um fundo sólido ou um fundo transparente.
 
 ## Evolução
 
@@ -43,8 +44,8 @@ Abra um exercício para ver como a carga variou de uma sessão para outra. Para 
 | :---: | :---: | :---: |
 | <img src="assets/readme/evolucao-exercicio-claro.jpg" width="220" alt="Gráfico de carga do supino com os registros por sessão"> | <img src="assets/readme/evolucao-comparar-escuro.jpg" width="220" alt="Duas fotos fictícias e a diferença de peso e cintura entre as datas"> | <img src="assets/readme/evolucao-conquistas-escuro.jpg" width="220" alt="Grade de conquistas com os marcos já alcançados"> |
 
-- **Registrar a semana.** Em **Registrar**, anote peso e medidas ou adicione fotos de frente, lado e costas. No dia do check-in, **Atualizar** reúne os registros da semana.
-- **Consultar o histórico.** O calendário mostra os registros de cada dia. O painel reúne constância, evolução das cargas e recordes.
+- **Registrar a semana.** Em **Registrar**, anote peso e medidas ou adicione fotos de frente, lado e costas. Cada campo de medida mostra o último valor anterior com a data, quando houver. No dia do check-in, **Atualizar** reúne os registros da semana.
+- **Consultar o histórico.** O calendário mostra os registros de cada dia. Abra uma foto e deslize entre os ângulos do registro. Use **Comparar fotos** para colocar duas datas lado a lado.
 - **Compartilhar.** Gere o PDF de evolução para enviar um resumo do período. O primeiro carregamento do gerador pode precisar de internet.
 
 ## Dieta

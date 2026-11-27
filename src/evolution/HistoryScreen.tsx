@@ -25,6 +25,7 @@ import { PhotoCapture } from './PhotoCapture'
 import { usePhotoSets } from './usePhotoSets'
 import { dayRecords } from './dayRecords'
 import { PhotoThumb } from './PhotoThumb'
+import { PhotoCompare } from './PhotoCompare'
 
 const ROW = 'flex items-center gap-3 border-t border-line px-3.5 py-2.5 first:border-t-0'
 const DEL = 'shrink-0 px-1 text-meta text-destructive hover:text-destructive'
@@ -51,6 +52,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
   const [confirm, setConfirm] = useState<{ title: string; text: string; run: () => void }>()
   const [editing, setEditing] = useState(false)
   const [capturing, setCapturing] = useState<Angle>()
+  const [comparing, setComparing] = useState<string>()
   const descId = useId()
 
   const y = month.getFullYear()
@@ -68,6 +70,7 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
 
   // a câmera ocupa a tela; ao voltar, o dia escolhido continua
   if (day && capturing) return <PhotoCapture date={day} angle={capturing} once onClose={() => setCapturing(undefined)} />
+  if (comparing) return <PhotoCompare initialId={comparing} onClose={() => setComparing(undefined)} />
 
   return (
     <Overlay>
@@ -175,12 +178,13 @@ export function HistoryScreen({ onClose }: { onClose: () => void }) {
                     <span className="flex-1 text-body font-semibold text-strong">Fotos</span>
                     <Button type="button" variant="link" size="sm" className={DEL} onClick={() => ask('photos', () => removeSet(photos.id))}>Apagar fotos</Button>
                   </div>
+                  {sets.length > 1 && <Button type="button" variant="outline" className="mt-3 h-11 w-full" onClick={() => setComparing(photos.id)}>Comparar fotos</Button>}
                   <div className="mt-3 grid grid-cols-3 gap-2">
                     {ANGLES.map((a) => (
                       <div key={a} className="flex flex-col items-center gap-1">
                         {photos[a] ? (
                           <>
-                            <PhotoThumb id={photos[a]} alt={`Foto de ${label(a)}`} className="w-full rounded-lg border border-border" empty={NO_PHOTO} zoom>{angleTag(a)}</PhotoThumb>
+                            <PhotoThumb id={photos[a]} alt={`Foto de ${label(a)}`} className="w-full rounded-lg border border-border" empty={NO_PHOTO} set={photos} zoom>{angleTag(a)}</PhotoThumb>
                             <div className="flex gap-3">
                               <Button type="button" variant="link" size="sm" aria-label={`Trocar foto de ${label(a)}`} className="text-meta text-accent" onClick={() => setCapturing(a)}>Trocar</Button>
                               <Button type="button" variant="link" size="sm" aria-label={`Apagar foto de ${label(a)}`} className={DEL} onClick={() => setConfirm({ title: `Apagar foto de ${label(a)}?`, text: 'Esta foto é apagada do aparelho.', run: () => removeAngle(day, a) })}>Apagar</Button>

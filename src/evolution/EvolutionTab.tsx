@@ -150,7 +150,7 @@ export function EvolutionTab() {
 
       {muscles && <MusclesCard summary={muscles} />}
 
-      <PhotosCard report={report} sets={input.photoSets.length} onNew={() => setPhotoDate(tick())} onCompare={() => setView('compare')} />
+      <PhotosCard report={report} sets={input.photoSets} onNew={() => setPhotoDate(tick())} onCompare={() => setView('compare')} />
 
       <MoreList input={input} report={report} today={today} onAchievements={() => setView('achievements')} onHistory={() => setView('history')} />
 

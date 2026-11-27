@@ -4,6 +4,16 @@ export type Release = { version: number; date: string; novidades: string[]; corr
 
 export const CHANGELOG: [Release, ...Release[]] = [
   {
+    version: 20,
+    date: '2026-11-26',
+    novidades: [
+      'Ao registrar ou editar medidas, veja quanto deu da última vez em cada campo.',
+      'Deslize pelas fotos do mesmo registro e compare dois dias pelo Histórico.',
+      'Compartilhe o treino como post ou Story, com uma foto sua de fundo ou com fundo transparente.',
+    ],
+    correcoes: ['O compartilhamento espera a prévia atualizada antes de exportar a imagem.'],
+  },
+  {
     version: 19,
     date: '2026-11-24',
     novidades: [

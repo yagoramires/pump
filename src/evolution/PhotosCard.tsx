@@ -2,13 +2,13 @@ import { formatDayMonth } from '@/lib/date'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Report } from './report'
-import { ANGLES, ANGLE_LABEL } from './types'
+import { ANGLES, ANGLE_LABEL, type PhotoSet } from './types'
 import { PhotoThumb } from './PhotoThumb'
 
 const LINK = 'text-meta text-accent disabled:text-faint'
 const CAPTION = 'flex items-end justify-center rounded-lg pb-1.5 text-xs text-text-2'
 
-export function PhotosCard({ report, sets, onNew, onCompare }: { report: Report; sets: number; onNew: () => void; onCompare: () => void }) {
+export function PhotosCard({ report, sets, onNew, onCompare }: { report: Report; sets: PhotoSet[]; onNew: () => void; onCompare: () => void }) {
   const pair = report.photoPairs[0]
   return (
     <Card size="flush">
@@ -16,20 +16,20 @@ export function PhotosCard({ report, sets, onNew, onCompare }: { report: Report;
         <CardTitle>Fotos</CardTitle>
         <CardAction className="flex gap-4">
           <Button type="button" variant="link" className={LINK} onClick={onNew}>Nova foto</Button>
-          <Button type="button" variant="link" className={LINK} disabled={sets < 2} onClick={onCompare}>Comparar</Button>
+          <Button type="button" variant="link" className={LINK} disabled={sets.length < 2} onClick={onCompare}>Comparar fotos</Button>
         </CardAction>
       </CardHeader>
       {pair ? (
         <div className="grid grid-cols-2 gap-2 px-3.5 pb-3.5">
           {[pair.before, pair.after].map((p) => {
             const caption = `${formatDayMonth(p.date)} · ${ANGLE_LABEL[pair.angle]}`
-            return <PhotoThumb key={p.id} id={p.id} alt={caption} className={CAPTION} zoom><span className="relative">{caption}</span></PhotoThumb>
+            return <PhotoThumb key={p.id} id={p.id} alt={caption} className={CAPTION} set={sets.find((s) => s[pair.angle] === p.id)} zoom><span className="relative">{caption}</span></PhotoThumb>
           })}
         </div>
       ) : (
         <div className="grid grid-cols-3 gap-2 px-3.5 pb-3.5">
           {ANGLES.map((angle) => (
-            <PhotoThumb key={angle} id={report.lastSet?.[angle]} alt={report.lastSet ? `${formatDayMonth(report.lastSet.date)} · ${ANGLE_LABEL[angle]}` : ANGLE_LABEL[angle]} className={CAPTION} zoom>
+            <PhotoThumb key={angle} id={report.lastSet?.[angle]} alt={report.lastSet ? `${formatDayMonth(report.lastSet.date)} · ${ANGLE_LABEL[angle]}` : ANGLE_LABEL[angle]} className={CAPTION} set={report.lastSet} zoom>
               <span className="relative">{ANGLE_LABEL[angle]}</span>
             </PhotoThumb>
           ))}
