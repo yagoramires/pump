@@ -90,7 +90,7 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, max: number): string[
   return line ? [...lines, line] : lines
 }
 
-export async function renderCard(input: CardInput, opts: CardOptions, background: CardBackground): Promise<Blob> {
+export async function renderCard(input: CardInput, opts: CardOptions, background: CardBackground, photoSize = 100): Promise<Blob> {
   const height = opts.format === 'stories' ? 1920 : 1350
   const canvas = document.createElement('canvas')
   canvas.width = WIDTH
@@ -109,7 +109,7 @@ export async function renderCard(input: CardInput, opts: CardOptions, background
       const image = new Image()
       image.src = url
       await image.decode()
-      const scale = Math.max(WIDTH / image.naturalWidth, height / image.naturalHeight)
+      const scale = Math.max(WIDTH / image.naturalWidth, height / image.naturalHeight) * (photoSize / 100)
       const width = image.naturalWidth * scale
       const scaledHeight = image.naturalHeight * scale
       ctx.drawImage(image, (WIDTH - width) / 2, (height - scaledHeight) / 2, width, scaledHeight)

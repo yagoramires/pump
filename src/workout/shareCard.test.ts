@@ -36,7 +36,7 @@ test('extra sem duração nem recorde não repete o título', () => {
 test('o PNG usa 1080 × 1350 no post e 1080 × 1920 no Story, com transparência independente do formato', async () => {
   const canvas = document.createElement('canvas')
   const gradient = { addColorStop: vi.fn() }
-  const ctx = { canvas, fillRect: vi.fn(), fillText: vi.fn(), measureText: () => ({ width: 100 }), createLinearGradient: () => gradient }
+  const ctx = { canvas, drawImage: vi.fn(), fillRect: vi.fn(), fillText: vi.fn(), measureText: () => ({ width: 100 }), createLinearGradient: () => gradient }
   const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx as unknown as CanvasRenderingContext2D)
   const toBlob = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(function (this: HTMLCanvasElement, cb) {
     cb(new Blob([`${this.width}×${this.height}`], { type: 'image/png' }))
@@ -48,6 +48,21 @@ test('o PNG usa 1080 × 1350 no post e 1080 × 1920 no Story, com transparência
     const story = await renderCard(input, { ...CARD_DEFAULTS, format: 'stories' }, 'solid')
     expect(await story.text()).toBe('1080×1920')
     expect(ctx.fillRect).toHaveBeenCalledWith(0, 0, 1080, 1920)
+    const image = { decode: async () => {}, naturalWidth: 1080, naturalHeight: 1350 }
+    const mockedImage = vi.spyOn(globalThis, 'Image').mockImplementation(function () { return image as HTMLImageElement })
+    const createUrl = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:photo')
+    const revokeUrl = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
+    try {
+      const file = new File([], 'fundo.png', { type: 'image/png' })
+      await renderCard(input, CARD_DEFAULTS, file, 50)
+      expect(ctx.drawImage).toHaveBeenLastCalledWith(image, 270, 337.5, 540, 675)
+      await renderCard(input, CARD_DEFAULTS, file, 200)
+      expect(ctx.drawImage).toHaveBeenLastCalledWith(image, -540, -675, 2160, 2700)
+    } finally {
+      mockedImage.mockRestore()
+      createUrl.mockRestore()
+      revokeUrl.mockRestore()
+    }
   } finally {
     getContext.mockRestore()
     toBlob.mockRestore()
