@@ -1,4 +1,4 @@
-import { fatSeries, pointAt, removeMeasurement, series, upsertMeasurement } from './measurements'
+import { previousMeasure, fatSeries, pointAt, removeMeasurement, series, upsertMeasurement } from './measurements'
 
 test('upsertMeasurement junta no mesmo dia, null remove e registro vazio some', () => {
   let r = upsertMeasurement([], '2026-11-17', { weightKg: 80, neckCm: 38 })
@@ -27,7 +27,18 @@ test('series, fatSeries e pointAt', () => {
   const w = series(l, 'weightKg')
   expect(w).toEqual([{ date: '2026-11-01', value: 80 }, { date: '2026-11-17', value: 78.4 }])
   expect(pointAt(w, '2026-11-12')).toEqual({ date: '2026-11-12', value: 80 })
-  expect(pointAt(w, '2026-10-01')).toEqual({ date: '2026-10-01', value: 80 })
+  expect(pointAt(w, '2026-10-01')).toBeUndefined()
   expect(pointAt([], '2026-11-12')).toBeUndefined()
   expect(fatSeries({ sex: 'M', heightCm: 178 }, l)).toEqual([{ date: '2026-11-17', value: 18.4 }])
+})
+
+test('a referência usa a última medida do campo estritamente anterior ao dia editado', () => {
+  const entries = [
+    { id: '3', date: '2026-11-03', weightKg: 79 },
+    { id: '1', date: '2026-11-01', waistCm: 85 },
+    { id: '2', date: '2026-11-02', weightKg: 80 },
+  ]
+  expect(previousMeasure(entries, 'waistCm', '2026-11-03')).toEqual({ date: '2026-11-01', value: 85 })
+  expect(previousMeasure(entries, 'weightKg', '2026-11-03')).toEqual({ date: '2026-11-02', value: 80 })
+  expect(previousMeasure(entries, 'weightKg', '2026-11-02')).toBeUndefined()
 })

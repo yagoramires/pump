@@ -47,6 +47,9 @@ export const removeMeasurement = (list: Measurement[], date: string) => list.fil
 
 export const series = (ms: Measurement[], key: Key): Point[] => byDate(ms).flatMap((m) => (m[key] === undefined ? [] : [{ date: m.date, value: m[key] }]))
 
+export const previousMeasure = (ms: Measurement[], key: Key, date: string) =>
+  series(ms, key).findLast((point) => point.date < date)
+
 /** % de gordura de cada registro que tem o que a fórmula pede (nunca pescoço de um dia com cintura de outro) */
 export const fatSeries = (p: Profile, ms: Measurement[]): Point[] =>
   byDate(ms).flatMap((m) => { const value = bodyFat(p.sex, p.heightCm, m); return value === null ? [] : [{ date: m.date, value }] })
@@ -54,7 +57,7 @@ export const fatSeries = (p: Profile, ms: Measurement[]): Point[] =>
 export const latestWeight = (ms: Measurement[]): number | undefined => series(ms, WEIGHT.key).at(-1)?.value
 
 export const pointAt = (points: Point[], date: string): Point | undefined => {
-  const p = points.filter((x) => x.date <= date).pop() ?? points[0]
+  const p = points.findLast((x) => x.date <= date)
   return p && { date, value: p.value }
 }
 
