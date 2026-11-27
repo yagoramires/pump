@@ -65,7 +65,7 @@ const FONT = '-apple-system, "SF Pro Display", Inter, sans-serif'
 
 /** a mesma figura do resumo, renderizada fora da tela e virada imagem (SVG com as cores já resolvidas) */
 async function bodyImages(levels: CardInput['levels']): Promise<HTMLImageElement[]> {
-  await Promise.resolve() // flushSync não pode rodar dentro do efeito que chamou o renderCard
+  await Promise.resolve() // flushSync não pode rodar dentro do efeito que chamou prepareCard
   const { BodyFigures } = await import('./BodyMap')
   const div = document.createElement('div')
   const root = createRoot(div)
@@ -90,29 +90,24 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, max: number): string[
   return line ? [...lines, line] : lines
 }
 
-export async function renderCard(input: CardInput, opts: CardOptions, background: CardBackground, photoSize = 100): Promise<Blob> {
+export type PhotoPosition = { x: number; y: number }
+export const PHOTO_CENTER: PhotoPosition = { x: 0, y: 0 }
+
+export async function prepareCard(input: CardInput, opts: CardOptions, background: CardBackground) {
   const height = opts.format === 'stories' ? 1920 : 1350
-  const canvas = document.createElement('canvas')
-  canvas.width = WIDTH
-  canvas.height = height
-  const ctx = canvas.getContext('2d')
+  const overlay = document.createElement('canvas')
+  overlay.width = WIDTH
+  overlay.height = height
+  const ctx = overlay.getContext('2d')
   if (!ctx) throw new Error('canvas indisponível')
 
-  const photo = typeof background !== 'string'
-  if (background !== 'transparent') {
-    ctx.fillStyle = '#1d232d'
-    ctx.fillRect(0, 0, WIDTH, height)
-  }
-  if (photo) {
+  let photo: HTMLImageElement | undefined
+  if (typeof background !== 'string') {
     const url = URL.createObjectURL(background)
     try {
-      const image = new Image()
-      image.src = url
-      await image.decode()
-      const scale = Math.max(WIDTH / image.naturalWidth, height / image.naturalHeight) * (photoSize / 100)
-      const width = image.naturalWidth * scale
-      const scaledHeight = image.naturalHeight * scale
-      ctx.drawImage(image, (WIDTH - width) / 2, (height - scaledHeight) / 2, width, scaledHeight)
+      photo = new Image()
+      photo.src = url
+      await photo.decode()
     } finally {
       URL.revokeObjectURL(url)
     }
@@ -126,9 +121,50 @@ export async function renderCard(input: CardInput, opts: CardOptions, background
   ctx.fillStyle = shade
   ctx.fillRect(0, shadeTop, WIDTH, height - shadeTop)
 
-  const content = cardContent(input, opts)
   const figures = opts.map && input.levels.size ? await bodyImages(input.levels) : []
-  drawContent(ctx, height, content, figures, background === 'transparent')
+  drawContent(ctx, height, cardContent(input, opts), figures, background === 'transparent')
+
+  const cover = photo ? Math.max(WIDTH / photo.naturalWidth, height / photo.naturalHeight) : 1
+  function photoRect(size: number) {
+    return {
+      width: (photo?.naturalWidth ?? WIDTH) * cover * (size / 100),
+      height: (photo?.naturalHeight ?? height) * cover * (size / 100),
+    }
+  }
+  function bound(size: number, { x, y }: PhotoPosition): PhotoPosition {
+    const rect = photoRect(size)
+    // Nas bordas, preserva o recorte de uma foto maior e mantém uma foto menor dentro do quadro.
+    const limitX = Math.abs(WIDTH - rect.width) / (2 * WIDTH)
+    const limitY = Math.abs(height - rect.height) / (2 * height)
+    return {
+      x: Math.max(-limitX, Math.min(limitX, x)),
+      y: Math.max(-limitY, Math.min(limitY, y)),
+    }
+  }
+
+  return {
+    width: WIDTH,
+    height,
+    bound,
+    draw(canvas: HTMLCanvasElement, size: number, position: PhotoPosition) {
+      const composition = canvas.getContext('2d')
+      if (!composition) throw new Error('canvas indisponível')
+      if (background === 'transparent') composition.clearRect(0, 0, WIDTH, height)
+      else {
+        composition.fillStyle = '#1d232d'
+        composition.fillRect(0, 0, WIDTH, height)
+      }
+      if (photo) {
+        const rect = photoRect(size)
+        const { x, y } = bound(size, position)
+        composition.drawImage(photo, (WIDTH - rect.width) / 2 + x * WIDTH, (height - rect.height) / 2 + y * height, rect.width, rect.height)
+      }
+      composition.drawImage(overlay, 0, 0)
+    },
+  }
+}
+
+export function cardPng(canvas: HTMLCanvasElement): Promise<Blob> {
   return new Promise((resolve, reject) => canvas.toBlob((blob) => (
     blob ? resolve(blob) : reject(new Error('png vazio'))
   ), 'image/png'))
