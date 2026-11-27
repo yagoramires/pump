@@ -34,7 +34,7 @@ Abra a ficha do dia para ver os exercícios e os músculos que vão trabalhar. D
 - **Ajustar a ficha.** Em **Configurações → Editar plano**, toque na miniatura para ver a execução ou no nome do exercício para editar séries, repetições, carga e descanso. Uma prescrição como **12-10-8** preenche as três séries em ordem.
 - **Mudar o dia.** Use **Trocar treino** para escolher outra ficha ou marque um dia de descanso. **Treinos anteriores** reúne as sessões concluídas.
 - **Controlar o intervalo.** Quando há descanso programado, marcar uma série inicia o cronômetro. Dá para pausar, acrescentar 15 segundos ou pular o intervalo.
-- **Compartilhar a sessão.** No resumo do treino concluído, escolha **Post 4:5** ou **Stories 9:16**. Selecione os dados e use uma foto sua, um fundo sólido ou um fundo transparente. Ao escolher uma foto, ajuste o enquadramento com **Tamanho da foto**.
+- **Compartilhar a sessão.** No resumo do treino concluído, escolha **Post 4:5** ou **Stories 9:16**. Selecione os dados e use uma foto sua, um fundo sólido ou um fundo transparente. Arraste a foto na prévia, ajuste o **Zoom da foto** e toque em **Centralizar** para voltar ao meio.
 
 ## Evolução
 

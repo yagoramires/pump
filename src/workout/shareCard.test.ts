@@ -1,4 +1,4 @@
-import { CARD_DEFAULTS, cardContent, renderCard, type CardInput } from './shareCard'
+import { CARD_DEFAULTS, cardContent, cardPng, prepareCard, PHOTO_CENTER, type CardInput } from './shareCard'
 
 const input: CardInput = {
   label: 'A', name: 'Pernas', date: '2026-11-16', minutes: 104, sets: 12, exercises: 4,
@@ -36,17 +36,23 @@ test('extra sem duração nem recorde não repete o título', () => {
 test('o PNG usa 1080 × 1350 no post e 1080 × 1920 no Story, com transparência independente do formato', async () => {
   const canvas = document.createElement('canvas')
   const gradient = { addColorStop: vi.fn() }
-  const ctx = { canvas, drawImage: vi.fn(), fillRect: vi.fn(), fillText: vi.fn(), measureText: () => ({ width: 100 }), createLinearGradient: () => gradient }
+  const ctx = { clearRect: vi.fn(), drawImage: vi.fn(), fillRect: vi.fn(), fillText: vi.fn(), measureText: () => ({ width: 100 }), createLinearGradient: () => gradient }
   const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx as unknown as CanvasRenderingContext2D)
   const toBlob = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(function (this: HTMLCanvasElement, cb) {
     cb(new Blob([`${this.width}×${this.height}`], { type: 'image/png' }))
   })
   try {
-    const post = await renderCard(input, CARD_DEFAULTS, 'transparent')
-    expect(await post.text()).toBe('1080×1350')
+    const post = await prepareCard(input, CARD_DEFAULTS, 'transparent')
+    canvas.width = post.width
+    canvas.height = post.height
+    post.draw(canvas, 100, PHOTO_CENTER)
+    expect(await (await cardPng(canvas)).text()).toBe('1080×1350')
     expect(ctx.fillRect).not.toHaveBeenCalledWith(0, 0, 1080, 1350)
-    const story = await renderCard(input, { ...CARD_DEFAULTS, format: 'stories' }, 'solid')
-    expect(await story.text()).toBe('1080×1920')
+    const story = await prepareCard(input, { ...CARD_DEFAULTS, format: 'stories' }, 'solid')
+    canvas.width = story.width
+    canvas.height = story.height
+    story.draw(canvas, 100, PHOTO_CENTER)
+    expect(await (await cardPng(canvas)).text()).toBe('1080×1920')
     expect(ctx.fillRect).toHaveBeenCalledWith(0, 0, 1080, 1920)
     const image = { decode: async () => {}, naturalWidth: 1080, naturalHeight: 1350 }
     const mockedImage = vi.spyOn(globalThis, 'Image').mockImplementation(function () { return image as HTMLImageElement })
@@ -54,10 +60,17 @@ test('o PNG usa 1080 × 1350 no post e 1080 × 1920 no Story, com transparência
     const revokeUrl = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
     try {
       const file = new File([], 'fundo.png', { type: 'image/png' })
-      await renderCard(input, CARD_DEFAULTS, file, 50)
-      expect(ctx.drawImage).toHaveBeenLastCalledWith(image, 270, 337.5, 540, 675)
-      await renderCard(input, CARD_DEFAULTS, file, 200)
-      expect(ctx.drawImage).toHaveBeenLastCalledWith(image, -540, -675, 2160, 2700)
+      const photo = await prepareCard(input, CARD_DEFAULTS, file)
+      canvas.width = photo.width
+      canvas.height = photo.height
+      photo.draw(canvas, 50, PHOTO_CENTER)
+      expect(ctx.drawImage.mock.calls.at(-2)).toEqual([image, 270, 337.5, 540, 675])
+      photo.draw(canvas, 200, PHOTO_CENTER)
+      expect(ctx.drawImage.mock.calls.at(-2)).toEqual([image, -540, -675, 2160, 2700])
+      photo.draw(canvas, 200, { x: 0.25, y: -0.25 })
+      expect(ctx.drawImage.mock.calls.at(-2)).toEqual([image, -270, -1012.5, 2160, 2700])
+      photo.draw(canvas, 200, { x: 2, y: -2 })
+      expect(ctx.drawImage.mock.calls.at(-2)).toEqual([image, 0, -1350, 2160, 2700])
     } finally {
       mockedImage.mockRestore()
       createUrl.mockRestore()
